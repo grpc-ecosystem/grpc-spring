@@ -57,8 +57,4 @@ public class TraceClientInterceptor implements ClientInterceptor {
             }
         };
     }
-
-    private Long getParentId(Span span) {
-        return !span.getParents().isEmpty() ? span.getParents().get(0) : null;
-    }
 }
