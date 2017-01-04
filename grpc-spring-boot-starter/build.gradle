@@ -1,3 +1,16 @@
+apply plugin: 'maven-publish'
+
+group = "net.devh"
+version = "${projectVersion}"
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
 dependencies {
     compile project(':grpc-spring-boot-autoconfigure')
 }

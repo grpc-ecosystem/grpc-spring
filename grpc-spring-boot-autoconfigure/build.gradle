@@ -2,6 +2,18 @@ apply plugin: 'propdeps'
 apply plugin: 'propdeps-maven'
 apply plugin: 'propdeps-idea'
 apply plugin: 'propdeps-eclipse'
+apply plugin: 'maven-publish'
+
+group = "net.devh"
+version = "${projectVersion}"
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
 
 compileJava.dependsOn(processResources)
 
