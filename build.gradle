@@ -7,12 +7,12 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     ext {
-        springBootVersion = '1.4.0.RELEASE'
-        springSleuthVersion = '1.0.9.RELEASE'
-        springCloudVersion = 'Camden.SR2'
+        springBootVersion = '1.4.2.RELEASE'
+        springSleuthVersion = '1.1.0.RELEASE'
+        springCloudVersion = 'Camden.SR3'
         springCloudConsul = '1.1.2.RELEASE'
         springCloudEureka = '1.2.3.RELEASE'
-        grpcVersion = '1.0.1'
+        grpcVersion = '1.0.3'
         protobufVersion = '3.1.0'
     }
     dependencies {
@@ -22,7 +22,7 @@ buildscript {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.13'
+    gradleVersion = '3.3'
 }
 
 subprojects {
