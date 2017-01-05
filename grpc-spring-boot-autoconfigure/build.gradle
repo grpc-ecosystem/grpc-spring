@@ -2,6 +2,31 @@ apply plugin: 'propdeps'
 apply plugin: 'propdeps-maven'
 apply plugin: 'propdeps-idea'
 apply plugin: 'propdeps-eclipse'
+apply plugin: 'maven-publish'
+
+group = "net.devh"
+version = "${projectVersion}"
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            credentials {
+                username System.getenv('OSSRH_USER')
+                password System.getenv('OSSRH_PASS')
+            }
+            if(project.version.endsWith('SNAPSHOT')) {
+                url "https://oss.sonatype.org/content/repositories/snapshots"
+            } else if(project.version.endsWith('RELEASE')) {
+                url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            }
+        }
+    }
+}
 
 compileJava.dependsOn(processResources)
 
