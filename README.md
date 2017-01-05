@@ -1,5 +1,7 @@
 # Grpc Spring Boot Starter
 
+[![Build Status](https://travis-ci.org/yidongnan/grpc-spring-boot-starter.svg?branch=master)](https://travis-ci.org/yidongnan/grpc-spring-boot-starter)
+
 ## Features
 Auto-configures and runs the embedded gRPC server with @GrpcService-enabled beans as part of spring-boot application.
 

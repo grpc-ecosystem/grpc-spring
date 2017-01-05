@@ -1,4 +1,4 @@
-apply plugin: 'spring-boot'
+apply plugin: 'org.springframework.boot'
 
 dependencies {
     compile('org.springframework.cloud:spring-cloud-starter-consul-discovery')
