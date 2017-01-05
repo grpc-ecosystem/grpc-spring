@@ -13,6 +13,15 @@ publishing {
             from components.java
         }
     }
+    repositories {
+        maven {
+            credentials {
+                username System.getenv('OSSRH_USER')
+                password System.getenv('OSSRH_PASS')
+            }
+            url "https://oss.sonatype.org/content/repositories/snapshots"
+        }
+    }
 }
 
 compileJava.dependsOn(processResources)
