@@ -38,16 +38,16 @@ public class TraceClientInterceptor implements ClientInterceptor {
             @Override
             protected void checkedStart(ClientCall.Listener<RespT> responseListener, Metadata headers)
                     throws StatusException {
-                Span span = tracer.createSpan("grpc-" + method.getFullMethodName());
+                Span span = tracer.createSpan("grpc:" + method.getFullMethodName());
                 spanInjector.inject(span, headers);
                 Listener<RespT> tracingResponseListener = new ForwardingClientCallListener
                         .SimpleForwardingClientCallListener<RespT>(responseListener) {
                     @Override
                     public void onClose(Status status, Metadata trailers) {
                         if (status.getCode().value() == 0) {
-                            log.debug("Call closed");
+                            log.debug("Call finish success");
                         } else {
-                            log.warn("Call failed", status.getDescription());
+                            log.warn("Call finish failed", status.getDescription());
                         }
                         tracer.close(span);
                         delegate().onClose(status, trailers);
@@ -56,9 +56,5 @@ public class TraceClientInterceptor implements ClientInterceptor {
                 delegate().start(tracingResponseListener, headers);
             }
         };
-    }
-
-    private Long getParentId(Span span) {
-        return !span.getParents().isEmpty() ? span.getParents().get(0) : null;
     }
 }

@@ -4,6 +4,7 @@ import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.SpanExtractor;
 import org.springframework.cloud.sleuth.Tracer;
 
+import io.grpc.ForwardingServerCallListener;
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
@@ -31,6 +32,16 @@ public class TraceServerInterceptor implements ServerInterceptor {
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
         Span span = spanExtractor.joinTrace(headers);
         this.tracer.continueSpan(span);
-        return next.startCall(call, headers);
+
+        Span grpcSpan = this.tracer.createSpan("grpc:" + call.getMethodDescriptor().getFullMethodName());
+        final ServerCall.Listener<ReqT> original = next.startCall(call, headers);
+        return new ForwardingServerCallListener.SimpleForwardingServerCallListener<ReqT>(original) {
+
+            @Override
+            public void onComplete() {
+                tracer.close(grpcSpan);
+                super.onComplete();
+            }
+        };
     }
 }
