@@ -19,7 +19,11 @@ publishing {
                 username System.getenv('OSSRH_USER')
                 password System.getenv('OSSRH_PASS')
             }
-            url "https://oss.sonatype.org/content/repositories/snapshots"
+            if(project.version.endsWith('SNAPSHOT')) {
+                url "https://oss.sonatype.org/content/repositories/snapshots"
+            } else if(project.version.endsWith('RELEASE')) {
+                url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            }
         }
     }
 }
