@@ -1,0 +1,129 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+gradle.taskGraph.whenReady { taskGraph ->
+    if (taskGraph.allTasks.any { it instanceof Sign }) {
+        def id = System.getenv('GPG_ID')
+        def file = '/home/travis/.gnupg/secring.gpg'
+        def password = System.getenv('GPG_PASSWORD')
+
+        allprojects { ext."signing.keyId" = id }
+        allprojects { ext."signing.secretKeyRingFile" = file }
+        allprojects { ext."signing.password" = password }
+    }
+}
+
+ext {
+    pomFile = file("${project.buildDir}/generated-pom.xml")
+    isReleaseVersion = project.version.endsWith('RELEASE')
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+task sourceJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives jar
+    archives sourceJar
+    archives javadocJar
+}
+
+
+signing {
+    sign configurations.archives
+}
+
+publishing {
+    publications {
+        jar(MavenPublication) {
+            pom.withXml {
+                asNode().children().first() + {
+                    resolveStrategy = Closure.DELEGATE_FIRST
+                    name 'spring boot grpc'
+                    description 'spring boot grpc'
+                    url 'https://github.com/yidongnan/grpc-spring-boot-starter'
+                    scm {
+                        url 'https://github.com/yidongnan/grpc-spring-boot-starter'
+                        connection 'scm:git:git://github.com/yidongnan/grpc-spring-boot-starter.git'
+                        developerConnection 'scm:git:ssh@github.com:yidongnan/grpc-spring-boot-starter.git'
+                    }
+                    licenses {
+                        license {
+                            name 'MIT License'
+                            url 'http://www.opensource.org/licenses/mit-license.php'
+                            distribution 'repo'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id 'yidongnan'
+                            name 'Michael Zhang'
+                            email 'yidongnan@gmail.com'
+                        }
+                    }
+                }
+            }
+            from components.java
+
+            artifact(sourceJar) {
+                classifier = 'sources'
+            }
+            artifact(javadocJar) {
+                classifier = 'javadoc'
+            }
+
+
+            pom.withXml {
+                writeTo(project.ext.pomFile)
+                def pomAscFile = signing.sign(project.ext.pomFile).signatureFiles[0]
+                artifact(pomAscFile) {
+                    classifier = null
+                    extension = 'pom.asc'
+                }
+                project.ext.pomFile.delete()
+            }
+
+            // Sign the artifacts.
+            project.tasks.signArchives.signatureFiles.each {
+                artifact(it) {
+                    def matcher = it.file =~ /-(sources|javadoc)\.jar\.asc$/
+                    if (matcher.find()) {
+                        classifier = matcher.group(1)
+                    } else {
+                        classifier = null
+                    }
+                    extension = 'jar.asc'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            credentials {
+                username System.getenv('OSSRH_USER')
+                password System.getenv('OSSRH_PASS')
+            }
+            println(project.ext.isReleaseVersion)
+            if(project.version.endsWith('RELEASE')) {
+                url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            } else {
+                url "https://oss.sonatype.org/content/repositories/snapshots"
+            }
+        }
+    }
+}
+
+model {
+    tasks.publishJarPublicationToMavenLocal {
+        dependsOn(project.tasks.signArchives)
+    }
+    tasks.publishJarPublicationToMavenRepository {
+        dependsOn(project.tasks.signArchives)
+    }
+}
