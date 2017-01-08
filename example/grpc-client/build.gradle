@@ -8,3 +8,14 @@ dependencies {
     compile project(':example:grpc-lib')
     compile project(':grpc-spring-boot-starter')
 }
+
+buildscript {
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        }
+    }
+}

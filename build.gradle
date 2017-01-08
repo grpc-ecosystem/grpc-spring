@@ -49,14 +49,5 @@ subprojects {
             mavenLocal()
             mavenCentral()
         }
-        dependencyManagement {
-            imports {
-                mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-            }
-        }
-        dependencies {
-            classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-            classpath 'com.google.protobuf:protobuf-gradle-plugin:0.7.6'
-        }
     }
 }

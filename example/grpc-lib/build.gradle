@@ -34,3 +34,9 @@ idea {
         generatedSourceDirs += file("src/generated/main/grpc")
     }
 }
+
+buildscript {
+    dependencies {
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.7.6'
+    }
+}
