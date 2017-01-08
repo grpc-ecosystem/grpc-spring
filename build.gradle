@@ -7,7 +7,7 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     ext {
-        projectVersion = '1.0.0.RELEASE'
+        projectVersion = '1.0.0.SNAPSHOT'
         springBootVersion = '1.4.2.RELEASE'
         springSleuthVersion = '1.1.0.RELEASE'
         springCloudVersion = 'Camden.SR3'
@@ -48,15 +48,6 @@ subprojects {
         repositories {
             mavenLocal()
             mavenCentral()
-        }
-        dependencyManagement {
-            imports {
-                mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-            }
-        }
-        dependencies {
-            classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-            classpath 'com.google.protobuf:protobuf-gradle-plugin:0.7.6'
         }
     }
 }
