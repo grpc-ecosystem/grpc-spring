@@ -129,3 +129,12 @@ publishing {
         }
     }
 }
+
+model {
+    tasks.publishJarPublicationToMavenLocal {
+        dependsOn(project.tasks.signArchives)
+    }
+    tasks.publishJarPublicationToMavenRepository {
+        dependsOn(project.tasks.signArchives)
+    }
+}
