@@ -74,7 +74,11 @@ publishing {
                     it.scope.text() == 'runtime' && project.configurations.compile.allDependencies.find { dep ->
                         dep.name == it.artifactId.text()
                     }
-                }.each { it.scope*.value = 'compile'}
+                }.each {
+                    if (it.groupId == "net.devh" && it.artifactId == "grpc-spring-boot-autoconfigure") {
+                        it.scope*.value = 'compile'
+                    }
+                }
             }
             from components.java
 
