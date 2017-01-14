@@ -17,58 +17,29 @@
 
 package net.devh.springboot.autoconfigure.grpc.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import lombok.Data;
+
 /**
- * Created by rayt on 5/17/16.
+ * User: Michael
+ * Email: yidongnan@gmail.com
+ * Date: 5/17/16
  */
+@Data
 public class GrpcChannelProperties {
+
+    public static final String DEFAULT_HOST = "127.0.0.1";
+    public static final Integer DEFAULT_PORT = 9090;
 
     public static final GrpcChannelProperties DEFAULT = new GrpcChannelProperties();
 
-    private boolean discover = false;
-    private String host = "localhost";
-    private int port = 9090;
+    private List<String> host = new ArrayList<String>() {{
+        add(DEFAULT_HOST);
+    }};
+    private List<Integer> port = new ArrayList<Integer>() {{
+        add(DEFAULT_PORT);
+    }};
     private boolean plaintext = true;
-
-    public boolean isDiscover() {
-        return discover;
-    }
-
-    @Override
-    public String toString() {
-        return "GrpcChannelProperties{" +
-                "discover=" + discover +
-                ", host='" + host + '\'' +
-                ", port=" + port +
-                ", plaintext=" + plaintext +
-                '}';
-    }
-
-    public void setDiscover(boolean discover) {
-        this.discover = discover;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public boolean isPlaintext() {
-        return plaintext;
-    }
-
-    public void setPlaintext(boolean plaintext) {
-        this.plaintext = plaintext;
-    }
-
 }

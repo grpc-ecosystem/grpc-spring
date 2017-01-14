@@ -20,29 +20,24 @@ package net.devh.springboot.autoconfigure.grpc.client;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Data;
+
 /**
- * Created by rayt on 5/17/16.
+ * User: Michael
+ * Email: yidongnan@gmail.com
+ * Date: 5/17/16
  */
-@ConfigurationProperties("grpc.client")
+@Data
+@ConfigurationProperties("grpc")
 public class GrpcChannelsProperties {
 
     @NestedConfigurationProperty
-    private Map<String, GrpcChannelProperties> channels;
+    private Map<String, GrpcChannelProperties> client = new HashMap<>();
 
     public GrpcChannelProperties getChannel(String name) {
-        return channels.getOrDefault(name, GrpcChannelProperties.DEFAULT);
-    }
-
-    public void setChannels(Map<String, GrpcChannelProperties> channels) {
-        this.channels = channels;
-    }
-
-    @Override
-    public String toString() {
-        return "GrpcChannelsProperties{" +
-                "channels=" + channels +
-                '}';
+        return client.getOrDefault(name, GrpcChannelProperties.DEFAULT);
     }
 }

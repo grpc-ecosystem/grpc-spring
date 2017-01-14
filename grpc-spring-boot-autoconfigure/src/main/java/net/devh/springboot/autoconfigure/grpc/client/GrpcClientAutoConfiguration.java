@@ -19,22 +19,18 @@ package net.devh.springboot.autoconfigure.grpc.client;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import io.grpc.LoadBalancer;
 import io.grpc.util.RoundRobinLoadBalancerFactory;
 
 /**
- * Autoconfiguration for gRPC clients.
- *
- * @author Ray Tsang
+ * User: Michael
+ * Email: yidongnan@gmail.com
+ * Date: 5/17/16
  */
 @Configuration
 @EnableConfigurationProperties
@@ -44,10 +40,7 @@ public class GrpcClientAutoConfiguration {
     @ConditionalOnMissingBean
     @Bean
     public GrpcChannelsProperties grpcChannelsProperties() {
-        GrpcChannelsProperties properties = new GrpcChannelsProperties();
-        Map<String, GrpcChannelProperties> grpcChannelProperties = new HashMap<>();
-        properties.setChannels(grpcChannelProperties);
-        return properties;
+        return new GrpcChannelsProperties();
     }
 
     @Bean
@@ -56,26 +49,21 @@ public class GrpcClientAutoConfiguration {
     }
 
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(name = "spring.cloud.discovery.enabled", havingValue = "false")
     @Bean
-    public GrpcChannelFactory addressChannelFactory(GrpcChannelsProperties channels) {
-        return new AddressChannelFactory(channels);
+    public LoadBalancer.Factory grpcLoadBalancerFactory() {
+        return RoundRobinLoadBalancerFactory.getInstance();
     }
 
-    @Configuration
+    @ConditionalOnMissingBean(value = {GrpcChannelFactory.class, DiscoveryClient.class})
+    @Bean
+    public GrpcChannelFactory addressChannelFactory(GrpcChannelsProperties channels, LoadBalancer.Factory loadBalancerFactory) {
+        return new AddressChannelFactory(channels, loadBalancerFactory);
+    }
+
+    @ConditionalOnMissingBean
     @ConditionalOnBean(DiscoveryClient.class)
-    protected static class DiscoveryGrpcClientAutoConfiguration {
-
-        @ConditionalOnMissingBean
-        @Bean
-        public GrpcChannelFactory discoveryClientChannelFactory(GrpcChannelsProperties channels, DiscoveryClient discoveryClient, LoadBalancer.Factory loadBalancerFactory) {
-            return new DiscoveryClientChannelFactory(channels, discoveryClient, loadBalancerFactory);
-        }
-
-        @ConditionalOnMissingBean
-        @Bean
-        public LoadBalancer.Factory grpcLoadBalancerFactory() {
-            return RoundRobinLoadBalancerFactory.getInstance();
-        }
+    @Bean
+    public GrpcChannelFactory discoveryClientChannelFactory(GrpcChannelsProperties channels, DiscoveryClient discoveryClient, LoadBalancer.Factory loadBalancerFactory) {
+        return new DiscoveryClientChannelFactory(channels, discoveryClient, loadBalancerFactory);
     }
 }
