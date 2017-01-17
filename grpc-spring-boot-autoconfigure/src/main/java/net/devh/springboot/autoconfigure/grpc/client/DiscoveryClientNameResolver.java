@@ -33,7 +33,9 @@ import io.grpc.ResolvedServerInfo;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Created by rayt on 5/17/16.
+ * User: Michael
+ * Email: yidongnan@gmail.com
+ * Date: 5/17/16
  */
 @Slf4j
 public class DiscoveryClientNameResolver extends NameResolver {
@@ -61,8 +63,9 @@ public class DiscoveryClientNameResolver extends NameResolver {
 
     @Override
     public void refresh() {
-        List<ResolvedServerInfo> servers = new ArrayList<>();
+        List<List<ResolvedServerInfo>> serversList = Lists.newArrayList();
         for (ServiceInstance serviceInstance : client.getInstances(name)) {
+            List<ResolvedServerInfo> servers = new ArrayList<>();
             Map<String, String> metadata = serviceInstance.getMetadata();
             if (metadata.get("grpc") != null) {
                 Integer port = Integer.valueOf(metadata.get("grpc"));
@@ -71,9 +74,8 @@ public class DiscoveryClientNameResolver extends NameResolver {
             } else {
                 log.error("Can not found grpc server {}", name);
             }
+            serversList.add(servers);
         }
-        List<List<ResolvedServerInfo>> serversList = Lists.newArrayList();
-        serversList.add(servers);
         this.listener.onUpdate(serversList, Attributes.EMPTY);
     }
 

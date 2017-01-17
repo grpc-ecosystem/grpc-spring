@@ -1,16 +1,21 @@
 package net.devh.springboot.autoconfigure.grpc.server;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.consul.discovery.ConsulDiscoveryProperties;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 
+/**
+ * User: Michael
+ * Email: yidongnan@gmail.com
+ * Date: 5/17/16
+ */
 @Configuration
 @EnableConfigurationProperties
-@ConditionalOnClass(ConsulDiscoveryProperties.class)
+@ConditionalOnBean(ConsulDiscoveryProperties.class)
 public class GrpcMetedataConsulConfiguration {
 
     @Autowired
