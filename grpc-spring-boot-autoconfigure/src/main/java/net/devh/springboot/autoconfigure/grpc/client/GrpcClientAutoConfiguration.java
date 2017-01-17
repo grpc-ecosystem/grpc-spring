@@ -54,16 +54,20 @@ public class GrpcClientAutoConfiguration {
         return RoundRobinLoadBalancerFactory.getInstance();
     }
 
-    @ConditionalOnMissingBean(value = {GrpcChannelFactory.class, DiscoveryClient.class})
+    @ConditionalOnMissingBean(value = GrpcChannelFactory.class, type = "org.springframework.cloud.client.discovery.DiscoveryClient")
     @Bean
     public GrpcChannelFactory addressChannelFactory(GrpcChannelsProperties channels, LoadBalancer.Factory loadBalancerFactory) {
         return new AddressChannelFactory(channels, loadBalancerFactory);
     }
 
-    @ConditionalOnMissingBean
+    @Configuration
     @ConditionalOnBean(DiscoveryClient.class)
-    @Bean
-    public GrpcChannelFactory discoveryClientChannelFactory(GrpcChannelsProperties channels, DiscoveryClient discoveryClient, LoadBalancer.Factory loadBalancerFactory) {
-        return new DiscoveryClientChannelFactory(channels, discoveryClient, loadBalancerFactory);
+    protected static class DiscoveryGrpcClientAutoConfiguration {
+
+        @ConditionalOnMissingBean
+        @Bean
+        public GrpcChannelFactory discoveryClientChannelFactory(GrpcChannelsProperties channels, DiscoveryClient discoveryClient, LoadBalancer.Factory loadBalancerFactory) {
+            return new DiscoveryClientChannelFactory(channels, discoveryClient, loadBalancerFactory);
+        }
     }
 }
