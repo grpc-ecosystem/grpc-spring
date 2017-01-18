@@ -29,6 +29,11 @@ import io.grpc.ClientInterceptor;
 import io.grpc.ClientInterceptors;
 import lombok.SneakyThrows;
 
+/**
+ * User: Michael
+ * Email: yidongnan@gmail.com
+ * Date: 5/17/16
+ */
 @Component
 @Configuration
 @ConditionalOnClass(GrpcClient.class)

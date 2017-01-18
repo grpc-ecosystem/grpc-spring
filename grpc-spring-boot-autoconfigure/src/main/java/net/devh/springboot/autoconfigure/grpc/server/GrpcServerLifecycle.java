@@ -1,19 +1,3 @@
-/*
- * Copyright 2016-2016 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package net.devh.springboot.autoconfigure.grpc.server;
 
 import org.springframework.context.SmartLifecycle;
@@ -25,11 +9,9 @@ import io.grpc.Server;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Manages the lifecycle of a gRPC server. It uses the {@link GrpcServerFactory}
- * to create a new instance of a gRPC server, and then manages it according to the
- * {@link SmartLifecycle}.
- *
- * @author Ray Tsang
+ * User: Michael
+ * Email: yidongnan@gmail.com
+ * Date: 5/17/16
  */
 @Slf4j
 public class GrpcServerLifecycle implements SmartLifecycle {

@@ -8,6 +8,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
+/**
+ * User: Michael
+ * Email: yidongnan@gmail.com
+ * Date: 5/17/16
+ */
 @Configuration
 @ConditionalOnProperty(value = "spring.sleuth.scheduled.enabled", matchIfMissing = true)
 @ConditionalOnClass(Tracer.class)
