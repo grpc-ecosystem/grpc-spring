@@ -34,6 +34,21 @@ subprojects {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 
+    // Enable Checkstyle
+    if (null != System.getenv('ENABLE_CHECKSTYLE')) {
+        apply plugin: 'checkstyle'
+        dependencies {
+            checkstyle 'com.puppycrawl.tools:checkstyle:6.15'
+        }
+    }
+
+    tasks.withType(Checkstyle) {
+        outputs.upToDateWhen { false }
+        configFile = new File(rootDir, "checkstyle-google.xml")
+
+        include 'net/devh/**/*'
+    }
+
     repositories {
         mavenLocal()
         mavenCentral()
