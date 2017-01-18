@@ -19,11 +19,15 @@ public class GrpcChannelProperties {
     public static final GrpcChannelProperties DEFAULT = new GrpcChannelProperties();
 
     private List<String> host = new ArrayList<String>() {
+        private static final long serialVersionUID = -8367871342050560040L;
+
         {
             add(DEFAULT_HOST);
         }
     };
     private List<Integer> port = new ArrayList<Integer>() {
+        private static final long serialVersionUID = 4705083089654936515L;
+
         {
             add(DEFAULT_PORT);
         }

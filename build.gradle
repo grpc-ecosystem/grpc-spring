@@ -31,8 +31,18 @@ subprojects {
     apply plugin: 'idea'
     apply plugin: "io.spring.dependency-management"
 
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    compileJava {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+        options.encoding = 'UTF-8'
+    }
+
+    compileJava.options*.compilerArgs = [
+            "-Xlint:serial", "-Xlint:varargs", "-Xlint:classfile", "-Xlint:dep-ann",
+            "-Xlint:divzero", "-Xlint:empty", "-Xlint:finally", "-Xlint:overrides",
+            "-Xlint:path", "-Xlint:static", "-Xlint:try", "-Xlint:fallthrough",
+            "-Xlint:deprecation", "-Xlint:unchecked", "-Xlint:-options"
+    ]
 
     // Enable Checkstyle
     if (null != System.getenv('ENABLE_CHECKSTYLE')) {
