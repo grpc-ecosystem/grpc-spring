@@ -18,11 +18,15 @@ public class GrpcChannelProperties {
 
     public static final GrpcChannelProperties DEFAULT = new GrpcChannelProperties();
 
-    private List<String> host = new ArrayList<String>() {{
-        add(DEFAULT_HOST);
-    }};
-    private List<Integer> port = new ArrayList<Integer>() {{
-        add(DEFAULT_PORT);
-    }};
+    private List<String> host = new ArrayList<String>() {
+        {
+            add(DEFAULT_HOST);
+        }
+    };
+    private List<Integer> port = new ArrayList<Integer>() {
+        {
+            add(DEFAULT_PORT);
+        }
+    };
     private boolean plaintext = true;
 }

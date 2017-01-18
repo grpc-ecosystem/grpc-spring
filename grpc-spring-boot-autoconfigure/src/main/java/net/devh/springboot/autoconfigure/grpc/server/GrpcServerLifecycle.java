@@ -40,6 +40,12 @@ public class GrpcServerLifecycle implements SmartLifecycle {
     }
 
     @Override
+    public void stop(Runnable callback) {
+        this.stop();
+        callback.run();
+    }
+
+    @Override
     public boolean isRunning() {
         return this.server == null ? false : !this.server.isShutdown();
     }
@@ -52,12 +58,6 @@ public class GrpcServerLifecycle implements SmartLifecycle {
     @Override
     public boolean isAutoStartup() {
         return true;
-    }
-
-    @Override
-    public void stop(Runnable callback) {
-        this.stop();
-        callback.run();
     }
 
     protected void createAndStartGrpcServer() throws IOException {

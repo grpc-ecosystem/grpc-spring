@@ -22,8 +22,8 @@ public class GlobalServerInterceptorRegistry implements ApplicationContextAware 
     @PostConstruct
     public void init() {
         Map<String, GlobalServerInterceptorConfigurerAdapter> map = applicationContext.getBeansOfType(GlobalServerInterceptorConfigurerAdapter.class);
-        for (GlobalServerInterceptorConfigurerAdapter GlobalServerInterceptorConfigurerAdapter : map.values()) {
-            GlobalServerInterceptorConfigurerAdapter.addServerInterceptors(this);
+        for (GlobalServerInterceptorConfigurerAdapter globalServerInterceptorConfigurerAdapter : map.values()) {
+            globalServerInterceptorConfigurerAdapter.addServerInterceptors(this);
         }
     }
 
