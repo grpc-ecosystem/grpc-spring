@@ -128,8 +128,18 @@ public class DiscoveryClientNameResolver extends NameResolver {
                         }
                         serversList.add(servers);
                     }
+                    savedListener.onUpdate(serversList, Attributes.EMPTY);
+                } else {
+                    synchronized (DiscoveryClientNameResolver.this) {
+                        if (shutdown) {
+                            return;
+                        }
+                        // Because timerService is the single-threaded GrpcUtil.TIMER_SERVICE in production,
+                        // we need to delegate the blocking work to the executor
+                        resolutionTask = timerService.schedule(new LogExceptionRunnable(resolutionRunnableOnExecutor), 1, TimeUnit.MINUTES);
+                    }
+                    savedListener.onError(Status.UNAVAILABLE.withCause(new RuntimeException("UNAVAILABLE: NameResolver returned an empty list")));
                 }
-                savedListener.onUpdate(serversList, Attributes.EMPTY);
             } finally {
                 synchronized (DiscoveryClientNameResolver.this) {
                     resolving = false;
