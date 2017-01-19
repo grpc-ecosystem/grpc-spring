@@ -128,9 +128,8 @@ public class DiscoveryClientNameResolver extends NameResolver {
                         }
                         serversList.add(servers);
                     }
-                    savedListener.onUpdate(serversList, Attributes.EMPTY);
                 }
-
+                savedListener.onUpdate(serversList, Attributes.EMPTY);
             } finally {
                 synchronized (DiscoveryClientNameResolver.this) {
                     resolving = false;
