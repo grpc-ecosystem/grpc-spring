@@ -2,21 +2,23 @@
 
 [![Build Status](https://travis-ci.org/yidongnan/grpc-spring-boot-starter.svg?branch=master)](https://travis-ci.org/yidongnan/grpc-spring-boot-starter)
 
+
 README: [English](https://github.com/yidongnan/grpc-spring-boot-starter/blob/master/README.md) | [中文](https://github.com/yidongnan/grpc-spring-boot-starter/blob/master/README-zh.md)
 
 ## Features
-Auto-configures and runs the embedded gRPC server with @GrpcService-enabled beans as part of spring-boot application.
+在使用 Spring Boot 的应用可以通过使用 @EnableGrpcServer 、@EnableGrpcClient 注解进行自动配置
 
-Support Spring Cloud(registe services to consul or eureka and fetch gRPC server information)
+支持 Spring Cloud（可以通过 Spring Cloud 进行服务注册并且获取 gRPC server 的信息
 
-Support Spring Sleuth to trace application
+支持 Spring Sleuth 进行跟踪应用
 
 ## Usage
 
 ### gRPC server
-Add ``@EnableGrpcServer`` annotation to you configuration for enable gRPC server
+添加 ``@EnableGrpcServer`` 注解开启 gRPC server的功能
 
-Annotate your server interface implementation(s) with ``@GrpcService``
+实现 Grpc 生成的接口，并使用 ``@GrpcService`` 注解
+
 ````java
 @GrpcService(GreeterGrpc.class)
 public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
@@ -29,10 +31,11 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
     }
 }
 ````
-### gRPC client
-Add ``@EnableGrpcClient`` annotation to you configuration for enable gRPC client
 
-Use ``@GrpcClient`` annotation to set Channel
+### gRPC client
+添加 ``@EnableGrpcClient`` 注解开启 gRPC client 功能
+
+使用 ``@GrpcClient`` 注解去设置 Channel 或者 也可以通过 ``GrpcChannelFactory``中的 ``createChannel`` 得到 Channel
  
 ````java
 @GrpcClient("gRPC server name")
