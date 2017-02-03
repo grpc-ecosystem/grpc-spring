@@ -1,7 +1,3 @@
-apply plugin: 'propdeps'
-apply plugin: 'propdeps-maven'
-apply plugin: 'propdeps-idea'
-apply plugin: 'propdeps-eclipse'
 apply from: '../deploy.gradle'
 
 group = "net.devh"
@@ -11,9 +7,9 @@ compileJava.dependsOn(processResources)
 
 dependencies {
     compileOnly("org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}")
-    provided("org.springframework.boot:spring-boot-starter:${springBootVersion}")
-    provided("org.springframework.cloud:spring-cloud-starter-sleuth:${springSleuthVersion}")
-    provided("org.springframework.cloud:spring-cloud-starter-consul-discovery:${springCloudConsul}")
-    provided("org.springframework.cloud:spring-cloud-starter-eureka:${springCloudEureka}")
-    provided("io.grpc:grpc-all:${grpcVersion}")
+    compileOnly("org.springframework.boot:spring-boot-starter:${springBootVersion}")
+    compileOnly("org.springframework.cloud:spring-cloud-starter-sleuth:${springSleuthVersion}")
+    compileOnly("org.springframework.cloud:spring-cloud-starter-consul-discovery:${springCloudConsul}")
+    compileOnly("org.springframework.cloud:spring-cloud-starter-eureka:${springCloudEureka}")
+    compile("io.grpc:grpc-all:${grpcVersion}")
 }
