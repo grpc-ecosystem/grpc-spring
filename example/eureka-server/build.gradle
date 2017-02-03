@@ -1,12 +1,9 @@
 apply plugin: 'org.springframework.boot'
 
 dependencies {
-    compile('org.springframework.cloud:spring-cloud-starter-eureka')
-    compile('org.springframework.cloud:spring-cloud-starter-zipkin')
+    compile('org.springframework.cloud:spring-cloud-starter-eureka-server')
     compile('org.springframework.boot:spring-boot-starter-actuator')
-
-    compile project(':example:grpc-lib')
-    compile project(':grpc-server-spring-boot-starter')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
 buildscript {

@@ -1,8 +1,11 @@
 rootProject.name = 'spring-boot-grpc'
 
-include "grpc-spring-boot-autoconfigure"
-include "grpc-spring-boot-starter"
+include "grpc-client-spring-boot-autoconfigure"
+include "grpc-client-spring-boot-starter"
+include "grpc-server-spring-boot-autoconfigure"
+include "grpc-server-spring-boot-starter"
 
 include "example:grpc-lib"
 include "example:grpc-client"
 include "example:grpc-server"
+include "example:eureka-server"

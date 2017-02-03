@@ -2,7 +2,9 @@ package net.devh.springboot.autoconfigure.grpc.server;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -52,5 +54,23 @@ public class GrpcServerAutoConfiguration {
     @Bean
     public GrpcServerLifecycle grpcServerLifecycle(GrpcServerFactory factory) {
         return new GrpcServerLifecycle(factory);
+    }
+
+
+    @Configuration
+    @ConditionalOnProperty(value = "spring.sleuth.scheduled.enabled", matchIfMissing = true)
+    @ConditionalOnClass(Tracer.class)
+    protected static class TraceServerAutoConfiguration {
+
+        @Bean
+        public GlobalServerInterceptorConfigurerAdapter globalTraceServerInterceptorConfigurerAdapter(Tracer tracer) {
+            return new GlobalServerInterceptorConfigurerAdapter() {
+                @Override
+                public void addServerInterceptors(GlobalServerInterceptorRegistry registry) {
+                    registry.addServerInterceptors(new TraceServerInterceptor(tracer, new MetadataExtractor()));
+                }
+            };
+        }
+
     }
 }

@@ -8,12 +8,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -34,11 +29,6 @@ import lombok.SneakyThrows;
  * Email: yidongnan@gmail.com
  * Date: 5/17/16
  */
-@Component
-@Configuration
-@ConditionalOnClass(GrpcClient.class)
-@AutoConfigureAfter(GrpcClientAutoConfiguration.class)
-@ConditionalOnWebApplication
 public class GrpcClientBeanPostProcessor implements org.springframework.beans.factory.config.BeanPostProcessor {
 
     private Map<String, List<Class>> beansToProcess = new HashMap<>();
