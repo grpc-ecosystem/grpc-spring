@@ -4,5 +4,5 @@ group = "net.devh"
 version = "${projectVersion}"
 
 dependencies {
-    compile project(':grpc-spring-boot-autoconfigure')
+    compile project(':grpc-server-spring-boot-autoconfigure')
 }

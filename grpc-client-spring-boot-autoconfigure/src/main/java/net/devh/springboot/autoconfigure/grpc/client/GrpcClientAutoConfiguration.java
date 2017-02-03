@@ -3,8 +3,10 @@ package net.devh.springboot.autoconfigure.grpc.client;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -44,6 +46,12 @@ public class GrpcClientAutoConfiguration {
         return new AddressChannelFactory(channels, loadBalancerFactory);
     }
 
+    @Bean
+    @ConditionalOnClass(GrpcClient.class)
+    public GrpcClientBeanPostProcessor grpcClientBeanPostProcessor() {
+        return new GrpcClientBeanPostProcessor();
+    }
+
     @Configuration
     @ConditionalOnBean(DiscoveryClient.class)
     protected static class DiscoveryGrpcClientAutoConfiguration {
@@ -52,6 +60,23 @@ public class GrpcClientAutoConfiguration {
         @Bean
         public GrpcChannelFactory discoveryClientChannelFactory(GrpcChannelsProperties channels, DiscoveryClient discoveryClient, LoadBalancer.Factory loadBalancerFactory) {
             return new DiscoveryClientChannelFactory(channels, discoveryClient, loadBalancerFactory);
+        }
+    }
+
+    @Configuration
+    @ConditionalOnProperty(value = "spring.sleuth.scheduled.enabled", matchIfMissing = true)
+    @ConditionalOnClass(Tracer.class)
+    protected static class TraceClientAutoConfiguration {
+
+        @Bean
+        public GlobalClientInterceptorConfigurerAdapter globalTraceClientInterceptorConfigurerAdapter(Tracer tracer) {
+            return new GlobalClientInterceptorConfigurerAdapter() {
+
+                @Override
+                public void addClientInterceptors(GlobalClientInterceptorRegistry registry) {
+                    registry.addClientInterceptors(new TraceClientInterceptor(tracer, new MetadataInjector()));
+                }
+            };
         }
     }
 }

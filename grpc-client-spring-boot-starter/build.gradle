@@ -1,0 +1,8 @@
+apply from: '../deploy.gradle'
+
+group = "net.devh"
+version = "${projectVersion}"
+
+dependencies {
+    compile project(':grpc-client-spring-boot-autoconfigure')
+}
