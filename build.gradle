@@ -18,7 +18,6 @@ buildscript {
     }
     dependencies {
         classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
-        classpath "org.springframework.build.gradle:propdeps-plugin:0.0.7"
     }
 }
 
