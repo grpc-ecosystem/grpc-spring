@@ -39,7 +39,7 @@ artifacts {
 
 
 signing {
-    required { signatory != null && project.ext.isReleaseVersion }
+    required { project.ext.isReleaseVersion }
     sign configurations.archives
 }
 
