@@ -15,7 +15,6 @@ README: [English](https://github.com/yidongnan/grpc-spring-boot-starter/blob/mas
 ## Usage
 
 ### gRPC server
-添加 ``@EnableGrpcServer`` 注解开启 gRPC server的功能
 
 实现 Grpc 生成的接口，并使用 ``@GrpcService`` 注解
 
@@ -33,7 +32,6 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
 ````
 
 ### gRPC client
-添加 ``@EnableGrpcClient`` 注解开启 gRPC client 功能
 
 使用 ``@GrpcClient`` 注解去设置 Channel 或者 也可以通过 ``GrpcChannelFactory``中的 ``createChannel`` 得到 Channel
  

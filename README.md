@@ -14,7 +14,6 @@ Support Spring Sleuth to trace application
 ## Usage
 
 ### gRPC server
-Add ``@EnableGrpcServer`` annotation to you configuration for enable gRPC server
 
 Annotate your server interface implementation(s) with ``@GrpcService``
 ````java
@@ -30,7 +29,6 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
 }
 ````
 ### gRPC client
-Add ``@EnableGrpcClient`` annotation to you configuration for enable gRPC client
 
 Use ``@GrpcClient`` annotation to set Channel
  
