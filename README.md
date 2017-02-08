@@ -94,4 +94,4 @@ grpc.client.(gRPC server name).host[0]=
 grpc.client.(gRPC server name).port[0]=
 ````
 ## Show case
-https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/example
+https://github.com/yidongnan/spring-boot-grpc-example
