@@ -11,6 +11,8 @@ Support Spring Cloud(registe services to consul or eureka and fetch gRPC server 
 
 Support Spring Sleuth to trace application
 
+Support global and customer gRPC server/client interceptors
+
 ## Usage
 
 ### gRPC server
@@ -95,3 +97,6 @@ grpc.client.(gRPC server name).port[0]=
 ````
 ## Show case
 https://github.com/yidongnan/spring-boot-grpc-example
+
+## Credits
+- [saturnism](https://github.com/saturnism/spring-boot-starter-grpc)

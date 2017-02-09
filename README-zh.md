@@ -14,6 +14,8 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 
 支持 Spring Sleuth 进行应用跟踪
 
+支持对于 server、client 分别设置全局拦截器或单个的拦截器
+
 ## Usage
 
 ### gRPC server
@@ -101,3 +103,6 @@ grpc.client.(gRPC server name).port[0]=
 
 ## Show case
 https://github.com/yidongnan/spring-boot-grpc-example
+
+## Credits
+- [saturnism](https://github.com/saturnism/spring-boot-starter-grpc)
