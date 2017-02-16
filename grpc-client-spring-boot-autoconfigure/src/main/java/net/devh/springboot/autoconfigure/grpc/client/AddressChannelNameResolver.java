@@ -65,13 +65,11 @@ public class AddressChannelNameResolver extends NameResolver {
 
     @SuppressWarnings("unchecked")
     private void replace(List list, int max, Object defaultValue) {
-        list.replaceAll(o -> {
-            if (o == null) {
-                return defaultValue;
-            } else {
-                return o;
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i) == null) {
+                list.set(i, defaultValue);
             }
-        });
+        }
         for (int i = list.size(); i < max; i++) {
             list.add(defaultValue);
         }

@@ -33,12 +33,12 @@ public class TraceClientInterceptor implements ClientInterceptor {
     }
 
     @Override
-    public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
+    public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(final MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
         return new ClientInterceptors.CheckedForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
             @Override
             protected void checkedStart(ClientCall.Listener<RespT> responseListener, Metadata headers)
                     throws StatusException {
-                Span span = tracer.createSpan("grpc:" + method.getFullMethodName());
+                final Span span = tracer.createSpan("grpc:" + method.getFullMethodName());
                 spanInjector.inject(span, headers);
                 Listener<RespT> tracingResponseListener = new ForwardingClientCallListener
                         .SimpleForwardingClientCallListener<RespT>(responseListener) {

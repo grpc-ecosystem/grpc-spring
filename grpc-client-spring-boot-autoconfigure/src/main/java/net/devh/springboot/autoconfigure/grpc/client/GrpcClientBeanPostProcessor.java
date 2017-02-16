@@ -52,7 +52,7 @@ public class GrpcClientBeanPostProcessor implements org.springframework.beans.fa
             for (Field field : clazz.getDeclaredFields()) {
                 if (field.isAnnotationPresent(GrpcClient.class)) {
                     if (!beansToProcess.containsKey(beanName)) {
-                        beansToProcess.put(beanName, new ArrayList<>());
+                        beansToProcess.put(beanName, new ArrayList<Class>());
                     }
                     beansToProcess.get(beanName).add(clazz);
                 }

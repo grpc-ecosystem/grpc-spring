@@ -32,15 +32,15 @@ public class DiscoveryClientChannelFactory implements GrpcChannelFactory {
     public Channel createChannel(String name) {
         ManagedChannel channel = channelMap.get(name);
         if (channel == null) {
-            ManagedChannel newChannel = ManagedChannelBuilder.forTarget(name)
-                    .loadBalancerFactory(loadBalancerFactory)
-                    .nameResolverFactory(new DiscoveryClientResolverFactory(client))
-                    .usePlaintext(properties.getChannel(name).isPlaintext())
-                    .build();
-            if (channelMap.putIfAbsent(name, newChannel) == null) {
-                channel = newChannel;
-            } else {
-                channel = channelMap.get(name);
+            synchronized (channelMap) {
+                if (channelMap.get(name) == null) {
+                    channel = ManagedChannelBuilder.forTarget(name)
+                            .loadBalancerFactory(loadBalancerFactory)
+                            .nameResolverFactory(new DiscoveryClientResolverFactory(client))
+                            .usePlaintext(properties.getChannel(name).isPlaintext())
+                            .build();
+                    channelMap.put(name, channel);
+                }
             }
         }
         return channel;

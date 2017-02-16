@@ -63,7 +63,7 @@ public class GrpcServerAutoConfiguration {
     protected static class TraceServerAutoConfiguration {
 
         @Bean
-        public GlobalServerInterceptorConfigurerAdapter globalTraceServerInterceptorConfigurerAdapter(Tracer tracer) {
+        public GlobalServerInterceptorConfigurerAdapter globalTraceServerInterceptorConfigurerAdapter(final Tracer tracer) {
             return new GlobalServerInterceptorConfigurerAdapter() {
                 @Override
                 public void addServerInterceptors(GlobalServerInterceptorRegistry registry) {
