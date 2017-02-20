@@ -8,13 +8,16 @@ buildscript {
     }
     ext {
         projectVersion = '1.0.1.SNAPSHOT'
+
+        grpcVersion = '1.1.2'
+        protobufVersion = '3.2.0'
+        protobufGradlePluginVersion = '0.8.0'
+
         springBootVersion = '1.4.2.RELEASE'
         springSleuthVersion = '1.1.0.RELEASE'
         springCloudVersion = 'Camden.SR3'
-        springCloudConsul = '1.1.2.RELEASE'
-        springCloudEureka = '1.2.3.RELEASE'
-        grpcVersion = '1.0.3'
-        protobufVersion = '3.1.0'
+        springCloudConsulVersion = '1.1.2.RELEASE'
+        springCloudEurekaVersion = '1.2.3.RELEASE'
     }
     dependencies {
         classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"

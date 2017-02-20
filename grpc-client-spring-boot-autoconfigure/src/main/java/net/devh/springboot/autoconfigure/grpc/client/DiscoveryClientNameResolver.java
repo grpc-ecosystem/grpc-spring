@@ -8,7 +8,6 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -21,6 +20,7 @@ import javax.annotation.concurrent.GuardedBy;
 import io.grpc.Attributes;
 import io.grpc.NameResolver;
 import io.grpc.ResolvedServerInfo;
+import io.grpc.ResolvedServerInfoGroup;
 import io.grpc.Status;
 import io.grpc.internal.LogExceptionRunnable;
 import io.grpc.internal.SharedResourceHolder;
@@ -114,21 +114,21 @@ public class DiscoveryClientNameResolver extends NameResolver {
                     return;
                 }
 
-                List<List<ResolvedServerInfo>> serversList = Lists.newArrayList();
                 if (CollectionUtils.isNotEmpty(serviceInstanceList)) {
+                    List<ResolvedServerInfoGroup> resolvedServerInfoGroup = Lists.newArrayList();
                     for (ServiceInstance serviceInstance : serviceInstanceList) {
-                        List<ResolvedServerInfo> servers = new ArrayList<>();
+                        ResolvedServerInfoGroup.Builder servers = ResolvedServerInfoGroup.builder();
                         Map<String, String> metadata = serviceInstance.getMetadata();
                         if (metadata.get("grpc") != null) {
                             Integer port = Integer.valueOf(metadata.get("grpc"));
                             log.info("Found grpc server {} {}:{}", name, serviceInstance.getHost(), port);
-                            servers.add(new ResolvedServerInfo(InetSocketAddress.createUnresolved(serviceInstance.getHost(), port), Attributes.EMPTY));
+                            ResolvedServerInfo resolvedServerInfo = new ResolvedServerInfo(new InetSocketAddress(serviceInstance.getHost(), port), Attributes.EMPTY);
+                            resolvedServerInfoGroup.add(servers.add(resolvedServerInfo).build());
                         } else {
                             log.error("Can not found grpc server {}", name);
                         }
-                        serversList.add(servers);
                     }
-                    savedListener.onUpdate(serversList, Attributes.EMPTY);
+                    savedListener.onUpdate(resolvedServerInfoGroup, Attributes.EMPTY);
                 } else {
                     synchronized (DiscoveryClientNameResolver.this) {
                         if (shutdown) {

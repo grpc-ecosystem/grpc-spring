@@ -32,5 +32,18 @@ public class GrpcChannelProperties {
             add(DEFAULT_PORT);
         }
     };
+
     private boolean plaintext = true;
+
+    private boolean enableKeepAlive = false;
+
+    /**
+     * The default delay in seconds before we send a keepalive.
+     */
+    private long keepAliveDelay = 60;
+
+    /**
+     * The default timeout in seconds for a keepalive ping request.
+     */
+    private long keepAliveTimeout = 120;
 }
