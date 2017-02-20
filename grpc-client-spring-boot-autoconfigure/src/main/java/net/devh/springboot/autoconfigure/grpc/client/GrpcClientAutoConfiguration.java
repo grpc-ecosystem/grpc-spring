@@ -69,7 +69,7 @@ public class GrpcClientAutoConfiguration {
     protected static class TraceClientAutoConfiguration {
 
         @Bean
-        public GlobalClientInterceptorConfigurerAdapter globalTraceClientInterceptorConfigurerAdapter(Tracer tracer) {
+        public GlobalClientInterceptorConfigurerAdapter globalTraceClientInterceptorConfigurerAdapter(final Tracer tracer) {
             return new GlobalClientInterceptorConfigurerAdapter() {
 
                 @Override

@@ -33,7 +33,7 @@ public class TraceServerInterceptor implements ServerInterceptor {
         Span span = spanExtractor.joinTrace(headers);
         this.tracer.continueSpan(span);
 
-        Span grpcSpan = this.tracer.createSpan("grpc:" + call.getMethodDescriptor().getFullMethodName());
+        final Span grpcSpan = this.tracer.createSpan("grpc:" + call.getMethodDescriptor().getFullMethodName());
         final ServerCall.Listener<ReqT> original = next.startCall(call, headers);
         return new ForwardingServerCallListener.SimpleForwardingServerCallListener<ReqT>(original) {
 
