@@ -13,6 +13,8 @@ Support Spring Sleuth to trace application
 
 Support global and customer gRPC server/client interceptors
 
+Support keepalive
+
 ## Usage
 
 ### gRPC server
@@ -95,6 +97,16 @@ set gRPC server host and port in application.properties, default host is [127.0.
 grpc.client.(gRPC server name).host[0]=
 grpc.client.(gRPC server name).port[0]=
 ````
+
+## Version Compatibility with gRPC
+
+> Note: The version numbers below are only examples
+
+| Project Version  | gRPC Version  |
+| ---------------- | ------------- |
+| 1.0.1.SNAPSHOT   | 1.1.2         |
+| 1.0.0.RELEASE    | 1.0.3         |
+
 ## Show case
 https://github.com/yidongnan/spring-boot-grpc-example
 

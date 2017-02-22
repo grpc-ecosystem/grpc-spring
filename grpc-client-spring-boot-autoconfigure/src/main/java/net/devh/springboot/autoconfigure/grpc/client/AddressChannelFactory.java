@@ -2,12 +2,13 @@ package net.devh.springboot.autoconfigure.grpc.client;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import io.grpc.Channel;
 import io.grpc.LoadBalancer;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.NameResolver;
+import io.grpc.netty.NettyChannelBuilder;
 
 /**
  * User: Michael
@@ -33,10 +34,12 @@ public class AddressChannelFactory implements GrpcChannelFactory {
         if (channel == null) {
             synchronized (channelMap) {
                 if (channelMap.get(name) == null) {
-                    channel = ManagedChannelBuilder.forTarget(name)
+                    GrpcChannelProperties channelProperties = properties.getChannel(name);
+                    channel = NettyChannelBuilder.forTarget(name)
                             .loadBalancerFactory(loadBalancerFactory)
                             .nameResolverFactory(nameResolverFactory)
-                            .usePlaintext(properties.getChannel(name).isPlaintext())
+                            .usePlaintext(channelProperties.isPlaintext())
+                            .enableKeepAlive(channelProperties.isEnableKeepAlive(), channelProperties.getKeepAliveDelay(), TimeUnit.SECONDS, channelProperties.getKeepAliveTimeout(), TimeUnit.SECONDS)
                             .build();
                     channelMap.put(name, channel);
                 }

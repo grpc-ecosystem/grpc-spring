@@ -4,11 +4,12 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import io.grpc.Channel;
 import io.grpc.LoadBalancer;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
+import io.grpc.netty.NettyChannelBuilder;
 
 /**
  * User: Michael
@@ -34,10 +35,12 @@ public class DiscoveryClientChannelFactory implements GrpcChannelFactory {
         if (channel == null) {
             synchronized (channelMap) {
                 if (channelMap.get(name) == null) {
-                    channel = ManagedChannelBuilder.forTarget(name)
+                    GrpcChannelProperties channelProperties = properties.getChannel(name);
+                    channel = NettyChannelBuilder.forTarget(name)
                             .loadBalancerFactory(loadBalancerFactory)
                             .nameResolverFactory(new DiscoveryClientResolverFactory(client))
                             .usePlaintext(properties.getChannel(name).isPlaintext())
+                            .enableKeepAlive(channelProperties.isEnableKeepAlive(), channelProperties.getKeepAliveDelay(), TimeUnit.SECONDS, channelProperties.getKeepAliveTimeout(), TimeUnit.SECONDS)
                             .build();
                     channelMap.put(name, channel);
                 }

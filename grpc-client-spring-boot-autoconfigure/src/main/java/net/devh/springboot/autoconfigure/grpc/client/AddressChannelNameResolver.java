@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -14,6 +13,7 @@ import javax.annotation.concurrent.GuardedBy;
 import io.grpc.Attributes;
 import io.grpc.NameResolver;
 import io.grpc.ResolvedServerInfo;
+import io.grpc.ResolvedServerInfoGroup;
 import io.grpc.Status;
 import io.grpc.internal.SharedResourceHolder;
 import lombok.extern.slf4j.Slf4j;
@@ -108,13 +108,16 @@ public class AddressChannelNameResolver extends NameResolver {
                     return;
                 }
 
-                List<List<ResolvedServerInfo>> serversList = Lists.newArrayList();
+                List<ResolvedServerInfoGroup> resolvedServerInfoGroup = Lists.newArrayList();
                 for (int i = 0; i < properties.getHost().size(); i++) {
-                    List<ResolvedServerInfo> servers = new ArrayList<>();
-                    servers.add(new ResolvedServerInfo(InetSocketAddress.createUnresolved(properties.getHost().get(i), properties.getPort().get(i)), Attributes.EMPTY));
-                    serversList.add(servers);
+                    String host = properties.getHost().get(i);
+                    Integer port = properties.getPort().get(i);
+                    log.info("Found grpc server {} {}:{}", name, host, port);
+                    ResolvedServerInfoGroup.Builder servers = ResolvedServerInfoGroup.builder();
+                    ResolvedServerInfo resolvedServerInfo = new ResolvedServerInfo(new InetSocketAddress(host, port), Attributes.EMPTY);
+                    resolvedServerInfoGroup.add(servers.add(resolvedServerInfo).build());
                 }
-                savedListener.onUpdate(serversList, Attributes.EMPTY);
+                savedListener.onUpdate(resolvedServerInfoGroup, Attributes.EMPTY);
             } finally {
                 synchronized (AddressChannelNameResolver.this) {
                     resolving = false;
