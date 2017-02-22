@@ -7,7 +7,7 @@ README: [English](https://github.com/yidongnan/grpc-spring-boot-starter/blob/mas
 
 Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa/qunwpa?idkey=34ad403ce78380042406f11a122637ea9d66c11ae20f331dff37bc90a4fde939"><img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="Java技术交流群" title="Java技术交流群"></a>
 
-## Features
+## 特点
 使用 Spring Boot 的应用进行自动配置，内嵌 gRPC server
 
 支持 Spring Cloud（可以通过 Spring Cloud 进行服务注册并且获取 gRPC server 的信息）
@@ -16,9 +16,11 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 
 支持对于 server、client 分别设置全局拦截器或单个的拦截器
 
-## Usage
+支持 keepalive
 
-### gRPC server
+## 使用方式
+
+### gRPC 服务端
 
 添加依赖如果使用的是Maven
 
@@ -60,7 +62,7 @@ grpc.server.port=
 grpc.server.host=
 ````
 
-### gRPC client
+### gRPC 客户端
 
 添加依赖如果使用的是Maven
 
@@ -101,8 +103,17 @@ grpc.client.(gRPC server name).host[0]=
 grpc.client.(gRPC server name).port[0]=
 ````
 
-## Show case
+## gRPC 的版本兼容
+
+> 说明: 表格中展示的版本仅仅代表该搭配能一起正常工作，不代表其他版本不能正常
+
+| Project Version  | gRPC Version  |
+| ---------------- | ------------- |
+| 1.0.1.SNAPSHOT   | 1.1.2         |
+| 1.0.0.RELEASE    | 1.0.3         |
+
+## 示例
 https://github.com/yidongnan/spring-boot-grpc-example
 
-## Credits
+## 贡献
 - [saturnism](https://github.com/saturnism/spring-boot-starter-grpc)
