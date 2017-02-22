@@ -113,7 +113,7 @@ grpc.client.(gRPC server name).port[0]=
 | 1.0.0.RELEASE    | 1.0.3         |
 
 ## 示例
-https://github.com/yidongnan/spring-boot-grpc-example
+https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/examples
 
 ## 贡献
 - [saturnism](https://github.com/saturnism/spring-boot-starter-grpc)
