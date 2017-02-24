@@ -1,4 +1,4 @@
-package net.devh.grpc;
+package net.devh.examples.grpc.cloud;
 
 import net.devh.springboot.autoconfigure.grpc.client.GlobalClientInterceptorConfigurerAdapter;
 import net.devh.springboot.autoconfigure.grpc.client.GlobalClientInterceptorRegistry;

@@ -1,4 +1,4 @@
-package net.devh.grpc;
+package net.devh.examples.grpc.cloud;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,9 +13,9 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 @EnableEurekaClient
 @EnableDiscoveryClient
 @SpringBootApplication
-public class GrpcClientApplication {
+public class GrpcServerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(GrpcClientApplication.class, args);
+        SpringApplication.run(GrpcServerApplication.class, args);
     }
 }
