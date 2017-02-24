@@ -42,8 +42,8 @@ public class GrpcClientAutoConfiguration {
 
     @ConditionalOnMissingBean(value = GrpcChannelFactory.class, type = "org.springframework.cloud.client.discovery.DiscoveryClient")
     @Bean
-    public GrpcChannelFactory addressChannelFactory(GrpcChannelsProperties channels, LoadBalancer.Factory loadBalancerFactory) {
-        return new AddressChannelFactory(channels, loadBalancerFactory);
+    public GrpcChannelFactory addressChannelFactory(GrpcChannelsProperties channels, LoadBalancer.Factory loadBalancerFactory, GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
+        return new AddressChannelFactory(channels, loadBalancerFactory, globalClientInterceptorRegistry);
     }
 
     @Bean
@@ -58,8 +58,9 @@ public class GrpcClientAutoConfiguration {
 
         @ConditionalOnMissingBean
         @Bean
-        public GrpcChannelFactory discoveryClientChannelFactory(GrpcChannelsProperties channels, DiscoveryClient discoveryClient, LoadBalancer.Factory loadBalancerFactory) {
-            return new DiscoveryClientChannelFactory(channels, discoveryClient, loadBalancerFactory);
+        public GrpcChannelFactory discoveryClientChannelFactory(GrpcChannelsProperties channels, DiscoveryClient discoveryClient, LoadBalancer.Factory loadBalancerFactory,
+                                                                GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
+            return new DiscoveryClientChannelFactory(channels, discoveryClient, loadBalancerFactory, globalClientInterceptorRegistry);
         }
     }
 

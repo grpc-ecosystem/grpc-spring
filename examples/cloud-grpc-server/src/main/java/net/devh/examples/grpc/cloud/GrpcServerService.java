@@ -1,11 +1,11 @@
-package net.devh.grpc;
+package net.devh.examples.grpc.cloud;
 
 
+import net.devh.examples.grpc.lib.HelloReply;
+import net.devh.examples.grpc.lib.HelloRequest;
+import net.devh.examples.grpc.lib.SimpleGrpc;
 import net.devh.springboot.autoconfigure.grpc.server.GrpcService;
 
-import io.grpc.examples.helloworld.GreeterGrpc;
-import io.grpc.examples.helloworld.HelloReply;
-import io.grpc.examples.helloworld.HelloRequest;
 import io.grpc.stub.StreamObserver;
 
 /**
@@ -14,8 +14,8 @@ import io.grpc.stub.StreamObserver;
  * Date: 2016/11/8
  */
 
-@GrpcService(GreeterGrpc.class)
-public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
+@GrpcService(SimpleGrpc.class)
+public class GrpcServerService extends SimpleGrpc.SimpleImplBase {
 
     @Override
     public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {

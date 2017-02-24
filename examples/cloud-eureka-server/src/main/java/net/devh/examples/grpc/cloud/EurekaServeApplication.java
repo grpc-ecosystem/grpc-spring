@@ -1,4 +1,4 @@
-package net.devh;
+package net.devh.examples.grpc.cloud;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -14,14 +14,11 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
-import io.grpc.ClientInterceptors;
 import lombok.SneakyThrows;
 
 /**
@@ -38,9 +35,6 @@ public class GrpcClientBeanPostProcessor implements org.springframework.beans.fa
 
     @Autowired
     private GrpcChannelFactory channelFactory;
-
-    @Autowired
-    private GlobalClientInterceptorRegistry globalClientInterceptorRegistry;
 
     public GrpcClientBeanPostProcessor() {
     }
@@ -64,47 +58,36 @@ public class GrpcClientBeanPostProcessor implements org.springframework.beans.fa
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        List<ClientInterceptor> globalInterceptorList = globalClientInterceptorRegistry.getClientInterceptors();
         if (beansToProcess.containsKey(beanName)) {
             Object target = getTargetBean(bean);
             for (Class clazz : beansToProcess.get(beanName)) {
                 for (Field field : clazz.getDeclaredFields()) {
                     GrpcClient annotation = AnnotationUtils.getAnnotation(field, GrpcClient.class);
-                    Channel channel;
                     if (null != annotation) {
-                        if (beanFactory.containsBean(field.getName())) {
-                            channel = (Channel) beanFactory.getBean(field.getName());
-                        } else {
-                            channel = channelFactory.createChannel(annotation.value());
+
+                        List<ClientInterceptor> list = Lists.newArrayList();
+                        for (Class<? extends ClientInterceptor> clientInterceptorClass : annotation.interceptors()) {
+                            ClientInterceptor clientInterceptor;
+                            if (beanFactory.getBeanNamesForType(ClientInterceptor.class).length > 0) {
+                                clientInterceptor = beanFactory.getBean(clientInterceptorClass);
+                            } else {
+                                try {
+                                    clientInterceptor = clientInterceptorClass.newInstance();
+                                } catch (InstantiationException | IllegalAccessException e) {
+                                    throw new BeanCreationException("Failed to create interceptor instance", e);
+                                }
+                            }
+                            list.add(clientInterceptor);
                         }
+
+                        Channel channel = channelFactory.createChannel(annotation.value(), list);
                         ReflectionUtils.makeAccessible(field);
-                        // bind client interceptor
-                        channel = bindInterceptors(channel, annotation, globalInterceptorList);
                         ReflectionUtils.setField(field, target, channel);
                     }
                 }
             }
         }
         return bean;
-    }
-
-    private Channel bindInterceptors(Channel channel, GrpcClient grpcClient, List<ClientInterceptor> globalInterceptorList) {
-        Set<ClientInterceptor> interceptorSet = new HashSet<>();
-        interceptorSet.addAll(globalInterceptorList);
-        for (Class<? extends ClientInterceptor> clientInterceptorClass : grpcClient.interceptors()) {
-            ClientInterceptor clientInterceptor;
-            if (beanFactory.getBeanNamesForType(ClientInterceptor.class).length > 0) {
-                clientInterceptor = beanFactory.getBean(clientInterceptorClass);
-            } else {
-                try {
-                    clientInterceptor = clientInterceptorClass.newInstance();
-                } catch (InstantiationException | IllegalAccessException e) {
-                    throw new BeanCreationException("Failed to create interceptor instance", e);
-                }
-            }
-            interceptorSet.add(clientInterceptor);
-        }
-        return ClientInterceptors.intercept(channel, Lists.newArrayList(interceptorSet));
     }
 
     @SneakyThrows
