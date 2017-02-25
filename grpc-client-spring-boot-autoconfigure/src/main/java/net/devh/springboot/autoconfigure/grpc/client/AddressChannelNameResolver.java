@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledFuture;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -35,8 +34,6 @@ public class AddressChannelNameResolver extends NameResolver {
     private boolean shutdown;
     @GuardedBy("this")
     private ExecutorService executor;
-    @GuardedBy("this")
-    private ScheduledFuture<?> resolutionTask;
     @GuardedBy("this")
     private boolean resolving;
     @GuardedBy("this")
@@ -86,11 +83,6 @@ public class AddressChannelNameResolver extends NameResolver {
         public void run() {
             Listener savedListener;
             synchronized (AddressChannelNameResolver.this) {
-                // If this task is started by refresh(), there might already be a scheduled task.
-                if (resolutionTask != null) {
-                    resolutionTask.cancel(false);
-                    resolutionTask = null;
-                }
                 if (shutdown) {
                     return;
                 }
@@ -108,30 +100,19 @@ public class AddressChannelNameResolver extends NameResolver {
                     return;
                 }
 
-                List<ResolvedServerInfoGroup> resolvedServerInfoGroup = Lists.newArrayList();
+                List<ResolvedServerInfoGroup> resolvedServerInfoGroupList = Lists.newArrayList();
                 for (int i = 0; i < properties.getHost().size(); i++) {
                     String host = properties.getHost().get(i);
                     Integer port = properties.getPort().get(i);
                     log.info("Found grpc server {} {}:{}", name, host, port);
                     ResolvedServerInfoGroup.Builder servers = ResolvedServerInfoGroup.builder();
                     ResolvedServerInfo resolvedServerInfo = new ResolvedServerInfo(new InetSocketAddress(host, port), Attributes.EMPTY);
-                    resolvedServerInfoGroup.add(servers.add(resolvedServerInfo).build());
+                    resolvedServerInfoGroupList.add(servers.add(resolvedServerInfo).build());
                 }
-                savedListener.onUpdate(resolvedServerInfoGroup, Attributes.EMPTY);
+                savedListener.onUpdate(resolvedServerInfoGroupList, Attributes.EMPTY);
             } finally {
                 synchronized (AddressChannelNameResolver.this) {
                     resolving = false;
-                }
-            }
-        }
-    };
-
-    private final Runnable resolutionRunnableOnExecutor = new Runnable() {
-        @Override
-        public void run() {
-            synchronized (AddressChannelNameResolver.this) {
-                if (!shutdown) {
-                    executor.execute(resolutionRunnable);
                 }
             }
         }
@@ -151,9 +132,6 @@ public class AddressChannelNameResolver extends NameResolver {
             return;
         }
         shutdown = true;
-        if (resolutionTask != null) {
-            resolutionTask.cancel(false);
-        }
         if (executor != null) {
             executor = SharedResourceHolder.release(executorResource, executor);
         }
