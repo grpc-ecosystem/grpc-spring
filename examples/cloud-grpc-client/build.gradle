@@ -1,6 +1,7 @@
 apply plugin: 'org.springframework.boot'
 
 dependencies {
+    compile group: 'com.google.guava', name: 'guava', version: '20.+', force: true
     compile('org.springframework.cloud:spring-cloud-starter-eureka')
     compile('org.springframework.boot:spring-boot-starter-actuator')
     compile project(':grpc-client-spring-boot-starter') // replace to compile("net.devh:grpc-client-spring-boot-starter:${springBootGrpcVersion}")
