@@ -1,0 +1,13 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: local-grpc-client
+
+grpc:
+  client:
+    local-grpc-server:
+      host:
+        - 127.0.0.1
+      port:
+        - 9898

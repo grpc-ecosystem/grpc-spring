@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: local-grpc-server
+server:
+  port: 0
+grpc:
+  server:
+    port: 9898
