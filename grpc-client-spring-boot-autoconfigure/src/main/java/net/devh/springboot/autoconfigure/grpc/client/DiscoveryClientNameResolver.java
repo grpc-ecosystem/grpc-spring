@@ -50,6 +50,8 @@ public class DiscoveryClientNameResolver extends NameResolver {
     private boolean resolving;
     @GuardedBy("this")
     private Listener listener;
+    @GuardedBy("this")
+    private List<ServiceInstance> serviceInstanceList;
 
     public DiscoveryClientNameResolver(String name, DiscoveryClient client, Attributes attributes, SharedResourceHolder.Resource<ScheduledExecutorService> timerServiceResource,
                                        SharedResourceHolder.Resource<ExecutorService> executorResource) {
@@ -58,6 +60,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
         this.attributes = attributes;
         this.timerServiceResource = timerServiceResource;
         this.executorResource = executorResource;
+        this.serviceInstanceList = Lists.newArrayList();
     }
 
     @Override
@@ -73,6 +76,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
         executor = SharedResourceHolder.get(executorResource);
         this.listener = Preconditions.checkNotNull(listener, "listener");
         resolve();
+        timerService.scheduleWithFixedDelay(new LogExceptionRunnable(resolutionRunnableOnExecutor), 1, 1, TimeUnit.MINUTES);
     }
 
     @Override
@@ -98,24 +102,21 @@ public class DiscoveryClientNameResolver extends NameResolver {
                 resolving = true;
             }
             try {
-                List<ServiceInstance> serviceInstanceList;
+                List<ServiceInstance> newServiceInstanceList;
                 try {
-                    serviceInstanceList = client.getInstances(name);
+                    newServiceInstanceList = client.getInstances(name);
                 } catch (Exception e) {
-                    synchronized (DiscoveryClientNameResolver.this) {
-                        if (shutdown) {
-                            return;
-                        }
-                        // Because timerService is the single-threaded GrpcUtil.TIMER_SERVICE in production,
-                        // we need to delegate the blocking work to the executor
-                        resolutionTask = timerService.schedule(new LogExceptionRunnable(resolutionRunnableOnExecutor), 1, TimeUnit.MINUTES);
-                    }
                     savedListener.onError(Status.UNAVAILABLE.withCause(e));
                     return;
                 }
 
-                if (CollectionUtils.isNotEmpty(serviceInstanceList)) {
-                    List<ResolvedServerInfoGroup> resolvedServerInfoGroup = Lists.newArrayList();
+                if (CollectionUtils.isNotEmpty(newServiceInstanceList)) {
+                    if (isNeedToUpdateServiceInstanceList(newServiceInstanceList)) {
+                        serviceInstanceList = newServiceInstanceList;
+                    } else {
+                        return;
+                    }
+                    List<ResolvedServerInfoGroup> resolvedServerInfoGroupList = Lists.newArrayList();
                     for (ServiceInstance serviceInstance : serviceInstanceList) {
                         ResolvedServerInfoGroup.Builder servers = ResolvedServerInfoGroup.builder();
                         Map<String, String> metadata = serviceInstance.getMetadata();
@@ -123,21 +124,13 @@ public class DiscoveryClientNameResolver extends NameResolver {
                             Integer port = Integer.valueOf(metadata.get("grpc"));
                             log.info("Found grpc server {} {}:{}", name, serviceInstance.getHost(), port);
                             ResolvedServerInfo resolvedServerInfo = new ResolvedServerInfo(new InetSocketAddress(serviceInstance.getHost(), port), Attributes.EMPTY);
-                            resolvedServerInfoGroup.add(servers.add(resolvedServerInfo).build());
+                            resolvedServerInfoGroupList.add(servers.add(resolvedServerInfo).build());
                         } else {
                             log.error("Can not found grpc server {}", name);
                         }
                     }
-                    savedListener.onUpdate(resolvedServerInfoGroup, Attributes.EMPTY);
+                    savedListener.onUpdate(resolvedServerInfoGroupList, Attributes.EMPTY);
                 } else {
-                    synchronized (DiscoveryClientNameResolver.this) {
-                        if (shutdown) {
-                            return;
-                        }
-                        // Because timerService is the single-threaded GrpcUtil.TIMER_SERVICE in production,
-                        // we need to delegate the blocking work to the executor
-                        resolutionTask = timerService.schedule(new LogExceptionRunnable(resolutionRunnableOnExecutor), 1, TimeUnit.MINUTES);
-                    }
                     savedListener.onError(Status.UNAVAILABLE.withCause(new RuntimeException("UNAVAILABLE: NameResolver returned an empty list")));
                 }
             } finally {
@@ -147,6 +140,28 @@ public class DiscoveryClientNameResolver extends NameResolver {
             }
         }
     };
+
+    private boolean isNeedToUpdateServiceInstanceList(List<ServiceInstance> newServiceInstanceList) {
+        if (serviceInstanceList.size() == newServiceInstanceList.size()) {
+            for (ServiceInstance serviceInstance : serviceInstanceList) {
+                boolean isSame = false;
+                for (ServiceInstance newServiceInstance : newServiceInstanceList) {
+                    if (newServiceInstance.getHost().equals(serviceInstance.getHost()) && newServiceInstance.getPort() == serviceInstance.getPort()) {
+                        isSame = true;
+                        break;
+                    }
+                }
+                if (!isSame) {
+                    log.info("Ready to update {} server info group list", name);
+                    return true;
+                }
+            }
+        } else {
+            log.info("Ready to update {} server info group list", name);
+            return true;
+        }
+        return false;
+    }
 
     private final Runnable resolutionRunnableOnExecutor = new Runnable() {
         @Override
