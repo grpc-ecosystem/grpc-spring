@@ -28,7 +28,7 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-server-spring-boot-starter</artifactId>
-  <version>1.0.0.RELEASE</version>
+  <version>1.0.1.RELEASE</version>
 </dependency>
 ````
 
@@ -36,7 +36,7 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 
 ````
 dependencies {
-  compile 'net.devh:grpc-server-spring-boot-starter:1.0.0.RELEASE'
+  compile 'net.devh:grpc-server-spring-boot-starter:1.0.1.RELEASE'
 }
 ````
 
@@ -70,7 +70,7 @@ grpc.server.host=
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-client-spring-boot-starter</artifactId>
-  <version>1.0.0.RELEASE</version>
+  <version>1.0.1.RELEASE</version>
 </dependency>
 ````
 
@@ -78,7 +78,7 @@ grpc.server.host=
 
 ````
 dependencies {
-  compile 'net.devh:grpc-client-spring-boot-starter:1.0.0.RELEASE'
+  compile 'net.devh:grpc-client-spring-boot-starter:1.0.1.RELEASE'
 }
 ````
 
@@ -109,7 +109,7 @@ grpc.client.(gRPC server name).port[0]=
 
 | Project Version  | gRPC Version  |
 | ---------------- | ------------- |
-| 1.0.1.SNAPSHOT   | 1.1.2         |
+| 1.0.1.RELEASE    | 1.1.2         |
 | 1.0.0.RELEASE    | 1.0.3         |
 
 ## 示例
