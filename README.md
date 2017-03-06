@@ -98,14 +98,14 @@ grpc.client.(gRPC server name).host[0]=
 grpc.client.(gRPC server name).port[0]=
 ````
 
-## Version Compatibility with gRPC
+## Version Compatibility with gRPC-java
 
 > Note: The version numbers below are only examples
 
-| Project Version  | gRPC Version  |
-| ---------------- | ------------- |
-| 1.0.1.RELEASE    | 1.1.2         |
-| 1.0.0.RELEASE    | 1.0.3         |
+| Project Version  | gRPC-java Version  |
+| ---------------- | ------------------ |
+| 1.0.1.RELEASE    | 1.1.2              |
+| 1.0.0.RELEASE    | 1.0.3              |
 
 ## Show case
 https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/examples
