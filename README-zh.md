@@ -103,14 +103,14 @@ grpc.client.(gRPC server name).host[0]=
 grpc.client.(gRPC server name).port[0]=
 ````
 
-## gRPC 的版本兼容
+## gRPC-java 的版本兼容
 
 > 说明: 表格中展示的版本仅仅代表该搭配能一起正常工作，不代表其他版本不能正常
 
-| Project Version  | gRPC Version  |
-| ---------------- | ------------- |
-| 1.0.1.RELEASE    | 1.1.2         |
-| 1.0.0.RELEASE    | 1.0.3         |
+| Project Version  | gRPC-java Version  |
+| ---------------- | ------------------ |
+| 1.0.1.RELEASE    | 1.1.2              |
+| 1.0.0.RELEASE    | 1.0.3              |
 
 ## 示例
 https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/examples
