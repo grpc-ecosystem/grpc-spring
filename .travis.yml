@@ -8,6 +8,7 @@ cache:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
 before_install:
-- "[[ ${encrypted_35d5c0204248_key} != '' ]] && openssl aes-256-cbc -K $encrypted_35d5c0204248_key -iv $encrypted_35d5c0204248_iv -in private.key.enc -out ./private.key -d && gpg --import ./private.key"
+- "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_BRANCH} == 'master' ]] && [[ ${TRAVIS_TAG} == '' ]] && openssl aes-256-cbc -K $encrypted_35d5c0204248_key -iv $encrypted_35d5c0204248_iv -in private.key.enc -out ./private.key -d"
+- "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_BRANCH} == 'master' ]] && [[ ${TRAVIS_TAG} == '' ]] && gpg --import ./private.key"
 after_success:
 - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_BRANCH} == 'master' ]] && [[ ${TRAVIS_TAG} == '' ]] && ./gradlew publish"
