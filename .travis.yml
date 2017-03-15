@@ -8,10 +8,8 @@ cache:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
 before_install:
-- "echo ${TRAVIS_PULL_REQUEST}"
-- "[[ ${TRAVIS_PULL_REQUEST} == '31' ]] && echo 111"
-- "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && echo 222 || echo finish!"
-- "[[ ${TRAVIS_PULL_REQUEST} == '31' ]] && echo 111 && [[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && echo 222"
+- "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_BRANCH} == 'master' ]] && [[ ${TRAVIS_TAG} == '' ]] && openssl aes-256-cbc -K ${encrypted_35d5c0204248_key} -iv ${encrypted_35d5c0204248_iv} -in private.key.enc -out ./private.key -d || echo finished!"
+- "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_BRANCH} == 'master' ]] && [[ ${TRAVIS_TAG} == '' ]] && gpg --import ./private.key || echo finished!"
 
 after_success:
 - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_BRANCH} == 'master' ]] && [[ ${TRAVIS_TAG} == '' ]] && ./gradlew publish"
