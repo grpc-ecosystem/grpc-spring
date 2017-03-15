@@ -9,7 +9,7 @@ cache:
   - "$HOME/.gradle/wrapper/"
 before_install:
 - "echo ${TRAVIS_PULL_REQUEST}"
-- "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && echo 111"
+- "[[ ${TRAVIS_PULL_REQUEST} == '31' ]] && echo 111"
 - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && echo 222"
 after_success:
 - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_BRANCH} == 'master' ]] && [[ ${TRAVIS_TAG} == '' ]] && ./gradlew publish"
