@@ -120,13 +120,13 @@ public class DiscoveryClientNameResolver extends NameResolver {
                     for (ServiceInstance serviceInstance : serviceInstanceList) {
                         ResolvedServerInfoGroup.Builder servers = ResolvedServerInfoGroup.builder();
                         Map<String, String> metadata = serviceInstance.getMetadata();
-                        if (metadata.get("grpc") != null) {
-                            Integer port = Integer.valueOf(metadata.get("grpc"));
-                            log.info("Found grpc server {} {}:{}", name, serviceInstance.getHost(), port);
+                        if (metadata.get("gRPC") != null) {
+                            Integer port = Integer.valueOf(metadata.get("gRPC"));
+                            log.info("Found gRPC server {} {}:{}", name, serviceInstance.getHost(), port);
                             ResolvedServerInfo resolvedServerInfo = new ResolvedServerInfo(new InetSocketAddress(serviceInstance.getHost(), port), Attributes.EMPTY);
                             resolvedServerInfoGroupList.add(servers.add(resolvedServerInfo).build());
                         } else {
-                            log.error("Can not found grpc server {}", name);
+                            log.error("Can not found gRPC server {}", name);
                         }
                     }
                     savedListener.onUpdate(resolvedServerInfoGroupList, Attributes.EMPTY);

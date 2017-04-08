@@ -38,7 +38,7 @@ public class TraceClientInterceptor implements ClientInterceptor {
             @Override
             protected void checkedStart(ClientCall.Listener<RespT> responseListener, Metadata headers)
                     throws StatusException {
-                final Span span = tracer.createSpan("grpc:" + method.getFullMethodName());
+                final Span span = tracer.createSpan("invoke gRPC:" + method.getFullMethodName());
                 spanInjector.inject(span, headers);
                 Listener<RespT> tracingResponseListener = new ForwardingClientCallListener
                         .SimpleForwardingClientCallListener<RespT>(responseListener) {

@@ -26,7 +26,7 @@ public class GrpcMetedataConsulConfiguration {
 
     @PostConstruct
     public void init() {
-        this.properties.getTags().add("grpc=" + grpcProperties.getPort());
+        this.properties.getTags().add("gRPC=" + grpcProperties.getPort());
     }
 
 }

@@ -27,6 +27,6 @@ public class GrpcMetedataEurekaConfiguration {
 
     @PostConstruct
     public void init() {
-        this.instance.getMetadataMap().put("grpc", String.valueOf(grpcProperties.getPort()));
+        this.instance.getMetadataMap().put("gRPC", String.valueOf(grpcProperties.getPort()));
     }
 }

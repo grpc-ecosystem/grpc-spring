@@ -95,8 +95,8 @@ public class AddressChannelNameResolver extends NameResolver {
                 replace(properties.getPort(), max, GrpcChannelProperties.DEFAULT_PORT);
 
                 if (properties.getHost().size() != properties.getPort().size()) {
-                    log.error("config grpc server {} error, hosts length isn't equals ports length,hosts [{}], ports [{}]", properties.getHost(), properties.getPort());
-                    savedListener.onError(Status.UNAVAILABLE.withCause(new RuntimeException("grpc config error")));
+                    log.error("config gRPC server {} error, hosts length isn't equals ports length,hosts [{}], ports [{}]", properties.getHost(), properties.getPort());
+                    savedListener.onError(Status.UNAVAILABLE.withCause(new RuntimeException("gRPC config error")));
                     return;
                 }
 
@@ -104,7 +104,7 @@ public class AddressChannelNameResolver extends NameResolver {
                 for (int i = 0; i < properties.getHost().size(); i++) {
                     String host = properties.getHost().get(i);
                     Integer port = properties.getPort().get(i);
-                    log.info("Found grpc server {} {}:{}", name, host, port);
+                    log.info("Found gRPC server {} {}:{}", name, host, port);
                     ResolvedServerInfoGroup.Builder servers = ResolvedServerInfoGroup.builder();
                     ResolvedServerInfo resolvedServerInfo = new ResolvedServerInfo(new InetSocketAddress(host, port), Attributes.EMPTY);
                     resolvedServerInfoGroupList.add(servers.add(resolvedServerInfo).build());
