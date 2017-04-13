@@ -21,4 +21,18 @@ public class GrpcServerProperties {
      * Bind address for the server. Defaults to 0.0.0.0.
      */
     private String address = "0.0.0.0";
+
+    private final Security security = new Security();
+
+    @Data
+    public static class Security {
+
+        private Boolean enabled = false;
+
+        private String certificateChainPath = "";
+
+        private String certificatePath = "";
+
+    }
+
 }
