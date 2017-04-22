@@ -21,6 +21,10 @@ public class GrpcChannelsProperties {
     private Map<String, GrpcChannelProperties> client = new HashMap<>();
 
     public GrpcChannelProperties getChannel(String name) {
-        return client.getOrDefault(name, GrpcChannelProperties.DEFAULT);
+        GrpcChannelProperties grpcChannelProperties = client.get(name);
+        if (grpcChannelProperties == null) {
+            grpcChannelProperties = GrpcChannelProperties.DEFAULT;
+        }
+        return grpcChannelProperties;
     }
 }
