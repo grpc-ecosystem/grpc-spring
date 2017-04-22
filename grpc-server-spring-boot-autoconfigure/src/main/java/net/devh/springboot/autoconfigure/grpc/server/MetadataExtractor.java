@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MetadataExtractor implements SpanExtractor<Metadata> {
 
-    private static final String GRPC_COMPONENT = "grpc";
+    private static final String GRPC_COMPONENT = "gRPC";
 
     @Override
     public Span joinTrace(Metadata carrier) {
