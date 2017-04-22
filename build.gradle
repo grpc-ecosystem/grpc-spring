@@ -7,7 +7,7 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     ext {
-        projectVersion = '1.0.2.SNAPSHOT'
+        projectVersion = '1.1.0.RELEASE'
 
         grpcVersion = '1.2.0'
         protobufVersion = '3.2.0'
@@ -75,6 +75,9 @@ allprojects {
         repositories {
             mavenLocal()
             mavenCentral()
+            jcenter()
+            maven { url 'http://repo.spring.io/plugins-release' }
+            maven { url "https://plugins.gradle.org/m2/" }
         }
     }
 }
