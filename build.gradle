@@ -28,7 +28,7 @@ task wrapper(type: Wrapper) {
     gradleVersion = '3.3'
 }
 
-subprojects {
+allprojects {
     apply plugin: 'java'
     apply plugin: 'idea'
     apply plugin: "io.spring.dependency-management"
@@ -77,4 +77,18 @@ subprojects {
             mavenCentral()
         }
     }
+}
+
+apply from: './deploy.gradle'
+
+ext {
+    hasJar = false
+}
+
+group = "net.devh"
+version = "${projectVersion}"
+
+dependencies {
+    compile project(':grpc-server-spring-boot-starter')
+    compile project(':grpc-client-spring-boot-starter')
 }

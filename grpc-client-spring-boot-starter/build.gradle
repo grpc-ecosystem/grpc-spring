@@ -1,5 +1,9 @@
 apply from: '../deploy.gradle'
 
+ext {
+    hasJar = false
+}
+
 group = "net.devh"
 version = "${projectVersion}"
 
