@@ -14,7 +14,6 @@ gradle.taskGraph.whenReady { taskGraph ->
 }
 
 ext {
-    hasJar = true
     pomFile = file("${project.buildDir}/generated-pom.xml")
     isReleaseVersion = !(projectVersion =~ /\.SNAPSHOT$/)
     isPublishing = {
@@ -85,17 +84,15 @@ publishing {
                     }
                 }
             }
-            if (project.ext.hasJar) {
-                from components.java
 
-                artifact(sourceJar) {
-                    classifier = 'sources'
-                }
-                artifact(javadocJar) {
-                    classifier = 'javadoc'
-                }
+            from components.java
+
+            artifact(sourceJar) {
+                classifier = 'sources'
             }
-
+            artifact(javadocJar) {
+                classifier = 'javadoc'
+            }
 
             if (signing.required) {
                 pom.withXml {
