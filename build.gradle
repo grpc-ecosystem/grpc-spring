@@ -7,7 +7,7 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     ext {
-        projectVersion = '1.1.0.RELEASE'
+        projectVersion = '1.1.1.RELEASE'
 
         grpcVersion = '1.2.0'
         protobufVersion = '3.2.0'
@@ -83,10 +83,6 @@ allprojects {
 }
 
 apply from: './deploy.gradle'
-
-ext {
-    hasJar = false
-}
 
 group = "net.devh"
 version = "${projectVersion}"
