@@ -18,9 +18,8 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
 
 import io.grpc.Attributes;
+import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
-import io.grpc.ResolvedServerInfo;
-import io.grpc.ResolvedServerInfoGroup;
 import io.grpc.Status;
 import io.grpc.internal.LogExceptionRunnable;
 import io.grpc.internal.SharedResourceHolder;
@@ -116,20 +115,19 @@ public class DiscoveryClientNameResolver extends NameResolver {
                     } else {
                         return;
                     }
-                    List<ResolvedServerInfoGroup> resolvedServerInfoGroupList = Lists.newArrayList();
+                    List<EquivalentAddressGroup> equivalentAddressGroups = Lists.newArrayList();
                     for (ServiceInstance serviceInstance : serviceInstanceList) {
-                        ResolvedServerInfoGroup.Builder servers = ResolvedServerInfoGroup.builder();
                         Map<String, String> metadata = serviceInstance.getMetadata();
                         if (metadata.get("gRPC") != null) {
                             Integer port = Integer.valueOf(metadata.get("gRPC"));
                             log.info("Found gRPC server {} {}:{}", name, serviceInstance.getHost(), port);
-                            ResolvedServerInfo resolvedServerInfo = new ResolvedServerInfo(new InetSocketAddress(serviceInstance.getHost(), port), Attributes.EMPTY);
-                            resolvedServerInfoGroupList.add(servers.add(resolvedServerInfo).build());
+                            EquivalentAddressGroup addressGroup = new EquivalentAddressGroup(new InetSocketAddress(serviceInstance.getHost(), port), Attributes.EMPTY);
+                            equivalentAddressGroups.add(addressGroup);
                         } else {
                             log.error("Can not found gRPC server {}", name);
                         }
                     }
-                    savedListener.onUpdate(resolvedServerInfoGroupList, Attributes.EMPTY);
+                    savedListener.onAddresses(equivalentAddressGroups, Attributes.EMPTY);
                 } else {
                     savedListener.onError(Status.UNAVAILABLE.withCause(new RuntimeException("UNAVAILABLE: NameResolver returned an empty list")));
                 }

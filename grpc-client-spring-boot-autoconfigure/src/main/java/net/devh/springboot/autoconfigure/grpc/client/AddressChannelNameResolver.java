@@ -10,9 +10,8 @@ import java.util.concurrent.ExecutorService;
 import javax.annotation.concurrent.GuardedBy;
 
 import io.grpc.Attributes;
+import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
-import io.grpc.ResolvedServerInfo;
-import io.grpc.ResolvedServerInfoGroup;
 import io.grpc.Status;
 import io.grpc.internal.SharedResourceHolder;
 import lombok.extern.slf4j.Slf4j;
@@ -100,16 +99,15 @@ public class AddressChannelNameResolver extends NameResolver {
                     return;
                 }
 
-                List<ResolvedServerInfoGroup> resolvedServerInfoGroupList = Lists.newArrayList();
+                List<EquivalentAddressGroup> equivalentAddressGroups = Lists.newArrayList();
                 for (int i = 0; i < properties.getHost().size(); i++) {
                     String host = properties.getHost().get(i);
                     Integer port = properties.getPort().get(i);
                     log.info("Found gRPC server {} {}:{}", name, host, port);
-                    ResolvedServerInfoGroup.Builder servers = ResolvedServerInfoGroup.builder();
-                    ResolvedServerInfo resolvedServerInfo = new ResolvedServerInfo(new InetSocketAddress(host, port), Attributes.EMPTY);
-                    resolvedServerInfoGroupList.add(servers.add(resolvedServerInfo).build());
+                    EquivalentAddressGroup addressGroup = new EquivalentAddressGroup(new InetSocketAddress(host, port), Attributes.EMPTY);
+                    equivalentAddressGroups.add(addressGroup);
                 }
-                savedListener.onUpdate(resolvedServerInfoGroupList, Attributes.EMPTY);
+                savedListener.onAddresses(equivalentAddressGroups, Attributes.EMPTY);
             } finally {
                 synchronized (AddressChannelNameResolver.this) {
                     resolving = false;
