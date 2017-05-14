@@ -17,6 +17,8 @@ public class MetadataExtractor implements SpanExtractor<Metadata> {
 
     private static final String GRPC_COMPONENT = "gRPC";
 
+    private static final String HEADER_DELIMITER = "-";
+
     @Override
     public Span joinTrace(Metadata carrier) {
         if (getMetadata(carrier, Span.TRACE_ID_NAME) == null) {
@@ -44,6 +46,10 @@ public class MetadataExtractor implements SpanExtractor<Metadata> {
         }
     }
 
+    private String unprefixedKey(String key) {
+        return key.substring(key.indexOf(HEADER_DELIMITER) + 1);
+    }
+
     private Span buildParentSpan(Metadata carrier, boolean skip, long traceId, long spanId) {
         Span.SpanBuilder span = Span.builder().traceId(traceId).spanId(spanId);
         String processId = getMetadata(carrier, Span.PROCESS_ID_NAME);
@@ -62,6 +68,11 @@ public class MetadataExtractor implements SpanExtractor<Metadata> {
         span.remote(true);
         if (skip) {
             span.exportable(false);
+        }
+        for (String key : carrier.keys()) {
+            if (key.startsWith(Span.SPAN_BAGGAGE_HEADER_PREFIX + HEADER_DELIMITER)) {
+                span.baggage(unprefixedKey(key), carrier.get(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER)));
+            }
         }
         return span.build();
     }

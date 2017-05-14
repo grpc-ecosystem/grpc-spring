@@ -3,6 +3,7 @@ apply plugin: 'org.springframework.boot'
 dependencies {
     compile('org.springframework.cloud:spring-cloud-starter-eureka')
     compile('org.springframework.boot:spring-boot-starter-actuator')
+    compile('org.springframework.cloud:spring-cloud-starter-zipkin')
     compile project(':grpc-client-spring-boot-starter') // replace to compile("net.devh:grpc-client-spring-boot-starter:${springBootGrpcVersion}")
     compile project(':examples:grpc-lib')
 }

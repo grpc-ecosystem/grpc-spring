@@ -1,0 +1,18 @@
+apply plugin: 'org.springframework.boot'
+
+dependencies {
+    compile('org.springframework.boot:spring-boot-starter')
+    compile('io.zipkin.java:zipkin-server')
+    compile('io.zipkin.java:zipkin-autoconfigure-ui')
+}
+
+buildscript {
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        }
+    }
+}

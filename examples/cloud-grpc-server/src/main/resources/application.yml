@@ -1,6 +1,9 @@
 spring:
   application:
     name: cloud-grpc-server
+  sleuth:
+    sampler:
+      percentage: 1
 server:
   port: 0
 grpc:

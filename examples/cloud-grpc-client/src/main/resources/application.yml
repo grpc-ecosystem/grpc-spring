@@ -3,6 +3,9 @@ server:
 spring:
   application:
     name: cloud-grpc-client
+  sleuth:
+    sampler:
+      percentage: 1
 eureka:
   client:
     register-with-eureka: true

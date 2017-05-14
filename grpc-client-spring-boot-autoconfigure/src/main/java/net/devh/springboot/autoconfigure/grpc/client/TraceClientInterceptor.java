@@ -43,7 +43,14 @@ public class TraceClientInterceptor implements ClientInterceptor {
                 Listener<RespT> tracingResponseListener = new ForwardingClientCallListener
                         .SimpleForwardingClientCallListener<RespT>(responseListener) {
                     @Override
+                    public void onReady() {
+                        span.logEvent(Span.CLIENT_SEND);
+                        super.onReady();
+                    }
+
+                    @Override
                     public void onClose(Status status, Metadata trailers) {
+                        span.logEvent(Span.CLIENT_RECV);
                         if (status.getCode().value() == 0) {
                             log.debug("Call finish success");
                         } else {
