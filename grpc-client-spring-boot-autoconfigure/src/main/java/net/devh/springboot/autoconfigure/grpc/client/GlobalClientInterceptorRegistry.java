@@ -1,10 +1,11 @@
 package net.devh.springboot.autoconfigure.grpc.client;
 
+import com.google.common.collect.Lists;
+
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +22,7 @@ import lombok.Getter;
 @Getter
 public class GlobalClientInterceptorRegistry implements ApplicationContextAware {
 
-    private final List<ClientInterceptor> clientInterceptors = new ArrayList<>();
+    private final List<ClientInterceptor> clientInterceptors = Lists.newArrayList();
     private ApplicationContext applicationContext;
 
     @PostConstruct

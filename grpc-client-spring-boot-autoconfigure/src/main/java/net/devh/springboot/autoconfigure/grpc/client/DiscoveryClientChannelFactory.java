@@ -1,10 +1,10 @@
 package net.devh.springboot.autoconfigure.grpc.client;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -42,14 +42,19 @@ public class DiscoveryClientChannelFactory implements GrpcChannelFactory {
     @Override
     public Channel createChannel(String name, List<ClientInterceptor> interceptors) {
         GrpcChannelProperties channelProperties = properties.getChannel(name);
-        Channel channel = NettyChannelBuilder.forTarget(name)
+        NettyChannelBuilder builder = NettyChannelBuilder.forTarget(name)
                 .loadBalancerFactory(loadBalancerFactory)
                 .nameResolverFactory(new DiscoveryClientResolverFactory(client))
-                .usePlaintext(properties.getChannel(name).isPlaintext())
-                .enableKeepAlive(channelProperties.isEnableKeepAlive(), channelProperties.getKeepAliveDelay(), TimeUnit.SECONDS, channelProperties.getKeepAliveTimeout(), TimeUnit.SECONDS)
-                .build();
+                .usePlaintext(properties.getChannel(name).isPlaintext());
+        if (channelProperties.isEnableKeepAlive()) {
+            builder.keepAliveWithoutCalls(channelProperties.isKeepAliveWithoutCalls())
+                    .keepAliveTime(channelProperties.getKeepAliveTime(), TimeUnit.SECONDS)
+                    .keepAliveTimeout(channelProperties.getKeepAliveTimeout(), TimeUnit.SECONDS);
+        }
+        Channel channel = builder.build();
+
         List<ClientInterceptor> globalInterceptorList = globalClientInterceptorRegistry.getClientInterceptors();
-        Set<ClientInterceptor> interceptorSet = new HashSet<>();
+        Set<ClientInterceptor> interceptorSet = Sets.newHashSet();
         if (globalInterceptorList != null && !globalInterceptorList.isEmpty()) {
             interceptorSet.addAll(globalInterceptorList);
         }

@@ -1,16 +1,15 @@
 package net.devh.springboot.autoconfigure.grpc.server;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -44,7 +43,7 @@ public class AnnotationGrpcServiceDiscoverer implements ApplicationContextAware,
     @Override
     public Collection<GrpcServiceDefinition> findGrpcServices() {
         Collection<String> beanNames = findGrpcServiceBeanNames();
-        List<GrpcServiceDefinition> definitions = new ArrayList<>(beanNames.size());
+        List<GrpcServiceDefinition> definitions = Lists.newArrayListWithCapacity(beanNames.size());
         GlobalServerInterceptorRegistry globalServerInterceptorRegistry = applicationContext.getBean(GlobalServerInterceptorRegistry.class);
         List<ServerInterceptor> globalInterceptorList = globalServerInterceptorRegistry.getServerInterceptors();
         for (String beanName : beanNames) {
@@ -59,7 +58,7 @@ public class AnnotationGrpcServiceDiscoverer implements ApplicationContextAware,
     }
 
     private ServerServiceDefinition bindInterceptors(ServerServiceDefinition serviceDefinition, GrpcService grpcServiceAnnotation, List<ServerInterceptor> globalInterceptorList) {
-        Set<ServerInterceptor> interceptorSet = new HashSet<>();
+        Set<ServerInterceptor> interceptorSet = Sets.newHashSet();
         interceptorSet.addAll(globalInterceptorList);
         for (Class<? extends ServerInterceptor> serverInterceptorClass : grpcServiceAnnotation.interceptors()) {
             ServerInterceptor serverInterceptor;
@@ -68,7 +67,7 @@ public class AnnotationGrpcServiceDiscoverer implements ApplicationContextAware,
             } else {
                 try {
                     serverInterceptor = serverInterceptorClass.newInstance();
-                } catch (InstantiationException | IllegalAccessException e) {
+                } catch (Exception e) {
                     throw new BeanCreationException("Failed to create interceptor instance", e);
                 }
             }

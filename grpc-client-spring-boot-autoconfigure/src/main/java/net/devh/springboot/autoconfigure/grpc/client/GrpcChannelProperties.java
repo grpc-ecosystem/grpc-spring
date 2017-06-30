@@ -35,15 +35,27 @@ public class GrpcChannelProperties {
 
     private boolean plaintext = true;
 
+    /**
+     * Setting to enable keepalive.
+     * Default to {@code false}
+     */
     private boolean enableKeepAlive = false;
 
     /**
-     * The default delay in seconds before we send a keepalive.
+     * Sets whether keepalive will be performed when there are no outstanding RPC on a connection.
+     * Defaults to {@code false}.
      */
-    private long keepAliveDelay = 60;
+    private boolean keepAliveWithoutCalls = false;
+
+    /**
+     * The default delay in seconds before we send a keepalive.
+     * Defaults to {@code 180}
+     */
+    private long keepAliveTime = 180;
 
     /**
      * The default timeout in seconds for a keepalive ping request.
+     * Defaults to {@code 20}
      */
-    private long keepAliveTimeout = 120;
+    private long keepAliveTimeout = 20;
 }

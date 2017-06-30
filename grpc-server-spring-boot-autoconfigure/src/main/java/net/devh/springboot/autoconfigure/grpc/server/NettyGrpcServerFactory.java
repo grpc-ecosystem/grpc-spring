@@ -1,14 +1,15 @@
 package net.devh.springboot.autoconfigure.grpc.server;
 
+import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
-import io.grpc.Server;
-import io.grpc.netty.NettyServerBuilder;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.net.InetSocketAddress;
-import java.util.LinkedList;
 import java.util.List;
+
+import io.grpc.Server;
+import io.grpc.netty.NettyServerBuilder;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * User: Michael
@@ -19,7 +20,7 @@ import java.util.List;
 public class NettyGrpcServerFactory implements GrpcServerFactory {
 
     private final GrpcServerProperties properties;
-    private final List<GrpcServiceDefinition> services = new LinkedList<>();
+    private final List<GrpcServiceDefinition> services = Lists.newLinkedList();
 
     public NettyGrpcServerFactory(GrpcServerProperties properties) {
         this.properties = properties;

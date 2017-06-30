@@ -1,6 +1,7 @@
 package net.devh.springboot.autoconfigure.grpc.client;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
@@ -13,7 +14,6 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +28,7 @@ import lombok.SneakyThrows;
  */
 public class GrpcClientBeanPostProcessor implements org.springframework.beans.factory.config.BeanPostProcessor {
 
-    private Map<String, List<Class>> beansToProcess = new HashMap<>();
+    private Map<String, List<Class>> beansToProcess = Maps.newHashMap();
 
     @Autowired
     private DefaultListableBeanFactory beanFactory;
@@ -73,7 +73,7 @@ public class GrpcClientBeanPostProcessor implements org.springframework.beans.fa
                             } else {
                                 try {
                                     clientInterceptor = clientInterceptorClass.newInstance();
-                                } catch (InstantiationException | IllegalAccessException e) {
+                                } catch (Exception e) {
                                     throw new BeanCreationException("Failed to create interceptor instance", e);
                                 }
                             }

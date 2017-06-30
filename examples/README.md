@@ -23,13 +23,19 @@ visit http://localhost:8080/ can see result.
     ./gradlew :example:cloud-eureka-server:bootRun
     ````
 
-2. In a different terminal window run:
+2. Try the cloud-zipkin-server example first run:
+
+    ````
+    ./gradlew :example:cloud-zipkin-server:bootRun
+    ````
+
+3. In a different terminal window run:
 
     ````
     ./gradlew :example:cloud-grpc-server:bootRun
     ````
 
-3. In a different terminal window run:
+4. In a different terminal window run:
 
     ````
     ./gradlew :example:cloud-grpc-client:bootRun

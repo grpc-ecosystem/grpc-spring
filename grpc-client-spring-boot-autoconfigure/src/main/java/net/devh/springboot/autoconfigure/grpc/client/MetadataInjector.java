@@ -3,6 +3,8 @@ package net.devh.springboot.autoconfigure.grpc.client;
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.SpanInjector;
 
+import java.util.Map;
+
 import io.grpc.Metadata;
 
 /**
@@ -11,6 +13,8 @@ import io.grpc.Metadata;
  * Date: 5/17/16
  */
 class MetadataInjector implements SpanInjector<Metadata> {
+
+    private static final String HEADER_DELIMITER = "-";
 
     @Override
     public void inject(Span span, Metadata carrier) {
@@ -23,6 +27,17 @@ class MetadataInjector implements SpanInjector<Metadata> {
         if (parentId != null) {
             setIdMetadata(carrier, Span.PARENT_ID_NAME, parentId);
         }
+        for (Map.Entry<String, String> entry : span.baggageItems()) {
+            setMetadata(carrier, prefixedKey(entry.getKey()), entry.getValue());
+        }
+    }
+
+
+    private String prefixedKey(String key) {
+        if (key.startsWith(Span.SPAN_BAGGAGE_HEADER_PREFIX + HEADER_DELIMITER)) {
+            return key;
+        }
+        return Span.SPAN_BAGGAGE_HEADER_PREFIX + HEADER_DELIMITER + key;
     }
 
     private void setMetadata(Metadata metadata, String name, String value) {
