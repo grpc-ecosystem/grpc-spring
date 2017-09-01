@@ -51,7 +51,7 @@ public class TraceClientInterceptor implements ClientInterceptor {
                     @Override
                     public void onClose(Status status, Metadata trailers) {
                         span.logEvent(Span.CLIENT_RECV);
-                        if (status.getCode().value() == 0) {
+                        if (status.isOk()) {
                             log.debug("Call finish success");
                         } else {
                             log.warn("Call finish failed", status.getDescription());
