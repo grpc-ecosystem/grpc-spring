@@ -52,7 +52,7 @@ public class TraceServerInterceptor implements ServerInterceptor {
             public void close(Status status, Metadata trailers) {
                 gRPCSpan.logEvent(Span.SERVER_SEND);
                 Status.Code statusCode = status.getCode();
-                tracer.addTag("gRPC statue code", String.valueOf(statusCode.value()));
+                tracer.addTag("gRPC status code", String.valueOf(statusCode.value()));
                 if (!status.isOk()) {
                     tracer.addTag(Span.SPAN_ERROR_TAG_NAME, ExceptionUtils.getExceptionMessage(status.getCause()));
                 }
