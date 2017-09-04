@@ -1,4 +1,5 @@
 language: java
+dist: precise
 jdk:
 - openjdk7
 before_cache:
