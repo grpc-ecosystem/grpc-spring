@@ -2,28 +2,23 @@ package net.devh.springboot.autoconfigure.grpc.client;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-
+import io.grpc.Attributes;
+import io.grpc.EquivalentAddressGroup;
+import io.grpc.NameResolver;
+import io.grpc.Status;
+import io.grpc.internal.SharedResourceHolder;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.concurrent.GuardedBy;
-
-import io.grpc.Attributes;
-import io.grpc.EquivalentAddressGroup;
-import io.grpc.NameResolver;
-import io.grpc.Status;
-import io.grpc.internal.LogExceptionRunnable;
-import io.grpc.internal.SharedResourceHolder;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * User: Michael
@@ -75,13 +70,15 @@ public class DiscoveryClientNameResolver extends NameResolver {
         executor = SharedResourceHolder.get(executorResource);
         this.listener = Preconditions.checkNotNull(listener, "listener");
         resolve();
-        timerService.scheduleWithFixedDelay(new LogExceptionRunnable(resolutionRunnableOnExecutor), 1, 1, TimeUnit.MINUTES);
+        //timerService.scheduleWithFixedDelay(new LogExceptionRunnable(resolutionRunnableOnExecutor), 1, 1, TimeUnit.MINUTES);
     }
 
     @Override
     public final synchronized void refresh() {
-        Preconditions.checkState(listener != null, "not started");
-        resolve();
+        //Preconditions.checkState(listener != null, "not started");
+        if (listener != null) {
+            resolve();
+        }
     }
 
     private final Runnable resolutionRunnable = new Runnable() {
