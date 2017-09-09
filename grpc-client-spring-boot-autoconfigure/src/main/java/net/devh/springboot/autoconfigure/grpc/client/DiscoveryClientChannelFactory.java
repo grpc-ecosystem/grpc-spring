@@ -2,18 +2,19 @@ package net.devh.springboot.autoconfigure.grpc.client;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
 import io.grpc.ClientInterceptors;
 import io.grpc.LoadBalancer;
 import io.grpc.netty.NettyChannelBuilder;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
+import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
+import org.springframework.context.event.EventListener;
+
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * User: Michael
@@ -25,6 +26,7 @@ public class DiscoveryClientChannelFactory implements GrpcChannelFactory {
     private final DiscoveryClient client;
     private final LoadBalancer.Factory loadBalancerFactory;
     private final GlobalClientInterceptorRegistry globalClientInterceptorRegistry;
+    private HeartbeatMonitor monitor = new HeartbeatMonitor();
 
     public DiscoveryClientChannelFactory(GrpcChannelsProperties properties, DiscoveryClient client, LoadBalancer.Factory loadBalancerFactory,
                                          GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
@@ -32,6 +34,21 @@ public class DiscoveryClientChannelFactory implements GrpcChannelFactory {
         this.client = client;
         this.loadBalancerFactory = loadBalancerFactory;
         this.globalClientInterceptorRegistry = globalClientInterceptorRegistry;
+    }
+
+    private List<DiscoveryClientNameResolver> discoveryClientNameResolvers = Lists.newArrayList();
+
+    public void addDiscoveryClientNameResolver(DiscoveryClientNameResolver discoveryClientNameResolver) {
+        discoveryClientNameResolvers.add(discoveryClientNameResolver);
+    }
+
+    @EventListener(HeartbeatEvent.class)
+    public void heartbeat(HeartbeatEvent event) {
+        if (this.monitor.update(event.getValue())) {
+            for (DiscoveryClientNameResolver discoveryClientNameResolver : discoveryClientNameResolvers) {
+                discoveryClientNameResolver.refresh();
+            }
+        }
     }
 
     @Override
@@ -44,7 +61,7 @@ public class DiscoveryClientChannelFactory implements GrpcChannelFactory {
         GrpcChannelProperties channelProperties = properties.getChannel(name);
         NettyChannelBuilder builder = NettyChannelBuilder.forTarget(name)
                 .loadBalancerFactory(loadBalancerFactory)
-                .nameResolverFactory(new DiscoveryClientResolverFactory(client))
+                .nameResolverFactory(new DiscoveryClientResolverFactory(client, this))
                 .usePlaintext(properties.getChannel(name).isPlaintext());
         if (channelProperties.isEnableKeepAlive()) {
             builder.keepAliveWithoutCalls(channelProperties.isKeepAliveWithoutCalls())
