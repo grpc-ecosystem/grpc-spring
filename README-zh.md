@@ -59,7 +59,7 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
 
 ````
 grpc.server.port=
-grpc.server.host=
+grpc.server.address=
 ````
 
 ### gRPC 客户端
