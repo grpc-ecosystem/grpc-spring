@@ -1,9 +1,8 @@
 # Grpc Spring Boot Starter
 
-[![Join the chat at https://gitter.im/yidongnan/grpc-spring-boot-starter](https://badges.gitter.im/yidongnan/grpc-spring-boot-starter.svg)](https://gitter.im/yidongnan/grpc-spring-boot-starter?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 [![Build Status](https://travis-ci.org/yidongnan/grpc-spring-boot-starter.svg?branch=master)](https://travis-ci.org/yidongnan/grpc-spring-boot-starter)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.devh/grpc-server-spring-boot-starter/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/net.devh/grpc-server-spring-boot-starter)
+[![Join the chat at https://gitter.im/yidongnan/grpc-spring-boot-starter](https://badges.gitter.im/yidongnan/grpc-spring-boot-starter.svg)](https://gitter.im/yidongnan/grpc-spring-boot-starter?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 README: [English](https://github.com/yidongnan/grpc-spring-boot-starter/blob/master/README.md) | [中文](https://github.com/yidongnan/grpc-spring-boot-starter/blob/master/README-zh.md)
 
@@ -84,7 +83,7 @@ set gRPC host and port in application.properties, default host is 0.0.0.0 and de
 
 ````
 grpc.server.port=
-grpc.server.host=
+grpc.server.address=
 ````
 
 gRPC request
