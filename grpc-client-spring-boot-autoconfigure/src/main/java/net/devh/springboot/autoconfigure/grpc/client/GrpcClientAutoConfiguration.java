@@ -1,5 +1,7 @@
 package net.devh.springboot.autoconfigure.grpc.client;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -59,7 +61,7 @@ public class GrpcClientAutoConfiguration {
         @ConditionalOnMissingBean
         @Bean
         public GrpcChannelFactory discoveryClientChannelFactory(GrpcChannelsProperties channels, DiscoveryClient discoveryClient, LoadBalancer.Factory loadBalancerFactory,
-                                                                GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
+            GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
             return new DiscoveryClientChannelFactory(channels, discoveryClient, loadBalancerFactory, globalClientInterceptorRegistry);
         }
     }
@@ -70,14 +72,36 @@ public class GrpcClientAutoConfiguration {
     protected static class TraceClientAutoConfiguration {
 
         @Bean
-        public GlobalClientInterceptorConfigurerAdapter globalTraceClientInterceptorConfigurerAdapter(final Tracer tracer) {
-            return new GlobalClientInterceptorConfigurerAdapter() {
+        public BeanPostProcessor clientInterceptorPostProcessor(GlobalClientInterceptorRegistry registry) {
+            return new ClientInterceptorPostProcessor(registry);
+        }
 
-                @Override
-                public void addClientInterceptors(GlobalClientInterceptorRegistry registry) {
-                    registry.addClientInterceptors(new TraceClientInterceptor(tracer, new MetadataInjector()));
+        private static class ClientInterceptorPostProcessor implements BeanPostProcessor {
+
+            private GlobalClientInterceptorRegistry registry;
+
+            public ClientInterceptorPostProcessor(
+                GlobalClientInterceptorRegistry registry) {
+                this.registry = registry;
+            }
+
+            @Override
+            public Object postProcessBeforeInitialization(Object bean,
+                String beanName)
+                throws BeansException {
+                return bean;
+            }
+
+            @Override
+            public Object postProcessAfterInitialization(Object bean,
+                String beanName)
+                throws BeansException {
+                if (bean instanceof Tracer) {
+                    this.registry.addClientInterceptors(new TraceClientInterceptor((Tracer) bean, new MetadataInjector()));
                 }
-            };
+                return bean;
+            }
         }
     }
+
 }
