@@ -7,17 +7,17 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     ext {
-        projectVersion = '1.3.0-RELEASE'
+        projectVersion = '1.4.0.SNAPSHOT'
 
-        grpcVersion = '1.6.1'
-        protobufVersion = '3.3.0'
+        grpcVersion = '1.7.0'
+        protobufVersion = '3.4.0'
         protobufGradlePluginVersion = '0.8.0'
 
         springBootVersion = '1.5.6.RELEASE'
-        springSleuthVersion = '1.2.4.RELEASE'
-        springCloudVersion = 'Dalston.SR3'
+        springSleuthVersion = '1.2.5.RELEASE'
+        springCloudVersion = 'Dalston.SR4'
         springCloudConsulVersion = '1.2.1.RELEASE'
-        springCloudEurekaVersion = '1.3.4.RELEASE'
+        springCloudEurekaVersion = '1.3.5.RELEASE'
     }
     dependencies {
         classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"

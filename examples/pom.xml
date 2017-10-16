@@ -5,13 +5,13 @@
   <parent>
     <groupId>net.devh</groupId>
     <artifactId>grpc-spring-boot-starter</artifactId>
-    <version>1.3.0-RELEASE</version>
+    <version>1.4.0.SNAPSHOT</version>
     <relativePath>../</relativePath>
   </parent>
 
   <artifactId>examples</artifactId>
   <packaging>pom</packaging>
-  <version>1.3.0-RELEASE</version>
+  <version>1.4.0.SNAPSHOT</version>
 
   <modules>
     <module>grpc-lib</module>
