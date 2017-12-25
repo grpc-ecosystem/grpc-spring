@@ -7,14 +7,11 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 import java.util.Map;
 
-import lombok.Data;
-
 /**
  * User: Michael
  * Email: yidongnan@gmail.com
  * Date: 5/17/16
  */
-@Data
 @ConfigurationProperties("grpc")
 public class GrpcChannelsProperties {
 
@@ -27,5 +24,13 @@ public class GrpcChannelsProperties {
             grpcChannelProperties = GrpcChannelProperties.DEFAULT;
         }
         return grpcChannelProperties;
+    }
+
+    public Map<String, GrpcChannelProperties> getClient() {
+        return client;
+    }
+
+    public void setClient(Map<String, GrpcChannelProperties> client) {
+        this.client = client;
     }
 }

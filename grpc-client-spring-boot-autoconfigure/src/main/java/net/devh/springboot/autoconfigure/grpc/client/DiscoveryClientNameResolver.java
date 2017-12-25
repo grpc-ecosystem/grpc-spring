@@ -4,6 +4,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
@@ -21,15 +23,15 @@ import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
 import io.grpc.Status;
 import io.grpc.internal.SharedResourceHolder;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * User: Michael
  * Email: yidongnan@gmail.com
  * Date: 5/17/16
  */
-@Slf4j
 public class DiscoveryClientNameResolver extends NameResolver {
+
+    private Logger log = LoggerFactory.getLogger(DiscoveryClientNameResolver.class);
 
     private final String name;
     private final DiscoveryClient client;

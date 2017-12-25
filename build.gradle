@@ -69,9 +69,6 @@ allprojects {
         maven { url 'http://repo.spring.io/plugins-release' }
         maven { url "https://plugins.gradle.org/m2/" }
     }
-    dependencies{
-        compileOnly('org.projectlombok:lombok:1.16.6')
-    }
     buildscript {
         repositories {
             mavenLocal()

@@ -1,23 +1,26 @@
 package net.devh.springboot.autoconfigure.grpc.server;
 
-import com.google.common.collect.Lists;
-import com.google.common.net.InetAddresses;
-
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
+import com.google.common.net.InetAddresses;
+
 import io.grpc.Server;
 import io.grpc.netty.NettyServerBuilder;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * User: Michael
  * Email: yidongnan@gmail.com
  * Date: 5/17/16
  */
-@Slf4j
 public class NettyGrpcServerFactory implements GrpcServerFactory {
+
+    private Logger log = LoggerFactory.getLogger(NettyGrpcServerFactory.class);
 
     private final GrpcServerProperties properties;
     private final List<GrpcServiceDefinition> services = Lists.newLinkedList();

@@ -3,14 +3,11 @@ package net.devh.springboot.autoconfigure.grpc.client;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Data;
-
 /**
  * User: Michael
  * Email: yidongnan@gmail.com
  * Date: 5/17/16
  */
-@Data
 public class GrpcChannelProperties {
 
     public static final String DEFAULT_HOST = "127.0.0.1";
@@ -58,4 +55,60 @@ public class GrpcChannelProperties {
      * Defaults to {@code 20}
      */
     private long keepAliveTimeout = 20;
+
+    public List<String> getHost() {
+        return host;
+    }
+
+    public void setHost(List<String> host) {
+        this.host = host;
+    }
+
+    public List<Integer> getPort() {
+        return port;
+    }
+
+    public void setPort(List<Integer> port) {
+        this.port = port;
+    }
+
+    public boolean isPlaintext() {
+        return plaintext;
+    }
+
+    public void setPlaintext(boolean plaintext) {
+        this.plaintext = plaintext;
+    }
+
+    public boolean isEnableKeepAlive() {
+        return enableKeepAlive;
+    }
+
+    public void setEnableKeepAlive(boolean enableKeepAlive) {
+        this.enableKeepAlive = enableKeepAlive;
+    }
+
+    public boolean isKeepAliveWithoutCalls() {
+        return keepAliveWithoutCalls;
+    }
+
+    public void setKeepAliveWithoutCalls(boolean keepAliveWithoutCalls) {
+        this.keepAliveWithoutCalls = keepAliveWithoutCalls;
+    }
+
+    public long getKeepAliveTime() {
+        return keepAliveTime;
+    }
+
+    public void setKeepAliveTime(long keepAliveTime) {
+        this.keepAliveTime = keepAliveTime;
+    }
+
+    public long getKeepAliveTimeout() {
+        return keepAliveTimeout;
+    }
+
+    public void setKeepAliveTimeout(long keepAliveTimeout) {
+        this.keepAliveTimeout = keepAliveTimeout;
+    }
 }

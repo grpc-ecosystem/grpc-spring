@@ -19,7 +19,6 @@ import java.util.Map;
 
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
-import lombok.SneakyThrows;
 
 /**
  * User: Michael
@@ -90,11 +89,14 @@ public class GrpcClientBeanPostProcessor implements org.springframework.beans.fa
         return bean;
     }
 
-    @SneakyThrows
     private Object getTargetBean(Object bean) {
         Object target = bean;
         while (AopUtils.isAopProxy(target)) {
-            target = ((Advised) target).getTargetSource().getTarget();
+            try {
+                target = ((Advised) target).getTargetSource().getTarget();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
         return target;
     }

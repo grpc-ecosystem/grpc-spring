@@ -44,7 +44,6 @@
     <maven.javadoc.skip>true</maven.javadoc.skip>
     <!--<maven.source.skip>true</maven.source.skip>-->
 
-    <lombok.version>1.16.16</lombok.version>
     <grpc.version>1.7.0</grpc.version>
     <protobuf.version>3.4.0</protobuf.version>
     <netty.version>4.1.16.Final</netty.version>
