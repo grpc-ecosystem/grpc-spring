@@ -106,6 +106,7 @@ grpc.client.(gRPC server name).port[0]=
 
 | Project Version  | gRPC-java Version  |
 | ---------------- | ------------------ |
+| 1.3.1.RELEASE    | 1.8.0              |
 | 1.3.0.RELEASE    | 1.6.1              |
 | 1.2.0.RELEASE    | 1.3.0              |
 | 1.1.1.RELEASE    | 1.2.0              |
