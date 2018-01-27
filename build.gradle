@@ -7,9 +7,9 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     ext {
-        projectVersion = '1.3.0-RELEASE'
+        projectVersion = '1.3.1-RELEASE'
 
-        grpcVersion = '1.6.1'
+        grpcVersion = '1.8.0'
         protobufVersion = '3.3.0'
         protobufGradlePluginVersion = '0.8.0'
 
@@ -70,7 +70,7 @@ allprojects {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies{
-        compileOnly('org.projectlombok:lombok:1.16.6')
+        compileOnly('org.projectlombok:lombok:1.16.20')
     }
     buildscript {
         repositories {

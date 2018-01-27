@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>cloud-eureka-server</artifactId>
-  <version>1.3.0-RELEASE</version>
+  <version>1.3.1-RELEASE</version>
   <packaging>jar</packaging>
 
   <name>cloud-eureka-server</name>
@@ -13,7 +13,7 @@
   <parent>
     <groupId>net.devh</groupId>
     <artifactId>examples</artifactId>
-    <version>1.3.0-RELEASE</version>
+    <version>1.3.1-RELEASE</version>
   </parent>
 
   <properties>
