@@ -40,6 +40,9 @@ public class NettyGrpcServerFactory implements GrpcServerFactory {
             File certificate = new File(this.properties.getSecurity().getCertificatePath());
             builder.useTransportSecurity(certificateChain, certificate);
         }
+        if(properties.getMaxMessageSize() > 0) {
+        	builder.maxMessageSize(properties.getMaxMessageSize());
+        }
 
         return builder.build();
     }
