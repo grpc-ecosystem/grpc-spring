@@ -1,21 +1,19 @@
 package net.devh.springboot.autoconfigure.grpc.server;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.SpanExtractor;
 import org.springframework.util.StringUtils;
 
 import io.grpc.Metadata;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * User: Michael
  * Email: yidongnan@gmail.com
  * Date: 2016/12/9
  */
+@Slf4j
 public class MetadataExtractor implements SpanExtractor<Metadata> {
-
-    private Logger log = LoggerFactory.getLogger(MetadataExtractor.class);
 
     private static final String GRPC_COMPONENT = "gRPC";
 

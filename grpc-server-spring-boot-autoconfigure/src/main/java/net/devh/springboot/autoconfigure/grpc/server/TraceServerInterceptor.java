@@ -11,12 +11,14 @@ import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * User: Michael
  * Email: yidongnan@gmail.com
  * Date: 2016/12/8
  */
+@Slf4j
 public class TraceServerInterceptor implements ServerInterceptor {
 
     private Tracer tracer;

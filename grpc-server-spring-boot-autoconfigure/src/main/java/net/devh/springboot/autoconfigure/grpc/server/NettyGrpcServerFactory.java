@@ -4,8 +4,6 @@ import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -15,15 +13,15 @@ import io.grpc.Server;
 import io.grpc.health.v1.HealthCheckResponse;
 import io.grpc.netty.NettyServerBuilder;
 import io.grpc.services.HealthStatusManager;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * User: Michael
  * Email: yidongnan@gmail.com
  * Date: 5/17/16
  */
+@Slf4j
 public class NettyGrpcServerFactory implements GrpcServerFactory {
-
-    private Logger log = LoggerFactory.getLogger(NettyGrpcServerFactory.class);
 
     private final GrpcServerProperties properties;
     private final List<GrpcServiceDefinition> services = Lists.newLinkedList();

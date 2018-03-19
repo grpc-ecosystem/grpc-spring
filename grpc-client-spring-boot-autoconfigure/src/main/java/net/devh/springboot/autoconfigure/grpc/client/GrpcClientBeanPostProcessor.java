@@ -1,7 +1,9 @@
 package net.devh.springboot.autoconfigure.grpc.client;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
@@ -12,13 +14,12 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
+import lombok.SneakyThrows;
 
 /**
  * User: Michael
@@ -89,14 +90,11 @@ public class GrpcClientBeanPostProcessor implements org.springframework.beans.fa
         return bean;
     }
 
+    @SneakyThrows
     private Object getTargetBean(Object bean) {
         Object target = bean;
         while (AopUtils.isAopProxy(target)) {
-            try {
-                target = ((Advised) target).getTargetSource().getTarget();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            target = ((Advised) target).getTargetSource().getTarget();
         }
         return target;
     }

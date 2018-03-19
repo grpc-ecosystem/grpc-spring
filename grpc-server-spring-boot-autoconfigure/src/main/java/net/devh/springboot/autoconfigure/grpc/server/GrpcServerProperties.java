@@ -2,11 +2,14 @@ package net.devh.springboot.autoconfigure.grpc.server;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import lombok.Data;
+
 /**
  * User: Michael
  * Email: yidongnan@gmail.com
  * Date: 5/17/16
  */
+@Data
 @ConfigurationProperties("grpc.server")
 public class GrpcServerProperties {
     /**
@@ -24,6 +27,7 @@ public class GrpcServerProperties {
      */
     private final Security security = new Security();
 
+    @Data
     public static class Security {
 
         /**
@@ -31,58 +35,16 @@ public class GrpcServerProperties {
          */
         private Boolean enabled = false;
 
-         /**
+        /**
          * Path to SSL certificate chain
          */
         private String certificateChainPath = "";
 
-         /**
+        /**
          * Path to SSL certificate
          */
         private String certificatePath = "";
 
-        public Boolean getEnabled() {
-            return enabled;
-        }
-
-        public void setEnabled(Boolean enabled) {
-            this.enabled = enabled;
-        }
-
-        public String getCertificateChainPath() {
-            return certificateChainPath;
-        }
-
-        public void setCertificateChainPath(String certificateChainPath) {
-            this.certificateChainPath = certificateChainPath;
-        }
-
-        public String getCertificatePath() {
-            return certificatePath;
-        }
-
-        public void setCertificatePath(String certificatePath) {
-            this.certificatePath = certificatePath;
-        }
     }
 
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public Security getSecurity() {
-        return security;
-    }
 }

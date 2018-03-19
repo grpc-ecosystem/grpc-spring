@@ -11,7 +11,9 @@ import org.springframework.context.ApplicationContextAware;
 import com.google.common.collect.Lists;
 
 import io.grpc.ServerInterceptor;
+import lombok.Getter;
 
+@Getter
 public class GlobalServerInterceptorRegistry implements ApplicationContextAware {
 
     private final List<ServerInterceptor> serverInterceptors = Lists.newArrayList();
@@ -33,9 +35,5 @@ public class GlobalServerInterceptorRegistry implements ApplicationContextAware 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
-    }
-
-    public List<ServerInterceptor> getServerInterceptors() {
-        return serverInterceptors;
     }
 }
