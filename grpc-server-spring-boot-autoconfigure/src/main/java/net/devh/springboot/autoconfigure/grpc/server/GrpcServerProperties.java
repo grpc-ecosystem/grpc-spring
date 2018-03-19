@@ -21,6 +21,11 @@ public class GrpcServerProperties {
      * Bind address for the server. Defaults to 0.0.0.0.
      */
     private String address = "0.0.0.0";
+    
+    /**
+     * The maximum message size allowed to be received for the server.
+     */
+    private int maxMessageSize;
 
     /**
      * Security options for transport security. Defaults to disabled. 

@@ -49,6 +49,9 @@ public class AddressChannelFactory implements GrpcChannelFactory {
                     .keepAliveTime(channelProperties.getKeepAliveTime(), TimeUnit.SECONDS)
                     .keepAliveTimeout(channelProperties.getKeepAliveTimeout(), TimeUnit.SECONDS);
         }
+        if(channelProperties.getMaxInboundMessageSize() > 0) {
+        	builder.maxInboundMessageSize(channelProperties.getMaxInboundMessageSize());
+        }
         Channel channel = builder.build();
 
         List<ClientInterceptor> globalInterceptorList = globalClientInterceptorRegistry.getClientInterceptors();
