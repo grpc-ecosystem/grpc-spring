@@ -73,7 +73,7 @@ public class NettyGrpcServerFactory implements GrpcServerFactory {
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         for (GrpcServiceDefinition grpcServiceDefinition : services) {
             String serviceName = grpcServiceDefinition.getDefinition().getServiceDescriptor().getName();
             healthStatusManager.clearStatus(serviceName);
