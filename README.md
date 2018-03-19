@@ -35,7 +35,7 @@ To add a dependency using Gradle:
 
 ````
 dependencies {
-  compile 'net.devh:grpc-server-spring-boot-starter:1.3.0.RELEASE'
+  compile 'net.devh:grpc-server-spring-boot-starter:1.4.0.SNAPSHOT'
 }
 ````
 

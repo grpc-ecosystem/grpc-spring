@@ -1,11 +1,11 @@
 package net.devh.springboot.autoconfigure.grpc.server;
 
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.SmartLifecycle;
-
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import io.grpc.Server;
 
@@ -89,11 +89,16 @@ public class GrpcServerLifecycle implements SmartLifecycle {
     }
 
     protected void stopAndReleaseGrpcServer() {
-        Server localServer = this.server;
-        if (localServer != null) {
-            localServer.shutdown();
-            this.server = null;
-            log.info("gRPC server stopped");
+        try {
+            factory.destroy();
+            Server localServer = this.server;
+            if (localServer != null) {
+                localServer.shutdown();
+                this.server = null;
+                log.info("gRPC server shutdown.");
+            }
+        } catch (Exception e) {
+            log.error("gRPC server shutdown error", e);
         }
     }
 
