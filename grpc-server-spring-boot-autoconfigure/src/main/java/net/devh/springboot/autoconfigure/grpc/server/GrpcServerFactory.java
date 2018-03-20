@@ -15,4 +15,6 @@ public interface GrpcServerFactory {
     int getPort();
 
     void addService(GrpcServiceDefinition service);
+
+    void destroy();
 }

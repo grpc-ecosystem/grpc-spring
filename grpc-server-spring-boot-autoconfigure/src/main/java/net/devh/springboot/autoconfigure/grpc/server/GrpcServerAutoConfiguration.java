@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import io.grpc.Server;
+import io.grpc.services.HealthStatusManager;
 import io.netty.channel.Channel;
 
 /**
@@ -39,6 +40,12 @@ public class GrpcServerAutoConfiguration {
     }
 
     @ConditionalOnMissingBean
+    @Bean
+    public HealthStatusManager healthStatusManager() {
+        return new HealthStatusManager();
+    }
+
+    @ConditionalOnMissingBean
     @ConditionalOnClass(Channel.class)
     @Bean
     public NettyGrpcServerFactory nettyGrpcServiceFactory(GrpcServerProperties properties, GrpcServiceDiscoverer discoverer) {
@@ -55,7 +62,6 @@ public class GrpcServerAutoConfiguration {
     public GrpcServerLifecycle grpcServerLifecycle(GrpcServerFactory factory) {
         return new GrpcServerLifecycle(factory);
     }
-
 
     @Configuration
     @ConditionalOnProperty(value = "spring.sleuth.scheduled.enabled", matchIfMissing = true)

@@ -1,13 +1,12 @@
 package net.devh.springboot.autoconfigure.grpc.client;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-
 import javax.annotation.concurrent.GuardedBy;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 import io.grpc.Attributes;
 import io.grpc.EquivalentAddressGroup;

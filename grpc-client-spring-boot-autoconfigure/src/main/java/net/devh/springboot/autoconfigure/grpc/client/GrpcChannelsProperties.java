@@ -1,11 +1,11 @@
 package net.devh.springboot.autoconfigure.grpc.client;
 
-import com.google.common.collect.Maps;
+import java.util.Map;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
-import java.util.Map;
+import com.google.common.collect.Maps;
 
 import lombok.Data;
 

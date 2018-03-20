@@ -12,7 +12,7 @@ import io.grpc.Metadata;
  * Email: yidongnan@gmail.com
  * Date: 5/17/16
  */
-class MetadataInjector implements SpanInjector<Metadata> {
+public class MetadataInjector implements SpanInjector<Metadata> {
 
     private static final String HEADER_DELIMITER = "-";
 

@@ -1,20 +1,19 @@
 package net.devh.springboot.autoconfigure.grpc.client;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-
 import javax.annotation.concurrent.GuardedBy;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 import io.grpc.Attributes;
 import io.grpc.EquivalentAddressGroup;

@@ -28,7 +28,7 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-server-spring-boot-starter</artifactId>
-  <version>1.3.0.RELEASE</version>
+  <version>1.4.0.RELEASE</version>
 </dependency>
 ````
 
@@ -36,7 +36,7 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 
 ````
 dependencies {
-  compile 'net.devh:grpc-server-spring-boot-starter:1.3.0.RELEASE'
+  compile 'net.devh:grpc-server-spring-boot-starter:1.4.0.RELEASE'
 }
 ````
 
@@ -58,8 +58,8 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
 设置 gRPC 的 host 跟 port 在application.properties，默认的监听的 host 是 0.0.0.0，默认的 port 是 9090
 
 ````
-grpc.server.port=
-grpc.server.address=
+grpc.server.port=9090
+grpc.server.address=0.0.0.0
 ````
 
 ### gRPC 客户端
@@ -70,7 +70,7 @@ grpc.server.address=
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-client-spring-boot-starter</artifactId>
-  <version>1.3.0.RELEASE</version>
+  <version>1.4.0.RELEASE</version>
 </dependency>
 ````
 
@@ -78,7 +78,7 @@ grpc.server.address=
 
 ````
 dependencies {
-  compile 'net.devh:grpc-client-spring-boot-starter:1.3.0.RELEASE'
+  compile 'net.devh:grpc-client-spring-boot-starter:1.4.0.RELEASE'
 }
 ````
 
@@ -109,6 +109,7 @@ grpc.client.(gRPC server name).port[0]=
 
 | Project Version  | gRPC-java Version  |
 | ---------------- | ------------------ |
+| 1.4.0.RELEASE    | 1.10.0            |
 | 1.3.0.RELEASE    | 1.6.1              |
 | 1.2.0.RELEASE    | 1.3.0              |
 | 1.1.1.RELEASE    | 1.2.0              |

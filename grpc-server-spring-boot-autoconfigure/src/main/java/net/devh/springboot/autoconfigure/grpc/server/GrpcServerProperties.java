@@ -40,12 +40,12 @@ public class GrpcServerProperties {
          */
         private Boolean enabled = false;
 
-         /**
+        /**
          * Path to SSL certificate chain
          */
         private String certificateChainPath = "";
 
-         /**
+        /**
          * Path to SSL certificate
          */
         private String certificatePath = "";
