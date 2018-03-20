@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>cloud-zipkin-server</artifactId>
-  <version>1.4.0.SNAPSHOT</version>
+  <version>1.4.0.RELEASE</version>
   <packaging>jar</packaging>
 
   <name>cloud-zipkin-server</name>
@@ -13,7 +13,7 @@
   <parent>
     <groupId>net.devh</groupId>
     <artifactId>examples</artifactId>
-    <version>1.4.0.SNAPSHOT</version>
+    <version>1.4.0.RELEASE</version>
   </parent>
 
   <properties>
