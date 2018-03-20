@@ -15,7 +15,7 @@ gradle.taskGraph.whenReady { taskGraph ->
 
 ext {
     pomFile = file("${project.buildDir}/generated-pom.xml")
-    isReleaseVersion = !(projectVersion =~ /\.SNAPSHOT$/)
+    isReleaseVersion = (projectVersion =~ /\.RELEASE$/)
     isPublishing = {
         gradle.taskGraph.allTasks.find { it.name =~ /(?:^|:)publish[^:]*ToMaven[^:]*$/ } != null
     }
