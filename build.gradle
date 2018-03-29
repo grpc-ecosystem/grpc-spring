@@ -7,7 +7,7 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     ext {
-        projectVersion = '1.4.0.RELEASE'
+        projectVersion = '1.4.1.SNAPSHOT'
 
         grpcVersion = '1.10.0'
         protobufVersion = '3.5.1'
@@ -32,6 +32,7 @@ task wrapper(type: Wrapper) {
 allprojects {
     apply plugin: 'java'
     apply plugin: 'idea'
+    apply plugin: 'eclipse'
     apply plugin: "io.spring.dependency-management"
 
     compileJava {

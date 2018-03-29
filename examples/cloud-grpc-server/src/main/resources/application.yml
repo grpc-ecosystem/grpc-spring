@@ -8,7 +8,7 @@ server:
   port: 0
 grpc:
   server:
-    port: 9999
+    port: 0
 eureka:
   client:
     register-with-eureka: true
