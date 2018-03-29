@@ -1,6 +1,7 @@
 package net.devh.springboot.autoconfigure.grpc.server;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.util.SocketUtils;
 
 import lombok.Data;
 
@@ -52,4 +53,10 @@ public class GrpcServerProperties {
 
     }
 
+    public int getPort() {
+        if (this.port == 0) {
+            this.port = SocketUtils.findAvailableTcpPort();
+        }
+        return this.port;
+    }
 }
