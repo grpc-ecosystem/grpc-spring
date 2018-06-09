@@ -11,7 +11,7 @@
   <groupId>net.devh</groupId>
   <artifactId>grpc-spring-boot-starter</artifactId>
   <packaging>pom</packaging>
-  <version>1.4.1.SNAPSHOT</version>
+  <version>1.4.1.RELEASE</version>
 
   <modules>
     <module>grpc-client-spring-boot-autoconfigure</module>
@@ -45,7 +45,7 @@
     <!--<maven.source.skip>true</maven.source.skip>-->
 
     <lombok.version>1.16.20</lombok.version>
-    <grpc.version>1.10.0</grpc.version>
+    <grpc.version>1.12.0</grpc.version>
     <protobuf.version>3.5.1</protobuf.version>
     <netty.version>4.1.17.Final</netty.version>
     <spring-cloud.version>Edgware.SR2</spring-cloud.version>
