@@ -33,9 +33,15 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-eureka</artifactId>
+      <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
       <version>${spring-cloud.eureka.version}</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.zipkin.brave</groupId>
+      <artifactId>brave-instrumentation-grpc</artifactId>
+      <version>5.1.2</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>

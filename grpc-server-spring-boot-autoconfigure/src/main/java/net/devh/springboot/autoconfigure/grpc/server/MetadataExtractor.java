@@ -1,17 +1,19 @@
+/*
 package net.devh.springboot.autoconfigure.grpc.server;
 
-import org.springframework.cloud.sleuth.Span;
-import org.springframework.cloud.sleuth.SpanExtractor;
 import org.springframework.util.StringUtils;
 
 import io.grpc.Metadata;
 import lombok.extern.slf4j.Slf4j;
+import zipkin2.Span;
 
+*/
 /**
  * User: Michael
  * Email: yidongnan@gmail.com
  * Date: 2016/12/9
- */
+ *//*
+
 @Slf4j
 public class MetadataExtractor implements SpanExtractor<Metadata> {
 
@@ -77,3 +79,4 @@ public class MetadataExtractor implements SpanExtractor<Metadata> {
         return span.build();
     }
 }
+*/

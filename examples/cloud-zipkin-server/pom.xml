@@ -30,10 +30,12 @@
     <dependency>
       <groupId>io.zipkin.java</groupId>
       <artifactId>zipkin-server</artifactId>
+      <version>2.9.4</version>
     </dependency>
     <dependency>
       <groupId>io.zipkin.java</groupId>
       <artifactId>zipkin-autoconfigure-ui</artifactId>
+      <version>2.9.4</version>
       <scope>runtime</scope>
     </dependency>
   </dependencies>

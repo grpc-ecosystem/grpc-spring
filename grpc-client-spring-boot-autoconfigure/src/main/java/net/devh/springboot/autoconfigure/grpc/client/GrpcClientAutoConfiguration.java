@@ -6,10 +6,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import brave.Tracing;
 import io.grpc.LoadBalancer;
 import io.grpc.util.RoundRobinLoadBalancerFactory;
 
@@ -66,10 +66,10 @@ public class GrpcClientAutoConfiguration {
 
     @Configuration
     @ConditionalOnProperty(value = "spring.sleuth.scheduled.enabled", matchIfMissing = true)
-    @ConditionalOnClass(Tracer.class)
+    @ConditionalOnClass(Tracing.class)
     protected static class TraceClientAutoConfiguration {
 
-        @Bean
+        /*@Bean
         public GlobalClientInterceptorConfigurerAdapter globalTraceClientInterceptorConfigurerAdapter(final Tracer tracer) {
             return new GlobalClientInterceptorConfigurerAdapter() {
 
@@ -78,7 +78,7 @@ public class GrpcClientAutoConfiguration {
                     registry.addClientInterceptors(new TraceClientInterceptor(tracer, new MetadataInjector()));
                 }
             };
-        }
+        }*/
     }
 
 }

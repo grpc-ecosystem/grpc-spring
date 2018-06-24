@@ -1,3 +1,4 @@
+/*
 package net.devh.springboot.autoconfigure.grpc.client;
 
 import org.springframework.cloud.sleuth.Span;
@@ -16,11 +17,13 @@ import io.grpc.Status;
 import io.grpc.StatusException;
 import lombok.extern.slf4j.Slf4j;
 
+*/
 /**
  * User: Michael
  * Email: yidongnan@gmail.com
  * Date: 2016/12/8
- */
+ *//*
+
 @Slf4j
 public class TraceClientInterceptor implements ClientInterceptor {
 
@@ -65,3 +68,4 @@ public class TraceClientInterceptor implements ClientInterceptor {
         };
     }
 }
+*/

@@ -8,6 +8,9 @@ spring:
 eureka:
   instance:
     hostname: localhost
+    prefer-ip-address: true
+    status-page-url-path: /actuator/info
+    health-check-url-path: /actuator/health
     lease-expiration-duration-in-seconds: 30
     lease-renewal-interval-in-seconds: 30
   client:

@@ -1,13 +1,16 @@
 package net.devh.springboot.autoconfigure.grpc.server;
 
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.sleuth.Tracer;
+import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import brave.Tracing;
 import io.grpc.Server;
 import io.grpc.services.HealthStatusManager;
 import io.netty.channel.Channel;
@@ -65,18 +68,19 @@ public class GrpcServerAutoConfiguration {
 
     @Configuration
     @ConditionalOnProperty(value = "spring.sleuth.scheduled.enabled", matchIfMissing = true)
-    @ConditionalOnClass(Tracer.class)
+    @AutoConfigureAfter({ TraceAutoConfiguration.class })
+    @ConditionalOnBean(Tracing.class)
     protected static class TraceServerAutoConfiguration {
 
-        @Bean
-        public GlobalServerInterceptorConfigurerAdapter globalTraceServerInterceptorConfigurerAdapter(final Tracer tracer) {
+       /* @Bean
+        public GlobalServerInterceptorConfigurerAdapter globalTraceServerInterceptorConfigurerAdapter(final Tracing tracing) {
             return new GlobalServerInterceptorConfigurerAdapter() {
                 @Override
                 public void addServerInterceptors(GlobalServerInterceptorRegistry registry) {
-                    registry.addServerInterceptors(new TraceServerInterceptor(tracer, new MetadataExtractor()));
+                    registry.addServerInterceptors(new TraceServerInterceptor(tracing, new MetadataExtractor()));
                 }
             };
-        }
+        }*/
 
     }
 }

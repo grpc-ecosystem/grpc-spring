@@ -1,3 +1,4 @@
+/*
 package net.devh.springboot.autoconfigure.grpc.client;
 
 import org.springframework.cloud.sleuth.Span;
@@ -7,11 +8,13 @@ import java.util.Map;
 
 import io.grpc.Metadata;
 
+*/
 /**
  * User: Michael
  * Email: yidongnan@gmail.com
  * Date: 5/17/16
- */
+ *//*
+
 public class MetadataInjector implements SpanInjector<Metadata> {
 
     private static final String HEADER_DELIMITER = "-";
@@ -54,3 +57,4 @@ public class MetadataInjector implements SpanInjector<Metadata> {
         return !span.getParents().isEmpty() ? span.getParents().get(0) : null;
     }
 }
+*/
