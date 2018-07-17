@@ -2,8 +2,8 @@ apply plugin: 'org.springframework.boot'
 
 dependencies {
     compile('org.springframework.boot:spring-boot-starter')
-    compile('io.zipkin.java:zipkin-server')
-    compile('io.zipkin.java:zipkin-autoconfigure-ui')
+    compile('io.zipkin.java:zipkin-server:2.9.4')
+    compile('io.zipkin.java:zipkin-autoconfigure-ui:2.9.4')
 }
 
 buildscript {

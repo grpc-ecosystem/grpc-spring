@@ -9,9 +9,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Date: 2016/11/8
  */
 @SpringBootApplication
-public class GrpcServerApplication {
+public class LocalGrpcServerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(GrpcServerApplication.class, args);
+        SpringApplication.run(LocalGrpcServerApplication.class, args);
     }
 }
