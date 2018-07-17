@@ -12,8 +12,6 @@ grpc:
 eureka:
   instance:
     prefer-ip-address: true
-    status-page-url-path: /actuator/info
-    health-check-url-path: /actuator/health
     instanceId: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${random.value}}}
   client:
     register-with-eureka: true
