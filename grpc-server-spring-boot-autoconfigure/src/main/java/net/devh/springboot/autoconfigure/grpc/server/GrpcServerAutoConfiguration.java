@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import brave.Tracing;
+import brave.grpc.GrpcTracing;
 import io.grpc.Server;
 import io.grpc.services.HealthStatusManager;
 import io.netty.channel.Channel;
@@ -72,15 +73,20 @@ public class GrpcServerAutoConfiguration {
     @ConditionalOnBean(Tracing.class)
     protected static class TraceServerAutoConfiguration {
 
-       /* @Bean
-        public GlobalServerInterceptorConfigurerAdapter globalTraceServerInterceptorConfigurerAdapter(final Tracing tracing) {
+        @Bean
+        public GrpcTracing grpcTracing(Tracing tracing) {
+            return GrpcTracing.create(tracing);
+        }
+
+        @Bean
+        public GlobalServerInterceptorConfigurerAdapter globalTraceServerInterceptorConfigurerAdapter(final GrpcTracing grpcTracing) {
             return new GlobalServerInterceptorConfigurerAdapter() {
                 @Override
                 public void addServerInterceptors(GlobalServerInterceptorRegistry registry) {
-                    registry.addServerInterceptors(new TraceServerInterceptor(tracing, new MetadataExtractor()));
+                    registry.addServerInterceptors(grpcTracing.newServerInterceptor());
                 }
             };
-        }*/
+        }
 
     }
 }

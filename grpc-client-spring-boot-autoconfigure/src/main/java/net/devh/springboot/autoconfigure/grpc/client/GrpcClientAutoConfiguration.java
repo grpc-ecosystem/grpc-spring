@@ -1,5 +1,6 @@
 package net.devh.springboot.autoconfigure.grpc.client;
 
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import brave.Tracing;
+import brave.grpc.GrpcTracing;
 import io.grpc.LoadBalancer;
 import io.grpc.util.RoundRobinLoadBalancerFactory;
 
@@ -21,6 +23,7 @@ import io.grpc.util.RoundRobinLoadBalancerFactory;
 @Configuration
 @EnableConfigurationProperties
 @ConditionalOnClass({GrpcChannelFactory.class})
+@AutoConfigureAfter(name = {"org.springframework.cloud.client.CommonsClientAutoConfiguration"})
 public class GrpcClientAutoConfiguration {
 
     @ConditionalOnMissingBean
@@ -69,16 +72,21 @@ public class GrpcClientAutoConfiguration {
     @ConditionalOnClass(Tracing.class)
     protected static class TraceClientAutoConfiguration {
 
-        /*@Bean
-        public GlobalClientInterceptorConfigurerAdapter globalTraceClientInterceptorConfigurerAdapter(final Tracer tracer) {
+        @Bean
+        public GrpcTracing grpcTracing(Tracing tracing) {
+            return GrpcTracing.create(tracing);
+        }
+
+        @Bean
+        public GlobalClientInterceptorConfigurerAdapter globalTraceClientInterceptorConfigurerAdapter(final GrpcTracing grpcTracing) {
             return new GlobalClientInterceptorConfigurerAdapter() {
 
                 @Override
                 public void addClientInterceptors(GlobalClientInterceptorRegistry registry) {
-                    registry.addClientInterceptors(new TraceClientInterceptor(tracer, new MetadataInjector()));
+                    registry.addClientInterceptors(grpcTracing.newClientInterceptor());
                 }
             };
-        }*/
+        }
     }
 
 }
