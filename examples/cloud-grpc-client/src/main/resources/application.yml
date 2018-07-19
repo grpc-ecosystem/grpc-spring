@@ -5,7 +5,7 @@ spring:
     name: cloud-grpc-client
   sleuth:
     sampler:
-      percentage: 1
+      probability: 1
 eureka:
   instance:
     prefer-ip-address: true
