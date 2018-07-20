@@ -1,9 +1,6 @@
 buildscript {
     repositories {
         mavenLocal()
-        maven { url 'http://10.198.1.169:8081/nexus/content/groups/public' }
-        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
-        maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
         mavenCentral()
         jcenter()
         maven { url 'http://repo.spring.io/plugins-release' }
@@ -69,9 +66,6 @@ allprojects {
 
     repositories {
         mavenLocal()
-        maven { url 'http://10.198.1.169:8081/nexus/content/groups/public' }
-        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
-        maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
         mavenCentral()
         jcenter()
         maven { url 'http://repo.spring.io/plugins-release' }
@@ -84,9 +78,6 @@ allprojects {
     buildscript {
         repositories {
             mavenLocal()
-            maven { url 'http://10.198.1.169:8081/nexus/content/groups/public' }
-            maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
-            maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
             mavenCentral()
             jcenter()
             maven { url 'http://repo.spring.io/plugins-release' }
