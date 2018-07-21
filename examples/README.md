@@ -23,11 +23,9 @@ visit http://localhost:8080/ can see result.
     ./gradlew :example:cloud-eureka-server:bootRun
     ````
 
-2. Try the cloud-zipkin-server example first run:
+2. run zipkin-server
 
-    ````
-    ./gradlew :example:cloud-zipkin-server:bootRun
-    ````
+    https://github.com/openzipkin/zipkin#quick-start
 
 3. In a different terminal window run:
 

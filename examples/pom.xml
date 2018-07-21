@@ -20,7 +20,6 @@
     <module>cloud-eureka-server</module>
     <module>cloud-grpc-client</module>
     <module>cloud-grpc-server</module>
-    <module>cloud-zipkin-server</module>
   </modules>
 
   <dependencyManagement>
