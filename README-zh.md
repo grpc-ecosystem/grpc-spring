@@ -17,9 +17,9 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 支持对于 server、client 分别设置全局拦截器或单个的拦截器
 
 ## 支持的 Spring Cloud 版本
-2.x.x.RELEASE 支持 Spring Cloud Finchley
+2.x.x.RELEASE 支持 Spring Cloud Finchley,最新的版本：``2.0.0.RELEASE``
 
-1.x.x.RELEASE 支持 Spring Cloud Edgware 、Dalston、Camden
+1.x.x.RELEASE 支持 Spring Cloud Edgware 、Dalston、Camden，最新的版本：``1.4.1.RELEASE``
 
 ## 使用方式
 
@@ -31,7 +31,7 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-server-spring-boot-starter</artifactId>
-  <version>1.4.1.RELEASE</version>
+  <version>2.0.0.RELEASE</version>
 </dependency>
 ````
 
@@ -39,7 +39,7 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 
 ````
 dependencies {
-  compile 'net.devh:grpc-server-spring-boot-starter:1.4.1.RELEASE'
+  compile 'net.devh:grpc-server-spring-boot-starter:2.0.0.RELEASE'
 }
 ````
 
@@ -73,7 +73,7 @@ grpc.server.address=0.0.0.0
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-client-spring-boot-starter</artifactId>
-  <version>1.4.1.RELEASE</version>
+  <version>2.0.0.RELEASE</version>
 </dependency>
 ````
 
@@ -81,7 +81,7 @@ grpc.server.address=0.0.0.0
 
 ````
 dependencies {
-  compile 'net.devh:grpc-client-spring-boot-starter:1.4.1.RELEASE'
+  compile 'net.devh:grpc-client-spring-boot-starter:2.0.0.RELEASE'
 }
 ````
 
