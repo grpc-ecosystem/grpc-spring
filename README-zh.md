@@ -17,9 +17,13 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 支持对于 server、client 分别设置全局拦截器或单个的拦截器
 
 ## 支持的 Spring Cloud 版本
-2.x.x.RELEASE 支持 Spring Cloud Finchley,最新的版本：``2.0.0.RELEASE``
+2.x.x.RELEASE 支持 Spring Cloud Finchley。
 
-1.x.x.RELEASE 支持 Spring Cloud Edgware 、Dalston、Camden，最新的版本：``1.4.1.RELEASE``
+最新的版本：``2.0.0.RELEASE``
+
+1.x.x.RELEASE 支持 Spring Cloud Edgware 、Dalston、Camden。
+
+最新的版本：``1.4.1.RELEASE``
 
 ## 使用方式
 

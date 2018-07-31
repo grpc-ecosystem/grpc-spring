@@ -16,9 +16,13 @@ Support global and customer gRPC server/client interceptors
 
 ## 版本
 
-2.x.x.RELEASE support Spring Cloud Finchley. The latest version: ``2.0.0.RELEASE``
+2.x.x.RELEASE support Spring Cloud Finchley.
+ 
+The latest version: ``2.0.0.RELEASE``
 
-1.x.x.RELEASE support Spring Cloud Edgware 、Dalston、Camden. The latest version: ``1.4.1.RELEASE``
+1.x.x.RELEASE support Spring Cloud Edgware 、Dalston、Camden. 
+
+The latest version: ``1.4.1.RELEASE``
 
 ## Usage
 
