@@ -5,12 +5,12 @@
   <parent>
     <groupId>net.devh</groupId>
     <artifactId>grpc-spring-boot-starter</artifactId>
-    <version>1.4.1.RELEASE</version>
+    <version>2.0.0.RELEASE</version>
     <relativePath>../</relativePath>
   </parent>
 
   <artifactId>grpc-client-spring-boot-autoconfigure</artifactId>
-  <version>1.4.1.RELEASE</version>
+  <version>2.0.0.RELEASE</version>
 
   <dependencies>
     <dependency>
@@ -37,8 +37,18 @@
       <version>${spring-cloud.sleuth.version}</version>
     </dependency>
     <dependency>
+      <groupId>io.zipkin.brave</groupId>
+      <artifactId>brave-instrumentation-grpc</artifactId>
+      <version>${brave.instrumentation.grpc}</version>
+    </dependency>
+    <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-netty</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-protobuf</artifactId>
       <version>${grpc.version}</version>
     </dependency>
     <dependency>

@@ -1,15 +1,18 @@
 package net.devh.springboot.autoconfigure.grpc.client;
 
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.sleuth.Tracer;
+import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import brave.Tracing;
+import brave.grpc.GrpcTracing;
 import io.grpc.LoadBalancer;
 import io.grpc.util.RoundRobinLoadBalancerFactory;
 
@@ -21,6 +24,7 @@ import io.grpc.util.RoundRobinLoadBalancerFactory;
 @Configuration
 @EnableConfigurationProperties
 @ConditionalOnClass({GrpcChannelFactory.class})
+@AutoConfigureAfter(name = {"org.springframework.cloud.client.CommonsClientAutoConfiguration"})
 public class GrpcClientAutoConfiguration {
 
     @ConditionalOnMissingBean
@@ -66,16 +70,22 @@ public class GrpcClientAutoConfiguration {
 
     @Configuration
     @ConditionalOnProperty(value = "spring.sleuth.scheduled.enabled", matchIfMissing = true)
-    @ConditionalOnClass(Tracer.class)
+    @AutoConfigureAfter({TraceAutoConfiguration.class})
+    @ConditionalOnClass(value = {Tracing.class, GrpcTracing.class})
     protected static class TraceClientAutoConfiguration {
 
         @Bean
-        public GlobalClientInterceptorConfigurerAdapter globalTraceClientInterceptorConfigurerAdapter(final Tracer tracer) {
+        public GrpcTracing grpcTracing(Tracing tracing) {
+            return GrpcTracing.create(tracing);
+        }
+
+        @Bean
+        public GlobalClientInterceptorConfigurerAdapter globalTraceClientInterceptorConfigurerAdapter(final GrpcTracing grpcTracing) {
             return new GlobalClientInterceptorConfigurerAdapter() {
 
                 @Override
                 public void addClientInterceptors(GlobalClientInterceptorRegistry registry) {
-                    registry.addClientInterceptors(new TraceClientInterceptor(tracer, new MetadataInjector()));
+                    registry.addClientInterceptors(grpcTracing.newClientInterceptor());
                 }
             };
         }

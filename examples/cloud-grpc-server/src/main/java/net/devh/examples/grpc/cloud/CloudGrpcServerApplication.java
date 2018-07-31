@@ -13,9 +13,9 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 @EnableEurekaClient
 @EnableDiscoveryClient
 @SpringBootApplication
-public class GrpcServerApplication {
+public class CloudGrpcServerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(GrpcServerApplication.class, args);
+        SpringApplication.run(CloudGrpcServerApplication.class, args);
     }
 }

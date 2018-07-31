@@ -1,20 +1,17 @@
-package net.devh.examples.zipkin;
+package net.devh.examples.grpc.local;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import zipkin.server.EnableZipkinServer;
-
 /**
  * User: Michael
  * Email: yidongnan@gmail.com
- * Date: 17-5-14
+ * Date: 2016/11/8
  */
 @SpringBootApplication
-@EnableZipkinServer
-public class ZipkinApplication {
+public class LocalGrpcClientApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ZipkinApplication.class, args);
+        SpringApplication.run(LocalGrpcClientApplication.class, args);
     }
 }

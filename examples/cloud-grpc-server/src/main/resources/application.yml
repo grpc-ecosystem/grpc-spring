@@ -3,17 +3,18 @@ spring:
     name: cloud-grpc-server
   sleuth:
     sampler:
-      percentage: 1
+      probability: 1
 server:
   port: 0
 grpc:
   server:
     port: 0
 eureka:
+  instance:
+    prefer-ip-address: true
+    instanceId: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${random.value}}}
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
       defaultZone: http://localhost:8761/eureka/
-  instance:
-    instanceId: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${random.value}}}

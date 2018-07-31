@@ -14,7 +14,11 @@ Support Spring Sleuth to trace application
 
 Support global and customer gRPC server/client interceptors
 
-Support keepalive
+## 版本
+
+2.x.x.RELEASE support Spring Cloud Finchley
+
+1.x.x.RELEASE support Spring Cloud Edgware 、Dalston、Camden
 
 ## Usage
 
@@ -45,7 +49,7 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
 
     @Override
     public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
-        HelloReply reply = HelloReply.newBuilder().setMessage("Hello =============> " + req.getName()).build();
+        HelloReply reply = HelloReply.newBuilder().setMessage("Hello ====> " + req.getName()).build();
         responseObserver.onNext(reply);
         responseObserver.onCompleted();
     }
@@ -99,22 +103,5 @@ grpc.client.(gRPC server name).host[0]=
 grpc.client.(gRPC server name).port[0]=
 ````
 
-## Version Compatibility with gRPC-java
-
-> Note: The version numbers below are only examples
-
-| Project Version  | gRPC-java Version  |
-| ---------------- | ------------------ |
-| 1.4.1.RELEASE    | 1.12.0            |
-| 1.4.0.RELEASE    | 1.10.0            |
-| 1.3.0.RELEASE    | 1.6.1              |
-| 1.2.0.RELEASE    | 1.3.0              |
-| 1.1.1.RELEASE    | 1.2.0              |
-| 1.0.1.RELEASE    | 1.1.2              |
-| 1.0.0.RELEASE    | 1.0.3              |
-
 ## Show case
 https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/examples
-
-## Credits
-- [saturnism](https://github.com/saturnism/spring-boot-starter-grpc)

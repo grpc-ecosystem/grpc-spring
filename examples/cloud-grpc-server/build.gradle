@@ -1,7 +1,8 @@
 apply plugin: 'org.springframework.boot'
 
 dependencies {
-    compile('org.springframework.cloud:spring-cloud-starter-eureka')
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     compile('org.springframework.boot:spring-boot-starter-actuator')
     compile('org.springframework.cloud:spring-cloud-starter-zipkin')
     compile project(':grpc-server-spring-boot-starter') // replace to compile("net.devh:grpc-server-spring-boot-starter:${springBootGrpcVersion}")
