@@ -14,7 +14,7 @@ Support Spring Sleuth to trace application
 
 Support global and customer gRPC server/client interceptors
 
-## 版本
+## version
 
 2.x.x.RELEASE support Spring Cloud Finchley.
  
