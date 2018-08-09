@@ -5,12 +5,12 @@
   <parent>
     <groupId>net.devh</groupId>
     <artifactId>grpc-spring-boot-starter</artifactId>
-    <version>2.0.0.RELEASE</version>
+    <version>2.0.1.RELEASE</version>
     <relativePath>../</relativePath>
   </parent>
 
   <artifactId>grpc-client-spring-boot-autoconfigure</artifactId>
-  <version>2.0.0.RELEASE</version>
+  <version>2.0.1.RELEASE</version>
 
   <dependencies>
     <dependency>

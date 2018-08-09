@@ -7,17 +7,17 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     ext {
-        projectVersion = '2.0.0.RELEASE'
+        projectVersion = '2.0.1.RELEASE'
 
-        grpcVersion = '1.13.1'
+        grpcVersion = '1.14.0'
         protobufVersion = '3.5.1'
         protobufGradlePluginVersion = '0.8.4'
 
-        springBootVersion = '2.0.2.RELEASE'
-        springSleuthVersion = '2.0.0.RELEASE'
-        springCloudVersion = 'Finchley.RELEASE'
-        springCloudConsulVersion = '2.0.0.RELEASE'
-        springCloudEurekaVersion = '2.0.0.RELEASE'
+        springBootVersion = '2.0.4.RELEASE'
+        springSleuthVersion = '2.0.1.RELEASE'
+        springCloudVersion = 'Finchley.SR1'
+        springCloudConsulVersion = '2.0.1.RELEASE'
+        springCloudEurekaVersion = '2.0.1.RELEASE'
         braveInstrumentationGrpc='5.1.2'
     }
     dependencies {
