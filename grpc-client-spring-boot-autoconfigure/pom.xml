@@ -40,6 +40,7 @@
       <groupId>io.zipkin.brave</groupId>
       <artifactId>brave-instrumentation-grpc</artifactId>
       <version>${brave.instrumentation.grpc}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>io.grpc</groupId>

@@ -5,6 +5,7 @@ dependencies {
     compile("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     compile('org.springframework.boot:spring-boot-starter-actuator')
     compile('org.springframework.cloud:spring-cloud-starter-zipkin')
+    compile("io.zipkin.brave:brave-instrumentation-grpc:${braveInstrumentationGrpc}")
     compile project(':grpc-client-spring-boot-starter') // replace to compile("net.devh:grpc-client-spring-boot-starter:${springBootGrpcVersion}")
     compile project(':examples:grpc-lib')
 }

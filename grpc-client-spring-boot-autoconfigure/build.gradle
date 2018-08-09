@@ -11,7 +11,7 @@ dependencies {
     compileOnly("org.springframework.cloud:spring-cloud-starter-sleuth:${springSleuthVersion}")
     compileOnly("org.springframework.cloud:spring-cloud-starter-consul-discovery:${springCloudConsulVersion}")
     compileOnly("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:${springCloudEurekaVersion}")
-    compile("io.zipkin.brave:brave-instrumentation-grpc:${braveInstrumentationGrpc}")
+    compileOnly("io.zipkin.brave:brave-instrumentation-grpc:${braveInstrumentationGrpc}")
     compile("io.grpc:grpc-netty:${grpcVersion}")
     compile("io.grpc:grpc-protobuf:${grpcVersion}")
     compile("io.grpc:grpc-stub:${grpcVersion}")

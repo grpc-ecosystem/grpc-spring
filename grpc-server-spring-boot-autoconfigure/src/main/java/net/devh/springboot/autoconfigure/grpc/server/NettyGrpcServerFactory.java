@@ -54,7 +54,7 @@ public class NettyGrpcServerFactory implements GrpcServerFactory {
             builder.useTransportSecurity(certificateChain, certificate);
         }
         if(properties.getMaxMessageSize() > 0) {
-        	builder.maxMessageSize(properties.getMaxMessageSize());
+        	builder.maxInboundMessageSize(properties.getMaxMessageSize());
         }
 
         return builder.build();
