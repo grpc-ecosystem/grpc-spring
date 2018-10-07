@@ -12,7 +12,7 @@ Support Spring Cloud(registe services to consul or eureka and fetch gRPC server 
 
 Support Spring Sleuth to trace application
 
-Support global and customer gRPC server/client interceptors
+Support global and custom gRPC server/client interceptors
 
 ## version
 
