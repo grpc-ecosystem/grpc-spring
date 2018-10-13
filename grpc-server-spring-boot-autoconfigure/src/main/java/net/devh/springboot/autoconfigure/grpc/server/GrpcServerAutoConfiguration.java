@@ -14,6 +14,7 @@ import brave.grpc.GrpcTracing;
 import io.grpc.Server;
 import io.grpc.services.HealthStatusManager;
 import io.netty.channel.Channel;
+import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodecDefinition;
 
 /**
  * User: Michael
@@ -53,6 +54,9 @@ public class GrpcServerAutoConfiguration {
     @Bean
     public NettyGrpcServerFactory nettyGrpcServiceFactory(GrpcServerProperties properties, GrpcServiceDiscoverer discoverer) {
         NettyGrpcServerFactory factory = new NettyGrpcServerFactory(properties);
+        for (GrpcCodecDefinition codec : discoverer.findGrpcCodec()) {
+            factory.addCodec(codec);
+        }
         for (GrpcServiceDefinition service : discoverer.findGrpcServices()) {
             factory.addService(service);
         }

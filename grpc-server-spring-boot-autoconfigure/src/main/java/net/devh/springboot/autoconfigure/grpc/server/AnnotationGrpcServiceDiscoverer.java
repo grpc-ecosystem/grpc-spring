@@ -14,10 +14,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import io.grpc.BindableService;
+import io.grpc.Codec;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodec;
+import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodecDefinition;
 
 /**
  * User: Michael
@@ -35,14 +38,9 @@ public class AnnotationGrpcServiceDiscoverer implements ApplicationContextAware,
         this.applicationContext = applicationContext;
     }
 
-    public Collection<String> findGrpcServiceBeanNames() {
-        String[] beanNames = this.applicationContext.getBeanNamesForAnnotation(GrpcService.class);
-        return Arrays.asList(beanNames);
-    }
-
     @Override
     public Collection<GrpcServiceDefinition> findGrpcServices() {
-        Collection<String> beanNames = findGrpcServiceBeanNames();
+        Collection<String> beanNames = Arrays.asList(this.applicationContext.getBeanNamesForAnnotation(GrpcService.class));
         List<GrpcServiceDefinition> definitions = Lists.newArrayListWithCapacity(beanNames.size());
         GlobalServerInterceptorRegistry globalServerInterceptorRegistry = applicationContext.getBean(GlobalServerInterceptorRegistry.class);
         List<ServerInterceptor> globalInterceptorList = globalServerInterceptorRegistry.getServerInterceptors();
@@ -53,6 +51,19 @@ public class AnnotationGrpcServiceDiscoverer implements ApplicationContextAware,
             serviceDefinition = bindInterceptors(serviceDefinition, grpcServiceAnnotation, globalInterceptorList);
             definitions.add(new GrpcServiceDefinition(beanName, bindableService.getClass(), serviceDefinition));
             log.debug("Found gRPC service: " + serviceDefinition.getServiceDescriptor().getName() + ", bean: " + beanName + ", class: " + bindableService.getClass().getName());
+        }
+        return definitions;
+    }
+
+    @Override
+    public Collection<GrpcCodecDefinition> findGrpcCodec() {
+        Collection<String> beanNames = Arrays.asList(this.applicationContext.getBeanNamesForAnnotation(GrpcCodec.class));
+        List<GrpcCodecDefinition> definitions = Lists.newArrayListWithCapacity(beanNames.size());
+        for (String beanName : beanNames) {
+            Codec codec = this.applicationContext.getBean(beanName, Codec.class);
+            GrpcCodec annotation = applicationContext.findAnnotationOnBean(beanName, GrpcCodec.class);
+            definitions.add(new GrpcCodecDefinition(codec, annotation.advertised(), annotation.codecType()));
+            log.debug("Found custom gRPC custom codec: " + codec.getMessageEncoding() + ", bean: " + beanName + ", class: " + codec.getClass().getName());
         }
         return definitions;
     }

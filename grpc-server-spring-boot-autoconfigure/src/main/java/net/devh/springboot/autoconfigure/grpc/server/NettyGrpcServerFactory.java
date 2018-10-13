@@ -9,11 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 
+import io.grpc.CompressorRegistry;
+import io.grpc.DecompressorRegistry;
 import io.grpc.Server;
 import io.grpc.health.v1.HealthCheckResponse;
 import io.grpc.netty.NettyServerBuilder;
 import io.grpc.services.HealthStatusManager;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.springboot.autoconfigure.grpc.server.codec.CodecType;
+import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodecDefinition;
 
 /**
  * User: Michael
@@ -24,7 +28,10 @@ import lombok.extern.slf4j.Slf4j;
 public class NettyGrpcServerFactory implements GrpcServerFactory {
 
     private final GrpcServerProperties properties;
-    private final List<GrpcServiceDefinition> services = Lists.newLinkedList();
+
+    private final List<GrpcServiceDefinition> serviceList = Lists.newLinkedList();
+
+    private final List<GrpcCodecDefinition> codecList = Lists.newLinkedList();
 
     @Autowired
     private HealthStatusManager healthStatusManager;
@@ -41,7 +48,7 @@ public class NettyGrpcServerFactory implements GrpcServerFactory {
         // support health check
         builder.addService(healthStatusManager.getHealthService());
 
-        for (GrpcServiceDefinition service : this.services) {
+        for (GrpcServiceDefinition service : this.serviceList) {
             String serviceName = service.getDefinition().getServiceDescriptor().getName();
             log.info("Registered gRPC service: " + serviceName + ", bean: " + service.getBeanName() + ", class: " + service.getBeanClazz().getName());
             builder.addService(service.getDefinition());
@@ -56,7 +63,24 @@ public class NettyGrpcServerFactory implements GrpcServerFactory {
         if(properties.getMaxMessageSize() > 0) {
         	builder.maxInboundMessageSize(properties.getMaxMessageSize());
         }
+        if (codecList.size() > 0) {
+            CompressorRegistry compressorRegistry = CompressorRegistry.newEmptyInstance();
+            DecompressorRegistry decompressorRegistry = DecompressorRegistry.emptyInstance();
 
+            for (GrpcCodecDefinition grpcCodecDefinition : this.codecList) {
+                if (grpcCodecDefinition.getCodecType().equals(CodecType.COMPRESS)) {
+                    compressorRegistry.register(grpcCodecDefinition.getCodec());
+                } else if (grpcCodecDefinition.getCodecType().equals(CodecType.DECOMPRESS)) {
+                    decompressorRegistry.with(grpcCodecDefinition.getCodec(), grpcCodecDefinition.isAdvertised());
+                } else {
+                    compressorRegistry.register(grpcCodecDefinition.getCodec());
+                    decompressorRegistry.with(grpcCodecDefinition.getCodec(), grpcCodecDefinition.isAdvertised());
+                }
+            }
+
+            builder.compressorRegistry(compressorRegistry);
+            builder.decompressorRegistry(decompressorRegistry);
+        }
         return builder.build();
     }
 
@@ -72,12 +96,17 @@ public class NettyGrpcServerFactory implements GrpcServerFactory {
 
     @Override
     public void addService(GrpcServiceDefinition service) {
-        this.services.add(service);
+        this.serviceList.add(service);
+    }
+
+    @Override
+    public void addCodec(GrpcCodecDefinition codec) {
+        this.codecList.add(codec);
     }
 
     @Override
     public void destroy() {
-        for (GrpcServiceDefinition grpcServiceDefinition : services) {
+        for (GrpcServiceDefinition grpcServiceDefinition : serviceList) {
             String serviceName = grpcServiceDefinition.getDefinition().getServiceDescriptor().getName();
             healthStatusManager.clearStatus(serviceName);
         }
