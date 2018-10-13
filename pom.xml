@@ -11,7 +11,7 @@
   <groupId>net.devh</groupId>
   <artifactId>grpc-spring-boot-starter</artifactId>
   <packaging>pom</packaging>
-  <version>2.0.1.RELEASE</version>
+  <version>2.1.0.SNAPSHOT</version>
 
   <modules>
     <module>grpc-client-spring-boot-autoconfigure</module>
@@ -49,9 +49,9 @@
     <protobuf.version>3.5.1</protobuf.version>
     <spring-cloud.version>Finchley.SR1</spring-cloud.version>
     <spring-boot.version>2.0.4.RELEASE</spring-boot.version>
-    <spring-cloud.consul.version>2.0.1.RELEASE</spring-cloud.consul.version>
-    <spring-cloud.eureka.version>2.0.1.RELEASE</spring-cloud.eureka.version>
-    <spring-cloud.sleuth.version>2.0.1.RELEASE</spring-cloud.sleuth.version>
+    <spring-cloud.consul.version>2.1.0.SNAPSHOT</spring-cloud.consul.version>
+    <spring-cloud.eureka.version>2.1.0.SNAPSHOT</spring-cloud.eureka.version>
+    <spring-cloud.sleuth.version>2.1.0.SNAPSHOT</spring-cloud.sleuth.version>
     <brave.instrumentation.grpc>5.1.2</brave.instrumentation.grpc>
   </properties>
 
