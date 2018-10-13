@@ -14,10 +14,10 @@ buildscript {
         protobufGradlePluginVersion = '0.8.4'
 
         springBootVersion = '2.0.4.RELEASE'
-        springSleuthVersion = '2.1.0.SNAPSHOT'
+        springSleuthVersion = '2.0.1.RELEASE'
         springCloudVersion = 'Finchley.SR1'
-        springCloudConsulVersion = '2.1.0.SNAPSHOT'
-        springCloudEurekaVersion = '2.1.0.SNAPSHOT'
+        springCloudConsulVersion = '2.0.1.RELEASE'
+        springCloudEurekaVersion = '2.0.1.RELEASE'
         braveInstrumentationGrpc='5.1.2'
     }
     dependencies {
