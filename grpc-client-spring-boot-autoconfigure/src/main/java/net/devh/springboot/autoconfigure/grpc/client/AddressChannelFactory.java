@@ -43,9 +43,7 @@ public class AddressChannelFactory implements GrpcChannelFactory {
         NettyChannelBuilder builder = NettyChannelBuilder.forTarget(name)
                 .loadBalancerFactory(loadBalancerFactory)
                 .nameResolverFactory(nameResolverFactory);
-        if (properties.getChannel(name).isPlaintext()) {
-            builder.usePlaintext();
-        }
+        builder.negotiationType(channelProperties.getNegotiationType());
         if (channelProperties.isEnableKeepAlive()) {
             builder.keepAliveWithoutCalls(channelProperties.isKeepAliveWithoutCalls())
                     .keepAliveTime(channelProperties.getKeepAliveTime(), TimeUnit.SECONDS)
@@ -53,6 +51,9 @@ public class AddressChannelFactory implements GrpcChannelFactory {
         }
         if(channelProperties.getMaxInboundMessageSize() > 0) {
         	builder.maxInboundMessageSize(channelProperties.getMaxInboundMessageSize());
+        }
+        if (channelProperties.isFullStreamDecompression()) {
+            builder.enableFullStreamDecompression();
         }
         Channel channel = builder.build();
 

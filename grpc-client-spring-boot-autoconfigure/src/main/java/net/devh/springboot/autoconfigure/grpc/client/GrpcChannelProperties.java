@@ -3,6 +3,7 @@ package net.devh.springboot.autoconfigure.grpc.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.grpc.netty.NegotiationType;
 import lombok.Data;
 
 /**
@@ -33,8 +34,6 @@ public class GrpcChannelProperties {
         }
     };
 
-    private boolean plaintext = true;
-
     /**
      * Setting to enable keepalive.
      * Default to {@code false}
@@ -63,4 +62,8 @@ public class GrpcChannelProperties {
      * The maximum message size allowed to be received on the channel.
      */
     private int maxInboundMessageSize;
+
+    private boolean fullStreamDecompression = false;
+
+    private NegotiationType negotiationType = NegotiationType.TLS;
 }
