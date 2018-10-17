@@ -65,5 +65,5 @@ public class GrpcChannelProperties {
 
     private boolean fullStreamDecompression = false;
 
-    private NegotiationType negotiationType = NegotiationType.TLS;
+    private NegotiationType negotiationType = NegotiationType.PLAINTEXT;
 }
