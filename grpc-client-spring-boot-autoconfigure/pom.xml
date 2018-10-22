@@ -35,6 +35,7 @@
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-sleuth</artifactId>
       <version>${spring-cloud.sleuth.version}</version>
+	  <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>io.zipkin.brave</groupId>
