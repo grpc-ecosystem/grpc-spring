@@ -44,9 +44,12 @@ public class GrpcClientAutoConfiguration {
         return RoundRobinLoadBalancerFactory.getInstance();
     }
 
-    @ConditionalOnMissingBean(value = GrpcChannelFactory.class, type = "org.springframework.cloud.client.discovery.DiscoveryClient")
+    @ConditionalOnMissingBean(value = GrpcChannelFactory.class,
+            type = "org.springframework.cloud.client.discovery.DiscoveryClient")
     @Bean
-    public GrpcChannelFactory addressChannelFactory(GrpcChannelsProperties channels, LoadBalancer.Factory loadBalancerFactory, GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
+    public GrpcChannelFactory addressChannelFactory(final GrpcChannelsProperties channels,
+            final LoadBalancer.Factory loadBalancerFactory,
+            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
         return new AddressChannelFactory(channels, loadBalancerFactory, globalClientInterceptorRegistry);
     }
 
@@ -62,9 +65,11 @@ public class GrpcClientAutoConfiguration {
 
         @ConditionalOnMissingBean
         @Bean
-        public GrpcChannelFactory discoveryClientChannelFactory(GrpcChannelsProperties channels, DiscoveryClient discoveryClient, LoadBalancer.Factory loadBalancerFactory,
-            GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
-            return new DiscoveryClientChannelFactory(channels, discoveryClient, loadBalancerFactory, globalClientInterceptorRegistry);
+        public GrpcChannelFactory discoveryClientChannelFactory(final GrpcChannelsProperties channels,
+                final LoadBalancer.Factory loadBalancerFactory, final DiscoveryClient discoveryClient,
+                final GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
+            return new DiscoveryClientChannelFactory(channels, loadBalancerFactory, discoveryClient,
+                    globalClientInterceptorRegistry);
         }
     }
 
