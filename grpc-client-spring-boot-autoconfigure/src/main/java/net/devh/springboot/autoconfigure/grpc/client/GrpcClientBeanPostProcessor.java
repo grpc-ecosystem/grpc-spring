@@ -1,34 +1,41 @@
 package net.devh.springboot.autoconfigure.grpc.client;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
+import io.grpc.stub.AbstractStub;
 import lombok.SneakyThrows;
 
 /**
- * User: Michael
- * Email: yidongnan@gmail.com
- * Date: 5/17/16
+ * This {@link BeanPostProcessor} searches for fields in beans that are annotated with
+ * {@link GrpcClient} and sets them.
+ *
+ * @author Michael (yidongnan@gmail.com)
+ * @since 5/17/16
  */
-public class GrpcClientBeanPostProcessor implements org.springframework.beans.factory.config.BeanPostProcessor {
+public class GrpcClientBeanPostProcessor implements BeanPostProcessor, AutoCloseable {
 
-    private Map<String, List<Class>> beansToProcess = Maps.newHashMap();
+    private final Multimap<String, Field> beansToProcess = HashMultimap.create();
 
     @Autowired
     private DefaultListableBeanFactory beanFactory;
@@ -36,19 +43,13 @@ public class GrpcClientBeanPostProcessor implements org.springframework.beans.fa
     @Autowired
     private GrpcChannelFactory channelFactory;
 
-    public GrpcClientBeanPostProcessor() {
-    }
-
     @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        Class clazz = bean.getClass();
+    public Object postProcessBeforeInitialization(final Object bean, final String beanName) {
+        Class<?> clazz = bean.getClass();
         do {
-            for (Field field : clazz.getDeclaredFields()) {
+            for (final Field field : clazz.getDeclaredFields()) {
                 if (field.isAnnotationPresent(GrpcClient.class)) {
-                    if (!beansToProcess.containsKey(beanName)) {
-                        beansToProcess.put(beanName, new ArrayList<Class>());
-                    }
-                    beansToProcess.get(beanName).add(clazz);
+                    this.beansToProcess.put(beanName, field);
                 }
             }
             clazz = clazz.getSuperclass();
@@ -57,33 +58,50 @@ public class GrpcClientBeanPostProcessor implements org.springframework.beans.fa
     }
 
     @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        if (beansToProcess.containsKey(beanName)) {
-            Object target = getTargetBean(bean);
-            for (Class clazz : beansToProcess.get(beanName)) {
-                for (Field field : clazz.getDeclaredFields()) {
-                    GrpcClient annotation = AnnotationUtils.getAnnotation(field, GrpcClient.class);
-                    if (null != annotation) {
+    public Object postProcessAfterInitialization(final Object bean, final String beanName) throws BeansException {
+        if (this.beansToProcess.containsKey(beanName)) {
+            final Object target = getTargetBean(bean);
+            for (final Field field : this.beansToProcess.get(beanName)) {
+                final GrpcClient annotation = AnnotationUtils.getAnnotation(field, GrpcClient.class);
+                if (null != annotation) {
 
-                        List<ClientInterceptor> list = Lists.newArrayList();
-                        for (Class<? extends ClientInterceptor> clientInterceptorClass : annotation.interceptors()) {
-                            ClientInterceptor clientInterceptor;
-                            if (beanFactory.getBeanNamesForType(ClientInterceptor.class).length > 0) {
-                                clientInterceptor = beanFactory.getBean(clientInterceptorClass);
-                            } else {
-                                try {
-                                    clientInterceptor = clientInterceptorClass.newInstance();
-                                } catch (Exception e) {
-                                    throw new BeanCreationException("Failed to create interceptor instance", e);
-                                }
+                    final List<ClientInterceptor> list = Lists.newArrayList();
+                    for (final Class<? extends ClientInterceptor> clientInterceptorClass : annotation
+                            .interceptors()) {
+                        ClientInterceptor clientInterceptor;
+                        if (this.beanFactory.getBeanNamesForType(ClientInterceptor.class).length > 0) {
+                            clientInterceptor = this.beanFactory.getBean(clientInterceptorClass);
+                        } else {
+                            try {
+                                clientInterceptor = clientInterceptorClass.newInstance();
+                            } catch (final Exception e) {
+                                throw new BeanCreationException("Failed to create interceptor instance", e);
                             }
-                            list.add(clientInterceptor);
                         }
-
-                        Channel channel = channelFactory.createChannel(annotation.value(), list);
-                        ReflectionUtils.makeAccessible(field);
-                        ReflectionUtils.setField(field, target, channel);
+                        list.add(clientInterceptor);
                     }
+
+                    final Channel channel = this.channelFactory.createChannel(annotation.value(), list);
+                    final Class<?> fieldType = field.getType();
+                    final Object value;
+                    if (Channel.class.equals(fieldType)) {
+                        value = channel;
+                    } else if (AbstractStub.class.isAssignableFrom(fieldType)) {
+                        try {
+                            final Constructor<?> constructor =
+                                    ReflectionUtils.accessibleConstructor(fieldType, Channel.class);
+                            value = constructor.newInstance(channel);
+                        } catch (final NoSuchMethodException | InstantiationException | IllegalAccessException
+                                | IllegalArgumentException | InvocationTargetException e) {
+                            throw new BeanInstantiationException(fieldType,
+                                    "Failed to create gRPC client for field: " + field, e);
+                        }
+                    } else {
+                        throw new InvalidPropertyException(field.getDeclaringClass(), field.getName(),
+                                "Unsupported field type " + fieldType.getName());
+                    }
+                    ReflectionUtils.makeAccessible(field);
+                    ReflectionUtils.setField(field, target, value);
                 }
             }
         }
@@ -91,7 +109,7 @@ public class GrpcClientBeanPostProcessor implements org.springframework.beans.fa
     }
 
     @SneakyThrows
-    private Object getTargetBean(Object bean) {
+    private Object getTargetBean(final Object bean) {
         Object target = bean;
         while (AopUtils.isAopProxy(target)) {
             target = ((Advised) target).getTargetSource().getTarget();
@@ -99,5 +117,9 @@ public class GrpcClientBeanPostProcessor implements org.springframework.beans.fa
         return target;
     }
 
+    @Override
+    public void close() {
+        this.beansToProcess.clear();
+    }
 
 }
