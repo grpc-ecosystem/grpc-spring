@@ -14,7 +14,7 @@ import io.grpc.stub.StreamObserver;
  * Date: 2016/11/8
  */
 
-@GrpcService(SimpleGrpc.class)
+@GrpcService
 public class GrpcServerService extends SimpleGrpc.SimpleImplBase {
 
     @Override
