@@ -17,9 +17,10 @@ import io.netty.channel.Channel;
 import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodecDefinition;
 
 /**
- * User: Michael
- * Email: yidongnan@gmail.com
- * Date: 5/17/16
+ * The auto configuration used by Spring-Boot that contains all beans to run a grpc server/service.
+ *
+ * @author Michael (yidongnan@gmail.com)
+ * @since 5/17/16
  */
 @Configuration
 @EnableConfigurationProperties
@@ -37,7 +38,12 @@ public class GrpcServerAutoConfiguration {
         return new GlobalServerInterceptorRegistry();
     }
 
-    @ConditionalOnMissingBean
+    @Bean
+    public AnnotationGlobalServerInterceptorConfigurer annotationGlobalServerInterceptorConfigurer() {
+        return new AnnotationGlobalServerInterceptorConfigurer();
+    }
+
+    @ConditionalOnMissingBean(GrpcServiceDiscoverer.class)
     @Bean
     public AnnotationGrpcServiceDiscoverer defaultGrpcServiceFinder() {
         return new AnnotationGrpcServiceDiscoverer();
@@ -83,14 +89,11 @@ public class GrpcServerAutoConfiguration {
         }
 
         @Bean
-        public GlobalServerInterceptorConfigurerAdapter globalTraceServerInterceptorConfigurerAdapter(final GrpcTracing grpcTracing) {
-            return new GlobalServerInterceptorConfigurerAdapter() {
-                @Override
-                public void addServerInterceptors(GlobalServerInterceptorRegistry registry) {
-                    registry.addServerInterceptors(grpcTracing.newServerInterceptor());
-                }
-            };
+        public GlobalServerInterceptorConfigurer globalTraceServerInterceptorConfigurerAdapter(
+                final GrpcTracing grpcTracing) {
+            return registry -> registry.addServerInterceptors(grpcTracing.newServerInterceptor());
         }
 
     }
+
 }
