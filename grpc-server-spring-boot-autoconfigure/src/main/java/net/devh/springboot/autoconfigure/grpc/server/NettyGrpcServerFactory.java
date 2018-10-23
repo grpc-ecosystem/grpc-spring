@@ -14,6 +14,7 @@ import io.grpc.DecompressorRegistry;
 import io.grpc.Server;
 import io.grpc.health.v1.HealthCheckResponse;
 import io.grpc.netty.NettyServerBuilder;
+import io.grpc.protobuf.services.ProtoReflectionService;
 import io.grpc.services.HealthStatusManager;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.springboot.autoconfigure.grpc.server.codec.CodecType;
@@ -46,7 +47,12 @@ public class NettyGrpcServerFactory implements GrpcServerFactory {
                 new InetSocketAddress(InetAddresses.forString(getAddress()), getPort()));
 
         // support health check
-        builder.addService(healthStatusManager.getHealthService());
+        if (this.properties.isHealthServiceEnabled()) {
+            builder.addService(this.healthStatusManager.getHealthService());
+        }
+        if (this.properties.isReflectionServiceEnabled()) {
+            builder.addService(ProtoReflectionService.newInstance());
+        }
 
         for (GrpcServiceDefinition service : this.serviceList) {
             String serviceName = service.getDefinition().getServiceDescriptor().getName();

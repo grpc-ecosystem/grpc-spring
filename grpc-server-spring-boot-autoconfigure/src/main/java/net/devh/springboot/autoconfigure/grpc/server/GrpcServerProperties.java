@@ -29,7 +29,17 @@ public class GrpcServerProperties {
     private int maxMessageSize;
 
     /**
-     * Security options for transport security. Defaults to disabled. 
+     * Whether grpc health service is enabled or not. Defaults to {@code true}.
+     */
+    private boolean healthServiceEnabled = true;
+
+    /**
+     * Whether proto reflection service is enabled or not. Defaults to {@code true}.
+     */
+    private boolean reflectionServiceEnabled = true;
+
+    /**
+     * Security options for transport security. Defaults to disabled.
      */
     private final Security security = new Security();
 
