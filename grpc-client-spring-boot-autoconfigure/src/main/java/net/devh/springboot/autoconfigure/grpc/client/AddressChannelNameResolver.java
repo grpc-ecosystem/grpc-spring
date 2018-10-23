@@ -52,19 +52,13 @@ public class AddressChannelNameResolver extends NameResolver {
     @Override
     public final synchronized void start(Listener listener) {
         Preconditions.checkState(this.listener == null, "already started");
-        this.listener = listener;
         executor = SharedResourceHolder.get(executorResource);
         this.listener = Preconditions.checkNotNull(listener, "listener");
         resolve();
     }
 
-    @SuppressWarnings("unchecked")
-    private void replace(List list, int max, Object defaultValue) {
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i) == null) {
-                list.set(i, defaultValue);
-            }
-        }
+    private <T> void replace(final List<T> list, final int max, final T defaultValue) {
+        list.replaceAll(e -> e == null ? defaultValue : e);
         for (int i = list.size(); i < max; i++) {
             list.add(defaultValue);
         }

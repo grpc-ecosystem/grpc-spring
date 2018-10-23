@@ -3,15 +3,12 @@ package net.devh.springboot.autoconfigure.grpc.server;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import io.grpc.BindableService;
 import io.grpc.Codec;
@@ -33,8 +30,7 @@ public class AnnotationGrpcServiceDiscoverer implements ApplicationContextAware,
     private ApplicationContext applicationContext;
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext)
-            throws BeansException {
+    public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
 
@@ -69,8 +65,8 @@ public class AnnotationGrpcServiceDiscoverer implements ApplicationContextAware,
     }
 
     private ServerServiceDefinition bindInterceptors(ServerServiceDefinition serviceDefinition, GrpcService grpcServiceAnnotation, List<ServerInterceptor> globalInterceptorList) {
-        Set<ServerInterceptor> interceptorSet = Sets.newHashSet();
-        interceptorSet.addAll(globalInterceptorList);
+        Collection<ServerInterceptor> interceptors = Lists.newArrayList();
+        interceptors.addAll(globalInterceptorList);
         for (Class<? extends ServerInterceptor> serverInterceptorClass : grpcServiceAnnotation.interceptors()) {
             ServerInterceptor serverInterceptor;
             if (applicationContext.getBeanNamesForType(serverInterceptorClass).length > 0) {
@@ -82,8 +78,8 @@ public class AnnotationGrpcServiceDiscoverer implements ApplicationContextAware,
                     throw new BeanCreationException("Failed to create interceptor instance", e);
                 }
             }
-            interceptorSet.add(serverInterceptor);
+            interceptors.add(serverInterceptor);
         }
-        return ServerInterceptors.intercept(serviceDefinition, Lists.newArrayList(interceptorSet));
+        return ServerInterceptors.intercept(serviceDefinition, Lists.newArrayList(interceptors));
     }
 }

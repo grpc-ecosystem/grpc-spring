@@ -49,15 +49,16 @@ public class GrpcServerAutoConfiguration {
         return new HealthStatusManager();
     }
 
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(GrpcServerFactory.class)
     @ConditionalOnClass(Channel.class)
     @Bean
-    public NettyGrpcServerFactory nettyGrpcServiceFactory(GrpcServerProperties properties, GrpcServiceDiscoverer discoverer) {
-        NettyGrpcServerFactory factory = new NettyGrpcServerFactory(properties);
-        for (GrpcCodecDefinition codec : discoverer.findGrpcCodec()) {
+    public NettyGrpcServerFactory nettyGrpcServiceFactory(final GrpcServerProperties properties,
+            final GrpcServiceDiscoverer discoverer) {
+        final NettyGrpcServerFactory factory = new NettyGrpcServerFactory(properties);
+        for (final GrpcCodecDefinition codec : discoverer.findGrpcCodec()) {
             factory.addCodec(codec);
         }
-        for (GrpcServiceDefinition service : discoverer.findGrpcServices()) {
+        for (final GrpcServiceDefinition service : discoverer.findGrpcServices()) {
             factory.addService(service);
         }
 
@@ -66,7 +67,7 @@ public class GrpcServerAutoConfiguration {
 
     @ConditionalOnMissingBean
     @Bean
-    public GrpcServerLifecycle grpcServerLifecycle(GrpcServerFactory factory) {
+    public GrpcServerLifecycle grpcServerLifecycle(final GrpcServerFactory factory) {
         return new GrpcServerLifecycle(factory);
     }
 

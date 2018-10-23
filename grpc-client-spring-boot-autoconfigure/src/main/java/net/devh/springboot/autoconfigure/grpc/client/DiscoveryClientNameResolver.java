@@ -69,7 +69,6 @@ public class DiscoveryClientNameResolver extends NameResolver {
     public final synchronized void start(Listener listener) {
         Preconditions.checkState(this.listener == null, "already started");
         timerService = SharedResourceHolder.get(timerServiceResource);
-        this.listener = listener;
         executor = SharedResourceHolder.get(executorResource);
         this.listener = Preconditions.checkNotNull(listener, "listener");
         resolve();
