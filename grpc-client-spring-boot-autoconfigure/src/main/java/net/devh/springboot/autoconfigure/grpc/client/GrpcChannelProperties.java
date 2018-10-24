@@ -58,11 +58,12 @@ public class GrpcChannelProperties {
     private long keepAliveTimeout = 20;
 
     /**
-     * The maximum message size in bytes allowed to be received on the channel. If not set (<tt>-2</tt>)
-     * then it will default to {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE DEFAULT_MAX_MESSAGE_SIZE}. If
-     * set to <tt>-1</tt> then it will use {@link Integer#MAX_VALUE} as limit.
+     * The maximum message size in bytes allowed to be received by the channel. If not set
+     * ({@code null}) then it will default to {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE
+     * DEFAULT_MAX_MESSAGE_SIZE}. If set to {@code -1} then it will use {@link Integer#MAX_VALUE} as
+     * limit.
      */
-    private int maxInboundMessageSize = -2;
+    private Integer maxInboundMessageSize = null;
 
     private boolean fullStreamDecompression = false;
 
@@ -72,5 +73,20 @@ public class GrpcChannelProperties {
      * {@link NegotiationType#PLAINTEXT PLAINTEXT}. Defaults to TLS.
      */
     private NegotiationType negotiationType = NegotiationType.TLS;
+
+    /**
+     * Gets the maximum message size in bytes allowed to be received by the channel. If not set
+     * ({@code null}) then it will default to {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE
+     * DEFAULT_MAX_MESSAGE_SIZE}. If set to {@code -1} then it will use {@link Integer#MAX_VALUE} as
+     * limit.
+     *
+     * @return The maximum message size in bytes allowed or null if the default should be used.
+     */
+    public Integer getMaxInboundMessageSize() {
+        if (this.maxInboundMessageSize != null && this.maxInboundMessageSize == -1) {
+            this.maxInboundMessageSize = Integer.MAX_VALUE;
+        }
+        return this.maxInboundMessageSize;
+    }
 
 }

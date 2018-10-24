@@ -54,7 +54,7 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
         this.nameResolverFactory = nameResolverFactory;
         this.globalClientInterceptorRegistry = globalClientInterceptorRegistry;
     }
-    
+
     @SuppressWarnings("unchecked")
     public <T extends AbstractChannelFactory> AbstractChannelFactory(final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory,
@@ -104,11 +104,12 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
                     .keepAliveTime(channelProperties.getKeepAliveTime(), TimeUnit.SECONDS)
                     .keepAliveTimeout(channelProperties.getKeepAliveTimeout(), TimeUnit.SECONDS);
         }
-        if (channelProperties.getMaxInboundMessageSize() >= 0) {
-            builder.maxInboundMessageSize(channelProperties.getMaxInboundMessageSize());
-        } else if (channelProperties.getMaxInboundMessageSize() == -1) {
-            builder.maxInboundMessageSize(Integer.MAX_VALUE);
+
+        final Integer maxInboundMessageSize = channelProperties.getMaxInboundMessageSize();
+        if (maxInboundMessageSize != null) {
+            builder.maxInboundMessageSize(maxInboundMessageSize);
         }
+
         if (channelProperties.isFullStreamDecompression()) {
             builder.enableFullStreamDecompression();
         }

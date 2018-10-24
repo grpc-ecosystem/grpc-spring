@@ -3,6 +3,7 @@ package net.devh.springboot.autoconfigure.grpc.server;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.SocketUtils;
 
+import io.grpc.internal.GrpcUtil;
 import lombok.Data;
 
 /**
@@ -22,14 +23,16 @@ public class GrpcServerProperties {
 
     /**
      * Server port to listen on. Defaults to {@code 9090}. If set to {@code 0} a random available port
-     * will be used.
+     * will be selected and used.
      */
     private int port = 9090;
 
     /**
-     * The maximum message size allowed to be received for the server.
+     * The maximum message size in bytes allowed to be received by the server. If not set ({@code null})
+     * then it will default to {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE DEFAULT_MAX_MESSAGE_SIZE}. If
+     * set to {@code -1} then it will use {@link Integer#MAX_VALUE} as limit.
      */
-    private int maxMessageSize;
+    private Integer maxInboundMessageSize = null;
 
     /**
      * Whether grpc health service is enabled or not. Defaults to {@code true}.
@@ -68,7 +71,7 @@ public class GrpcServerProperties {
 
     /**
      * Gets the port the server should listen on. Defaults to {@code 9090}. If set to {@code 0} a random
-     * available port will be used.
+     * available port will be selected and used.
      *
      * @return The server port to listen to.
      */
@@ -77,6 +80,21 @@ public class GrpcServerProperties {
             this.port = SocketUtils.findAvailableTcpPort();
         }
         return this.port;
+    }
+
+    /**
+     * Gets the maximum message size in bytes allowed to be received by the server. If not set
+     * ({@code null}) then it will default to {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE
+     * DEFAULT_MAX_MESSAGE_SIZE}. If set to {@code -1} then it will use {@link Integer#MAX_VALUE} as
+     * limit.
+     *
+     * @return The maximum message size in bytes allowed or null if the default should be used.
+     */
+    public Integer getMaxInboundMessageSize() {
+        if (this.maxInboundMessageSize != null && this.maxInboundMessageSize == -1) {
+            this.maxInboundMessageSize = Integer.MAX_VALUE;
+        }
+        return this.maxInboundMessageSize;
     }
 
 }
