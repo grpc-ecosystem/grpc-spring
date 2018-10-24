@@ -68,9 +68,12 @@ public class NettyGrpcServerFactory implements GrpcServerFactory {
             final File certificate = new File(this.properties.getSecurity().getCertificatePath());
             builder.useTransportSecurity(certificateChain, certificate);
         }
-        if (this.properties.getMaxMessageSize() > 0) {
-            builder.maxInboundMessageSize(this.properties.getMaxMessageSize());
+
+        final Integer maxInboundMessageSize = this.properties.getMaxInboundMessageSize();
+        if (maxInboundMessageSize != null) {
+            builder.maxInboundMessageSize(maxInboundMessageSize);
         }
+
         if (this.codecList.isEmpty()) {
             final CompressorRegistry compressorRegistry = CompressorRegistry.newEmptyInstance();
             final DecompressorRegistry decompressorRegistry = DecompressorRegistry.emptyInstance();
