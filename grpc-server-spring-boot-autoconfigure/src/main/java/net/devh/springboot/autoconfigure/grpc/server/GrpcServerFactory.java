@@ -7,7 +7,7 @@ import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodecDefinition;
  * A factory that can be used to create grpc servers.
  *
  * @author Michael (yidongnan@gmail.com)
- * @sice 5/17/16
+ * @since 5/17/16
  */
 public interface GrpcServerFactory {
 
