@@ -71,11 +71,11 @@ public class GrpcClientAutoConfiguration {
     @Configuration
     @ConditionalOnProperty(value = "spring.sleuth.scheduled.enabled", matchIfMissing = true)
     @AutoConfigureAfter({TraceAutoConfiguration.class})
-    @ConditionalOnClass(value = {Tracing.class, GrpcTracing.class})
+    @ConditionalOnClass(value = {Tracing.class, GrpcTracing.class, TraceAutoConfiguration.class})
     protected static class TraceClientAutoConfiguration {
 
         @Bean
-        public GrpcTracing grpcTracing(Tracing tracing) {
+        public GrpcTracing grpcTracing(final Tracing tracing) {
             return GrpcTracing.create(tracing);
         }
 
