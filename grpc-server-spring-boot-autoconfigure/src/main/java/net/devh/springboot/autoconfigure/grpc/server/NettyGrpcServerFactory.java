@@ -115,6 +115,7 @@ public class NettyGrpcServerFactory implements GrpcServerFactory {
                     sslContextBuilder.trustManager(trustCertCollectionFile);
                 }
             }
+
             try {
                 builder.sslContext(sslContextBuilder.build());
             } catch (final SSLException e) {

@@ -75,6 +75,37 @@ public class GrpcChannelProperties {
     private NegotiationType negotiationType = NegotiationType.TLS;
 
     /**
+     * Security options for transport security.
+     */
+    private final Security security = new Security();
+
+    @Data
+    public static class Security {
+
+        /**
+         * Flag that controls whether client can authenticate using certificates. Defaults to {@code false}.
+         */
+        private boolean clientAuthEnabled = false;
+
+        /**
+         * Path to SSL certificate chain. Required if {@link #clientAuthEnabled} is true.
+         */
+        private String certificateChainPath = null;
+
+        /**
+         * Path to private key. Required if {@link #clientAuthEnabled} is true.
+         */
+        private String privateKeyPath = null;
+
+        /**
+         * Path to the trusted certificate collection. If {@code null} or empty it will use the system's
+         * default collection (Default).
+         */
+        private String trustCertCollectionPath = null;
+
+    }
+
+    /**
      * Gets the maximum message size in bytes allowed to be received by the channel. If not set
      * ({@code null}) then it will default to {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE
      * DEFAULT_MAX_MESSAGE_SIZE}. If set to {@code -1} then it will use {@link Integer#MAX_VALUE} as
