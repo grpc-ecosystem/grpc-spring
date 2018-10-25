@@ -105,6 +105,13 @@ public class GrpcServerProperties {
         return this.port;
     }
 
+    @Deprecated
+    public void setMaxMessageSize(final int maxMessageSize) {
+        log.warn("The 'grpc.server.maxMessageSize' property is deprecated. "
+                + "Use 'grpc.server.maxInboundMessageSize' instead!");
+        this.maxInboundMessageSize = maxMessageSize == 0 ? null : maxMessageSize;
+    }
+
     /**
      * Gets the maximum message size in bytes allowed to be received by the server. If not set
      * ({@code null}) then it will default to {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE
