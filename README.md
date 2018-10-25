@@ -2,27 +2,34 @@
 
 [![Build Status](https://travis-ci.org/yidongnan/grpc-spring-boot-starter.svg?branch=master)](https://travis-ci.org/yidongnan/grpc-spring-boot-starter)
 [![Maven Central with version prefix filter](https://img.shields.io/maven-central/v/net.devh/grpc-spring-boot-starter.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.devh%22%20grpc)
+[![MIT License](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 
-README: [English](https://github.com/yidongnan/grpc-spring-boot-starter/blob/master/README.md) | [中文](https://github.com/yidongnan/grpc-spring-boot-starter/blob/master/README-zh.md)
+README: [English](README.md) | [中文](README-zh.md)
 
 ## Features
-Auto configuring and run the embedded gRPC server with @GrpcService-enabled beans as part of spring-boot application.
 
-Support Spring Cloud(registe services to consul or eureka and fetch gRPC server information)
+* Auto configures and runs the embedded gRPC server with `@GrpcService`-enabled beans as part of your spring-boot
+application
 
-Support Spring Sleuth to trace application
+* Automatically creates and manages your grpc channels and stubs with `@GrpcClient`
 
-Support global and custom gRPC server/client interceptors
+* Supports Spring Cloud (register services to Consul or Eureka and fetch gRPC server information)
 
-## version
+* Supports Spring Sleuth to trace application
 
-2.x.x.RELEASE support Spring Cloud Finchley.
+* Supports global and custom gRPC server/client interceptors
+
+## Versions
+
+2.x.x.RELEASE support Spring Boot 2 & Spring Cloud Finchley.
  
 The latest version: ``2.0.1.RELEASE``
 
-1.x.x.RELEASE support Spring Cloud Edgware 、Dalston、Camden. 
+1.x.x.RELEASE support Spring Boot 1 & Spring Cloud Edgware, Dalston, Camden.
 
 The latest version: ``1.4.1.RELEASE``
+
+**Note:** This project can also be used without Spring-Boot, however that requires some manual bean configuration.
 
 ## Usage
 
@@ -30,7 +37,7 @@ The latest version: ``1.4.1.RELEASE``
 
 To add a dependency using Maven, use the following:
 
-````
+````xml
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-server-spring-boot-starter</artifactId>
@@ -40,13 +47,14 @@ To add a dependency using Maven, use the following:
 
 To add a dependency using Gradle:
 
-````
+````gradle
 dependencies {
   compile 'net.devh:grpc-server-spring-boot-starter:2.0.1.RELEASE'
 }
 ````
 
 Annotate your server interface implementation(s) with ``@GrpcService``
+
 ````java
 @GrpcService(GreeterGrpc.class)
 public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
@@ -59,11 +67,23 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
     }
 }
 ````
+
+By default, the grpc server will listen to port 9090. These and other
+[settings](grpc-server-spring-boot-autoconfigure/src/main/java/net/devh/springboot/autoconfigure/grpc/server/GrpcServerProperties.java)
+can be changed via Spring's property mechanism. The server uses the `grpc.server.` prefix.
+
+#### Example-Properties
+
+````properties
+grpc.server.port=9090
+grpc.server.address=0.0.0.0
+````
+
 ### gRPC client
 
 To add a dependency using Maven, use the following:
 
-````
+````xml
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-client-spring-boot-starter</artifactId>
@@ -73,39 +93,96 @@ To add a dependency using Maven, use the following:
 
 To add a dependency using Gradle:
 
-````
+````gradle
 dependencies {
   compile 'net.devh:grpc-client-spring-boot-starter:2.0.1.RELEASE'
 }
 ````
 
-Use ``@GrpcClient("gRPC server name")`` annotation or ``grpcChannelFactory.createChannel("gRPC server name")`` to get Channel
+There are three ways to get a connection to the grpc server:
+
+* Use `grpcChannelFactory.createChannel(serverName)` to create a `Channel` and create the grpc stub
+  yourself.
+
+  ````java
+  @Autowired
+  private GrpcChannelFactory grpcChannelFactory;
+
+  private GreeterGrpc.GreeterBlockingStub greeterStub;
+
+  @PostConstruct
+  public void init() {
+      Channel channel = grpcChannelFactory.createChannel("gRPC server name");
+      greeterStub = GreeterGrpc.newBlockingStub(channel);
+  }
+  ````
+
+* Annotate a field of type `Channel` with `@GrpcClient(serverName)` and create the grpc stub yourself.
+  * Do not use in conjunction with `@Autowired` or `@Inject`
+  
+  ````java
+  @GrpcClient("gRPC server name")
+  private Channel channel;
+
+  private GreeterGrpc.GreeterBlockingStub greeterStub;
+
+  @PostConstruct
+  public void init() {
+      greeterStub = GreeterGrpc.newBlockingStub(channel);
+  }
+  ````
+  
+* Annotate a field of your grpc client stub with `@GrpcClient(serverName)`
+  * Do not use in conjunction with `@Autowired` or `@Inject`
+
+  ````java
+  @GrpcClient("gRPC server name")
+  private GreeterGrpc.GreeterBlockingStub greeterStub;
+  ````
+
+**Note:** You can use the same grpc server name for multiple channels and also different stubs (even with different
+interceptors). 
+
+Then you can send queries to your server just like this:
 
 ````java
-@GrpcClient("gRPC server name")
-private Channel serverChannel;
-````
-
-set gRPC host and port in application.properties, default host is 0.0.0.0 and default port is 9090
-
-````
-grpc.server.port=9090
-grpc.server.address=0.0.0.0
-````
-
-gRPC request
-
-````java
-GreeterGrpc.GreeterBlockingStub stub = GreeterGrpc.newBlockingStub(serverChannel);
 HelloReply response = stub.sayHello(HelloRequest.newBuilder().setName(name).build());
 ````
 
-set gRPC server host and port in application.properties, default host is [127.0.0.1] and default port is [9090]
+By default, the client assumes that the server runs on `127.0.0.1` with port `9090`. These and other
+[settings](grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/springboot/autoconfigure/grpc/client/GrpcChannelProperties.java)
+can be changed via Spring's property mechanism. The clients use the `grpc.client.(serverName).` prefix.
 
+#### Example-Properties
+
+````properties
+grpc.client.(gRPC server name).host[0]=127.0.0.1
+grpc.client.(gRPC server name).port[0]=9090
+# Or
+grpc.client.myName.host=127.0.0.1
+grpc.client.myName.port=9090
 ````
-grpc.client.(gRPC server name).host[0]=
-grpc.client.(gRPC server name).port[0]=
+
+## FAQ
+
+### Issues with SSL during tests
+
+By default, the grpc client assumes that the server uses TLS and will try to use a secure connection. During development
+and for tests is it unlikely that the required certificates are available thus you have to switch to `PLAINTEXT`
+connection mode.
+
+````properties
+grpc.client.(gRPC server name).negotiationType=PLAINTEXT
 ````
+
+**Note:** The grpc protocol and we strongly recommend using `TLS` for production use.
+
+### Server port already in use during tests
+
+Sometimes you just want to launch your application in your test to test the interaction between your services.
+This will also start the grpc server, however it won't be shut down after each test (class). You can avoid that issue by
+adding `@DirtiesContext` to your test classes or methods.
 
 ## Show case
+
 https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/examples
