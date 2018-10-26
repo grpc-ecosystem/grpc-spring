@@ -105,8 +105,7 @@ public class GrpcChannelProperties {
 
         /**
          * The authority to check for during certificate checks. By default the clients will use the name of
-         * the client to check the server certificate's common + alternative names. This property is
-         * intended for testing, but may safely be used outside of tests as an alternative to DNS overrides.
+         * the client to check the server certificate's common + alternative names.
          */
         private String authorityOverride = null;
 
