@@ -12,6 +12,7 @@ target/
 *.iws
 *.iml
 *.ipr
+**/out
 
 ### Eclipse ###
 target/

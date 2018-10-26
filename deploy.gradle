@@ -49,8 +49,8 @@ publishing {
             pom.withXml {
                 asNode().children().first() + {
                     resolveStrategy = Closure.DELEGATE_FIRST
-                    name 'spring boot grpc'
-                    description 'spring boot grpc'
+                    name 'gRPC Spring Boot Starter'
+                    description 'gRPC Spring Boot Starter'
                     url 'https://github.com/yidongnan/grpc-spring-boot-starter'
                     scm {
                         url 'https://github.com/yidongnan/grpc-spring-boot-starter'

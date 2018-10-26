@@ -52,16 +52,11 @@ allprojects {
     // Enable Checkstyle
     if (null != System.getenv('ENABLE_CHECKSTYLE')) {
         apply plugin: 'checkstyle'
-        dependencies {
-            checkstyle 'com.puppycrawl.tools:checkstyle:6.15'
+        checkstyle{
+            toolVersion '8.14'
+            configFile new File(rootDir, "checkstyle-google.xml")
+            showViolations true
         }
-    }
-
-    tasks.withType(Checkstyle) {
-        outputs.upToDateWhen { false }
-        configFile = new File(rootDir, "checkstyle-google.xml")
-
-        include 'net/devh/**/*'
     }
 
     repositories {
