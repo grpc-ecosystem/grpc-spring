@@ -13,28 +13,37 @@ import com.google.common.collect.Lists;
 import io.grpc.ServerInterceptor;
 import lombok.Getter;
 
+/**
+ * The global server interceptor registry keeps references to all {@link ServerInterceptor}s that
+ * should be registered globally. The interceptors will be applied in the same order they are added
+ * to this registry.
+ *
+ * @author Michael (yidongnan@gmail.com)
+ * @since 5/17/16
+ */
 public class GlobalServerInterceptorRegistry implements ApplicationContextAware {
 
     @Getter
     private final List<ServerInterceptor> serverInterceptors = Lists.newArrayList();
     private ApplicationContext applicationContext;
 
+    @Override
+    public void setApplicationContext(final ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
     @PostConstruct
     public void init() {
-        Map<String, GlobalServerInterceptorConfigurer> map = applicationContext.getBeansOfType(GlobalServerInterceptorConfigurer.class);
-        for (GlobalServerInterceptorConfigurer globalServerInterceptorConfigurerAdapter : map.values()) {
+        final Map<String, GlobalServerInterceptorConfigurer> map =
+                this.applicationContext.getBeansOfType(GlobalServerInterceptorConfigurer.class);
+        for (final GlobalServerInterceptorConfigurer globalServerInterceptorConfigurerAdapter : map.values()) {
             globalServerInterceptorConfigurerAdapter.addServerInterceptors(this);
         }
     }
 
-    public GlobalServerInterceptorRegistry addServerInterceptors(ServerInterceptor interceptor) {
-        serverInterceptors.add(interceptor);
+    public GlobalServerInterceptorRegistry addServerInterceptors(final ServerInterceptor interceptor) {
+        this.serverInterceptors.add(interceptor);
         return this;
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
     }
 
 }

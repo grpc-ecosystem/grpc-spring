@@ -42,8 +42,8 @@ public class GlobalClientInterceptorRegistry implements ApplicationContextAware 
     public void init() {
         final Map<String, GlobalClientInterceptorConfigurer> map =
                 this.applicationContext.getBeansOfType(GlobalClientInterceptorConfigurer.class);
-        for (final GlobalClientInterceptorConfigurer globalClientInterceptorConfigurerAdapter : map.values()) {
-            globalClientInterceptorConfigurerAdapter.addClientInterceptors(this);
+        for (final GlobalClientInterceptorConfigurer globalClientInterceptorConfigurer : map.values()) {
+            globalClientInterceptorConfigurer.addClientInterceptors(this);
         }
     }
 
