@@ -45,8 +45,9 @@ public @interface GrpcClient {
      *
      * <p>
      * <b>Note:</b> This value might also be used to check the common / alternative names in server
-     * certificate, you can overwrite this value with the {@link Security#setAuthorityOverride(String)
+     * certificate, you can overwrite this value with the {@link Security
      * security.authorityOverride} property.
+     * </p>
      *
      * @return The name of the grpc client.
      */
