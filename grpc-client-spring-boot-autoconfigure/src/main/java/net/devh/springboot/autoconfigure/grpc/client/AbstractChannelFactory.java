@@ -170,6 +170,12 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
 
         if (negotiationType != NegotiationType.PLAINTEXT) {
             final Security security = properties.getSecurity();
+
+            final String authorityOverwrite = security.getAuthorityOverride();
+            if (authorityOverwrite != null && !authorityOverwrite.isEmpty()) {
+                builder.overrideAuthority(authorityOverwrite);
+            }
+
             final SslContextBuilder sslContextBuilder = GrpcSslContexts.forClient();
 
             if (security.isClientAuthEnabled()) {
