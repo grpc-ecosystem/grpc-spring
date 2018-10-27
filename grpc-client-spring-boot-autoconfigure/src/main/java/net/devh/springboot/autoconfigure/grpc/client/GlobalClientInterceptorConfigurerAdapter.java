@@ -1,13 +1,18 @@
 package net.devh.springboot.autoconfigure.grpc.client;
 
 /**
- * User: Michael
- * Email: yidongnan@gmail.com
- * Date: 2016/12/6
+ * Abstract class to register client interceptors globally.
+ *
+ * @author Michael (yidongnan@gmail.com)
+ * @since 2016/12/6
+ * @deprecated Use {@link GlobalClientInterceptorConfigurer} instead.
  */
-public abstract class GlobalClientInterceptorConfigurerAdapter {
+@Deprecated
+public abstract class GlobalClientInterceptorConfigurerAdapter implements GlobalClientInterceptorConfigurer {
 
-    public void addClientInterceptors(GlobalClientInterceptorRegistry registry) {
+    @Override
+    public void addClientInterceptors(final GlobalClientInterceptorRegistry registry) {
 
     }
+
 }

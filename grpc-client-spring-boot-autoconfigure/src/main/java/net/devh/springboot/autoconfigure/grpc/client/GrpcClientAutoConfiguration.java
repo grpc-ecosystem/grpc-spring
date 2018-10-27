@@ -17,9 +17,11 @@ import io.grpc.LoadBalancer;
 import io.grpc.util.RoundRobinLoadBalancerFactory;
 
 /**
- * User: Michael
- * Email: yidongnan@gmail.com
- * Date: 5/17/16
+ * The auto configuration used by Spring-Boot that contains all beans to create and inject grpc
+ * clients into beans.
+ *
+ * @author Michael (yidongnan@gmail.com)
+ * @since 5/17/16
  */
 @Configuration
 @EnableConfigurationProperties
@@ -36,6 +38,11 @@ public class GrpcClientAutoConfiguration {
     @Bean
     public GlobalClientInterceptorRegistry globalClientInterceptorRegistry() {
         return new GlobalClientInterceptorRegistry();
+    }
+
+    @Bean
+    public AnnotationGlobalClientInterceptorConfigurer annotationGlobalClientInterceptorConfigurer() {
+        return new AnnotationGlobalClientInterceptorConfigurer();
     }
 
     @ConditionalOnMissingBean
@@ -85,15 +92,11 @@ public class GrpcClientAutoConfiguration {
         }
 
         @Bean
-        public GlobalClientInterceptorConfigurerAdapter globalTraceClientInterceptorConfigurerAdapter(final GrpcTracing grpcTracing) {
-            return new GlobalClientInterceptorConfigurerAdapter() {
-
-                @Override
-                public void addClientInterceptors(GlobalClientInterceptorRegistry registry) {
-                    registry.addClientInterceptors(grpcTracing.newClientInterceptor());
-                }
-            };
+        public GlobalClientInterceptorConfigurer globalTraceClientInterceptorConfigurerAdapter(
+                final GrpcTracing grpcTracing) {
+            return registry -> registry.addClientInterceptors(grpcTracing.newClientInterceptor());
         }
+
     }
 
 }
