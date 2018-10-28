@@ -69,6 +69,7 @@ allprojects {
 
     spotless {
         java {
+            licenseHeaderFile rootProject.file('extra/spotless/mit-license.java')
             removeUnusedImports()
             importOrderFile rootProject.file('extra/eclipse/eclipse.importorder')
             eclipse().configFile rootProject.file('extra/eclipse/eclipse-formatter.xml')

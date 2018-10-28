@@ -122,6 +122,9 @@
         <version>1.14.0</version>
         <configuration>
           <java>
+            <licenseHeader>
+              <file>${maven.multiModuleProjectDirectory}/extra/spotless/mit-license.java</file>
+            </licenseHeader>
             <removeUnusedImports/>
             <importOrder>
               <file>${maven.multiModuleProjectDirectory}/extra/eclipse/eclipse.importorder</file>
