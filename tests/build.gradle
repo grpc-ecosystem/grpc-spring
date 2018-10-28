@@ -1,0 +1,67 @@
+apply from: '../deploy.gradle'
+
+group = "net.devh"
+version = "${projectVersion}"
+
+apply plugin: 'com.google.protobuf'
+
+compileTestJava.dependsOn(processTestResources)
+
+dependencies {
+    compile "io.grpc:grpc-netty:${grpcVersion}"
+    compile "io.grpc:grpc-protobuf:${grpcVersion}"
+    compile "io.grpc:grpc-stub:${grpcVersion}"
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
+    generatedFilesBaseDir = "$projectDir/src/generated"
+    clean {
+        delete generatedFilesBaseDir
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+idea {
+    module {
+        sourceDirs += file("src/generated/test/java")
+        sourceDirs += file("src/generated/test/grpc")
+        generatedSourceDirs += file("src/generated/test/java")
+        generatedSourceDirs += file("src/generated/test/grpc")
+    }
+}
+
+buildscript {
+    dependencies {
+        classpath "com.google.protobuf:protobuf-gradle-plugin:${protobufGradlePluginVersion}"
+    }
+}
+
+dependencies {
+    compile project(':grpc-server-spring-boot-starter')
+    compile project(':grpc-client-spring-boot-starter')
+    testImplementation(
+        "io.grpc:grpc-testing:${grpcVersion}",
+        "org.springframework.boot:spring-boot-starter-test:${springBootVersion}",
+        "io.netty:netty-tcnative-boringssl-static:2.0.12.Final",
+        "org.junit.jupiter:junit-jupiter-api:5.3.1"
+    )
+    testRuntimeOnly(
+        "org.junit.jupiter:junit-jupiter-engine:5.3.1"
+    )
+}
+
+test {
+    useJUnitPlatform()
+}

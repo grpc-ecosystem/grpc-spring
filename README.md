@@ -163,7 +163,23 @@ grpc.client.myName.host=127.0.0.1
 grpc.client.myName.port=9090
 ````
 
-## FAQ
+## Troubleshooting
+
+### Issues with SSL in general
+
+* `java.lang.IllegalStateException: Failed to load ApplicationContext`
+* `Caused by: org.springframework.context.ApplicationContextException: Failed to start bean 'grpcServerLifecycle'`
+* `Caused by: java.lang.IllegalStateException: Could not find TLS ALPN provider; no working netty-tcnative, Conscrypt, or Jetty NPN/ALPN available`
+
+or
+
+* `AbstractMethodError: io.netty.internal.tcnative.SSL.readFromSSL()`
+
+You don't have the (correct) library or version of `netty-tcnative...` in your classpath.
+
+(There is a breaking change between netty 4.1.24.Final -> 4.1.27.Final and netty-tcnative 2.0.8.Final -> 2.0.12.Final)
+
+See also [grpc-java: Security](https://github.com/grpc/grpc-java/blob/master/SECURITY.md).
 
 ### Issues with SSL during tests
 
@@ -182,6 +198,16 @@ grpc.client.(gRPC server name).negotiationType=PLAINTEXT
 Sometimes you just want to launch your application in your test to test the interaction between your services.
 This will also start the grpc server, however it won't be shut down after each test (class). You can avoid that issue by
 adding `@DirtiesContext` to your test classes or methods.
+
+### No name matching XXX found
+
+* `io.grpc.StatusRuntimeException: UNAVAILABLE: io exception`
+* `Caused by: javax.net.ssl.SSLHandshakeException: General OpenSslEngine problem`
+* `Caused by: java.security.cert.CertificateException: No name matching gRPC server name found`
+
+The name of the `gRPC server name` in the client config does not match the common / alternative name in the server
+certificate. You have to configure the `grpc.client.(gRPC server name).security.authorityOverride`
+property with a name that is present in the certificate.
 
 ## Show case
 

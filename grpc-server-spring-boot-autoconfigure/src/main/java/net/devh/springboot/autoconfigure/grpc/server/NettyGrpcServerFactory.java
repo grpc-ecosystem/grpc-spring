@@ -4,6 +4,8 @@ import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.List;
 
+import javax.net.ssl.SSLException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -13,10 +15,14 @@ import io.grpc.CompressorRegistry;
 import io.grpc.DecompressorRegistry;
 import io.grpc.Server;
 import io.grpc.health.v1.HealthCheckResponse;
+import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyServerBuilder;
 import io.grpc.protobuf.services.ProtoReflectionService;
 import io.grpc.services.HealthStatusManager;
+import io.netty.handler.ssl.ClientAuth;
+import io.netty.handler.ssl.SslContextBuilder;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.springboot.autoconfigure.grpc.server.GrpcServerProperties.Security;
 import net.devh.springboot.autoconfigure.grpc.server.codec.CodecType;
 import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodecDefinition;
 
@@ -46,7 +52,29 @@ public class NettyGrpcServerFactory implements GrpcServerFactory {
     public Server createServer() {
         final NettyServerBuilder builder = NettyServerBuilder.forAddress(
                 new InetSocketAddress(InetAddresses.forString(getAddress()), getPort()));
+        configure(builder);
+        return builder.build();
+    }
 
+    /**
+     * Configures the given netty server builder. This method can be overwritten to add features that
+     * are not yet supported by this library.
+     *
+     * @param builder The server builder to configure.
+     */
+    protected void configure(final NettyServerBuilder builder) {
+        configureServices(builder);
+        configureSecurity(builder);
+        configureLimits(builder);
+        configureCodecs(builder);
+    }
+
+    /**
+     * Configures the services that should be served by the server.
+     *
+     * @param builder The server builder to configure.
+     */
+    protected void configureServices(final NettyServerBuilder builder) {
         // support health check
         if (this.properties.isHealthServiceEnabled()) {
             builder.addService(this.healthStatusManager.getHealthService());
@@ -62,18 +90,82 @@ public class NettyGrpcServerFactory implements GrpcServerFactory {
             builder.addService(service.getDefinition());
             this.healthStatusManager.setStatus(serviceName, HealthCheckResponse.ServingStatus.SERVING);
         }
+    }
 
-        if (this.properties.getSecurity().isEnabled()) {
-            final File certificateChain = new File(this.properties.getSecurity().getCertificateChainPath());
-            final File certificate = new File(this.properties.getSecurity().getCertificatePath());
-            builder.useTransportSecurity(certificateChain, certificate);
+    /**
+     * Configures the security options that should be used by the server.
+     *
+     * @param builder The server builder to configure.
+     */
+    protected void configureSecurity(final NettyServerBuilder builder) {
+        final Security security = this.properties.getSecurity();
+        if (security.isEnabled()) {
+            final File certificateChainFile = toCheckedFile("certificateChain", security.getCertificateChainPath());
+            final File privateKeyFile = toCheckedFile("privateKey", security.getPrivateKeyPath());
+            final SslContextBuilder sslContextBuilder =
+                    GrpcSslContexts.forServer(certificateChainFile, privateKeyFile);
+
+            if (security.getClientAuth() != ClientAuth.NONE) {
+                sslContextBuilder.clientAuth(security.getClientAuth());
+
+                final String trustCertCollectionPath = security.getTrustCertCollectionPath();
+                if (trustCertCollectionPath != null && !trustCertCollectionPath.isEmpty()) {
+                    final File trustCertCollectionFile =
+                            toCheckedFile("trustCertCollection", trustCertCollectionPath);
+                    sslContextBuilder.trustManager(trustCertCollectionFile);
+                }
+            }
+
+            try {
+                builder.sslContext(sslContextBuilder.build());
+            } catch (final SSLException e) {
+                throw new IllegalStateException("Failed to create ssl context for grpc server", e);
+            }
         }
+    }
 
+    /**
+     * Converts the given path to a file. This method checks that the file exists and refers to a file.
+     *
+     * @param context The context for what the file is used. This value will be used in case of
+     *        exceptions.
+     * @param path The path of the file to use.
+     * @return The file instance created with the given path.
+     */
+    private File toCheckedFile(final String context, final String path) {
+        if (path == null || path.trim().isEmpty()) {
+            throw new IllegalArgumentException(context + " path cannot be null or blank");
+        }
+        final File file = new File(path);
+        if (!file.isFile()) {
+            String message =
+                    context + " file does not exist or path does not refer to a file: '" + file.getPath() + "'";
+            if (!file.isAbsolute()) {
+                message += " (" + file.getAbsolutePath() + ")";
+            }
+            throw new IllegalArgumentException(message);
+        }
+        return file;
+    }
+
+    /**
+     * Configures limits such as max message sizes that should be used by the server.
+     *
+     * @param builder The server builder to configure.
+     */
+    protected void configureLimits(final NettyServerBuilder builder) {
         final Integer maxInboundMessageSize = this.properties.getMaxInboundMessageSize();
         if (maxInboundMessageSize != null) {
             builder.maxInboundMessageSize(maxInboundMessageSize);
         }
+    }
 
+    /**
+     * Configures the codecs that should be supported by the server.
+     *
+     * @param builder The server builder to configure.
+     */
+    protected void configureCodecs(final NettyServerBuilder builder) {
         if (this.codecList.isEmpty()) {
             final CompressorRegistry compressorRegistry = CompressorRegistry.newEmptyInstance();
             final DecompressorRegistry decompressorRegistry = DecompressorRegistry.emptyInstance();
@@ -92,7 +184,6 @@ public class NettyGrpcServerFactory implements GrpcServerFactory {
             builder.compressorRegistry(compressorRegistry);
             builder.decompressorRegistry(decompressorRegistry);
         }
-        return builder.build();
     }
 
     @Override

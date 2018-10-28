@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
 import io.grpc.stub.AbstractStub;
+import net.devh.springboot.autoconfigure.grpc.client.GrpcChannelProperties.Security;
 
 /**
  * An annotation for fields of type {@link Channel} or subclasses of {@link AbstractStub}/gRPC
@@ -40,6 +41,12 @@ public @interface GrpcClient {
      * <p>
      * <b>Example:</b> <code>@GrpcClient("myClient")</code> &lt;-&gt;
      * <tt>grpc.client.myClient.port=9090</tt>
+     * </p>
+     *
+     * <p>
+     * <b>Note:</b> This value might also be used to check the common / alternative names in server
+     * certificate, you can overwrite this value with the {@link Security
+     * security.authorityOverride} property.
      * </p>
      *
      * @return The name of the grpc client.

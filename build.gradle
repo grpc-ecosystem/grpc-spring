@@ -69,6 +69,7 @@ allprojects {
     }
     dependencies{
         compileOnly('org.projectlombok:lombok:1.18.0')
+        testCompile('org.projectlombok:lombok:1.18.0')
         annotationProcessor('org.projectlombok:lombok:1.18.0')
     }
     buildscript {
@@ -90,4 +91,5 @@ version = "${projectVersion}"
 dependencies {
     compile project(':grpc-server-spring-boot-starter')
     compile project(':grpc-client-spring-boot-starter')
+    testCompile project(':tests')
 }

@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option java_multiple_files = true;
+option java_package = "net.devh.test.grpc.proto";
+option java_outer_classname = "TestServiceProto";
+
+service TestService {
+
+    // Returns version information
+    rpc getVersion(google.protobuf.Empty) returns (Version) {}
+
+    // Increments a number and returns it
+    rpc increment(google.protobuf.Empty) returns (Counter) {}
+
+}
+
+message Version {
+    string version = 1;
+}
+
+message Counter {
+    int32 value = 1;
+}
