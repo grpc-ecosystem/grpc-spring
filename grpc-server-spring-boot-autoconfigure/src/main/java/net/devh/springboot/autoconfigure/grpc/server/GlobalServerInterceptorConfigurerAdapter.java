@@ -1,13 +1,18 @@
 package net.devh.springboot.autoconfigure.grpc.server;
 
 /**
- * User: Michael
- * Email: yidongnan@gmail.com
- * Date: 2016/12/6
+ * Abstract class to register server interceptors globally.
+ *
+ * @author Michael (yidongnan@gmail.com)
+ * @since 2016/12/6
+ * @deprecated Use {@link GlobalServerInterceptorConfigurer} instead.
  */
-public abstract class GlobalServerInterceptorConfigurerAdapter {
+@Deprecated
+public abstract class GlobalServerInterceptorConfigurerAdapter implements GlobalServerInterceptorConfigurer {
 
-    public void addServerInterceptors(GlobalServerInterceptorRegistry registry) {
+    @Override
+    public void addServerInterceptors(final GlobalServerInterceptorRegistry registry) {
 
     }
+
 }
