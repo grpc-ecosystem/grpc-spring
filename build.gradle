@@ -1,3 +1,6 @@
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
+
 buildscript {
     repositories {
         mavenLocal()
@@ -18,7 +21,7 @@ buildscript {
         springCloudVersion = 'Finchley.SR1'
         springCloudConsulVersion = '2.0.1.RELEASE'
         springCloudEurekaVersion = '2.0.1.RELEASE'
-        braveInstrumentationGrpc='5.1.2'
+        braveInstrumentationGrpc = '5.1.2'
     }
     dependencies {
         classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
@@ -26,8 +29,27 @@ buildscript {
     }
 }
 
+plugins {
+    id "net.nemerosa.versioning" version "2.8.2"
+}
+
 task wrapper(type: Wrapper) {
     gradleVersion = '4.7'
+}
+
+
+def buildTimeAndDate = OffsetDateTime.now()
+
+ext {
+    // Generate JAR manifest only if code was compiled or recompiled;
+    // otherwise the junitPlatformTest task will always be executed even if
+    // no code changes were made. The reason is that the generation of
+    // the buildDate and buildTime causes JAR manifests to be modified
+    // which triggers unnecessary rebuilding of the dependent JARs.
+    generateManifest = false
+    buildDate = DateTimeFormatter.ISO_LOCAL_DATE.format(buildTimeAndDate)
+    buildTime = DateTimeFormatter.ofPattern('HH:mm:ss.SSSZ').format(buildTimeAndDate)
+    buildRevision = versioning.info.commit
 }
 
 allprojects {
@@ -52,10 +74,46 @@ allprojects {
     // Enable Checkstyle
     if (null != System.getenv('ENABLE_CHECKSTYLE')) {
         apply plugin: 'checkstyle'
-        checkstyle{
+        checkstyle {
             toolVersion '8.14'
             configFile new File(rootDir, "checkstyle-google.xml")
             showViolations true
+        }
+    }
+
+    // Copy LICENSE    
+    tasks.withType(Jar) {
+        from(project.rootDir) {
+            include 'LICENSE'
+            into 'META-INF'
+        }
+    }
+
+    compileJava.doLast {
+        // Enable JAR manifest generation
+        generateManifest = true
+    }
+
+    // Generate MANIFEST.MF
+    jar {
+        onlyIf {
+            project.generateManifest
+        }
+        manifest {
+            attributes(
+                    'Created-By': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})".toString(),
+                    'Built-By': "travis",
+                    'Build-Date': buildDate,
+                    'Build-Time': buildTime,
+                    'Built-OS': "${System.properties['os.name']}",
+                    'Build-Revision': buildRevision,
+                    'Specification-Title': project.name,
+                    'Specification-Version': "${projectVersion}",
+                    'Specification-Vendor': 'Michael Zhang',
+                    'Implementation-Title': project.name,
+                    'Implementation-Version': "${projectVersion}",
+                    'Implementation-Vendor': 'Michael Zhang'
+            )
         }
     }
 
@@ -67,7 +125,7 @@ allprojects {
         maven { url "https://plugins.gradle.org/m2/" }
         maven { url 'https://repo.spring.io/libs-milestone' }
     }
-    dependencies{
+    dependencies {
         compileOnly('org.projectlombok:lombok:1.18.0')
         testCompile('org.projectlombok:lombok:1.18.0')
         annotationProcessor('org.projectlombok:lombok:1.18.0')
