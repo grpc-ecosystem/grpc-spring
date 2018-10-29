@@ -25,11 +25,13 @@ import java.lang.annotation.Target;
 
 import org.springframework.stereotype.Service;
 
+import io.grpc.BindableService;
 import io.grpc.ServerInterceptor;
 
 /**
  * Annotation that marks gRPC services that should be registered with a gRPC server. If spring-boot's auto configuration
- * is used, then the server will be created automatically.
+ * is used, then the server will be created automatically. This annotation should only be added to implementations of
+ * {@link BindableService} (GrpcService-ImplBase).
  *
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16

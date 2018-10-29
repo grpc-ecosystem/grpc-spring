@@ -27,6 +27,8 @@ import io.grpc.NameResolverProvider;
 import io.grpc.internal.GrpcUtil;
 
 /**
+ * A name resolver factory that will create an {@link AddressChannelNameResolver} based on the target uri.
+ * 
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
@@ -59,4 +61,5 @@ public class AddressChannelResolverFactory extends NameResolverProvider {
     protected int priority() {
         return 5;
     }
+
 }

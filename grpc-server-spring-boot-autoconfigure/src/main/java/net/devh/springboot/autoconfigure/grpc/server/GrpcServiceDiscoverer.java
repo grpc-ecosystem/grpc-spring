@@ -22,12 +22,26 @@ import java.util.Collection;
 import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodecDefinition;
 
 /**
+ * An interface for a bean that will be used to find grpc services and codecs. These will then be provided to the
+ * {@link GrpcServerFactory} which then uses them to configure the server.
+ *
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
 public interface GrpcServiceDiscoverer {
 
+    /**
+     * Find the grpc services that should provided by the server.
+     *
+     * @return The grpc services that should be provided. Never null.
+     */
     Collection<GrpcServiceDefinition> findGrpcServices();
 
+    /**
+     * Find the grpc codecs that should uses by the server.
+     *
+     * @return The grpc codecs that should be provided. Never null.
+     */
     Collection<GrpcCodecDefinition> findGrpcCodec();
+
 }

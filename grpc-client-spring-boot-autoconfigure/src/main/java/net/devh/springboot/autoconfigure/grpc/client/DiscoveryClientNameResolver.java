@@ -34,6 +34,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import io.grpc.Attributes;
+import io.grpc.Channel;
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
 import io.grpc.Status;
@@ -41,6 +42,9 @@ import io.grpc.internal.SharedResourceHolder;
 import lombok.extern.slf4j.Slf4j;
 
 /**
+ * The DiscoveryClientNameResolver configures the hosts and the associated ports for {@link Channel}s to use based on a
+ * {@link DiscoveryClient}.
+ *
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
@@ -203,4 +207,5 @@ public class DiscoveryClientNameResolver extends NameResolver {
             executor = SharedResourceHolder.release(executorResource, executor);
         }
     }
+
 }

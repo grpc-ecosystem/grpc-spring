@@ -29,10 +29,13 @@ import io.grpc.NameResolverProvider;
 import io.grpc.internal.GrpcUtil;
 
 /**
+ * A name resolver factory that will create an {@link DiscoveryClientNameResolver} based on the target uri.
+ * 
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
 public class DiscoveryClientResolverFactory extends NameResolverProvider {
+
     private final DiscoveryClient client;
     private DiscoveryClientChannelFactory discoveryClientChannelFactory;
 
@@ -65,4 +68,5 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
     protected int priority() {
         return 5;
     }
+
 }

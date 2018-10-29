@@ -23,26 +23,34 @@ import java.util.List;
 import org.springframework.cloud.consul.serviceregistry.ConsulRegistration;
 import org.springframework.cloud.consul.serviceregistry.ConsulRegistrationCustomizer;
 
-
 /**
+ * Adds the grpc server port to the consul registration.
+ *
  * @author Michael (yidongnan@gmail.com)
  * @since 7/21/2018
  */
 public class ConsulGrpcRegistrationCustomizer implements ConsulRegistrationCustomizer {
 
-    private GrpcServerProperties grpcServerProperties;
+    private final GrpcServerProperties grpcServerProperties;
 
-    public ConsulGrpcRegistrationCustomizer(GrpcServerProperties grpcServerProperties) {
+    /**
+     * Creates a new ConsulGrpcRegistrationCustomizer which will read the grpc server port from the given
+     * {@link GrpcServerProperties}.
+     *
+     * @param grpcServerProperties The properties to get the server port from.
+     */
+    public ConsulGrpcRegistrationCustomizer(final GrpcServerProperties grpcServerProperties) {
         this.grpcServerProperties = grpcServerProperties;
     }
 
     @Override
-    public void customize(ConsulRegistration registration) {
+    public void customize(final ConsulRegistration registration) {
         List<String> tags = registration.getService().getTags();
         if (tags == null) {
             tags = new ArrayList<>();
         }
-        tags.add("gRPC.port=" + grpcServerProperties.getPort());
+        tags.add("gRPC.port=" + this.grpcServerProperties.getPort());
         registration.getService().setTags(tags);
     }
+
 }
