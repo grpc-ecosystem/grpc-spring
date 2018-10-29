@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2016-2018 Michael Zhang <yidongnan@gmail.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package net.devh.springboot.autoconfigure.grpc.client;
 
 import java.util.ArrayList;
@@ -25,14 +41,14 @@ public class GrpcChannelProperties {
     public static final GrpcChannelProperties DEFAULT = new GrpcChannelProperties();
 
     /**
-     * A list of hosts to connect to. These entries should be kept in tandem with the port entries.
-     * Defaults to {@link #DEFAULT_HOST}.
+     * A list of hosts to connect to. These entries should be kept in tandem with the port entries. Defaults to
+     * {@link #DEFAULT_HOST}.
      */
     private List<String> host = new ArrayList<>(DEFAULT_HOSTS);
 
     /**
-     * A list of ports to connect to. These entries should be kept in tandem with the host entries.
-     * Defaults to {@link #DEFAULT_PORT}.
+     * A list of ports to connect to. These entries should be kept in tandem with the host entries. Defaults to
+     * {@link #DEFAULT_PORT}.
      */
     private List<Integer> port = new ArrayList<>(DEFAULT_PORTS);
 
@@ -42,8 +58,8 @@ public class GrpcChannelProperties {
     private boolean enableKeepAlive = false;
 
     /**
-     * Sets whether keepalive will be performed when there are no outstanding RPC on a connection.
-     * Defaults to {@code false}.
+     * Sets whether keepalive will be performed when there are no outstanding RPC on a connection. Defaults to
+     * {@code false}.
      */
     private boolean keepAliveWithoutCalls = false;
 
@@ -58,19 +74,18 @@ public class GrpcChannelProperties {
     private long keepAliveTimeout = 20;
 
     /**
-     * The maximum message size in bytes allowed to be received by the channel. If not set
-     * ({@code null}) then it will default to {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE
-     * DEFAULT_MAX_MESSAGE_SIZE}. If set to {@code -1} then it will use {@link Integer#MAX_VALUE} as
-     * limit.
+     * The maximum message size in bytes allowed to be received by the channel. If not set ({@code null}) then it will
+     * default to {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE DEFAULT_MAX_MESSAGE_SIZE}. If set to {@code -1} then it will
+     * use {@link Integer#MAX_VALUE} as limit.
      */
     private Integer maxInboundMessageSize = null;
 
     private boolean fullStreamDecompression = false;
 
     /**
-     * The negotiation type to use on the connection. Either of {@link NegotiationType#TLS TLS}
-     * (recommended), {@link NegotiationType#PLAINTEXT_UPGRADE PLAINTEXT_UPGRADE} or
-     * {@link NegotiationType#PLAINTEXT PLAINTEXT}. Defaults to TLS.
+     * The negotiation type to use on the connection. Either of {@link NegotiationType#TLS TLS} (recommended),
+     * {@link NegotiationType#PLAINTEXT_UPGRADE PLAINTEXT_UPGRADE} or {@link NegotiationType#PLAINTEXT PLAINTEXT}.
+     * Defaults to TLS.
      */
     private NegotiationType negotiationType = NegotiationType.TLS;
 
@@ -98,24 +113,23 @@ public class GrpcChannelProperties {
         private String privateKeyPath = null;
 
         /**
-         * Path to the trusted certificate collection. If {@code null} or empty it will use the system's
-         * default collection (Default).
+         * Path to the trusted certificate collection. If {@code null} or empty it will use the system's default
+         * collection (Default).
          */
         private String trustCertCollectionPath = null;
 
         /**
-         * The authority to check for during certificate checks. By default the clients will use the name of
-         * the client to check the server certificate's common + alternative names.
+         * The authority to check for during certificate checks. By default the clients will use the name of the client
+         * to check the server certificate's common + alternative names.
          */
         private String authorityOverride = null;
 
     }
 
     /**
-     * Gets the maximum message size in bytes allowed to be received by the channel. If not set
-     * ({@code null}) then it will default to {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE
-     * DEFAULT_MAX_MESSAGE_SIZE}. If set to {@code -1} then it will use {@link Integer#MAX_VALUE} as
-     * limit.
+     * Gets the maximum message size in bytes allowed to be received by the channel. If not set ({@code null}) then it
+     * will default to {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE DEFAULT_MAX_MESSAGE_SIZE}. If set to {@code -1} then it
+     * will use {@link Integer#MAX_VALUE} as limit.
      *
      * @return The maximum message size in bytes allowed or null if the default should be used.
      */

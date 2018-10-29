@@ -16,8 +16,9 @@
 
  ============================ local modification  =================================
   1. Use Indent of 4
-  2. Disable import group check.
-  3. Disable javadoc.
+  2. Max line 120
+  3. Disable import group check.
+  4. Disable javadoc.
  -->
 
 <module name="Checker">
@@ -47,7 +48,7 @@
       <property name="allowNonPrintableEscapes" value="true"/>
     </module>
     <module name="LineLength">
-      <property name="max" value="100"/>
+      <property name="max" value="120"/>
       <property name="ignorePattern"
         value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
     </module>
