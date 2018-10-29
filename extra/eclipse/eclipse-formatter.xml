@@ -56,7 +56,7 @@
         <setting id="org.eclipse.jdt.core.formatter.insert_space_before_comma_in_superinterfaces" value="do not insert"/>
         <setting id="org.eclipse.jdt.core.formatter.blank_lines_before_new_chunk" value="1"/>
         <setting id="org.eclipse.jdt.core.formatter.insert_space_before_binary_operator" value="insert"/>
-        <setting id="org.eclipse.jdt.core.formatter.blank_lines_before_package" value="0"/>
+        <setting id="org.eclipse.jdt.core.formatter.blank_lines_before_package" value="1"/>
         <setting id="org.eclipse.jdt.core.formatter.alignment_for_cascading_method_invocation_with_arguments" value="16"/>
         <setting id="org.eclipse.jdt.core.compiler.source" value="1.7"/>
         <setting id="org.eclipse.jdt.core.formatter.alignment_for_throws_clause_in_constructor_declaration.count_dependent" value="16|4|48"/>
