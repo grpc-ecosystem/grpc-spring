@@ -6,7 +6,7 @@ If you are new to github, please start by reading [Pull Request howto](https://h
 
 ##Code Formatting
 Code formatting is enforced using the [Spotless](https://github.com/diffplug/spotless)
-Gradle plugin or Maven plugin. You can use `gradle spotlessApply` or `mvn spotless:apply`
+Gradle plugin or Maven plugin. You can use `gradle spotlessJavaApply` or `mvn spotless:apply`
  to format new code. Formatter and import order settings for Eclipse are
 available in the repository under
 [extra/eclipse-formatter.xml](extra/eclipse/eclipse-formatter.xml)
