@@ -1,0 +1,20 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+*.factories     text
+*.gitignore     text
+*.gradle        text
+*.java          text
+*.md            text
+*.properties    text
+*.proto         text
+*.sh            text
+*.xml           text
+*.yml           text
+
+*.key binary
+*.jar binary
+*.enc binary
+*.crt binary
+
+*.bat text eol=crlf

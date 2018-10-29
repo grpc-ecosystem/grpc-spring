@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2016-2018 Michael Zhang <yidongnan@gmail.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package net.devh.springboot.autoconfigure.grpc.client;
 
 import java.net.InetSocketAddress;
@@ -6,6 +23,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+
 import javax.annotation.concurrent.GuardedBy;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -23,9 +41,8 @@ import io.grpc.internal.SharedResourceHolder;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * User: Michael
- * Email: yidongnan@gmail.com
- * Date: 5/17/16
+ * @author Michael (yidongnan@gmail.com)
+ * @since 5/17/16
  */
 @Slf4j
 public class DiscoveryClientNameResolver extends NameResolver {
@@ -50,8 +67,9 @@ public class DiscoveryClientNameResolver extends NameResolver {
     @GuardedBy("this")
     private List<ServiceInstance> serviceInstanceList;
 
-    public DiscoveryClientNameResolver(String name, DiscoveryClient client, Attributes attributes, SharedResourceHolder.Resource<ScheduledExecutorService> timerServiceResource,
-                                       SharedResourceHolder.Resource<ExecutorService> executorResource) {
+    public DiscoveryClientNameResolver(String name, DiscoveryClient client, Attributes attributes,
+            SharedResourceHolder.Resource<ScheduledExecutorService> timerServiceResource,
+            SharedResourceHolder.Resource<ExecutorService> executorResource) {
         this.name = name;
         this.client = client;
         this.attributes = attributes;
@@ -118,7 +136,8 @@ public class DiscoveryClientNameResolver extends NameResolver {
                         if (metadata.get("gRPC.port") != null) {
                             Integer port = Integer.valueOf(metadata.get("gRPC.port"));
                             log.info("Found gRPC server {} {}:{}", name, serviceInstance.getHost(), port);
-                            EquivalentAddressGroup addressGroup = new EquivalentAddressGroup(new InetSocketAddress(serviceInstance.getHost(), port), Attributes.EMPTY);
+                            EquivalentAddressGroup addressGroup = new EquivalentAddressGroup(
+                                    new InetSocketAddress(serviceInstance.getHost(), port), Attributes.EMPTY);
                             equivalentAddressGroups.add(addressGroup);
                         } else {
                             log.error("Can not found gRPC server {}", name);
@@ -126,7 +145,8 @@ public class DiscoveryClientNameResolver extends NameResolver {
                     }
                     savedListener.onAddresses(equivalentAddressGroups, Attributes.EMPTY);
                 } else {
-                    savedListener.onError(Status.UNAVAILABLE.withCause(new RuntimeException("UNAVAILABLE: NameResolver returned an empty list")));
+                    savedListener.onError(Status.UNAVAILABLE
+                            .withCause(new RuntimeException("UNAVAILABLE: NameResolver returned an empty list")));
                 }
             } finally {
                 synchronized (DiscoveryClientNameResolver.this) {
@@ -141,7 +161,8 @@ public class DiscoveryClientNameResolver extends NameResolver {
             for (ServiceInstance serviceInstance : serviceInstanceList) {
                 boolean isSame = false;
                 for (ServiceInstance newServiceInstance : newServiceInstanceList) {
-                    if (newServiceInstance.getHost().equals(serviceInstance.getHost()) && newServiceInstance.getPort() == serviceInstance.getPort()) {
+                    if (newServiceInstance.getHost().equals(serviceInstance.getHost())
+                            && newServiceInstance.getPort() == serviceInstance.getPort()) {
                         isSame = true;
                         break;
                     }

@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2016-2018 Michael Zhang <yidongnan@gmail.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package net.devh.springboot.autoconfigure.grpc.server;
 
 import java.util.Arrays;
@@ -20,9 +37,8 @@ import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodec;
 import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodecDefinition;
 
 /**
- * User: Michael
- * Email: yidongnan@gmail.com
- * Date: 5/17/16
+ * @author Michael (yidongnan@gmail.com)
+ * @since 5/17/16
  */
 @Slf4j
 public class AnnotationGrpcServiceDiscoverer implements ApplicationContextAware, GrpcServiceDiscoverer {
@@ -36,9 +52,11 @@ public class AnnotationGrpcServiceDiscoverer implements ApplicationContextAware,
 
     @Override
     public Collection<GrpcServiceDefinition> findGrpcServices() {
-        Collection<String> beanNames = Arrays.asList(this.applicationContext.getBeanNamesForAnnotation(GrpcService.class));
+        Collection<String> beanNames =
+                Arrays.asList(this.applicationContext.getBeanNamesForAnnotation(GrpcService.class));
         List<GrpcServiceDefinition> definitions = Lists.newArrayListWithCapacity(beanNames.size());
-        GlobalServerInterceptorRegistry globalServerInterceptorRegistry = applicationContext.getBean(GlobalServerInterceptorRegistry.class);
+        GlobalServerInterceptorRegistry globalServerInterceptorRegistry =
+                applicationContext.getBean(GlobalServerInterceptorRegistry.class);
         List<ServerInterceptor> globalInterceptorList = globalServerInterceptorRegistry.getServerInterceptors();
         for (String beanName : beanNames) {
             BindableService bindableService = this.applicationContext.getBean(beanName, BindableService.class);
@@ -46,25 +64,29 @@ public class AnnotationGrpcServiceDiscoverer implements ApplicationContextAware,
             GrpcService grpcServiceAnnotation = applicationContext.findAnnotationOnBean(beanName, GrpcService.class);
             serviceDefinition = bindInterceptors(serviceDefinition, grpcServiceAnnotation, globalInterceptorList);
             definitions.add(new GrpcServiceDefinition(beanName, bindableService.getClass(), serviceDefinition));
-            log.debug("Found gRPC service: " + serviceDefinition.getServiceDescriptor().getName() + ", bean: " + beanName + ", class: " + bindableService.getClass().getName());
+            log.debug("Found gRPC service: " + serviceDefinition.getServiceDescriptor().getName() + ", bean: "
+                    + beanName + ", class: " + bindableService.getClass().getName());
         }
         return definitions;
     }
 
     @Override
     public Collection<GrpcCodecDefinition> findGrpcCodec() {
-        Collection<String> beanNames = Arrays.asList(this.applicationContext.getBeanNamesForAnnotation(GrpcCodec.class));
+        Collection<String> beanNames =
+                Arrays.asList(this.applicationContext.getBeanNamesForAnnotation(GrpcCodec.class));
         List<GrpcCodecDefinition> definitions = Lists.newArrayListWithCapacity(beanNames.size());
         for (String beanName : beanNames) {
             Codec codec = this.applicationContext.getBean(beanName, Codec.class);
             GrpcCodec annotation = applicationContext.findAnnotationOnBean(beanName, GrpcCodec.class);
             definitions.add(new GrpcCodecDefinition(codec, annotation.advertised(), annotation.codecType()));
-            log.debug("Found custom gRPC custom codec: " + codec.getMessageEncoding() + ", bean: " + beanName + ", class: " + codec.getClass().getName());
+            log.debug("Found custom gRPC custom codec: " + codec.getMessageEncoding() + ", bean: " + beanName
+                    + ", class: " + codec.getClass().getName());
         }
         return definitions;
     }
 
-    private ServerServiceDefinition bindInterceptors(ServerServiceDefinition serviceDefinition, GrpcService grpcServiceAnnotation, List<ServerInterceptor> globalInterceptorList) {
+    private ServerServiceDefinition bindInterceptors(ServerServiceDefinition serviceDefinition,
+            GrpcService grpcServiceAnnotation, List<ServerInterceptor> globalInterceptorList) {
         Collection<ServerInterceptor> interceptors = Lists.newArrayList();
         interceptors.addAll(globalInterceptorList);
         for (Class<? extends ServerInterceptor> serverInterceptorClass : grpcServiceAnnotation.interceptors()) {

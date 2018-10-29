@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2016-2018 Michael Zhang <yidongnan@gmail.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package net.devh.springboot.autoconfigure.grpc.client;
 
 import java.io.File;
@@ -29,8 +46,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.devh.springboot.autoconfigure.grpc.client.GrpcChannelProperties.Security;
 
 /**
- * This abstract channel factory contains some shared code for other {@link GrpcChannelFactory}s.
- * This class utilizes connection pooling and thus needs to be {@link #close() closed} after usage.
+ * This abstract channel factory contains some shared code for other {@link GrpcChannelFactory}s. This class utilizes
+ * connection pooling and thus needs to be {@link #close() closed} after usage.
  *
  * @author Michael (yidongnan@gmail.com)
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
@@ -44,8 +61,8 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
     private final NameResolver.Factory nameResolverFactory;
     private final GlobalClientInterceptorRegistry globalClientInterceptorRegistry;
     /**
-     * According to <a href="https://groups.google.com/forum/#!topic/grpc-io/-jA_JCiugM8">Thread safety
-     * in Grpc java clients</a>: {@link ManagedChannel}s should be reused to allow connection reuse.
+     * According to <a href="https://groups.google.com/forum/#!topic/grpc-io/-jA_JCiugM8">Thread safety in Grpc java
+     * clients</a>: {@link ManagedChannel}s should be reused to allow connection reuse.
      */
     @GuardedBy("this")
     private final Map<String, ManagedChannel> channels = new ConcurrentHashMap<>();
@@ -100,10 +117,9 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
     }
 
     /**
-     * Creates a new {@link ManagedChannel} for the given client name. The name will be used to
-     * determine the properties for the new channel. The calling method is responsible for lifecycle
-     * management of the created channel. ManagedChannels should be reused if possible to allow
-     * connection reuse.
+     * Creates a new {@link ManagedChannel} for the given client name. The name will be used to determine the properties
+     * for the new channel. The calling method is responsible for lifecycle management of the created channel.
+     * ManagedChannels should be reused if possible to allow connection reuse.
      *
      * @param name The name to create the channel for.
      * @return The newly created channel.
@@ -128,8 +144,8 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
     }
 
     /**
-     * Configures the given netty channel builder. This method can be overwritten to add features that
-     * are not yet supported by this library.
+     * Configures the given netty channel builder. This method can be overwritten to add features that are not yet
+     * supported by this library.
      *
      * @param builder The channel builder to configure.
      * @param name The name of the client to configure.
@@ -201,8 +217,7 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
     /**
      * Converts the given path to a file. This method checks that the file exists and refers to a file.
      *
-     * @param context The context for what the file is used. This value will be used in case of
-     *        exceptions.
+     * @param context The context for what the file is used. This value will be used in case of exceptions.
      * @param path The path of the file to use.
      * @return The file instance created with the given path.
      */
@@ -250,9 +265,8 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
     }
 
     /**
-     * Closes this channel factory and the channels created by this instance. The shutdown happens in
-     * two phases, first an orderly shutdown is initiated on all channels and then the method waits for
-     * all channels to terminate.
+     * Closes this channel factory and the channels created by this instance. The shutdown happens in two phases, first
+     * an orderly shutdown is initiated on all channels and then the method waits for all channels to terminate.
      */
     @Override
     @PreDestroy

@@ -26,6 +26,7 @@ buildscript {
     dependencies {
         classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:3.15.0"
     }
 }
 
@@ -51,6 +52,7 @@ allprojects {
     apply plugin: 'idea'
     apply plugin: 'eclipse'
     apply plugin: "io.spring.dependency-management"
+    apply plugin: 'com.diffplug.gradle.spotless'
 
     compileJava {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -65,12 +67,21 @@ allprojects {
             "-Xlint:deprecation", "-Xlint:unchecked", "-Xlint:-options"
     ]
 
+    spotless {
+        java {
+            licenseHeaderFile rootProject.file('extra/spotless/mit-license.java')
+            removeUnusedImports()
+            importOrderFile rootProject.file('extra/eclipse/eclipse.importorder')
+            eclipse().configFile rootProject.file('extra/eclipse/eclipse-formatter.xml')
+        }
+    }
+
     // Enable Checkstyle
     if (null != System.getenv('ENABLE_CHECKSTYLE')) {
         apply plugin: 'checkstyle'
         checkstyle {
             toolVersion '8.14'
-            configFile new File(rootDir, "checkstyle-google.xml")
+            configFile new File(rootDir, "extra/checkstyle/checkstyle.xml")
             showViolations true
         }
     }

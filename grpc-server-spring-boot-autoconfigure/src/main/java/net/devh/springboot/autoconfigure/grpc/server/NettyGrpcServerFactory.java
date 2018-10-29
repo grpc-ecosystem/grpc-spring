@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2016-2018 Michael Zhang <yidongnan@gmail.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package net.devh.springboot.autoconfigure.grpc.server;
 
 import java.io.File;
@@ -50,15 +67,15 @@ public class NettyGrpcServerFactory implements GrpcServerFactory {
 
     @Override
     public Server createServer() {
-        final NettyServerBuilder builder = NettyServerBuilder.forAddress(
-                new InetSocketAddress(InetAddresses.forString(getAddress()), getPort()));
+        final NettyServerBuilder builder =
+                NettyServerBuilder.forAddress(new InetSocketAddress(InetAddresses.forString(getAddress()), getPort()));
         configure(builder);
         return builder.build();
     }
 
     /**
-     * Configures the given netty server builder. This method can be overwritten to add features that
-     * are not yet supported by this library.
+     * Configures the given netty server builder. This method can be overwritten to add features that are not yet
+     * supported by this library.
      *
      * @param builder The server builder to configure.
      */
@@ -102,16 +119,14 @@ public class NettyGrpcServerFactory implements GrpcServerFactory {
         if (security.isEnabled()) {
             final File certificateChainFile = toCheckedFile("certificateChain", security.getCertificateChainPath());
             final File privateKeyFile = toCheckedFile("privateKey", security.getPrivateKeyPath());
-            final SslContextBuilder sslContextBuilder =
-                    GrpcSslContexts.forServer(certificateChainFile, privateKeyFile);
+            final SslContextBuilder sslContextBuilder = GrpcSslContexts.forServer(certificateChainFile, privateKeyFile);
 
             if (security.getClientAuth() != ClientAuth.NONE) {
                 sslContextBuilder.clientAuth(security.getClientAuth());
 
                 final String trustCertCollectionPath = security.getTrustCertCollectionPath();
                 if (trustCertCollectionPath != null && !trustCertCollectionPath.isEmpty()) {
-                    final File trustCertCollectionFile =
-                            toCheckedFile("trustCertCollection", trustCertCollectionPath);
+                    final File trustCertCollectionFile = toCheckedFile("trustCertCollection", trustCertCollectionPath);
                     sslContextBuilder.trustManager(trustCertCollectionFile);
                 }
             }
@@ -127,8 +142,7 @@ public class NettyGrpcServerFactory implements GrpcServerFactory {
     /**
      * Converts the given path to a file. This method checks that the file exists and refers to a file.
      *
-     * @param context The context for what the file is used. This value will be used in case of
-     *        exceptions.
+     * @param context The context for what the file is used. This value will be used in case of exceptions.
      * @param path The path of the file to use.
      * @return The file instance created with the given path.
      */
