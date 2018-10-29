@@ -18,12 +18,26 @@
 package net.devh.springboot.autoconfigure.grpc.server.codec;
 
 /**
+ * The type of the codec.
+ *
  * @author Michael (yidongnan@gmail.com)
  * @since 10/13/18
  */
 public enum CodecType {
 
-    COMPRESS, DECOMPRESS, ALL;
+    /**
+     * The codec should be used for compression only.
+     */
+    COMPRESS,
 
-    CodecType() {}
+    /**
+     * The codec should be used for decompression only.
+     */
+    DECOMPRESS,
+
+    /**
+     * The codec should be used for both compression and decompression.
+     */
+    ALL;
+
 }

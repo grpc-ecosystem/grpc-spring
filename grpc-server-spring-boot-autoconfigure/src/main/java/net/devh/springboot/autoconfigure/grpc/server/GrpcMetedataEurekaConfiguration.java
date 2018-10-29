@@ -29,6 +29,8 @@ import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.discovery.EurekaClient;
 
 /**
+ * Configuration class that configures the required beans for grpc discovery via Eureka.
+ *
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
@@ -48,6 +50,7 @@ public class GrpcMetedataEurekaConfiguration {
         if (this.instance == null) {
             return;
         }
-        this.instance.getMetadataMap().put("gRPC.port", String.valueOf(grpcProperties.getPort()));
+        this.instance.getMetadataMap().put("gRPC.port", String.valueOf(this.grpcProperties.getPort()));
     }
+
 }

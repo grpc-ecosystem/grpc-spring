@@ -21,6 +21,10 @@ import io.grpc.Codec;
 import lombok.Getter;
 
 /**
+ * Container class that contains all relevant information about a grpc codec.
+ *
+ * @see GrpcCodec
+ *
  * @author Michael (yidongnan@gmail.com)
  * @since 10/13/18
  */
@@ -28,14 +32,20 @@ import lombok.Getter;
 public class GrpcCodecDefinition {
 
     private final Codec codec;
-
     private final boolean advertised;
-
     private final CodecType codecType;
 
-    public GrpcCodecDefinition(Codec codec, boolean advertised, CodecType codecType) {
+    /**
+     * Creates a new GrpcCodecDefinition.
+     *
+     * @param codec The codec bean.
+     * @param advertised Whether the codec should be advertised in the headers.
+     * @param codecType The type of the codec.
+     */
+    public GrpcCodecDefinition(final Codec codec, final boolean advertised, final CodecType codecType) {
         this.codec = codec;
         this.advertised = advertised;
         this.codecType = codecType;
     }
+
 }

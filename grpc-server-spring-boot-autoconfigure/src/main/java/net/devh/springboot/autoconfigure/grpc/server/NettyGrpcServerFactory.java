@@ -17,6 +17,8 @@
 
 package net.devh.springboot.autoconfigure.grpc.server;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -61,8 +63,13 @@ public class NettyGrpcServerFactory implements GrpcServerFactory {
     @Autowired
     private HealthStatusManager healthStatusManager;
 
+    /**
+     * Creates a new netty server factory with the given properties.
+     *
+     * @param properties The properties used to configure the server.
+     */
     public NettyGrpcServerFactory(final GrpcServerProperties properties) {
-        this.properties = properties;
+        this.properties = requireNonNull(properties, "properties");
     }
 
     @Override

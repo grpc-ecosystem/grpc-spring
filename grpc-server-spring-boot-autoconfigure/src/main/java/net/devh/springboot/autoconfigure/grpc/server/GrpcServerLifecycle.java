@@ -26,6 +26,8 @@ import io.grpc.Server;
 import lombok.extern.slf4j.Slf4j;
 
 /**
+ * Lifecycle bean that automatically starts and stops the grpc server.
+ *
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
@@ -37,7 +39,7 @@ public class GrpcServerLifecycle implements SmartLifecycle {
     private volatile int phase = Integer.MAX_VALUE;
     private final GrpcServerFactory factory;
 
-    public GrpcServerLifecycle(GrpcServerFactory factory) {
+    public GrpcServerLifecycle(final GrpcServerFactory factory) {
         this.factory = factory;
     }
 
@@ -45,8 +47,8 @@ public class GrpcServerLifecycle implements SmartLifecycle {
     public void start() {
         try {
             createAndStartGrpcServer();
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
+        } catch (final IOException e) {
+            throw new IllegalStateException("Failed to start the grpc server", e);
         }
     }
 
@@ -56,7 +58,7 @@ public class GrpcServerLifecycle implements SmartLifecycle {
     }
 
     @Override
-    public void stop(Runnable callback) {
+    public void stop(final Runnable callback) {
         this.stop();
         callback.run();
     }
@@ -76,21 +78,26 @@ public class GrpcServerLifecycle implements SmartLifecycle {
         return true;
     }
 
+    /**
+     * Creates and starts the grpc server.
+     *
+     * @throws IOException If the server is unable to bind the port.
+     */
     protected void createAndStartGrpcServer() throws IOException {
-        Server localServer = this.server;
+        final Server localServer = this.server;
         if (localServer == null) {
             this.server = this.factory.createServer();
             this.server.start();
             log.info("gRPC Server started, listening on address: " + this.factory.getAddress() + ", port: "
                     + this.factory.getPort());
 
-            Thread awaitThread = new Thread("container-" + (serverCounter.incrementAndGet())) {
+            final Thread awaitThread = new Thread("container-" + (serverCounter.incrementAndGet())) {
 
                 @Override
                 public void run() {
                     try {
                         GrpcServerLifecycle.this.server.awaitTermination();
-                    } catch (InterruptedException e) {
+                    } catch (final InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
                 }
@@ -101,6 +108,10 @@ public class GrpcServerLifecycle implements SmartLifecycle {
         }
     }
 
+    /**
+     * Initiates an orderly shutdown of the grpc server and releases the references to the server. This call does not
+     * wait for the server to be completely shut down.
+     */
     protected void stopAndReleaseGrpcServer() {
         factory.destroy();
         Server localServer = this.server;

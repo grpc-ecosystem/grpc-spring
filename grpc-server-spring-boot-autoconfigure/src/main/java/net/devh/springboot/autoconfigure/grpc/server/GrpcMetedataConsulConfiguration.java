@@ -28,6 +28,8 @@ import org.springframework.context.annotation.Configuration;
 import com.ecwid.consul.v1.ConsulClient;
 
 /**
+ * Configuration class that configures the required beans for grpc discovery via Consul.
+ *
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
@@ -38,7 +40,9 @@ public class GrpcMetedataConsulConfiguration {
 
     @ConditionalOnMissingBean
     @Bean
-    public ConsulRegistrationCustomizer consulGrpcRegistrationCustomizer(GrpcServerProperties grpcServerProperties) {
+    public ConsulRegistrationCustomizer consulGrpcRegistrationCustomizer(
+            final GrpcServerProperties grpcServerProperties) {
         return new ConsulGrpcRegistrationCustomizer(grpcServerProperties);
     }
+
 }

@@ -37,6 +37,9 @@ import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodec;
 import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodecDefinition;
 
 /**
+ * A {@link GrpcServiceDiscoverer} that searches for beans with the {@link GrpcService} and {@link GrpcCodec}
+ * annotations.
+ *
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
@@ -46,7 +49,7 @@ public class AnnotationGrpcServiceDiscoverer implements ApplicationContextAware,
     private ApplicationContext applicationContext;
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
+    public void setApplicationContext(final ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
 
@@ -104,4 +107,5 @@ public class AnnotationGrpcServiceDiscoverer implements ApplicationContextAware,
         }
         return ServerInterceptors.intercept(serviceDefinition, Lists.newArrayList(interceptors));
     }
+
 }
