@@ -62,6 +62,12 @@ public class GlobalClientInterceptorRegistry implements ApplicationContextAware 
         }
     }
 
+    /**
+     * Adds the given {@link ClientInterceptor} to the list of globally registered interceptors.
+     *
+     * @param interceptor The interceptor to add.
+     * @return This instance for chaining.
+     */
     public GlobalClientInterceptorRegistry addClientInterceptors(final ClientInterceptor interceptor) {
         this.clientInterceptors.add(interceptor);
         return this;

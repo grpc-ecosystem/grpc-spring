@@ -27,6 +27,8 @@ import com.google.common.collect.Maps;
 import lombok.Data;
 
 /**
+ * The container for named channel properties.
+ *
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
@@ -37,8 +39,8 @@ public class GrpcChannelsProperties {
     @NestedConfigurationProperty
     private Map<String, GrpcChannelProperties> client = Maps.newHashMap();
 
-    public GrpcChannelProperties getChannel(String name) {
-        return client.getOrDefault(name, GrpcChannelProperties.DEFAULT);
+    public GrpcChannelProperties getChannel(final String name) {
+        return this.client.getOrDefault(name, GrpcChannelProperties.DEFAULT);
     }
 
 }

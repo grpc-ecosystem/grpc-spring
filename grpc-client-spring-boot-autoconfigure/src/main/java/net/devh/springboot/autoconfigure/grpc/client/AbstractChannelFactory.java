@@ -68,6 +68,14 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
     private final Map<String, ManagedChannel> channels = new ConcurrentHashMap<>();
     private boolean shutdown = false;
 
+    /**
+     * Creates a new AbstractChannelFactory with eager initialized references.
+     *
+     * @param properties The properties for the channels to create.
+     * @param loadBalancerFactory The load balancer factory to use.
+     * @param nameResolverFactory The name resolver factory to use.
+     * @param globalClientInterceptorRegistry The interceptor registry to use.
+     */
     public AbstractChannelFactory(final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory,
             final NameResolver.Factory nameResolverFactory,
@@ -78,6 +86,15 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
         this.globalClientInterceptorRegistry = globalClientInterceptorRegistry;
     }
 
+    /**
+     * Creates a new AbstractChannelFactory with partially lazy initialized references.
+     *
+     * @param <T> The type of the actual factory class or one of its super classes.
+     * @param properties The properties for the channels to create.
+     * @param loadBalancerFactory The load balancer factory to use.
+     * @param nameResolverFactoryCreator The function that creates the name resolver factory.
+     * @param globalClientInterceptorRegistry The interceptor registry to use.
+     */
     @SuppressWarnings("unchecked")
     public <T extends AbstractChannelFactory> AbstractChannelFactory(final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory,

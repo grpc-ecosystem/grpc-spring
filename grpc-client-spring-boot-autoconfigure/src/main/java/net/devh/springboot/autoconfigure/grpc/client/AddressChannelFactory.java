@@ -29,6 +29,14 @@ import io.grpc.LoadBalancer;
  */
 public class AddressChannelFactory extends AbstractChannelFactory {
 
+    /**
+     * Creates a new AddressChannelFactory that will use the client name and the properties to resolve the grpc server
+     * address.
+     *
+     * @param properties The properties to use.
+     * @param loadBalancerFactory The load balancer factory to use.
+     * @param globalClientInterceptorRegistry The interceptor registry to use.
+     */
     public AddressChannelFactory(final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
