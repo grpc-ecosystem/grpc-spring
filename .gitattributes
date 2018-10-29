@@ -1,7 +1,16 @@
 # Set the default behavior, in case people don't have core.autocrlf set.
 * text=auto
 
-* text eol=lf
+*.factories     text
+*.gitignore     text
+*.gradle        text
+*.java          text
+*.md            text
+*.properties    text
+*.proto         text
+*.sh            text
+*.xml           text
+*.yml           text
 
 *.key binary
 *.jar binary
