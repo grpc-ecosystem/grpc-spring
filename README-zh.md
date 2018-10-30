@@ -24,7 +24,7 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 
 2.x.x.RELEASE 支持 Spring Boot 2 & Spring Cloud Finchley。
 
-最新的版本：``2.0.1.RELEASE``
+最新的版本：``2.1.0.RELEASE``
 
 1.x.x.RELEASE 支持 Spring Boot 1 & Spring Cloud Edgware 、Dalston、Camden。
 
@@ -42,7 +42,7 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-server-spring-boot-starter</artifactId>
-  <version>2.0.1.RELEASE</version>
+  <version>2.1.0.RELEASE</version>
 </dependency>
 ````
 
@@ -50,7 +50,7 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-server-spring-boot-starter:2.0.1.RELEASE'
+  compile 'net.devh:grpc-server-spring-boot-starter:2.1.0.RELEASE'
 }
 ````
 
@@ -89,7 +89,7 @@ grpc.server.address=0.0.0.0
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-client-spring-boot-starter</artifactId>
-  <version>2.0.1.RELEASE</version>
+  <version>2.1.0.RELEASE</version>
 </dependency>
 ````
 
@@ -97,7 +97,7 @@ grpc.server.address=0.0.0.0
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-client-spring-boot-starter:2.0.1.RELEASE'
+  compile 'net.devh:grpc-client-spring-boot-starter:2.1.0.RELEASE'
 }
 ````
 

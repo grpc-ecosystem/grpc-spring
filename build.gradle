@@ -10,7 +10,7 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     ext {
-        projectVersion = '2.1.0.SNAPSHOT'
+        projectVersion = '2.1.0.RELEASE'
 
         grpcVersion = '1.14.0'
         protobufVersion = '3.5.1'
