@@ -56,12 +56,12 @@ dependencies {
 Annotate your server interface implementation(s) with ``@GrpcService``
 
 ````java
-@GrpcService(GreeterGrpc.class)
+@GrpcService
 public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
 
     @Override
     public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
-        HelloReply reply = HelloReply.newBuilder().setMessage("Hello ====> " + req.getName()).build();
+        HelloReply reply = HelloReply.newBuilder().setMessage("Hello ==> " + req.getName()).build();
         responseObserver.onNext(reply);
         responseObserver.onCompleted();
     }
@@ -99,7 +99,7 @@ dependencies {
 }
 ````
 
-There are three ways to get a connection to the grpc server:
+There are three ways to get a connection to the gRPC server:
 
 * Use `grpcChannelFactory.createChannel(serverName)` to create a `Channel` and create the grpc stub
   yourself.
