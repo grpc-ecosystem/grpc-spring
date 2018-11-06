@@ -88,24 +88,27 @@ public class AnnotationGrpcServiceDiscoverer implements ApplicationContextAware,
         return definitions;
     }
 
-    private ServerServiceDefinition bindInterceptors(ServerServiceDefinition serviceDefinition,
-            GrpcService grpcServiceAnnotation, List<ServerInterceptor> globalInterceptorList) {
-        Collection<ServerInterceptor> interceptors = Lists.newArrayList();
-        interceptors.addAll(globalInterceptorList);
-        for (Class<? extends ServerInterceptor> serverInterceptorClass : grpcServiceAnnotation.interceptors()) {
-            ServerInterceptor serverInterceptor;
-            if (applicationContext.getBeanNamesForType(serverInterceptorClass).length > 0) {
-                serverInterceptor = applicationContext.getBean(serverInterceptorClass);
+    private ServerServiceDefinition bindInterceptors(final ServerServiceDefinition serviceDefinition,
+            final GrpcService grpcServiceAnnotation, final List<ServerInterceptor> globalInterceptors) {
+        final List<ServerInterceptor> interceptors = Lists.newArrayList();
+        interceptors.addAll(globalInterceptors);
+        for (final Class<? extends ServerInterceptor> interceptorClass : grpcServiceAnnotation.interceptors()) {
+            final ServerInterceptor serverInterceptor;
+            if (this.applicationContext.getBeanNamesForType(interceptorClass).length > 0) {
+                serverInterceptor = this.applicationContext.getBean(interceptorClass);
             } else {
                 try {
-                    serverInterceptor = serverInterceptorClass.newInstance();
-                } catch (Exception e) {
+                    serverInterceptor = interceptorClass.newInstance();
+                } catch (final Exception e) {
                     throw new BeanCreationException("Failed to create interceptor instance", e);
                 }
             }
             interceptors.add(serverInterceptor);
         }
-        return ServerInterceptors.intercept(serviceDefinition, Lists.newArrayList(interceptors));
+        for (final String interceptorName : grpcServiceAnnotation.interceptorNames()) {
+            interceptors.add(this.applicationContext.getBean(interceptorName, ServerInterceptor.class));
+        }
+        return ServerInterceptors.intercept(serviceDefinition, interceptors);
     }
 
 }

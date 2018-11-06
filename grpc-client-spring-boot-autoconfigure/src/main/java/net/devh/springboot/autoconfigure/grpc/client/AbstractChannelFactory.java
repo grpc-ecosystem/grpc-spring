@@ -18,7 +18,6 @@
 package net.devh.springboot.autoconfigure.grpc.client;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -107,12 +106,12 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
     }
 
     @Override
-    public Channel createChannel(final String name) {
+    public final Channel createChannel(final String name) {
         return createChannel(name, Collections.emptyList());
     }
 
     @Override
-    public Channel createChannel(final String name, final List<ClientInterceptor> interceptors) {
+    public Channel createChannel(final String name, final List<ClientInterceptor> customInterceptors) {
         final Channel channel;
         synchronized (this) {
             if (this.shutdown) {
@@ -120,17 +119,15 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
             }
             channel = this.channels.computeIfAbsent(name, this::newManagedChannel);
         }
-
-        final List<ClientInterceptor> globalInterceptorList =
-                this.globalClientInterceptorRegistry.getClientInterceptors();
-        final Collection<ClientInterceptor> interceptorSet = Lists.newArrayList();
-        if (!globalInterceptorList.isEmpty()) {
-            interceptorSet.addAll(globalInterceptorList);
+        final List<ClientInterceptor> interceptors = Lists.newArrayList();
+        final List<ClientInterceptor> globalInterceptors = this.globalClientInterceptorRegistry.getClientInterceptors();
+        if (!globalInterceptors.isEmpty()) {
+            interceptors.addAll(globalInterceptors);
         }
-        if (!interceptors.isEmpty()) {
-            interceptorSet.addAll(interceptors);
+        if (!customInterceptors.isEmpty()) {
+            interceptors.addAll(customInterceptors);
         }
-        return ClientInterceptors.intercept(channel, Lists.newArrayList(interceptorSet));
+        return ClientInterceptors.intercept(channel, interceptors);
     }
 
     /**

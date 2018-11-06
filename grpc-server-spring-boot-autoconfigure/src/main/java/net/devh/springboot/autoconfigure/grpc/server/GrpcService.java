@@ -47,16 +47,28 @@ public @interface GrpcService {
     Class<?> value() default void.class;
 
     /**
-     * A list of {@link ServerInterceptor} that should be applied to only this service. If a bean of the given type
-     * exists, it will be used; otherwise a new instance of that class will be created via no-args constructor.
+     * A list of {@link ServerInterceptor} classes that should be applied to only this service. If a bean of the given
+     * type exists, it will be used; otherwise a new instance of that class will be created via no-args constructor.
      *
      * <p>
      * <b>Note:</b> These interceptors will be applied after the global interceptors. But the interceptors that were
      * applied last, will be called first.
      * </p>
      *
-     * @return A list of ServerInterceptors that should be used.
+     * @return A list of ServerInterceptors classes that should be used.
      */
     Class<? extends ServerInterceptor>[] interceptors() default {};
+
+    /**
+     * A list of {@link ServerInterceptor} beans that should be applied to only this service.
+     *
+     * <p>
+     * <b>Note:</b> These interceptors will be applied after the global interceptors and the interceptor classes. But
+     * the interceptors that were applied last, will be called first.
+     * </p>
+     *
+     * @return A list of ServerInterceptor beans that should be used.
+     */
+    String[] interceptorNames() default {};
 
 }
