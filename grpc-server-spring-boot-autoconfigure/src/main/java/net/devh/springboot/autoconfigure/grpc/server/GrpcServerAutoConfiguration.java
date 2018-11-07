@@ -25,6 +25,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import brave.Tracing;
 import brave.grpc.GrpcTracing;
@@ -32,6 +33,7 @@ import io.grpc.Server;
 import io.grpc.services.HealthStatusManager;
 import io.netty.channel.Channel;
 import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodecDefinition;
+import net.devh.springboot.autoconfigure.grpc.server.security.GrpcSecurityAutoConfiguration;
 
 /**
  * The auto configuration used by Spring-Boot that contains all beans to run a grpc server/service.
@@ -42,6 +44,7 @@ import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodecDefinition;
 @Configuration
 @EnableConfigurationProperties
 @ConditionalOnClass({Server.class, GrpcServerFactory.class})
+@Import(GrpcSecurityAutoConfiguration.class)
 public class GrpcServerAutoConfiguration {
 
     @ConditionalOnMissingBean

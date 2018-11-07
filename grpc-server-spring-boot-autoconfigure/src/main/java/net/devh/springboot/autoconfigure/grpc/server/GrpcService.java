@@ -55,7 +55,7 @@ public @interface GrpcService {
      * applied last, will be called first.
      * </p>
      *
-     * @return A list of ServerInterceptors classes that should be used.
+     * @return A list of ServerInterceptor classes that should be used.
      */
     Class<? extends ServerInterceptor>[] interceptors() default {};
 
