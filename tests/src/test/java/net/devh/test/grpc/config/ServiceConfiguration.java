@@ -17,13 +17,17 @@
 
 package net.devh.test.grpc.config;
 
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import net.devh.springboot.autoconfigure.grpc.client.GrpcClientAutoConfiguration;
+import net.devh.springboot.autoconfigure.grpc.server.GrpcServerAutoConfiguration;
 import net.devh.test.grpc.server.TestServiceImpl;
 
 @Configuration
-public class ServiceTestConfiguration {
+@ImportAutoConfiguration({GrpcServerAutoConfiguration.class, GrpcClientAutoConfiguration.class})
+public class ServiceConfiguration {
 
     @Bean
     TestServiceImpl testService() {
