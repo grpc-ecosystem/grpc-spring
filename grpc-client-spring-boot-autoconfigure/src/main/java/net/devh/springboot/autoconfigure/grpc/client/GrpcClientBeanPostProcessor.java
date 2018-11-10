@@ -65,6 +65,7 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor, AutoClose
         do {
             for (final Field field : clazz.getDeclaredFields()) {
                 if (field.isAnnotationPresent(GrpcClient.class)) {
+                    ReflectionUtils.makeAccessible(field);
                     this.beansToProcess.put(beanName, field);
                 }
             }
@@ -79,48 +80,75 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor, AutoClose
             final Object target = getTargetBean(bean);
             for (final Field field : this.beansToProcess.get(beanName)) {
                 final GrpcClient annotation = AnnotationUtils.getAnnotation(field, GrpcClient.class);
-                if (null != annotation) {
 
-                    final List<ClientInterceptor> list = Lists.newArrayList();
-                    for (final Class<? extends ClientInterceptor> clientInterceptorClass : annotation.interceptors()) {
-                        ClientInterceptor clientInterceptor;
-                        if (this.beanFactory.getBeanNamesForType(ClientInterceptor.class).length > 0) {
-                            clientInterceptor = this.beanFactory.getBean(clientInterceptorClass);
-                        } else {
-                            try {
-                                clientInterceptor = clientInterceptorClass.newInstance();
-                            } catch (final Exception e) {
-                                throw new BeanCreationException("Failed to create interceptor instance", e);
-                            }
-                        }
-                        list.add(clientInterceptor);
-                    }
+                final List<ClientInterceptor> interceptors = interceptorsFromAnnotation(annotation);
+                final Channel channel = this.channelFactory.createChannel(annotation.value(), interceptors);
 
-                    final Channel channel = this.channelFactory.createChannel(annotation.value(), list);
-                    final Class<?> fieldType = field.getType();
-                    final Object value;
-                    if (Channel.class.equals(fieldType)) {
-                        value = channel;
-                    } else if (AbstractStub.class.isAssignableFrom(fieldType)) {
-                        try {
-                            final Constructor<?> constructor =
-                                    ReflectionUtils.accessibleConstructor(fieldType, Channel.class);
-                            value = constructor.newInstance(channel);
-                        } catch (final NoSuchMethodException | InstantiationException | IllegalAccessException
-                                | IllegalArgumentException | InvocationTargetException e) {
-                            throw new BeanInstantiationException(fieldType,
-                                    "Failed to create gRPC client for field: " + field, e);
-                        }
-                    } else {
-                        throw new InvalidPropertyException(field.getDeclaringClass(), field.getName(),
-                                "Unsupported field type " + fieldType.getName());
-                    }
-                    ReflectionUtils.makeAccessible(field);
-                    ReflectionUtils.setField(field, target, value);
-                }
+                final Object value = valueForField(field, channel);
+                ReflectionUtils.setField(field, target, value);
             }
         }
         return bean;
+    }
+
+    /**
+     * Gets or creates the {@link ClientInterceptor}s that are referenced in the given annotation.
+     *
+     * <p>
+     * <b>Note:</b> This methods return value does not contain the global client interceptors because they are handled
+     * by the {@link GrpcChannelFactory}.
+     * </p>
+     *
+     * @param annotation The annotation to get the interceptors for.
+     * @return A list containing the interceptors for the given annotation.
+     * @throws BeansException If the referenced interceptors weren't found or could not be created.
+     */
+    protected List<ClientInterceptor> interceptorsFromAnnotation(final GrpcClient annotation) throws BeansException {
+        final List<ClientInterceptor> list = Lists.newArrayList();
+        for (final Class<? extends ClientInterceptor> interceptorClass : annotation.interceptors()) {
+            final ClientInterceptor clientInterceptor;
+            if (this.beanFactory.getBeanNamesForType(ClientInterceptor.class).length > 0) {
+                clientInterceptor = this.beanFactory.getBean(interceptorClass);
+            } else {
+                try {
+                    clientInterceptor = interceptorClass.newInstance();
+                } catch (final Exception e) {
+                    throw new BeanCreationException("Failed to create interceptor instance", e);
+                }
+            }
+            list.add(clientInterceptor);
+        }
+        for (final String interceptorName : annotation.interceptorNames()) {
+            list.add(this.beanFactory.getBean(interceptorName, ClientInterceptor.class));
+        }
+        return list;
+    }
+
+    /**
+     * Creates the instance for the given field.
+     *
+     * @param field The field to create the instance for.
+     * @param channel The channel that should be used to create the instance.
+     * @return The value that matches the type of the given field.
+     * @throws BeansException If the value of the field could not be created or the type of the field is unsupported.
+     */
+    protected Object valueForField(final Field field, final Channel channel) throws BeansException {
+        final Class<?> fieldType = field.getType();
+        if (Channel.class.equals(fieldType)) {
+            return channel;
+        } else if (AbstractStub.class.isAssignableFrom(fieldType)) {
+            try {
+                final Constructor<?> constructor = ReflectionUtils.accessibleConstructor(fieldType, Channel.class);
+                return constructor.newInstance(channel);
+            } catch (final NoSuchMethodException | InstantiationException | IllegalAccessException
+                    | IllegalArgumentException | InvocationTargetException e) {
+                throw new BeanInstantiationException(fieldType,
+                        "Failed to create gRPC client for field: " + field, e);
+            }
+        } else {
+            throw new InvalidPropertyException(field.getDeclaringClass(), field.getName(),
+                    "Unsupported field type " + fieldType.getName());
+        }
     }
 
     @SneakyThrows

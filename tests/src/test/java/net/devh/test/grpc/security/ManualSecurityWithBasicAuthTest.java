@@ -15,14 +15,16 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.test.grpc;
+package net.devh.test.grpc.security;
 
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import lombok.extern.slf4j.Slf4j;
+import net.devh.test.grpc.config.ManualSecurityConfiguration;
 import net.devh.test.grpc.config.ServiceConfiguration;
+import net.devh.test.grpc.config.WithBasicAuthSecurityConfiguration;
 
 /**
  * A test checking that the server and client can start and connect to each other with minimal config.
@@ -30,13 +32,17 @@ import net.devh.test.grpc.config.ServiceConfiguration;
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @Slf4j
-@SpringBootTest(properties = "grpc.client.test.negotiationType=PLAINTEXT")
-@SpringJUnitConfig(classes = ServiceConfiguration.class)
+@SpringBootTest(properties = {
+        "grpc.client.test.negotiationType=PLAINTEXT",
+        "grpc.client.bean.negotiationType=PLAINTEXT",
+        "grpc.client.broken.negotiationType=PLAINTEXT"})
+@SpringJUnitConfig(classes = {ServiceConfiguration.class, ManualSecurityConfiguration.class,
+        WithBasicAuthSecurityConfiguration.class})
 @DirtiesContext
-public class PlaintextSetupTest extends AbstractSimpleServerClientTest {
+public class ManualSecurityWithBasicAuthTest extends AbstractSecurityWithBasicAuthTest {
 
-    public PlaintextSetupTest() {
-        log.info("--- PlaintextSetupTest ---");
+    public ManualSecurityWithBasicAuthTest() {
+        log.info("--- ManualSecurityWithBasicAuthTest ---");
     }
 
 }

@@ -69,17 +69,30 @@ public @interface GrpcClient {
     String value();
 
     /**
-     * A list of {@link ClientInterceptor}s that should be used with this client in addition to the globally defined
-     * ones. If a bean of the given type exists, it will be used; otherwise a new instance of that class will be created
-     * via no-args constructor.
+     * A list of {@link ClientInterceptor} classes that should be used with this client in addition to the globally
+     * defined ones. If a bean of the given type exists, it will be used; otherwise a new instance of that class will be
+     * created via no-args constructor.
      *
      * <p>
      * <b>Note:</b> These interceptors will be applied after the global interceptors. But the interceptors that were
      * applied last, will be called first.
      * </p>
      *
-     * @return A list of ClientInterceptors that should be used.
+     * @return A list of ClientInterceptor classes that should be used.
      */
     Class<? extends ClientInterceptor>[] interceptors() default {};
+
+    /**
+     * A list of {@link ClientInterceptor} beans that should be used with this client in addition to the globally
+     * defined ones.
+     *
+     * <p>
+     * <b>Note:</b> These interceptors will be applied after the global interceptors and the interceptor classes. But
+     * the interceptors that were applied last, will be called first.
+     * </p>
+     *
+     * @return A list of ClientInterceptor beans that should be used.
+     */
+    String[] interceptorNames() default {};
 
 }

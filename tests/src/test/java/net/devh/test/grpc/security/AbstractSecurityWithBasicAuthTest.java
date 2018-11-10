@@ -15,11 +15,8 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.test.grpc;
+package net.devh.test.grpc.security;
 
-import static io.grpc.Status.Code.UNIMPLEMENTED;
-import static net.devh.test.grpc.util.GrpcAssertions.assertFutureThrowsStatus;
-import static net.devh.test.grpc.util.GrpcAssertions.assertThrowsStatus;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.ExecutionException;
@@ -39,22 +36,17 @@ import net.devh.test.grpc.proto.TestServiceGrpc.TestServiceBlockingStub;
 import net.devh.test.grpc.proto.TestServiceGrpc.TestServiceFutureStub;
 import net.devh.test.grpc.proto.TestServiceGrpc.TestServiceStub;
 
-/**
- * A test checking that the server and client can start and connect to each other with minimal config.
- *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
- */
 @Slf4j
-public abstract class AbstractSimpleServerClientTest {
+public abstract class AbstractSecurityWithBasicAuthTest extends AbstractSecurityTest {
 
-    @GrpcClient("test")
-    protected Channel channel;
-    @GrpcClient("test")
-    protected TestServiceStub testServiceStub;
-    @GrpcClient("test")
-    protected TestServiceBlockingStub testServiceBlockingStub;
-    @GrpcClient("test")
-    protected TestServiceFutureStub testServiceFutureStub;
+    @GrpcClient(value = "bean", interceptorNames = "basicAuthInterceptor")
+    protected Channel beanChannel;
+    @GrpcClient(value = "bean", interceptorNames = "basicAuthInterceptor")
+    protected TestServiceStub beanTestServiceStub;
+    @GrpcClient(value = "bean", interceptorNames = "basicAuthInterceptor")
+    protected TestServiceBlockingStub beanTestServiceBlockingStub;
+    @GrpcClient(value = "bean", interceptorNames = "basicAuthInterceptor")
+    protected TestServiceFutureStub beanTestServiceFutureStub;
 
     /**
      * Test successful call.
@@ -64,34 +56,36 @@ public abstract class AbstractSimpleServerClientTest {
      */
     @Test
     @DirtiesContext
-    public void testSuccessfulCall() throws InterruptedException, ExecutionException {
-        log.info("--- Starting tests with successful call ---");
+    public void testSuccessfulCallBean() throws InterruptedException, ExecutionException {
+        log.info("--- Starting tests with successful call bean ---");
         assertEquals("1.2.3",
-                TestServiceGrpc.newBlockingStub(this.channel).normal(Empty.getDefaultInstance()).getVersion());
-
+                TestServiceGrpc.newBlockingStub(this.beanChannel).normal(Empty.getDefaultInstance()).getVersion());
         final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
-        this.testServiceStub.normal(Empty.getDefaultInstance(), streamRecorder);
+        this.beanTestServiceStub.normal(Empty.getDefaultInstance(), streamRecorder);
         assertEquals("1.2.3", streamRecorder.firstValue().get().getVersion());
-        assertEquals("1.2.3", this.testServiceBlockingStub.normal(Empty.getDefaultInstance()).getVersion());
-        assertEquals("1.2.3", this.testServiceFutureStub.normal(Empty.getDefaultInstance()).get().getVersion());
+        assertEquals("1.2.3", this.beanTestServiceBlockingStub.normal(Empty.getDefaultInstance()).getVersion());
+        assertEquals("1.2.3", this.beanTestServiceFutureStub.normal(Empty.getDefaultInstance()).get().getVersion());
         log.info("--- Test completed ---");
     }
 
     /**
-     * Test failing call.
+     * Test secured call.
+     *
+     * @throws ExecutionException Should never happen.
+     * @throws InterruptedException Should never happen.
      */
     @Test
     @DirtiesContext
-    public void testFailingCall() {
-        log.info("--- Starting tests with failing call ---");
-        assertThrowsStatus(UNIMPLEMENTED,
-                () -> TestServiceGrpc.newBlockingStub(this.channel).unimplemented(Empty.getDefaultInstance()));
+    public void testSecuredCallBean() throws InterruptedException, ExecutionException {
+        log.info("--- Starting tests with secured call bean ---");
+        assertEquals("1.2.3",
+                TestServiceGrpc.newBlockingStub(this.beanChannel).secure(Empty.getDefaultInstance()).getVersion());
 
         final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
-        this.testServiceStub.unimplemented(Empty.getDefaultInstance(), streamRecorder);
-        assertFutureThrowsStatus(UNIMPLEMENTED, streamRecorder.firstValue());
-        assertThrowsStatus(UNIMPLEMENTED, () -> this.testServiceBlockingStub.unimplemented(Empty.getDefaultInstance()));
-        assertFutureThrowsStatus(UNIMPLEMENTED, this.testServiceFutureStub.unimplemented(Empty.getDefaultInstance()));
+        this.beanTestServiceStub.secure(Empty.getDefaultInstance(), streamRecorder);
+        assertEquals("1.2.3", streamRecorder.firstValue().get().getVersion());
+        assertEquals("1.2.3", this.beanTestServiceBlockingStub.secure(Empty.getDefaultInstance()).getVersion());
+        assertEquals("1.2.3", this.beanTestServiceFutureStub.secure(Empty.getDefaultInstance()).get().getVersion());
         log.info("--- Test completed ---");
     }
 

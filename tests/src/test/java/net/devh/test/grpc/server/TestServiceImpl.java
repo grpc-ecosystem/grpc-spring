@@ -17,28 +17,43 @@
 
 package net.devh.test.grpc.server;
 
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import com.google.protobuf.Empty;
 
 import io.grpc.stub.StreamObserver;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.springboot.autoconfigure.grpc.server.GrpcService;
-import net.devh.test.grpc.proto.Counter;
+import net.devh.test.grpc.proto.SomeType;
 import net.devh.test.grpc.proto.TestServiceGrpc.TestServiceImplBase;
-import net.devh.test.grpc.proto.Version;
 
 @GrpcService
+@Slf4j
 public class TestServiceImpl extends TestServiceImplBase {
 
     @Override
-    public void getVersion(final Empty request, final StreamObserver<Version> responseObserver) {
-        final Version version = Version.newBuilder().setVersion("1.2.3").build();
+    public void normal(final Empty request, final StreamObserver<SomeType> responseObserver) {
+        log.debug("normal");
+        final SomeType version = SomeType.newBuilder().setVersion("1.2.3").build();
         responseObserver.onNext(version);
         responseObserver.onCompleted();
     }
 
     @Override
-    public void increment(final Empty request, final StreamObserver<Counter> responseObserver) {
+    public void unimplemented(final Empty request, final StreamObserver<SomeType> responseObserver) {
+        log.debug("unimplemented");
         // Not implemented (on purpose)
-        super.increment(request, responseObserver);
+        super.unimplemented(request, responseObserver);
+    }
+
+    @Override
+    @Secured("ROLE_CLIENT1")
+    public void secure(final Empty request, final StreamObserver<SomeType> responseObserver) {
+        log.debug("secure: {}", SecurityContextHolder.getContext().getAuthentication().getName());
+        final SomeType version = SomeType.newBuilder().setVersion("1.2.3").build();
+        responseObserver.onNext(version);
+        responseObserver.onCompleted();
     }
 
 }

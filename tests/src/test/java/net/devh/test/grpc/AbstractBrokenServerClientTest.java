@@ -30,12 +30,11 @@ import io.grpc.Channel;
 import io.grpc.internal.testing.StreamRecorder;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.springboot.autoconfigure.grpc.client.GrpcClient;
-import net.devh.test.grpc.proto.Counter;
+import net.devh.test.grpc.proto.SomeType;
 import net.devh.test.grpc.proto.TestServiceGrpc;
 import net.devh.test.grpc.proto.TestServiceGrpc.TestServiceBlockingStub;
 import net.devh.test.grpc.proto.TestServiceGrpc.TestServiceFutureStub;
 import net.devh.test.grpc.proto.TestServiceGrpc.TestServiceStub;
-import net.devh.test.grpc.proto.Version;
 
 @Slf4j
 public abstract class AbstractBrokenServerClientTest {
@@ -58,13 +57,13 @@ public abstract class AbstractBrokenServerClientTest {
     public void testSuccessfulCallWithBrokenSetup() {
         log.info("--- Starting tests with successful call with broken setup ---");
         assertThrowsStatus(UNAVAILABLE,
-                () -> TestServiceGrpc.newBlockingStub(this.channel).getVersion(Empty.getDefaultInstance()));
+                () -> TestServiceGrpc.newBlockingStub(this.channel).normal(Empty.getDefaultInstance()));
 
-        final StreamRecorder<Version> streamRecorder = StreamRecorder.create();
-        this.testServiceStub.getVersion(Empty.getDefaultInstance(), streamRecorder);
+        final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
+        this.testServiceStub.normal(Empty.getDefaultInstance(), streamRecorder);
         assertFutureThrowsStatus(UNAVAILABLE, streamRecorder.firstValue());
-        assertThrowsStatus(UNAVAILABLE, () -> this.testServiceBlockingStub.getVersion(Empty.getDefaultInstance()));
-        assertFutureThrowsStatus(UNAVAILABLE, this.testServiceFutureStub.getVersion(Empty.getDefaultInstance()));
+        assertThrowsStatus(UNAVAILABLE, () -> this.testServiceBlockingStub.normal(Empty.getDefaultInstance()));
+        assertFutureThrowsStatus(UNAVAILABLE, this.testServiceFutureStub.normal(Empty.getDefaultInstance()));
         log.info("--- Test completed ---");
     }
 
@@ -76,13 +75,13 @@ public abstract class AbstractBrokenServerClientTest {
     public void testFailingCallWithBrokenSetup() {
         log.info("--- Starting tests with failing call with broken setup ---");
         assertThrowsStatus(UNAVAILABLE,
-                () -> TestServiceGrpc.newBlockingStub(this.channel).increment(Empty.getDefaultInstance()));
+                () -> TestServiceGrpc.newBlockingStub(this.channel).unimplemented(Empty.getDefaultInstance()));
 
-        final StreamRecorder<Counter> streamRecorder = StreamRecorder.create();
-        this.testServiceStub.increment(Empty.getDefaultInstance(), streamRecorder);
+        final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
+        this.testServiceStub.unimplemented(Empty.getDefaultInstance(), streamRecorder);
         assertFutureThrowsStatus(UNAVAILABLE, streamRecorder.firstValue());
-        assertThrowsStatus(UNAVAILABLE, () -> this.testServiceBlockingStub.increment(Empty.getDefaultInstance()));
-        assertFutureThrowsStatus(UNAVAILABLE, this.testServiceFutureStub.increment(Empty.getDefaultInstance()));
+        assertThrowsStatus(UNAVAILABLE, () -> this.testServiceBlockingStub.unimplemented(Empty.getDefaultInstance()));
+        assertFutureThrowsStatus(UNAVAILABLE, this.testServiceFutureStub.unimplemented(Empty.getDefaultInstance()));
         log.info("--- Test completed ---");
     }
 

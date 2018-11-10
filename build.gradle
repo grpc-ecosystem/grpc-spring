@@ -17,6 +17,7 @@ buildscript {
         protobufGradlePluginVersion = '0.8.4'
 
         springBootVersion = '2.0.4.RELEASE'
+        springSecurityVersion = '5.0.5.RELEASE'
         springSleuthVersion = '2.0.1.RELEASE'
         springCloudVersion = 'Finchley.SR1'
         springCloudConsulVersion = '2.0.1.RELEASE'

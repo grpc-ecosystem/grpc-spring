@@ -19,11 +19,13 @@ application
 
 * Supports global and custom gRPC server/client interceptors
 
+* Spring-Security support
+
 ## Versions
 
 2.x.x.RELEASE support Spring Boot 2 & Spring Cloud Finchley.
  
-The latest version: ``2.0.1.RELEASE``
+The latest version: ``2.1.0.RELEASE``
 
 1.x.x.RELEASE support Spring Boot 1 & Spring Cloud Edgware, Dalston, Camden.
 
@@ -65,6 +67,7 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
         responseObserver.onNext(reply);
         responseObserver.onCompleted();
     }
+
 }
 ````
 
@@ -78,6 +81,98 @@ can be changed via Spring's property mechanism. The server uses the `grpc.server
 grpc.server.port=9090
 grpc.server.address=0.0.0.0
 ````
+
+#### Server-Security
+
+This library supports securing the grpc application with Spring-Security. You only have to add Spring-Security (core or
+config) to your dependencies and then configure it as needed.
+
+##### First choose an authentication scheme
+
+* **BasicAuth**
+
+  ````java
+  @Bean
+  AuthenticationManager authenticationManager() {
+      final List<AuthenticationProvider> providers = new ArrayList<>();
+      providers.add(...); // Possibly DaoAuthenticationProvider
+      return new ProviderManager(providers);
+  }
+
+  @Bean
+  GrpcAuthenticationReader authenticationReader() {
+      final List<GrpcAuthenticationReader> readers = new ArrayList<>();
+      readers.add(new BasicGrpcAuthenticationReader());
+      return new CompositeGrpcAuthenticationReader(readers);
+  }
+  ````
+
+* **Certificate Authentication**
+
+  ````java
+  @Bean
+  AuthenticationManager authenticationManager() {
+      final List<AuthenticationProvider> providers = new ArrayList<>();
+      providers.add(new X509CertificateAuthenticationProvider(userDetailsService()));
+      return new ProviderManager(providers);
+  }
+
+  @Bean
+  GrpcAuthenticationReader authenticationReader() {
+      final List<GrpcAuthenticationReader> readers = new ArrayList<>();
+      readers.add(new SSLContextGrpcAuthenticationReader());
+      return new CompositeGrpcAuthenticationReader(readers);
+  }
+  ````
+  
+  and some properties:
+  
+  ````properties
+  grpc.server.security.enabled=true
+  grpc.server.security.certificateChainPath=certificates/server.crt
+  grpc.server.security.privateKeyPath=certificates/server.key
+  grpc.server.security.trustCertCollectionPath=certificates/trusted-clients-collection
+  grpc.server.security.clientAuth=REQUIRE
+  ````
+
+* **Chain multiple mechanisms by using the `CompositeGrpcAuthenticationReader` class**
+* **Your own authentication mechanism (Implement a `GrpcAuthenticationReader` yourself)**
+
+##### Then decide on how you want to protect the services
+
+* **Via Spring-Security's annotations**
+
+  ````java
+  @Configuration
+  @EnableGlobalMethodSecurity(proxyTargetClass = true, ...)
+  public class SecurityConfiguration {
+  ````
+  
+  `proxyTargetClass` is required, if you use annotation driven security!  
+  However, you will receive a warning that MyServiceImpl#bindService() method is final.  
+  You cannot avoid that warning (without massive amount of work), but it is safe to ignore it.  
+  The `#bindService()` method uses a reference to `this`, which will be used to invoke the methods.  
+  If the method is not final it will delegate to the original instance and thus it will bypass any security layer that
+  you intend to add, unless you re-implement the `#bindService()` method on the outermost layer (which Spring does not).
+
+* **Via manual configuration**
+
+  ````java
+  @Bean
+  AccessDecisionManager accessDecisionManager() {
+      final List<AccessDecisionVoter<?>> voters = new ArrayList<>();
+      voters.add(new AccessPredicateVoter());
+      return new UnanimousBased(voters);
+  }
+
+  @Bean
+  GrpcSecurityMetadataSource grpcSecurityMetadataSource() {
+      final ManualGrpcSecurityMetadataSource source = new ManualGrpcSecurityMetadataSource();
+      source.set(MyServiceGrpc.getSecureMethod(), AccessPredicate.hasRole("ROLE_USER"));
+      source.setDefault(AccessPredicate.permitAll());
+      return source;
+  }
+  ````
 
 ### gRPC client
 
@@ -163,6 +258,49 @@ grpc.client.myName.host=127.0.0.1
 grpc.client.myName.port=9090
 ````
 
+#### Client-Authentication
+
+There are multiple ways for the client to authenticate itself. Currently only the following are supported:
+
+* **BasicAuth**
+
+  Using a `ClientInterceptor` (other authentication mechanisms can be implemented in a similar fashion).
+
+  ````java
+  @Bean
+  ClientInterceptor basicAuthInterceptor() {
+      return AuthenticatingClientInterceptors.basicAuth(username, password);
+  }
+  ````
+
+  * For all clients the same credentials
+
+    ````java
+    @Bean
+    public GlobalClientInterceptorConfigurer basicAuthInterceptorConfigurer() {
+        return registry -> registry.addClientInterceptors(basicAuthInterceptor());
+    }
+    ````
+
+  * Different credentials per client
+
+    ````java
+    @GrpcClient(value = "myClient", interceptorNames = "basicAuthInterceptor")
+    private MyServiceStub myServiceStub;
+    ````
+
+* **Certificate Authentication**
+
+  Only needs some configuration properties:
+
+  ````properties
+  #grpc.client.test.security.authorityOverride=localhost
+  #grpc.client.test.security.trustCertCollectionPath=certificates/trusted-servers-collection
+  grpc.client.test.security.clientAuthEnabled=true
+  grpc.client.test.security.certificateChainPath=certificates/client.crt
+  grpc.client.test.security.privateKeyPath=certificates/client.key
+  ````
+
 ## Troubleshooting
 
 ### Issues with SSL in general
@@ -211,7 +349,7 @@ property with a name that is present in the certificate.
 
 ## Contributing
 
-Contributions are always welcomed! Please see [CONTRIBUTING.md] for detailed guidelines.
+Contributions are always welcomed! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## Show case
 

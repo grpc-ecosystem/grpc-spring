@@ -15,28 +15,35 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.test.grpc;
+package net.devh.springboot.autoconfigure.grpc.server.security.check;
 
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import java.util.Collection;
 
-import lombok.extern.slf4j.Slf4j;
-import net.devh.test.grpc.config.ServiceConfiguration;
+import org.springframework.security.access.AccessDecisionVoter;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityMetadataSource;
+
+import io.grpc.MethodDescriptor;
 
 /**
- * A test checking that the server and client can start and connect to each other with minimal config.
+ * A {@link SecurityMetadataSource} for grpc requests.
+ *
+ * <p>
+ * <b>Note:</b> The authorization checking via this metadata source will only be enabled, if both an
+ * {@link AccessDecisionVoter} and a {@link GrpcSecurityMetadataSource} are present in the application context.
+ * </p>
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-@Slf4j
-@SpringBootTest(properties = "grpc.client.test.negotiationType=PLAINTEXT")
-@SpringJUnitConfig(classes = ServiceConfiguration.class)
-@DirtiesContext
-public class PlaintextSetupTest extends AbstractSimpleServerClientTest {
+public interface GrpcSecurityMetadataSource extends SecurityMetadataSource {
 
-    public PlaintextSetupTest() {
-        log.info("--- PlaintextSetupTest ---");
-    }
+    /**
+     * Accesses the {@code ConfigAttribute}s that apply to a given secure object.
+     *
+     * @param method The grpc method being secured.
+     * @return The attributes that apply to the passed in secured object. Should return an empty collection if there are
+     *         no applicable attributes.
+     */
+    Collection<ConfigAttribute> getAttributes(final MethodDescriptor<?, ?> method);
 
 }

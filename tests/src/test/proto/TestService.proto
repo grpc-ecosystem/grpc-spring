@@ -9,17 +9,16 @@ option java_outer_classname = "TestServiceProto";
 service TestService {
 
     // Returns version information
-    rpc getVersion(google.protobuf.Empty) returns (Version) {}
+    rpc normal(google.protobuf.Empty) returns (SomeType) {}
 
-    // Increments a number and returns it
-    rpc increment(google.protobuf.Empty) returns (Counter) {}
+    // Unimplemented method
+    rpc unimplemented(google.protobuf.Empty) returns (SomeType) {}
+    
+    // Secured method
+    rpc secure(google.protobuf.Empty) returns (SomeType) {}
 
 }
 
-message Version {
+message SomeType {
     string version = 1;
-}
-
-message Counter {
-    int32 value = 1;
 }

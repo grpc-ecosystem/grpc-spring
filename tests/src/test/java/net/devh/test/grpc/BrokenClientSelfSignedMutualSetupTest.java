@@ -17,15 +17,12 @@
 
 package net.devh.test.grpc;
 
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import lombok.extern.slf4j.Slf4j;
-import net.devh.springboot.autoconfigure.grpc.client.GrpcClientAutoConfiguration;
-import net.devh.springboot.autoconfigure.grpc.server.GrpcServerAutoConfiguration;
-import net.devh.test.grpc.config.ServiceTestConfiguration;
+import net.devh.test.grpc.config.ServiceConfiguration;
 
 /**
  * A test checking that the server and client can start and connect to each other with minimal config.
@@ -44,8 +41,7 @@ import net.devh.test.grpc.config.ServiceTestConfiguration;
         "grpc.client.test.security.clientAuthEnabled=false", // <-- client auth not enabled
         "grpc.client.test.security.certificateChainPath=src/test/resources/certificates/client1.crt",
         "grpc.client.test.security.privateKeyPath=src/test/resources/certificates/client1.key"})
-@SpringJUnitConfig(classes = ServiceTestConfiguration.class)
-@ImportAutoConfiguration({GrpcServerAutoConfiguration.class, GrpcClientAutoConfiguration.class})
+@SpringJUnitConfig(classes = ServiceConfiguration.class)
 @DirtiesContext
 public class BrokenClientSelfSignedMutualSetupTest extends AbstractBrokenServerClientTest {
 

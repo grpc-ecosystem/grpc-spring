@@ -15,28 +15,33 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.test.grpc;
+package net.devh.springboot.autoconfigure.grpc.server.security.check;
 
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import java.util.Collection;
 
-import lombok.extern.slf4j.Slf4j;
-import net.devh.test.grpc.config.ServiceConfiguration;
+import org.springframework.security.access.ConfigAttribute;
+
+import io.grpc.MethodDescriptor;
 
 /**
- * A test checking that the server and client can start and connect to each other with minimal config.
+ * Abstract implementation of {@link GrpcSecurityMetadataSource} which resolves the secured object type to a
+ * {@link MethodDescriptor}.
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-@Slf4j
-@SpringBootTest(properties = "grpc.client.test.negotiationType=PLAINTEXT")
-@SpringJUnitConfig(classes = ServiceConfiguration.class)
-@DirtiesContext
-public class PlaintextSetupTest extends AbstractSimpleServerClientTest {
+public abstract class AbstractGrpcSecurityMetadataSource implements GrpcSecurityMetadataSource {
 
-    public PlaintextSetupTest() {
-        log.info("--- PlaintextSetupTest ---");
+    @Override
+    public final Collection<ConfigAttribute> getAttributes(final Object object) throws IllegalArgumentException {
+        if (object instanceof MethodDescriptor) {
+            return getAttributes((MethodDescriptor<?, ?>) object);
+        }
+        throw new IllegalArgumentException("Object must be a non-null MethodDescriptor");
+    }
+
+    @Override
+    public final boolean supports(final Class<?> clazz) {
+        return MethodDescriptor.class.equals(clazz);
     }
 
 }
