@@ -16,6 +16,7 @@ gradle.taskGraph.whenReady { taskGraph ->
 ext {
     pomFile = file("${project.buildDir}/generated-pom.xml")
     isReleaseVersion = !(projectVersion =~ /\.SNAPSHOT$/)
+    isNeedSign = System.getenv('GPG_ID') && isReleaseVersion
     isPublishing = {
         gradle.taskGraph.allTasks.find { it.name =~ /(?:^|:)publish[^:]*ToMaven[^:]*$/ } != null
     }
@@ -39,7 +40,7 @@ artifacts {
 
 
 signing {
-    required { project.ext.isReleaseVersion }
+    required { project.ext.isNeedSign }
     sign configurations.archives
 }
 
