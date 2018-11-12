@@ -50,7 +50,7 @@ public class TestServiceImpl extends TestServiceImplBase {
     @Override
     @Secured("ROLE_CLIENT1")
     public void secure(final Empty request, final StreamObserver<SomeType> responseObserver) {
-        log.debug("secure: {}", SecurityContextHolder.getContext().getAuthentication().getName());
+        log.debug("secure: {}", SecurityContextHolder.getContext().getAuthentication());
         final SomeType version = SomeType.newBuilder().setVersion("1.2.3").build();
         responseObserver.onNext(version);
         responseObserver.onCompleted();

@@ -23,6 +23,7 @@ import static net.devh.test.grpc.util.GrpcAssertions.assertThrowsStatus;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.test.annotation.DirtiesContext;
@@ -89,9 +90,10 @@ public abstract class AbstractSimpleServerClientTest {
 
         final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
         this.testServiceStub.unimplemented(Empty.getDefaultInstance(), streamRecorder);
-        assertFutureThrowsStatus(UNIMPLEMENTED, streamRecorder.firstValue());
+        assertFutureThrowsStatus(UNIMPLEMENTED, streamRecorder.firstValue(), 5, TimeUnit.SECONDS);
         assertThrowsStatus(UNIMPLEMENTED, () -> this.testServiceBlockingStub.unimplemented(Empty.getDefaultInstance()));
-        assertFutureThrowsStatus(UNIMPLEMENTED, this.testServiceFutureStub.unimplemented(Empty.getDefaultInstance()));
+        assertFutureThrowsStatus(UNIMPLEMENTED, this.testServiceFutureStub.unimplemented(Empty.getDefaultInstance()),
+                5, TimeUnit.SECONDS);
         log.info("--- Test completed ---");
     }
 
