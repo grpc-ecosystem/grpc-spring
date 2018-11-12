@@ -35,7 +35,7 @@ import io.grpc.LoadBalancer;
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
-public class DiscoveryClientChannelFactory extends AbstractChannelFactory {
+public class DiscoveryClientChannelFactory extends AbstractNettyChannelFactory {
 
     private final HeartbeatMonitor monitor = new HeartbeatMonitor();
     private final List<DiscoveryClientNameResolver> discoveryClientNameResolvers = Lists.newArrayList();
