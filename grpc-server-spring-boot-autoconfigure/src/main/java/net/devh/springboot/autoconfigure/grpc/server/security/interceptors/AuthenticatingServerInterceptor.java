@@ -20,7 +20,9 @@ package net.devh.springboot.autoconfigure.grpc.server.security.interceptors;
 import static java.util.Objects.requireNonNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -60,14 +62,23 @@ public class AuthenticatingServerInterceptor implements ServerInterceptor {
         Authentication authentication = this.grpcAuthenticationReader.readAuthentication(call, headers);
         if (authentication == null) {
             log.debug("No credentials found: Continuing unauthenticated");
-            return next.startCall(call, headers);
+            try {
+                return next.startCall(call, headers);
+            } catch (AccessDeniedException e) {
+                throw new BadCredentialsException("No credentials found in the request", e);
+            }
         }
         log.debug("Credentials found: Authenticating...");
         authentication = this.authenticationManager.authenticate(authentication);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         log.debug("Authentication successful: Continuing as {} ({})", authentication.getName(),
                 authentication.getAuthorities());
-        return new AuthenticatingServerCallListener<>(next.startCall(call, headers));
+        try {
+            return new AuthenticatingServerCallListener<>(next.startCall(call, headers), authentication);
+        } finally {
+            log.debug("startCall - Authentication cleared");
+            SecurityContextHolder.clearContext();
+        }
     }
 
     /**
@@ -77,16 +88,69 @@ public class AuthenticatingServerInterceptor implements ServerInterceptor {
      */
     private class AuthenticatingServerCallListener<ReqT> extends SimpleForwardingServerCallListener<ReqT> {
 
-        public AuthenticatingServerCallListener(final Listener<ReqT> delegate) {
+        private final Authentication authentication;
+
+        public AuthenticatingServerCallListener(final Listener<ReqT> delegate, Authentication authentication) {
             super(delegate);
+            this.authentication = authentication;
+        }
+
+        @Override
+        public void onMessage(ReqT message) {
+            try {
+                log.debug("onMessage - Authentication set");
+                SecurityContextHolder.getContext().setAuthentication(this.authentication);
+                super.onMessage(message);
+            } finally {
+                log.debug("onMessage - Authentication cleared");
+                SecurityContextHolder.clearContext();
+            }
         }
 
         @Override
         public void onHalfClose() {
             try {
+                log.debug("onHalfClose - Authentication set");
+                SecurityContextHolder.getContext().setAuthentication(this.authentication);
                 super.onHalfClose();
             } finally {
-                log.debug("Authentication cleared");
+                log.debug("onHalfClose - Authentication cleared");
+                SecurityContextHolder.clearContext();
+            }
+        }
+
+        @Override
+        public void onCancel() {
+            try {
+                log.debug("onCancel - Authentication set");
+                SecurityContextHolder.getContext().setAuthentication(this.authentication);
+                super.onCancel();
+            } finally {
+                log.debug("onCancel - Authentication cleared");
+                SecurityContextHolder.clearContext();
+            }
+        }
+
+        @Override
+        public void onComplete() {
+            try {
+                log.debug("onComplete - Authentication set");
+                SecurityContextHolder.getContext().setAuthentication(this.authentication);
+                super.onComplete();
+            } finally {
+                log.debug("onComplete - Authentication cleared");
+                SecurityContextHolder.clearContext();
+            }
+        }
+
+        @Override
+        public void onReady() {
+            try {
+                log.debug("onReady - Authentication set");
+                SecurityContextHolder.getContext().setAuthentication(this.authentication);
+                super.onReady();
+            } finally {
+                log.debug("onReady - Authentication cleared");
                 SecurityContextHolder.clearContext();
             }
         }

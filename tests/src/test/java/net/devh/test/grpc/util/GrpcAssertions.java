@@ -21,6 +21,8 @@ import static net.devh.test.grpc.util.FutureAssertions.assertFutureThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.jupiter.api.function.Executable;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -35,8 +37,10 @@ public final class GrpcAssertions {
         return assertStatus(code, exception);
     }
 
-    public static Status assertFutureThrowsStatus(final Status.Code code, final ListenableFuture<?> future) {
-        final StatusRuntimeException exception = assertFutureThrows(StatusRuntimeException.class, future);
+    public static Status assertFutureThrowsStatus(final Status.Code code, final ListenableFuture<?> future, int timeout,
+            TimeUnit timeoutUnit) {
+        final StatusRuntimeException exception =
+                assertFutureThrows(StatusRuntimeException.class, future, timeout, timeoutUnit);
         return assertStatus(code, exception);
     }
 

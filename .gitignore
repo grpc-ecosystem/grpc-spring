@@ -21,3 +21,4 @@ bin/
 .project
 .settings/
 .factorypath
+.checkstyle

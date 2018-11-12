@@ -21,6 +21,8 @@ import static io.grpc.Status.Code.UNAVAILABLE;
 import static net.devh.test.grpc.util.GrpcAssertions.assertFutureThrowsStatus;
 import static net.devh.test.grpc.util.GrpcAssertions.assertThrowsStatus;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -61,9 +63,10 @@ public abstract class AbstractBrokenServerClientTest {
 
         final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
         this.testServiceStub.normal(Empty.getDefaultInstance(), streamRecorder);
-        assertFutureThrowsStatus(UNAVAILABLE, streamRecorder.firstValue());
+        assertFutureThrowsStatus(UNAVAILABLE, streamRecorder.firstValue(), 5, TimeUnit.SECONDS);
         assertThrowsStatus(UNAVAILABLE, () -> this.testServiceBlockingStub.normal(Empty.getDefaultInstance()));
-        assertFutureThrowsStatus(UNAVAILABLE, this.testServiceFutureStub.normal(Empty.getDefaultInstance()));
+        assertFutureThrowsStatus(UNAVAILABLE, this.testServiceFutureStub.normal(Empty.getDefaultInstance()),
+                5, TimeUnit.SECONDS);
         log.info("--- Test completed ---");
     }
 
@@ -79,9 +82,10 @@ public abstract class AbstractBrokenServerClientTest {
 
         final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
         this.testServiceStub.unimplemented(Empty.getDefaultInstance(), streamRecorder);
-        assertFutureThrowsStatus(UNAVAILABLE, streamRecorder.firstValue());
+        assertFutureThrowsStatus(UNAVAILABLE, streamRecorder.firstValue(), 5, TimeUnit.SECONDS);
         assertThrowsStatus(UNAVAILABLE, () -> this.testServiceBlockingStub.unimplemented(Empty.getDefaultInstance()));
-        assertFutureThrowsStatus(UNAVAILABLE, this.testServiceFutureStub.unimplemented(Empty.getDefaultInstance()));
+        assertFutureThrowsStatus(UNAVAILABLE, this.testServiceFutureStub.unimplemented(Empty.getDefaultInstance()),
+                5, TimeUnit.SECONDS);
         log.info("--- Test completed ---");
     }
 
