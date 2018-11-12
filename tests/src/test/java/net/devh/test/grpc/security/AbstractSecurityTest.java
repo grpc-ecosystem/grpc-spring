@@ -23,6 +23,7 @@ import static net.devh.test.grpc.util.GrpcAssertions.assertThrowsStatus;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.test.annotation.DirtiesContext;
@@ -124,11 +125,11 @@ public abstract class AbstractSecurityTest {
 
             final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
             this.brokenTestServiceStub.secure(Empty.getDefaultInstance(), streamRecorder);
-            assertFutureThrowsStatus(PERMISSION_DENIED, streamRecorder.firstValue());
+            assertFutureThrowsStatus(PERMISSION_DENIED, streamRecorder.firstValue(), 5, TimeUnit.SECONDS);
             assertThrowsStatus(PERMISSION_DENIED,
                     () -> this.brokenTestServiceBlockingStub.secure(Empty.getDefaultInstance()));
             assertFutureThrowsStatus(PERMISSION_DENIED,
-                    this.brokenTestServiceFutureStub.secure(Empty.getDefaultInstance()));
+                    this.brokenTestServiceFutureStub.secure(Empty.getDefaultInstance()), 5, TimeUnit.SECONDS);
         }
         log.info("--- Test completed ---");
     }

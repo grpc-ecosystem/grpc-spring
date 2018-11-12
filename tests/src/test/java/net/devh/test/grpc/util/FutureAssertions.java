@@ -29,9 +29,9 @@ public final class FutureAssertions {
 
     @SuppressWarnings("unchecked")
     public static <T extends Exception> T assertFutureThrows(final Class<T> expectedType,
-            final ListenableFuture<?> future) {
+            final ListenableFuture<?> future, int timeout, TimeUnit timeoutUnit) {
         final Throwable cause =
-                assertThrows(ExecutionException.class, () -> future.get(5, TimeUnit.SECONDS)).getCause();
+                assertThrows(ExecutionException.class, () -> future.get(timeout, timeoutUnit)).getCause();
         final Class<? extends Throwable> causeClass = cause.getClass();
         assertTrue(expectedType.isAssignableFrom(causeClass), "The cause was of type: " + causeClass.getName()
                 + ", but it was expected to be a subclass of " + expectedType.getName());
