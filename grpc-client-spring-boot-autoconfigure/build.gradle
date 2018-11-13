@@ -8,7 +8,7 @@ compileJava.dependsOn(processResources)
 dependencies {
     compileOnly("org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}")
     compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
-    compileOnly("org.springframework.cloud:spring-cloud-starter-sleuth:${springSleuthVersion}")
+    compileOnly("org.springframework.cloud:spring-cloud-starter-sleuth:${springCloudSleuthVersion}")
     compileOnly("org.springframework.cloud:spring-cloud-starter-consul-discovery:${springCloudConsulVersion}")
     compileOnly("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:${springCloudEurekaVersion}")
     compileOnly("io.zipkin.brave:brave-instrumentation-grpc:${braveInstrumentationGrpc}")

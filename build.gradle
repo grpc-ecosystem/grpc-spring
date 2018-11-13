@@ -12,22 +12,24 @@ buildscript {
     ext {
         projectVersion = '2.1.1.SNAPSHOT'
 
-        grpcVersion = '1.14.0'
-        protobufVersion = '3.5.1'
-        protobufGradlePluginVersion = '0.8.4'
+        grpcVersion = '1.16.1'
+        protobufVersion = '3.6.1'
+        protobufGradlePluginVersion = '0.8.7'
+        nettyTCNativeVersion = '2.0.17.Final'
 
-        springBootVersion = '2.0.4.RELEASE'
-        springSecurityVersion = '5.0.5.RELEASE'
-        springSleuthVersion = '2.0.1.RELEASE'
-        springCloudVersion = 'Finchley.SR1'
+        springBootVersion = '2.0.6.RELEASE'
+        springSecurityVersion = '5.0.9.RELEASE'
+        springCloudVersion = 'Finchley.SR2'
+        springCloudSleuthVersion = '2.0.2.RELEASE'
         springCloudConsulVersion = '2.0.1.RELEASE'
-        springCloudEurekaVersion = '2.0.1.RELEASE'
-        braveInstrumentationGrpc = '5.1.2'
+        springCloudEurekaVersion = '2.0.2.RELEASE'
+        braveInstrumentationGrpc = '5.5.0'
+        jUnitVersion = '5.3.1'
     }
     dependencies {
-        classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
-        classpath "com.diffplug.spotless:spotless-plugin-gradle:3.15.0"
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:3.16.0"
     }
 }
 
@@ -124,9 +126,9 @@ allprojects {
         maven { url 'https://repo.spring.io/libs-milestone' }
     }
     dependencies {
-        compileOnly('org.projectlombok:lombok:1.18.0')
-        testCompile('org.projectlombok:lombok:1.18.0')
-        annotationProcessor('org.projectlombok:lombok:1.18.0')
+        compileOnly('org.projectlombok:lombok:1.18.4')
+        testCompile('org.projectlombok:lombok:1.18.4')
+        annotationProcessor('org.projectlombok:lombok:1.18.4')
     }
     buildscript {
         repositories {
