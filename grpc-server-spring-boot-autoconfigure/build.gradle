@@ -6,7 +6,8 @@ version = "${projectVersion}"
 compileJava.dependsOn(processResources)
 
 dependencies {
-    compileOnly("org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}")
+    annotationProcessor("org.springframework.boot:spring-boot-autoconfigure-processor:${springBootVersion}")
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}")
     compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
     compileOnly("org.springframework.security:spring-security-core:${springSecurityVersion}")
     compileOnly("org.springframework.cloud:spring-cloud-starter-sleuth:${springSleuthVersion}")
