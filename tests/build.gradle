@@ -3,6 +3,13 @@ version = "${projectVersion}"
 
 apply plugin: 'com.google.protobuf'
 
+apply plugin: 'eclipse'
+eclipse {
+    project {
+        name = 'grpc-spring-boot-tests'
+    }
+}
+
 compileTestJava.dependsOn(processTestResources)
 
 dependencies {
@@ -53,11 +60,11 @@ dependencies {
         "io.grpc:grpc-testing:${grpcVersion}",
         "org.springframework.boot:spring-boot-starter-test:${springBootVersion}",
         "org.springframework.security:spring-security-config:${springSecurityVersion}",
-        "io.netty:netty-tcnative-boringssl-static:2.0.12.Final",
-        "org.junit.jupiter:junit-jupiter-api:5.3.1"
+        "io.netty:netty-tcnative-boringssl-static:${nettyTCNativeVersion}",
+        "org.junit.jupiter:junit-jupiter-api:${jUnitVersion}"
     )
     testRuntimeOnly(
-        "org.junit.jupiter:junit-jupiter-engine:5.3.1"
+        "org.junit.jupiter:junit-jupiter-engine:${jUnitVersion}"
     )
 }
 
