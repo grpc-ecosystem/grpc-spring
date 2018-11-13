@@ -18,6 +18,7 @@
 package net.devh.springboot.autoconfigure.grpc.server;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -99,11 +100,13 @@ public class GrpcServerAutoConfiguration {
 
     @Configuration
     @ConditionalOnProperty(value = "spring.sleuth.scheduled.enabled", matchIfMissing = true)
-    @AutoConfigureAfter({TraceAutoConfiguration.class})
-    @ConditionalOnClass(value = {Tracing.class, GrpcTracing.class, TraceAutoConfiguration.class})
+    @AutoConfigureAfter(TraceAutoConfiguration.class)
+    @ConditionalOnBean(Tracing.class)
+    @ConditionalOnClass(GrpcTracing.class)
     protected static class TraceServerAutoConfiguration {
 
         @Bean
+        @ConditionalOnMissingBean
         public GrpcTracing grpcTracing(final Tracing tracing) {
             return GrpcTracing.create(tracing);
         }
