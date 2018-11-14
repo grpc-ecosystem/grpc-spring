@@ -15,33 +15,45 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.springboot.autoconfigure.grpc.client;
+package net.devh.springboot.autoconfigure.grpc.server;
 
-import io.grpc.LoadBalancer;
+import static java.util.Objects.requireNonNull;
+
+import io.grpc.inprocess.InProcessServerBuilder;
 
 /**
- * This channel factory creates new Channels based on {@link GrpcChannelProperties} that can be configured via
- * application properties. This class utilizes connection pooling and thus needs to be {@link #close() closed} after
- * usage.
+ * Factory for in process grpc servers.
  *
- * @author Michael (yidongnan@gmail.com)
- * @since 5/17/16
+ * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-public class AddressChannelFactory extends AbstractNettyChannelFactory {
+public class InProcessGrpcServerFactory extends AbstractGrpcServerFactory<InProcessServerBuilder> {
+
+    private final String name;
 
     /**
-     * Creates a new AddressChannelFactory that will use the client name and the properties to resolve the grpc server
-     * address.
+     * Creates a new in process server factory with the given properties.
      *
-     * @param properties The properties to use.
-     * @param loadBalancerFactory The load balancer factory to use.
-     * @param globalClientInterceptorRegistry The interceptor registry to use.
+     * @param name The name of the in process server.
+     * @param properties The properties used to configure the server.
      */
-    public AddressChannelFactory(final GrpcChannelsProperties properties,
-            final LoadBalancer.Factory loadBalancerFactory,
-            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
-        super(properties, loadBalancerFactory, new AddressChannelResolverFactory(properties),
-                globalClientInterceptorRegistry);
+    public InProcessGrpcServerFactory(final String name, final GrpcServerProperties properties) {
+        super(properties);
+        this.name = requireNonNull(name, "name");
+    }
+
+    @Override
+    protected InProcessServerBuilder newServerBuilder() {
+        return InProcessServerBuilder.forName(this.name);
+    }
+
+    @Override
+    public String getAddress() {
+        return "inProcess:" + this.name;
+    }
+
+    @Override
+    public int getPort() {
+        return -1;
     }
 
 }

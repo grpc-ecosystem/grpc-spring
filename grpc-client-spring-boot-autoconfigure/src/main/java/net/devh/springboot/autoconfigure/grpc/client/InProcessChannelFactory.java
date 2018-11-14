@@ -17,31 +17,33 @@
 
 package net.devh.springboot.autoconfigure.grpc.client;
 
-import io.grpc.LoadBalancer;
+import io.grpc.inprocess.InProcessChannelBuilder;
+import lombok.extern.slf4j.Slf4j;
 
 /**
- * This channel factory creates new Channels based on {@link GrpcChannelProperties} that can be configured via
- * application properties. This class utilizes connection pooling and thus needs to be {@link #close() closed} after
- * usage.
+ * This abstract channel factory contains some shared code for other netty based {@link GrpcChannelFactory}s. This class
+ * utilizes connection pooling and thus needs to be {@link #close() closed} after usage.
  *
- * @author Michael (yidongnan@gmail.com)
- * @since 5/17/16
+ * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-public class AddressChannelFactory extends AbstractNettyChannelFactory {
+@Slf4j
+public class InProcessChannelFactory extends AbstractChannelFactory<InProcessChannelBuilder> {
 
     /**
-     * Creates a new AddressChannelFactory that will use the client name and the properties to resolve the grpc server
-     * address.
+     * Creates a new InProcessChannelFactory with the given properties.
      *
-     * @param properties The properties to use.
-     * @param loadBalancerFactory The load balancer factory to use.
+     * @param properties The properties for the channels to create.
      * @param globalClientInterceptorRegistry The interceptor registry to use.
      */
-    public AddressChannelFactory(final GrpcChannelsProperties properties,
-            final LoadBalancer.Factory loadBalancerFactory,
+    public InProcessChannelFactory(final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
-        super(properties, loadBalancerFactory, new AddressChannelResolverFactory(properties),
-                globalClientInterceptorRegistry);
+        super(properties, globalClientInterceptorRegistry);
+    }
+
+    @Override
+    protected InProcessChannelBuilder newChannelBuilder(final String name) {
+        log.debug("Creating new channel: {}", name);
+        return InProcessChannelBuilder.forName(name);
     }
 
 }
