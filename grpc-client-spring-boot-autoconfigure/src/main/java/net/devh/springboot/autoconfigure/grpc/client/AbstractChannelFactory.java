@@ -23,24 +23,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 import javax.annotation.PreDestroy;
 import javax.annotation.concurrent.GuardedBy;
-import javax.net.ssl.SSLException;
 
 import com.google.common.collect.Lists;
 
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
 import io.grpc.ClientInterceptors;
-import io.grpc.LoadBalancer;
 import io.grpc.ManagedChannel;
-import io.grpc.NameResolver;
-import io.grpc.netty.GrpcSslContexts;
+import io.grpc.ManagedChannelBuilder;
 import io.grpc.netty.NegotiationType;
-import io.grpc.netty.NettyChannelBuilder;
-import io.netty.handler.ssl.SslContextBuilder;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.springboot.autoconfigure.grpc.client.GrpcChannelProperties.Security;
 
@@ -48,17 +42,17 @@ import net.devh.springboot.autoconfigure.grpc.client.GrpcChannelProperties.Secur
  * This abstract channel factory contains some shared code for other {@link GrpcChannelFactory}s. This class utilizes
  * connection pooling and thus needs to be {@link #close() closed} after usage.
  *
+ * @param <T> The type of builder used by this channel factory.
+ *
  * @author Michael (yidongnan@gmail.com)
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  * @since 5/17/16
  */
 @Slf4j
-public abstract class AbstractChannelFactory implements GrpcChannelFactory {
+public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>> implements GrpcChannelFactory {
 
     private final GrpcChannelsProperties properties;
-    private final LoadBalancer.Factory loadBalancerFactory;
-    private final NameResolver.Factory nameResolverFactory;
-    private final GlobalClientInterceptorRegistry globalClientInterceptorRegistry;
+    protected final GlobalClientInterceptorRegistry globalClientInterceptorRegistry;
     /**
      * According to <a href="https://groups.google.com/forum/#!topic/grpc-io/-jA_JCiugM8">Thread safety in Grpc java
      * clients</a>: {@link ManagedChannel}s should be reused to allow connection reuse.
@@ -71,37 +65,11 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
      * Creates a new AbstractChannelFactory with eager initialized references.
      *
      * @param properties The properties for the channels to create.
-     * @param loadBalancerFactory The load balancer factory to use.
-     * @param nameResolverFactory The name resolver factory to use.
      * @param globalClientInterceptorRegistry The interceptor registry to use.
      */
     public AbstractChannelFactory(final GrpcChannelsProperties properties,
-            final LoadBalancer.Factory loadBalancerFactory,
-            final NameResolver.Factory nameResolverFactory,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
         this.properties = properties;
-        this.loadBalancerFactory = loadBalancerFactory;
-        this.nameResolverFactory = nameResolverFactory;
-        this.globalClientInterceptorRegistry = globalClientInterceptorRegistry;
-    }
-
-    /**
-     * Creates a new AbstractChannelFactory with partially lazy initialized references.
-     *
-     * @param <T> The type of the actual factory class or one of its super classes.
-     * @param properties The properties for the channels to create.
-     * @param loadBalancerFactory The load balancer factory to use.
-     * @param nameResolverFactoryCreator The function that creates the name resolver factory.
-     * @param globalClientInterceptorRegistry The interceptor registry to use.
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends AbstractChannelFactory> AbstractChannelFactory(final GrpcChannelsProperties properties,
-            final LoadBalancer.Factory loadBalancerFactory,
-            final Function<T, NameResolver.Factory> nameResolverFactoryCreator,
-            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
-        this.properties = properties;
-        this.loadBalancerFactory = loadBalancerFactory;
-        this.nameResolverFactory = nameResolverFactoryCreator.apply((T) this);
         this.globalClientInterceptorRegistry = globalClientInterceptorRegistry;
     }
 
@@ -131,18 +99,25 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
     }
 
     /**
+     * Creates a new {@link ManagedChannelBuilder} for the given client name.
+     *
+     * @param name The name to create the channel builder for.
+     * @return The newly created channel builder.
+     */
+    protected abstract T newChannelBuilder(String name);
+
+    /**
      * Creates a new {@link ManagedChannel} for the given client name. The name will be used to determine the properties
      * for the new channel. The calling method is responsible for lifecycle management of the created channel.
      * ManagedChannels should be reused if possible to allow connection reuse.
      *
      * @param name The name to create the channel for.
      * @return The newly created channel.
-     * @see #configure(NettyChannelBuilder, String)
+     * @see #newChannelBuilder(String)
+     * @see #configure(ManagedChannelBuilder, String)
      */
     protected ManagedChannel newManagedChannel(final String name) {
-        final NettyChannelBuilder builder = NettyChannelBuilder.forTarget(name)
-                .loadBalancerFactory(this.loadBalancerFactory)
-                .nameResolverFactory(this.nameResolverFactory);
+        final T builder = newChannelBuilder(name);
         configure(builder, name);
         return builder.build();
     }
@@ -164,7 +139,7 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
      * @param builder The channel builder to configure.
      * @param name The name of the client to configure.
      */
-    protected void configure(final NettyChannelBuilder builder, final String name) {
+    protected void configure(final T builder, final String name) {
         configureKeepAlive(builder, name);
         configureSecurity(builder, name);
         configureLimits(builder, name);
@@ -177,7 +152,7 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
      * @param builder The channel builder to configure.
      * @param name The name of the client to configure.
      */
-    protected void configureKeepAlive(final NettyChannelBuilder builder, final String name) {
+    protected void configureKeepAlive(final T builder, final String name) {
         final GrpcChannelProperties properties = getPropertiesFor(name);
         if (properties.isEnableKeepAlive()) {
             builder.keepAliveWithoutCalls(properties.isKeepAliveWithoutCalls())
@@ -192,39 +167,17 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
      * @param builder The channel builder to configure.
      * @param name The name of the client to configure.
      */
-    protected void configureSecurity(final NettyChannelBuilder builder, final String name) {
+    protected void configureSecurity(final T builder, final String name) {
         final GrpcChannelProperties properties = getPropertiesFor(name);
+        final Security security = properties.getSecurity();
 
-        final NegotiationType negotiationType = properties.getNegotiationType();
-        builder.negotiationType(negotiationType);
-
-        if (negotiationType != NegotiationType.PLAINTEXT) {
-            final Security security = properties.getSecurity();
-
-            final String authorityOverwrite = security.getAuthorityOverride();
-            if (authorityOverwrite != null && !authorityOverwrite.isEmpty()) {
-                builder.overrideAuthority(authorityOverwrite);
-            }
-
-            final SslContextBuilder sslContextBuilder = GrpcSslContexts.forClient();
-
-            if (security.isClientAuthEnabled()) {
-                final File keyCertChainFile = toCheckedFile("keyCertChain", security.getCertificateChainPath());
-                final File privateKeyFile = toCheckedFile("privateKey", security.getPrivateKeyPath());
-                sslContextBuilder.keyManager(keyCertChainFile, privateKeyFile);
-            }
-
-            final String trustCertCollectionPath = security.getTrustCertCollectionPath();
-            if (trustCertCollectionPath != null && !trustCertCollectionPath.isEmpty()) {
-                final File trustCertCollectionFile = toCheckedFile("trustCertCollection", trustCertCollectionPath);
-                sslContextBuilder.trustManager(trustCertCollectionFile);
-            }
-
-            try {
-                builder.sslContext(sslContextBuilder.build());
-            } catch (final SSLException e) {
-                throw new IllegalStateException("Failed to create ssl context for grpc client", e);
-            }
+        if (properties.getNegotiationType() != NegotiationType.TLS // non-default
+                || isNonNullAndNonBlank(security.getAuthorityOverride())
+                || isNonNullAndNonBlank(security.getCertificateChainPath())
+                || isNonNullAndNonBlank(security.getPrivateKeyPath())
+                || isNonNullAndNonBlank(security.getTrustCertCollectionPath())) {
+            throw new IllegalStateException(
+                    "Security is configured but this implementation does not support security!");
         }
     }
 
@@ -235,8 +188,8 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
      * @param path The path of the file to use.
      * @return The file instance created with the given path.
      */
-    private File toCheckedFile(final String context, final String path) {
-        if (path == null || path.trim().isEmpty()) {
+    protected File toCheckedFile(final String context, final String path) {
+        if (!isNonNullAndNonBlank(path)) {
             throw new IllegalArgumentException(context + " path cannot be null or blank");
         }
         final File file = new File(path);
@@ -251,13 +204,17 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
         return file;
     }
 
+    protected boolean isNonNullAndNonBlank(final String value) {
+        return value != null && !value.trim().isEmpty();
+    }
+
     /**
      * Configures limits such as max message sizes that should be used by the channel.
      *
      * @param builder The channel builder to configure.
      * @param name The name of the client to configure.
      */
-    protected void configureLimits(final NettyChannelBuilder builder, final String name) {
+    protected void configureLimits(final T builder, final String name) {
         final GrpcChannelProperties properties = getPropertiesFor(name);
         final Integer maxInboundMessageSize = properties.getMaxInboundMessageSize();
         if (maxInboundMessageSize != null) {
@@ -271,7 +228,7 @@ public abstract class AbstractChannelFactory implements GrpcChannelFactory {
      * @param builder The channel builder to configure.
      * @param name The name of the client to configure.
      */
-    protected void configureCompression(final NettyChannelBuilder builder, final String name) {
+    protected void configureCompression(final T builder, final String name) {
         final GrpcChannelProperties properties = getPropertiesFor(name);
         if (properties.isFullStreamDecompression()) {
             builder.enableFullStreamDecompression();
