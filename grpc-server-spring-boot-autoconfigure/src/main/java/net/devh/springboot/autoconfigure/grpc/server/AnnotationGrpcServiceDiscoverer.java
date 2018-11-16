@@ -28,17 +28,13 @@ import org.springframework.context.ApplicationContextAware;
 import com.google.common.collect.Lists;
 
 import io.grpc.BindableService;
-import io.grpc.Codec;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodec;
-import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodecDefinition;
 
 /**
- * A {@link GrpcServiceDiscoverer} that searches for beans with the {@link GrpcService} and {@link GrpcCodec}
- * annotations.
+ * A {@link GrpcServiceDiscoverer} that searches for beans with the {@link GrpcService} annotations.
  *
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
@@ -69,21 +65,6 @@ public class AnnotationGrpcServiceDiscoverer implements ApplicationContextAware,
             definitions.add(new GrpcServiceDefinition(beanName, bindableService.getClass(), serviceDefinition));
             log.debug("Found gRPC service: " + serviceDefinition.getServiceDescriptor().getName() + ", bean: "
                     + beanName + ", class: " + bindableService.getClass().getName());
-        }
-        return definitions;
-    }
-
-    @Override
-    public Collection<GrpcCodecDefinition> findGrpcCodec() {
-        Collection<String> beanNames =
-                Arrays.asList(this.applicationContext.getBeanNamesForAnnotation(GrpcCodec.class));
-        List<GrpcCodecDefinition> definitions = Lists.newArrayListWithCapacity(beanNames.size());
-        for (String beanName : beanNames) {
-            Codec codec = this.applicationContext.getBean(beanName, Codec.class);
-            GrpcCodec annotation = applicationContext.findAnnotationOnBean(beanName, GrpcCodec.class);
-            definitions.add(new GrpcCodecDefinition(codec, annotation.advertised(), annotation.codecType()));
-            log.debug("Found custom gRPC custom codec: " + codec.getMessageEncoding() + ", bean: " + beanName
-                    + ", class: " + codec.getClass().getName());
         }
         return definitions;
     }

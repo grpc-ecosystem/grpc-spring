@@ -17,22 +17,27 @@
 
 package net.devh.springboot.autoconfigure.grpc.server;
 
-import java.util.Collection;
+import java.util.Objects;
+import java.util.function.Consumer;
+
+import io.grpc.ServerBuilder;
 
 /**
- * An interface for a bean that will be used to find grpc services and codecs. These will then be provided to the
- * {@link GrpcServerFactory} which then uses them to configure the server.
+ * A configurer for {@link ServerBuilder}s which can be used by {@link GrpcServerFactory} to customize the created
+ * server.
  *
- * @author Michael (yidongnan@gmail.com)
- * @since 5/17/16
+ * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-public interface GrpcServiceDiscoverer {
+@FunctionalInterface
+public interface GrpcServerConfigurer extends Consumer<ServerBuilder<?>> {
 
-    /**
-     * Find the grpc services that should provided by the server.
-     *
-     * @return The grpc services that should be provided. Never null.
-     */
-    Collection<GrpcServiceDefinition> findGrpcServices();
+    @Override
+    default GrpcServerConfigurer andThen(final Consumer<? super ServerBuilder<?>> after) {
+        Objects.requireNonNull(after);
+        return t -> {
+            accept(t);
+            after.accept(t);
+        };
+    }
 
 }

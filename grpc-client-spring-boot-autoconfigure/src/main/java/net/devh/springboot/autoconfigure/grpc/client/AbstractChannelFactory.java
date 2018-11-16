@@ -17,6 +17,8 @@
 
 package net.devh.springboot.autoconfigure.grpc.client;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -53,6 +55,7 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
 
     private final GrpcChannelsProperties properties;
     protected final GlobalClientInterceptorRegistry globalClientInterceptorRegistry;
+    protected final List<GrpcChannelConfigurer> channelConfigurers;
     /**
      * According to <a href="https://groups.google.com/forum/#!topic/grpc-io/-jA_JCiugM8">Thread safety in Grpc java
      * clients</a>: {@link ManagedChannel}s should be reused to allow connection reuse.
@@ -66,11 +69,15 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
      *
      * @param properties The properties for the channels to create.
      * @param globalClientInterceptorRegistry The interceptor registry to use.
+     * @param channelConfigurers The channel configurers to use. Can be empty.
      */
     public AbstractChannelFactory(final GrpcChannelsProperties properties,
-            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
-        this.properties = properties;
-        this.globalClientInterceptorRegistry = globalClientInterceptorRegistry;
+            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
+            final List<GrpcChannelConfigurer> channelConfigurers) {
+        this.properties = requireNonNull(properties, "properties");
+        this.globalClientInterceptorRegistry =
+                requireNonNull(globalClientInterceptorRegistry, "globalClientInterceptorRegistry");
+        this.channelConfigurers = requireNonNull(channelConfigurers, "channelConfigurers");
     }
 
     @Override
@@ -144,6 +151,9 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         configureSecurity(builder, name);
         configureLimits(builder, name);
         configureCompression(builder, name);
+        for (final GrpcChannelConfigurer channelConfigurer : this.channelConfigurers) {
+            channelConfigurer.accept(builder, name);
+        }
     }
 
     /**

@@ -19,6 +19,7 @@ package net.devh.springboot.autoconfigure.grpc.server;
 
 import java.io.File;
 import java.net.InetSocketAddress;
+import java.util.List;
 
 import javax.net.ssl.SSLException;
 
@@ -42,9 +43,11 @@ public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServe
      * Creates a new netty server factory with the given properties.
      *
      * @param properties The properties used to configure the server.
+     * @param serverConfigurers The server configurers to use. Can be empty.
      */
-    public NettyGrpcServerFactory(final GrpcServerProperties properties) {
-        super(properties);
+    public NettyGrpcServerFactory(final GrpcServerProperties properties,
+            final List<GrpcServerConfigurer> serverConfigurers) {
+        super(properties, serverConfigurers);
     }
 
     @Override

@@ -17,7 +17,10 @@
 
 package net.devh.springboot.autoconfigure.grpc.client;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.File;
+import java.util.List;
 import java.util.function.Function;
 
 import javax.net.ssl.SSLException;
@@ -50,14 +53,16 @@ public abstract class AbstractNettyChannelFactory extends AbstractChannelFactory
      * @param loadBalancerFactory The load balancer factory to use.
      * @param nameResolverFactory The name resolver factory to use.
      * @param globalClientInterceptorRegistry The interceptor registry to use.
+     * @param channelConfigurers The channel configurers to use. Can be empty.
      */
     public AbstractNettyChannelFactory(final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory,
             final NameResolver.Factory nameResolverFactory,
-            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
-        super(properties, globalClientInterceptorRegistry);
-        this.loadBalancerFactory = loadBalancerFactory;
-        this.nameResolverFactory = nameResolverFactory;
+            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
+            final List<GrpcChannelConfigurer> channelConfigurers) {
+        super(properties, globalClientInterceptorRegistry, channelConfigurers);
+        this.loadBalancerFactory = requireNonNull(loadBalancerFactory, "loadBalancerFactory");
+        this.nameResolverFactory = requireNonNull(nameResolverFactory, "nameResolverFactory");
     }
 
     /**
@@ -68,13 +73,15 @@ public abstract class AbstractNettyChannelFactory extends AbstractChannelFactory
      * @param loadBalancerFactory The load balancer factory to use.
      * @param nameResolverFactoryCreator The function that creates the name resolver factory.
      * @param globalClientInterceptorRegistry The interceptor registry to use.
+     * @param channelConfigurers The channel configurers to use. Can be empty.
      */
     @SuppressWarnings("unchecked")
     public <T extends AbstractNettyChannelFactory> AbstractNettyChannelFactory(final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory,
             final Function<T, NameResolver.Factory> nameResolverFactoryCreator,
-            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
-        super(properties, globalClientInterceptorRegistry);
+            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
+            final List<GrpcChannelConfigurer> channelConfigurers) {
+        super(properties, globalClientInterceptorRegistry, channelConfigurers);
         this.loadBalancerFactory = loadBalancerFactory;
         this.nameResolverFactory = nameResolverFactoryCreator.apply((T) this);
     }

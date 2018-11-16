@@ -17,6 +17,8 @@
 
 package net.devh.springboot.autoconfigure.grpc.client;
 
+import java.util.List;
+
 import io.grpc.LoadBalancer;
 
 /**
@@ -36,12 +38,14 @@ public class AddressChannelFactory extends AbstractNettyChannelFactory {
      * @param properties The properties to use.
      * @param loadBalancerFactory The load balancer factory to use.
      * @param globalClientInterceptorRegistry The interceptor registry to use.
+     * @param channelConfigurers The channel configurers to use. Can be empty.
      */
     public AddressChannelFactory(final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory,
-            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
+            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
+            final List<GrpcChannelConfigurer> channelConfigurers) {
         super(properties, loadBalancerFactory, new AddressChannelResolverFactory(properties),
-                globalClientInterceptorRegistry);
+                globalClientInterceptorRegistry, channelConfigurers);
     }
 
 }

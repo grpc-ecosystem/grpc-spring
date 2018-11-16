@@ -18,7 +18,6 @@
 package net.devh.springboot.autoconfigure.grpc.server;
 
 import io.grpc.Server;
-import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodecDefinition;
 
 /**
  * A factory that can be used to create grpc servers.
@@ -61,18 +60,6 @@ public interface GrpcServerFactory {
      * @param service The service to add to the grpc server.
      */
     void addService(GrpcServiceDefinition service);
-
-    /**
-     * Adds the given grpc codec definition to this factory. The created server will use the codec described by these
-     * definitions.
-     *
-     * <p>
-     * <b>Note:</b> Adding a codec does not effect servers that have already been created.
-     * </p>
-     *
-     * @param codec The codec to add to the grpc server.
-     */
-    void addCodec(GrpcCodecDefinition codec);
 
     /**
      * Destroys this factory. This does not destroy or shutdown any server that was created using this factory.

@@ -17,6 +17,9 @@
 
 package net.devh.springboot.autoconfigure.grpc.server;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -30,10 +33,12 @@ import org.springframework.context.annotation.Import;
 
 import brave.Tracing;
 import brave.grpc.GrpcTracing;
+import io.grpc.CompressorRegistry;
+import io.grpc.DecompressorRegistry;
 import io.grpc.Server;
+import io.grpc.netty.NettyServerBuilder;
 import io.grpc.services.HealthStatusManager;
 import io.netty.channel.Channel;
-import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodecDefinition;
 import net.devh.springboot.autoconfigure.grpc.server.security.GrpcSecurityAutoConfiguration;
 
 /**
@@ -44,7 +49,7 @@ import net.devh.springboot.autoconfigure.grpc.server.security.GrpcSecurityAutoCo
  */
 @Configuration
 @EnableConfigurationProperties
-@ConditionalOnClass({Server.class, GrpcServerFactory.class})
+@ConditionalOnClass(Server.class)
 @Import(GrpcSecurityAutoConfiguration.class)
 public class GrpcServerAutoConfiguration {
 
@@ -64,9 +69,9 @@ public class GrpcServerAutoConfiguration {
         return new AnnotationGlobalServerInterceptorConfigurer();
     }
 
-    @ConditionalOnMissingBean(GrpcServiceDiscoverer.class)
+    @ConditionalOnMissingBean
     @Bean
-    public AnnotationGrpcServiceDiscoverer defaultGrpcServiceFinder() {
+    public GrpcServiceDiscoverer defaultGrpcServiceDiscoverer() {
         return new AnnotationGrpcServiceDiscoverer();
     }
 
@@ -76,19 +81,33 @@ public class GrpcServerAutoConfiguration {
         return new HealthStatusManager();
     }
 
-    @ConditionalOnMissingBean(GrpcServerFactory.class)
-    @ConditionalOnClass(Channel.class)
+    @ConditionalOnBean(CompressorRegistry.class)
     @Bean
-    public NettyGrpcServerFactory nettyGrpcServiceFactory(final GrpcServerProperties properties,
-            final GrpcServiceDiscoverer discoverer) {
-        final NettyGrpcServerFactory factory = new NettyGrpcServerFactory(properties);
-        for (final GrpcCodecDefinition codec : discoverer.findGrpcCodec()) {
-            factory.addCodec(codec);
-        }
-        for (final GrpcServiceDefinition service : discoverer.findGrpcServices()) {
+    public GrpcServerConfigurer compressionServerConfigurer(final CompressorRegistry registry) {
+        return builder -> builder.compressorRegistry(registry);
+    }
+
+    @ConditionalOnBean(DecompressorRegistry.class)
+    @Bean
+    public GrpcServerConfigurer decompressionServerConfigurer(final DecompressorRegistry registry) {
+        return builder -> builder.decompressorRegistry(registry);
+    }
+
+    @ConditionalOnMissingBean(GrpcServerConfigurer.class)
+    @Bean
+    public List<GrpcServerConfigurer> defaultServerConfigurers() {
+        return Collections.emptyList();
+    }
+
+    @ConditionalOnMissingBean
+    @ConditionalOnClass({Channel.class, NettyServerBuilder.class})
+    @Bean
+    public GrpcServerFactory nettyGrpcServerFactory(final GrpcServerProperties properties,
+            final GrpcServiceDiscoverer serviceDiscoverer, final List<GrpcServerConfigurer> serverConfigurers) {
+        final NettyGrpcServerFactory factory = new NettyGrpcServerFactory(properties, serverConfigurers);
+        for (final GrpcServiceDefinition service : serviceDiscoverer.findGrpcServices()) {
             factory.addService(service);
         }
-
         return factory;
     }
 

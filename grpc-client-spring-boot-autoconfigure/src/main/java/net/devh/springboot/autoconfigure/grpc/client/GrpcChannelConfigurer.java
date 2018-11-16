@@ -15,24 +15,30 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.springboot.autoconfigure.grpc.server;
+package net.devh.springboot.autoconfigure.grpc.client;
 
-import java.util.Collection;
+import static java.util.Objects.requireNonNull;
+
+import java.util.function.BiConsumer;
+
+import io.grpc.ManagedChannelBuilder;
 
 /**
- * An interface for a bean that will be used to find grpc services and codecs. These will then be provided to the
- * {@link GrpcServerFactory} which then uses them to configure the server.
+ * A configurer for {@link ManagedChannelBuilder}s which can be used by {@link GrpcChannelFactory} to customize the
+ * created channels.
  *
- * @author Michael (yidongnan@gmail.com)
- * @since 5/17/16
+ * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-public interface GrpcServiceDiscoverer {
+@FunctionalInterface
+public interface GrpcChannelConfigurer extends BiConsumer<ManagedChannelBuilder<?>, String> {
 
-    /**
-     * Find the grpc services that should provided by the server.
-     *
-     * @return The grpc services that should be provided. Never null.
-     */
-    Collection<GrpcServiceDefinition> findGrpcServices();
+    @Override
+    default GrpcChannelConfigurer andThen(final BiConsumer<? super ManagedChannelBuilder<?>, ? super String> after) {
+        requireNonNull(after, "after");
+        return (l, r) -> {
+            accept(l, r);
+            after.accept(l, r);
+        };
+    }
 
 }

@@ -17,6 +17,8 @@
 
 package net.devh.springboot.autoconfigure.grpc.client;
 
+import static java.util.Objects.requireNonNull;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -28,9 +30,8 @@ import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
 
@@ -52,12 +53,15 @@ import lombok.SneakyThrows;
 public class GrpcClientBeanPostProcessor implements BeanPostProcessor, AutoCloseable {
 
     private final Multimap<String, Field> beansToProcess = HashMultimap.create();
+    private final ApplicationContext applicationContext;
 
-    @Autowired
-    private DefaultListableBeanFactory beanFactory;
+    // Lazy initialized when needed to avoid overly eager creation of that factory,
+    // which might break proper bean setup
+    private GrpcChannelFactory channelFactory = null;
 
-    @Autowired
-    private GrpcChannelFactory channelFactory;
+    public GrpcClientBeanPostProcessor(final ApplicationContext applicationContext) {
+        this.applicationContext = requireNonNull(applicationContext, "applicationContext");
+    }
 
     @Override
     public Object postProcessBeforeInitialization(final Object bean, final String beanName) {
@@ -82,13 +86,27 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor, AutoClose
                 final GrpcClient annotation = AnnotationUtils.getAnnotation(field, GrpcClient.class);
 
                 final List<ClientInterceptor> interceptors = interceptorsFromAnnotation(annotation);
-                final Channel channel = this.channelFactory.createChannel(annotation.value(), interceptors);
+                final Channel channel = getChannelFactory().createChannel(annotation.value(), interceptors);
 
                 final Object value = valueForField(field, channel);
                 ReflectionUtils.setField(field, target, value);
             }
         }
         return bean;
+    }
+
+    /**
+     * Lazy getter for the {@link GrpcChannelFactory}.
+     *
+     * @return The grpc channel factory to use.
+     */
+    private GrpcChannelFactory getChannelFactory() {
+        if (this.channelFactory == null) {
+            final GrpcChannelFactory factory = this.applicationContext.getBean(GrpcChannelFactory.class);
+            this.channelFactory = factory;
+            return factory;
+        }
+        return this.channelFactory;
     }
 
     /**
@@ -107,8 +125,8 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor, AutoClose
         final List<ClientInterceptor> list = Lists.newArrayList();
         for (final Class<? extends ClientInterceptor> interceptorClass : annotation.interceptors()) {
             final ClientInterceptor clientInterceptor;
-            if (this.beanFactory.getBeanNamesForType(ClientInterceptor.class).length > 0) {
-                clientInterceptor = this.beanFactory.getBean(interceptorClass);
+            if (this.applicationContext.getBeanNamesForType(ClientInterceptor.class).length > 0) {
+                clientInterceptor = this.applicationContext.getBean(interceptorClass);
             } else {
                 try {
                     clientInterceptor = interceptorClass.newInstance();
@@ -119,7 +137,7 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor, AutoClose
             list.add(clientInterceptor);
         }
         for (final String interceptorName : annotation.interceptorNames()) {
-            list.add(this.beanFactory.getBean(interceptorName, ClientInterceptor.class));
+            list.add(this.applicationContext.getBean(interceptorName, ClientInterceptor.class));
         }
         return list;
     }

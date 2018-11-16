@@ -19,6 +19,9 @@ package net.devh.springboot.autoconfigure.grpc.server;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Collections;
+import java.util.List;
+
 import io.grpc.inprocess.InProcessServerBuilder;
 
 /**
@@ -37,7 +40,19 @@ public class InProcessGrpcServerFactory extends AbstractGrpcServerFactory<InProc
      * @param properties The properties used to configure the server.
      */
     public InProcessGrpcServerFactory(final String name, final GrpcServerProperties properties) {
-        super(properties);
+        this(name, properties, Collections.emptyList());
+    }
+
+    /**
+     * Creates a new in process server factory with the given properties.
+     *
+     * @param name The name of the in process server.
+     * @param properties The properties used to configure the server.
+     * @param serverConfigurers The server configurers to use. Can be empty.
+     */
+    public InProcessGrpcServerFactory(final String name, final GrpcServerProperties properties,
+            final List<GrpcServerConfigurer> serverConfigurers) {
+        super(properties, serverConfigurers);
         this.name = requireNonNull(name, "name");
     }
 

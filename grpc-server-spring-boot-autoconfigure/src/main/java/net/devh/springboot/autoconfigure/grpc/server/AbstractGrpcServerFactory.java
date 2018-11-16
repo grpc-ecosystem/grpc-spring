@@ -26,16 +26,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 
-import io.grpc.CompressorRegistry;
-import io.grpc.DecompressorRegistry;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.health.v1.HealthCheckResponse;
 import io.grpc.protobuf.services.ProtoReflectionService;
 import io.grpc.services.HealthStatusManager;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.springboot.autoconfigure.grpc.server.codec.CodecType;
-import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodecDefinition;
 
 /**
  * Abstract factory for grpc servers.
@@ -48,11 +44,10 @@ import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodecDefinition;
 @Slf4j
 public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> implements GrpcServerFactory {
 
-    protected final GrpcServerProperties properties;
-
     private final List<GrpcServiceDefinition> serviceList = Lists.newLinkedList();
 
-    private final List<GrpcCodecDefinition> codecList = Lists.newLinkedList();
+    protected final GrpcServerProperties properties;
+    protected final List<GrpcServerConfigurer> serverConfigurers;
 
     @Autowired
     private HealthStatusManager healthStatusManager;
@@ -61,9 +56,12 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
      * Creates a new server factory with the given properties.
      *
      * @param properties The properties used to configure the server.
+     * @param serverConfigurers The server configurers to use. Can be empty.
      */
-    public AbstractGrpcServerFactory(final GrpcServerProperties properties) {
+    public AbstractGrpcServerFactory(final GrpcServerProperties properties,
+            final List<GrpcServerConfigurer> serverConfigurers) {
         this.properties = requireNonNull(properties, "properties");
+        this.serverConfigurers = requireNonNull(serverConfigurers, "serverConfigurers");
     }
 
     @Override
@@ -81,8 +79,8 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
     protected abstract T newServerBuilder();
 
     /**
-     * Configures the given netty server builder. This method can be overwritten to add features that are not yet
-     * supported by this library.
+     * Configures the given server builder. This method can be overwritten to add features that are not yet supported by
+     * this library or use a {@link GrpcServerConfigurer} instead.
      *
      * @param builder The server builder to configure.
      */
@@ -90,7 +88,9 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
         configureServices(builder);
         configureSecurity(builder);
         configureLimits(builder);
-        configureCodecs(builder);
+        for (final GrpcServerConfigurer serverConfigurer : this.serverConfigurers) {
+            serverConfigurer.accept(builder);
+        }
     }
 
     /**
@@ -162,32 +162,6 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
         }
     }
 
-    /**
-     * Configures the codecs that should be supported by the server.
-     *
-     * @param builder The server builder to configure.
-     */
-    protected void configureCodecs(final T builder) {
-        if (this.codecList.isEmpty()) {
-            final CompressorRegistry compressorRegistry = CompressorRegistry.newEmptyInstance();
-            final DecompressorRegistry decompressorRegistry = DecompressorRegistry.emptyInstance();
-
-            for (final GrpcCodecDefinition grpcCodecDefinition : this.codecList) {
-                if (grpcCodecDefinition.getCodecType().equals(CodecType.COMPRESS)) {
-                    compressorRegistry.register(grpcCodecDefinition.getCodec());
-                } else if (grpcCodecDefinition.getCodecType().equals(CodecType.DECOMPRESS)) {
-                    decompressorRegistry.with(grpcCodecDefinition.getCodec(), grpcCodecDefinition.isAdvertised());
-                } else {
-                    compressorRegistry.register(grpcCodecDefinition.getCodec());
-                    decompressorRegistry.with(grpcCodecDefinition.getCodec(), grpcCodecDefinition.isAdvertised());
-                }
-            }
-
-            builder.compressorRegistry(compressorRegistry);
-            builder.decompressorRegistry(decompressorRegistry);
-        }
-    }
-
     @Override
     public String getAddress() {
         return this.properties.getAddress();
@@ -201,11 +175,6 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
     @Override
     public void addService(final GrpcServiceDefinition service) {
         this.serviceList.add(service);
-    }
-
-    @Override
-    public void addCodec(final GrpcCodecDefinition codec) {
-        this.codecList.add(codec);
     }
 
     @Override
