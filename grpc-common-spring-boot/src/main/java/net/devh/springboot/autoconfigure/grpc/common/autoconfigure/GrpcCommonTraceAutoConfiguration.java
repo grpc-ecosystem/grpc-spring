@@ -15,37 +15,27 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.springboot.autoconfigure.grpc.server.codec;
+package net.devh.springboot.autoconfigure.grpc.common.autoconfigure;
 
-import io.grpc.Codec;
-import lombok.Getter;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-/**
- * Container class that contains all relevant information about a grpc codec.
- *
- * @see GrpcCodec
- *
- * @author Michael (yidongnan@gmail.com)
- * @since 10/13/18
- */
-@Getter
-public class GrpcCodecDefinition {
+import brave.Tracing;
+import brave.grpc.GrpcTracing;
 
-    private final Codec codec;
-    private final boolean advertised;
-    private final CodecType codecType;
+@Configuration
+@ConditionalOnProperty(value = "spring.sleuth.scheduled.enabled", matchIfMissing = true)
+@AutoConfigureAfter(TraceAutoConfiguration.class)
+@ConditionalOnClass(value = {Tracing.class, GrpcTracing.class})
+public class GrpcCommonTraceAutoConfiguration {
 
-    /**
-     * Creates a new GrpcCodecDefinition.
-     *
-     * @param codec The codec bean.
-     * @param advertised Whether the codec should be advertised in the headers.
-     * @param codecType The type of the codec.
-     */
-    public GrpcCodecDefinition(final Codec codec, final boolean advertised, final CodecType codecType) {
-        this.codec = codec;
-        this.advertised = advertised;
-        this.codecType = codecType;
+    @Bean
+    public GrpcTracing grpcTracing(final Tracing tracing) {
+        return GrpcTracing.create(tracing);
     }
 
 }

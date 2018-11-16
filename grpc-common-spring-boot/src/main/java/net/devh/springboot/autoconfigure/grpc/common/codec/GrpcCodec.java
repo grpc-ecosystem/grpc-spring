@@ -15,7 +15,7 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.springboot.autoconfigure.grpc.server.codec;
+package net.devh.springboot.autoconfigure.grpc.common.codec;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -32,7 +32,7 @@ import io.grpc.Codec;
  * to beans that implement {@link Codec}.
  *
  * @author Michael (yidongnan@gmail.com)
- * @since 10/13/18
+ * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

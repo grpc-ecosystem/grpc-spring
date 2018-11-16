@@ -22,11 +22,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import net.devh.springboot.autoconfigure.grpc.client.GrpcClientAutoConfiguration;
+import net.devh.springboot.autoconfigure.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 import net.devh.springboot.autoconfigure.grpc.server.GrpcServerAutoConfiguration;
 import net.devh.test.grpc.server.TestServiceImpl;
 
 @Configuration
-@ImportAutoConfiguration({GrpcServerAutoConfiguration.class, GrpcClientAutoConfiguration.class})
+@ImportAutoConfiguration({GrpcCommonCodecAutoConfiguration.class, GrpcServerAutoConfiguration.class,
+        GrpcClientAutoConfiguration.class})
 public class ServiceConfiguration {
 
     @Bean

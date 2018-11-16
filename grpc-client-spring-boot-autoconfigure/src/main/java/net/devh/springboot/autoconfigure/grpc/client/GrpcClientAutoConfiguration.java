@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -32,12 +31,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import brave.Tracing;
 import brave.grpc.GrpcTracing;
 import io.grpc.CompressorRegistry;
 import io.grpc.DecompressorRegistry;
 import io.grpc.LoadBalancer;
 import io.grpc.util.RoundRobinLoadBalancerFactory;
+import net.devh.springboot.autoconfigure.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
+import net.devh.springboot.autoconfigure.grpc.common.autoconfigure.GrpcCommonTraceAutoConfiguration;
 
 /**
  * The auto configuration used by Spring-Boot that contains all beans to create and inject grpc clients into beans.
@@ -47,7 +47,8 @@ import io.grpc.util.RoundRobinLoadBalancerFactory;
  */
 @Configuration
 @EnableConfigurationProperties
-@AutoConfigureAfter(name = "org.springframework.cloud.client.CommonsClientAutoConfiguration")
+@AutoConfigureAfter(name = "org.springframework.cloud.client.CommonsClientAutoConfiguration",
+        value = GrpcCommonCodecAutoConfiguration.class)
 public class GrpcClientAutoConfiguration {
 
     @Bean
@@ -127,9 +128,8 @@ public class GrpcClientAutoConfiguration {
 
     @Configuration
     @ConditionalOnProperty(value = "spring.sleuth.scheduled.enabled", matchIfMissing = true)
-    @AutoConfigureAfter(TraceAutoConfiguration.class)
-    @ConditionalOnBean(Tracing.class)
-    @ConditionalOnClass(GrpcTracing.class)
+    @AutoConfigureAfter({TraceAutoConfiguration.class, GrpcCommonTraceAutoConfiguration.class})
+    @ConditionalOnBean(GrpcTracing.class)
     protected static class TraceClientAutoConfiguration {
 
         @Bean

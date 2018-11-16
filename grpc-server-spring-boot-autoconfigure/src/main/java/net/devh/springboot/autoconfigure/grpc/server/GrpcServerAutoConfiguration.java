@@ -31,7 +31,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import brave.Tracing;
 import brave.grpc.GrpcTracing;
 import io.grpc.CompressorRegistry;
 import io.grpc.DecompressorRegistry;
@@ -39,6 +38,8 @@ import io.grpc.Server;
 import io.grpc.netty.NettyServerBuilder;
 import io.grpc.services.HealthStatusManager;
 import io.netty.channel.Channel;
+import net.devh.springboot.autoconfigure.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
+import net.devh.springboot.autoconfigure.grpc.common.autoconfigure.GrpcCommonTraceAutoConfiguration;
 import net.devh.springboot.autoconfigure.grpc.server.security.GrpcSecurityAutoConfiguration;
 
 /**
@@ -50,6 +51,7 @@ import net.devh.springboot.autoconfigure.grpc.server.security.GrpcSecurityAutoCo
 @Configuration
 @EnableConfigurationProperties
 @ConditionalOnClass(Server.class)
+@AutoConfigureAfter(GrpcCommonCodecAutoConfiguration.class)
 @Import(GrpcSecurityAutoConfiguration.class)
 public class GrpcServerAutoConfiguration {
 
@@ -119,16 +121,9 @@ public class GrpcServerAutoConfiguration {
 
     @Configuration
     @ConditionalOnProperty(value = "spring.sleuth.scheduled.enabled", matchIfMissing = true)
-    @AutoConfigureAfter(TraceAutoConfiguration.class)
-    @ConditionalOnBean(Tracing.class)
-    @ConditionalOnClass(GrpcTracing.class)
+    @AutoConfigureAfter({TraceAutoConfiguration.class, GrpcCommonTraceAutoConfiguration.class})
+    @ConditionalOnBean(GrpcTracing.class)
     protected static class TraceServerAutoConfiguration {
-
-        @Bean
-        @ConditionalOnMissingBean
-        public GrpcTracing grpcTracing(final Tracing tracing) {
-            return GrpcTracing.create(tracing);
-        }
 
         @Bean
         public GlobalServerInterceptorConfigurer globalTraceServerInterceptorConfigurerAdapter(

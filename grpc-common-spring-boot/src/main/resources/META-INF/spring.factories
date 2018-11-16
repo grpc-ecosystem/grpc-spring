@@ -1,0 +1,4 @@
+# AutoConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+net.devh.springboot.autoconfigure.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration,\
+net.devh.springboot.autoconfigure.grpc.common.autoconfigure.GrpcCommonTraceAutoConfiguration

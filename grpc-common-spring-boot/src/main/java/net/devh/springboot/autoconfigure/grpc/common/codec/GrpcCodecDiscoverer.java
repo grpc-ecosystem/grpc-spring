@@ -15,29 +15,23 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.springboot.autoconfigure.grpc.server.codec;
+package net.devh.springboot.autoconfigure.grpc.common.codec;
+
+import java.util.Collection;
 
 /**
- * The type of the codec.
+ * An interface for a bean that will be used to find grpc codecs.
  *
- * @author Michael (yidongnan@gmail.com)
- * @since 10/13/18
+ * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-public enum CodecType {
+@FunctionalInterface
+public interface GrpcCodecDiscoverer {
 
     /**
-     * The codec should be used for compression only.
+     * Find the grpc codecs that should uses by the client/server.
+     *
+     * @return The grpc codecs that should be provided. Never null.
      */
-    COMPRESS,
-
-    /**
-     * The codec should be used for decompression only.
-     */
-    DECOMPRESS,
-
-    /**
-     * The codec should be used for both compression and decompression.
-     */
-    ALL;
+    Collection<GrpcCodecDefinition> findGrpcCodecs();
 
 }
