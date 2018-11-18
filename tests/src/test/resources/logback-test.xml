@@ -8,10 +8,10 @@
         </encoder>
     </appender>
 
-    <logger name="net.devh.springboot.autoconfigure.grpc.client" level="debug" />
-    <logger name="net.devh.springboot.autoconfigure.grpc.common" level="debug" />
-    <logger name="net.devh.springboot.autoconfigure.grpc.server" level="debug" />
-    <logger name="net.devh.test.grpc.server" level="debug" />
+    <logger name="net.devh.boot.grpc.client" level="debug" />
+    <logger name="net.devh.boot.grpc.common" level="debug" />
+    <logger name="net.devh.boot.grpc.server" level="debug" />
+    <logger name="net.devh.boot.grpc.test" level="debug" />
     <root level="info">
         <appender-ref ref="STDOUT" />
     </root>
