@@ -8,6 +8,8 @@ compileJava.dependsOn(processResources)
 dependencies {
     annotationProcessor("org.springframework.boot:spring-boot-autoconfigure-processor:${springBootVersion}")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}")
+
+    compile project(':grpc-common-spring-boot')
     compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
     compileOnly("org.springframework.security:spring-security-core:${springSecurityVersion}")
     compileOnly("org.springframework.cloud:spring-cloud-starter-sleuth:${springCloudSleuthVersion}")

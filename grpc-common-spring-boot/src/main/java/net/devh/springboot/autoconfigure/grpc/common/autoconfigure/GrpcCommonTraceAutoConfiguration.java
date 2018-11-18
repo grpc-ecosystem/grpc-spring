@@ -15,25 +15,27 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.test.grpc.config;
+package net.devh.springboot.autoconfigure.grpc.common.autoconfigure;
 
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import net.devh.springboot.autoconfigure.grpc.client.GrpcClientAutoConfiguration;
-import net.devh.springboot.autoconfigure.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
-import net.devh.springboot.autoconfigure.grpc.server.GrpcServerAutoConfiguration;
-import net.devh.test.grpc.server.TestServiceImpl;
+import brave.Tracing;
+import brave.grpc.GrpcTracing;
 
 @Configuration
-@ImportAutoConfiguration({GrpcCommonCodecAutoConfiguration.class, GrpcServerAutoConfiguration.class,
-        GrpcClientAutoConfiguration.class})
-public class ServiceConfiguration {
+@ConditionalOnProperty(value = "spring.sleuth.scheduled.enabled", matchIfMissing = true)
+@AutoConfigureAfter(TraceAutoConfiguration.class)
+@ConditionalOnClass(value = {Tracing.class, GrpcTracing.class})
+public class GrpcCommonTraceAutoConfiguration {
 
     @Bean
-    TestServiceImpl testService() {
-        return new TestServiceImpl();
+    public GrpcTracing grpcTracing(final Tracing tracing) {
+        return GrpcTracing.create(tracing);
     }
 
 }

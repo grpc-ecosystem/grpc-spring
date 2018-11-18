@@ -1,0 +1,16 @@
+apply from: '../deploy.gradle'
+
+group = "net.devh"
+version = "${projectVersion}"
+
+compileJava.dependsOn(processResources)
+
+dependencies {
+    annotationProcessor("org.springframework.boot:spring-boot-autoconfigure-processor:${springBootVersion}")
+
+    compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
+    compile("io.grpc:grpc-core:${grpcVersion}")
+
+    compileOnly("org.springframework.cloud:spring-cloud-starter-sleuth:${springCloudSleuthVersion}")
+    compileOnly("io.zipkin.brave:brave-instrumentation-grpc:${braveInstrumentationGrpc}")
+}

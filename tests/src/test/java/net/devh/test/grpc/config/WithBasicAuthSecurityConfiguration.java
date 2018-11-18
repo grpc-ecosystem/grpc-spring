@@ -40,6 +40,7 @@ import io.grpc.LoadBalancer.Factory;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.springboot.autoconfigure.grpc.client.AddressChannelFactory;
 import net.devh.springboot.autoconfigure.grpc.client.GlobalClientInterceptorRegistry;
+import net.devh.springboot.autoconfigure.grpc.client.GrpcChannelConfigurer;
 import net.devh.springboot.autoconfigure.grpc.client.GrpcChannelsProperties;
 import net.devh.springboot.autoconfigure.grpc.client.security.AuthenticatingClientInterceptors;
 import net.devh.springboot.autoconfigure.grpc.server.security.authentication.BasicGrpcAuthenticationReader;
@@ -101,8 +102,10 @@ public class WithBasicAuthSecurityConfiguration {
 
     @Bean
     AddressChannelFactory addressChannelFactory(final GrpcChannelsProperties properties,
-            final Factory loadBalancerFactory, final GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
-        return new AddressChannelFactory(properties, loadBalancerFactory, globalClientInterceptorRegistry) {
+            final Factory loadBalancerFactory, final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
+            final List<GrpcChannelConfigurer> channelConfigurers) {
+        return new AddressChannelFactory(properties, loadBalancerFactory, globalClientInterceptorRegistry,
+                channelConfigurers) {
 
             @Override
             public Channel createChannel(final String name, List<ClientInterceptor> interceptors) {

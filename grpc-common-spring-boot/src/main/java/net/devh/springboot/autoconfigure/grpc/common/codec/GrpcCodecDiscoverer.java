@@ -15,25 +15,23 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.test.grpc.config;
+package net.devh.springboot.autoconfigure.grpc.common.codec;
 
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import java.util.Collection;
 
-import net.devh.springboot.autoconfigure.grpc.client.GrpcClientAutoConfiguration;
-import net.devh.springboot.autoconfigure.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
-import net.devh.springboot.autoconfigure.grpc.server.GrpcServerAutoConfiguration;
-import net.devh.test.grpc.server.TestServiceImpl;
+/**
+ * An interface for a bean that will be used to find grpc codecs.
+ *
+ * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ */
+@FunctionalInterface
+public interface GrpcCodecDiscoverer {
 
-@Configuration
-@ImportAutoConfiguration({GrpcCommonCodecAutoConfiguration.class, GrpcServerAutoConfiguration.class,
-        GrpcClientAutoConfiguration.class})
-public class ServiceConfiguration {
-
-    @Bean
-    TestServiceImpl testService() {
-        return new TestServiceImpl();
-    }
+    /**
+     * Find the grpc codecs that should uses by the client/server.
+     *
+     * @return The grpc codecs that should be provided. Never null.
+     */
+    Collection<GrpcCodecDefinition> findGrpcCodecs();
 
 }

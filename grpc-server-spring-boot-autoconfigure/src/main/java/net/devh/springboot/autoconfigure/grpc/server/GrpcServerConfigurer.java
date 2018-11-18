@@ -15,37 +15,29 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.springboot.autoconfigure.grpc.server.codec;
+package net.devh.springboot.autoconfigure.grpc.server;
 
-import io.grpc.Codec;
-import lombok.Getter;
+import java.util.Objects;
+import java.util.function.Consumer;
+
+import io.grpc.ServerBuilder;
 
 /**
- * Container class that contains all relevant information about a grpc codec.
+ * A configurer for {@link ServerBuilder}s which can be used by {@link GrpcServerFactory} to customize the created
+ * server.
  *
- * @see GrpcCodec
- *
- * @author Michael (yidongnan@gmail.com)
- * @since 10/13/18
+ * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-@Getter
-public class GrpcCodecDefinition {
+@FunctionalInterface
+public interface GrpcServerConfigurer extends Consumer<ServerBuilder<?>> {
 
-    private final Codec codec;
-    private final boolean advertised;
-    private final CodecType codecType;
-
-    /**
-     * Creates a new GrpcCodecDefinition.
-     *
-     * @param codec The codec bean.
-     * @param advertised Whether the codec should be advertised in the headers.
-     * @param codecType The type of the codec.
-     */
-    public GrpcCodecDefinition(final Codec codec, final boolean advertised, final CodecType codecType) {
-        this.codec = codec;
-        this.advertised = advertised;
-        this.codecType = codecType;
+    @Override
+    default GrpcServerConfigurer andThen(final Consumer<? super ServerBuilder<?>> after) {
+        Objects.requireNonNull(after);
+        return t -> {
+            accept(t);
+            after.accept(t);
+        };
     }
 
 }

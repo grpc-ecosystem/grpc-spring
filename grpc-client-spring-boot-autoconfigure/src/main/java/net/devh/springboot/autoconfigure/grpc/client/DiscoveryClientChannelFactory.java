@@ -19,6 +19,8 @@ package net.devh.springboot.autoconfigure.grpc.client;
 
 import java.util.List;
 
+import javax.annotation.PreDestroy;
+
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
@@ -40,17 +42,41 @@ public class DiscoveryClientChannelFactory extends AbstractNettyChannelFactory {
     private final HeartbeatMonitor monitor = new HeartbeatMonitor();
     private final List<DiscoveryClientNameResolver> discoveryClientNameResolvers = Lists.newArrayList();
 
+    /**
+     * Creates a new DiscoveryClientChannelFactory that will use the discovery client to resolve the grpc server
+     * address.
+     *
+     * @param properties The properties for the channels to create.
+     * @param loadBalancerFactory The load balancer factory to use.
+     * @param client The discovery client to use.
+     * @param globalClientInterceptorRegistry The interceptor registry to use.
+     * @param channelConfigurers The channel configurers to use. Can be empty.
+     */
     public DiscoveryClientChannelFactory(final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory, final DiscoveryClient client,
-            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
+            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
+            final List<GrpcChannelConfigurer> channelConfigurers) {
         <DiscoveryClientChannelFactory>super(properties, loadBalancerFactory,
-                thiz -> new DiscoveryClientResolverFactory(client, thiz), globalClientInterceptorRegistry);
+                thiz -> new DiscoveryClientResolverFactory(client, thiz),
+                globalClientInterceptorRegistry, channelConfigurers);
     }
 
+    /**
+     * Registers the given name resolver. Registered name resolvers will be automatically refreshed during a
+     * {@link HeartbeatEvent}.
+     *
+     * @param discoveryClientNameResolver The the name resolver to register.
+     * @see #heartbeat(HeartbeatEvent)
+     */
     public void addDiscoveryClientNameResolver(final DiscoveryClientNameResolver discoveryClientNameResolver) {
         this.discoveryClientNameResolvers.add(discoveryClientNameResolver);
     }
 
+    /**
+     * Triggers a refresh of the registered name resolvers.
+     *
+     * @param event The event that triggered the update.
+     */
     @EventListener(HeartbeatEvent.class)
     public void heartbeat(final HeartbeatEvent event) {
         if (this.monitor.update(event.getValue())) {
@@ -58,6 +84,14 @@ public class DiscoveryClientChannelFactory extends AbstractNettyChannelFactory {
                 discoveryClientNameResolver.refresh();
             }
         }
+    }
+
+    /**
+     * Cleans up the name resolvers.
+     */
+    @PreDestroy
+    public void destroy() {
+        this.discoveryClientNameResolvers.clear();
     }
 
 }

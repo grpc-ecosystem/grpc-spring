@@ -15,29 +15,43 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.springboot.autoconfigure.grpc.server.codec;
+package net.devh.springboot.autoconfigure.grpc.common.codec;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import org.springframework.stereotype.Component;
+
+import io.grpc.Codec;
 
 /**
- * The type of the codec.
+ * Annotation that marks gRPC codecs that should be registered with a gRPC server. This annotation should only be added
+ * to beans that implement {@link Codec}.
  *
  * @author Michael (yidongnan@gmail.com)
- * @since 10/13/18
+ * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-public enum CodecType {
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Component
+public @interface GrpcCodec {
 
     /**
-     * The codec should be used for compression only.
+     * Advertised codecs will be listed in the {@code Accept-Encoding} header. Defaults to false.
+     *
+     * @return True, of the codec should be advertised. False otherwise.
      */
-    COMPRESS,
+    boolean advertised() default false;
 
     /**
-     * The codec should be used for decompression only.
+     * Gets the type of codec the annotated bean should be used for.
+     *
+     * @return The type of codec.
      */
-    DECOMPRESS,
-
-    /**
-     * The codec should be used for both compression and decompression.
-     */
-    ALL;
+    CodecType codecType() default CodecType.ALL;
 
 }

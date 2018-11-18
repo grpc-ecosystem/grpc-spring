@@ -15,43 +15,30 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.springboot.autoconfigure.grpc.server.codec;
+package net.devh.springboot.autoconfigure.grpc.client;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import static java.util.Objects.requireNonNull;
 
-import org.springframework.stereotype.Component;
+import java.util.function.BiConsumer;
 
-import io.grpc.Codec;
+import io.grpc.ManagedChannelBuilder;
 
 /**
- * Annotation that marks gRPC codecs that should be registered with a gRPC server. This annotation should only be added
- * to beans that implement {@link Codec}.
+ * A configurer for {@link ManagedChannelBuilder}s which can be used by {@link GrpcChannelFactory} to customize the
+ * created channels.
  *
- * @author Michael (yidongnan@gmail.com)
- * @since 10/13/18
+ * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-@Component
-public @interface GrpcCodec {
+@FunctionalInterface
+public interface GrpcChannelConfigurer extends BiConsumer<ManagedChannelBuilder<?>, String> {
 
-    /**
-     * Advertised codecs will be listed in the {@code Accept-Encoding} header. Defaults to false.
-     *
-     * @return True, of the codec should be advertised. False otherwise.
-     */
-    boolean advertised() default false;
-
-    /**
-     * Gets the type of codec the annotated bean should be used for.
-     *
-     * @return The type of codec.
-     */
-    CodecType codecType() default CodecType.ALL;
+    @Override
+    default GrpcChannelConfigurer andThen(final BiConsumer<? super ManagedChannelBuilder<?>, ? super String> after) {
+        requireNonNull(after, "after");
+        return (l, r) -> {
+            accept(l, r);
+            after.accept(l, r);
+        };
+    }
 
 }

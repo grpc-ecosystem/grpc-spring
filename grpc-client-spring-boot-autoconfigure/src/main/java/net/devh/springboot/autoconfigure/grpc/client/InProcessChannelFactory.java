@@ -17,6 +17,9 @@
 
 package net.devh.springboot.autoconfigure.grpc.client;
 
+import java.util.Collections;
+import java.util.List;
+
 import io.grpc.inprocess.InProcessChannelBuilder;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,7 +40,20 @@ public class InProcessChannelFactory extends AbstractChannelFactory<InProcessCha
      */
     public InProcessChannelFactory(final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
-        super(properties, globalClientInterceptorRegistry);
+        this(properties, globalClientInterceptorRegistry, Collections.emptyList());
+    }
+
+    /**
+     * Creates a new InProcessChannelFactory with the given properties.
+     *
+     * @param properties The properties for the channels to create.
+     * @param globalClientInterceptorRegistry The interceptor registry to use.
+     * @param channelConfigurers The channel configurers to use. Can be empty.
+     */
+    public InProcessChannelFactory(final GrpcChannelsProperties properties,
+            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
+            final List<GrpcChannelConfigurer> channelConfigurers) {
+        super(properties, globalClientInterceptorRegistry, channelConfigurers);
     }
 
     @Override

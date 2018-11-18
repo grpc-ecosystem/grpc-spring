@@ -29,7 +29,6 @@ import net.devh.springboot.autoconfigure.grpc.server.GrpcServerProperties;
 import net.devh.springboot.autoconfigure.grpc.server.GrpcServiceDefinition;
 import net.devh.springboot.autoconfigure.grpc.server.GrpcServiceDiscoverer;
 import net.devh.springboot.autoconfigure.grpc.server.InProcessGrpcServerFactory;
-import net.devh.springboot.autoconfigure.grpc.server.codec.GrpcCodecDefinition;
 
 @Configuration
 public class InProcessConfiguration {
@@ -44,9 +43,6 @@ public class InProcessConfiguration {
     GrpcServerFactory grpcServerFactory(final GrpcServerProperties properties,
             final GrpcServiceDiscoverer discoverer) {
         final InProcessGrpcServerFactory factory = new InProcessGrpcServerFactory("test", properties);
-        for (final GrpcCodecDefinition codec : discoverer.findGrpcCodec()) {
-            factory.addCodec(codec);
-        }
         for (final GrpcServiceDefinition service : discoverer.findGrpcServices()) {
             factory.addService(service);
         }
