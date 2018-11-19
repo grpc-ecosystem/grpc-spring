@@ -17,6 +17,9 @@
 
 package net.devh.boot.grpc.test.config;
 
+import static net.devh.boot.grpc.client.security.AuthenticatingClientInterceptors.basicAuthCallCredentials;
+import static net.devh.boot.grpc.client.security.AuthenticatingClientInterceptors.callCredentialsInterceptor;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,7 +45,6 @@ import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.InProcessChannelFactory;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
-import net.devh.boot.grpc.client.security.AuthenticatingClientInterceptors;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import net.devh.boot.grpc.server.security.authentication.BasicGrpcAuthenticationReader;
 import net.devh.boot.grpc.server.security.authentication.CompositeGrpcAuthenticationReader;
@@ -121,7 +123,8 @@ public class WithBasicAuthSecurityConfiguration {
 
     @Bean
     ClientInterceptor basicAuthInterceptor() {
-        return AuthenticatingClientInterceptors.basicAuth("client1", "client1");
+        // return AuthenticatingClientInterceptors.basicAuthInterceptor("client1", "client1");
+        return callCredentialsInterceptor(basicAuthCallCredentials("client1", "client1"));
     }
 
     @Bean // For testing only
@@ -150,7 +153,7 @@ public class WithBasicAuthSecurityConfiguration {
                 } else {
                     throw new IllegalArgumentException("Unknown username: " + name);
                 }
-                interceptors.add(AuthenticatingClientInterceptors.basicAuth(username, username));
+                interceptors.add(callCredentialsInterceptor(basicAuthCallCredentials(username, username)));
                 return super.createChannel("test", interceptors);
             }
 

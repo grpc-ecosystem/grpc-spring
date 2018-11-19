@@ -17,6 +17,9 @@
 
 package net.devh.boot.grpc.examples.security.client;
 
+import static net.devh.boot.grpc.client.security.AuthenticatingClientInterceptors.basicAuthCallCredentials;
+import static net.devh.boot.grpc.client.security.AuthenticatingClientInterceptors.callCredentialsInterceptor;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +27,6 @@ import org.springframework.context.annotation.Configuration;
 import io.grpc.ClientInterceptor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorConfigurer;
-import net.devh.boot.grpc.client.security.AuthenticatingClientInterceptors;
 
 /**
  * The security configuration for the client. In this case we assume that we use the same passwords for all stubs. If
@@ -41,15 +43,15 @@ public class SecurityConfiguration {
 
     @Bean
     // Create interceptor for username + password auth.
-    ClientInterceptor basicAuthInterceptor() {
-        return AuthenticatingClientInterceptors.basicAuth(this.username, this.username + "Password");
+    ClientInterceptor clientCredentialsInterceptor() {
+        return callCredentialsInterceptor(basicAuthCallCredentials(this.username, this.username + "Password"));
     }
 
     @Bean
     // Register the auth interceptor globally.
     public GlobalClientInterceptorConfigurer securityInterceptorConfigurer(
-            final ClientInterceptor basicAuthInterceptor) {
-        return registry -> registry.addClientInterceptors(basicAuthInterceptor);
+            final ClientInterceptor clientCredentialsInterceptor) {
+        return registry -> registry.addClientInterceptors(clientCredentialsInterceptor);
     }
 
 }
