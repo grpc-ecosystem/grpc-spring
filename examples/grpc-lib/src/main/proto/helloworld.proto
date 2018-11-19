@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "net.devh.examples.grpc.lib";
+option java_package = "net.devh.boot.grpc.examples.lib";
 option java_outer_classname = "HelloWorldProto";
 
 // The greeting service definition.
