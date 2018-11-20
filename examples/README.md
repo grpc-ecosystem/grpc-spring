@@ -14,7 +14,7 @@
     ./gradlew :example:local-grpc-client:bootRun
     ````
 
-visit http://localhost:8080/ can see result.
+3. Visit http://localhost:8080/ to see the result.
 
 ## Cloud Mode
 
@@ -24,7 +24,7 @@ visit http://localhost:8080/ can see result.
     ./gradlew :example:cloud-eureka-server:bootRun
     ````
 
-2. run zipkin-server
+2. Run zipkin-server
 
     https://github.com/openzipkin/zipkin#quick-start
 
@@ -40,7 +40,7 @@ visit http://localhost:8080/ can see result.
     ./gradlew :example:cloud-grpc-client:bootRun
     ````
 
-visit http://localhost:8080/ can see result.
+5. Visit http://localhost:8080/ to see the result.
 
 ## With security
 
@@ -56,4 +56,6 @@ visit http://localhost:8080/ can see result.
     ./gradlew :example:security-grpc-client:bootRun
     ````
 
-visit http://localhost:8080/ can see result.
+3. Visit http://localhost:8080/ to see the result.
+
+*You can configure the client's username in the application.yml.*
