@@ -36,6 +36,7 @@ import io.grpc.Status.Code;
 import io.grpc.internal.testing.StreamRecorder;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.ManualSecurityConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
 import net.devh.boot.grpc.test.config.WithBasicAuthSecurityConfiguration;
@@ -47,8 +48,9 @@ import net.devh.boot.grpc.test.util.GrpcAssertions;
 @SpringBootTest(properties = {
         "grpc.client.test.negotiationType=PLAINTEXT",
         "grpc.client.broken.negotiationType=PLAINTEXT"})
-@SpringJUnitConfig(classes = {ServiceConfiguration.class, ManualSecurityConfiguration.class,
-        WithBasicAuthSecurityConfiguration.class})
+@SpringJUnitConfig(
+        classes = {ServiceConfiguration.class, BaseAutoConfiguration.class, ManualSecurityConfiguration.class,
+                WithBasicAuthSecurityConfiguration.class})
 @DirtiesContext
 public class ConcurrentSecurityTest {
 
@@ -68,7 +70,7 @@ public class ConcurrentSecurityTest {
     public void testSecuredCall() throws Throwable {
         final int parallelCount = 50; // Limited for automated tests, increase for in depth tests
         log.info("--- Starting tests with secured call ---");
-        List<Executable> runnables = new ArrayList<>();
+        final List<Executable> runnables = new ArrayList<>();
         for (int i = 0; i < parallelCount; i++) {
             final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
             this.testServiceStub.secure(Empty.getDefaultInstance(), streamRecorder);
@@ -81,7 +83,7 @@ public class ConcurrentSecurityTest {
                     streamRecorder.firstValue(), 15, TimeUnit.SECONDS));
         }
         Collections.shuffle(runnables);
-        for (Executable executable : runnables) {
+        for (final Executable executable : runnables) {
             executable.execute();
         }
         log.info("--- Test completed ---");

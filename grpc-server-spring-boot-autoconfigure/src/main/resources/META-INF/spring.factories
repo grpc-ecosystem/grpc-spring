@@ -2,4 +2,5 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 net.devh.boot.grpc.server.autoconfigure.GrpcMetadataConsulConfiguration,\
 net.devh.boot.grpc.server.autoconfigure.GrpcMetadataEurekaConfiguration,\
-net.devh.boot.grpc.server.autoconfigure.GrpcServerAutoConfiguration
+net.devh.boot.grpc.server.autoconfigure.GrpcServerAutoConfiguration,\
+net.devh.boot.grpc.server.autoconfigure.GrpcServerMetricAutoConfiguration

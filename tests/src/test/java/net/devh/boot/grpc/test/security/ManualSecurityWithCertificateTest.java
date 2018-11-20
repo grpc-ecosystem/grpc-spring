@@ -22,6 +22,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.ManualSecurityConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
 import net.devh.boot.grpc.test.config.WithCertificateSecurityConfiguration;
@@ -46,8 +47,9 @@ import net.devh.boot.grpc.test.config.WithCertificateSecurityConfiguration;
         "grpc.client.broken.security.certificateChainPath=src/test/resources/certificates/client2.crt",
         "grpc.client.broken.security.privateKeyPath=src/test/resources/certificates/client2.key"
 })
-@SpringJUnitConfig(classes = {ServiceConfiguration.class, ManualSecurityConfiguration.class,
-        WithCertificateSecurityConfiguration.class})
+@SpringJUnitConfig(
+        classes = {ServiceConfiguration.class, BaseAutoConfiguration.class, ManualSecurityConfiguration.class,
+                WithCertificateSecurityConfiguration.class})
 @DirtiesContext
 public class ManualSecurityWithCertificateTest extends AbstractSecurityTest {
 

@@ -22,6 +22,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
 
 /**
@@ -41,7 +42,7 @@ import net.devh.boot.grpc.test.config.ServiceConfiguration;
         "grpc.client.test.security.clientAuthEnabled=false", // <-- client auth not enabled
         "grpc.client.test.security.certificateChainPath=src/test/resources/certificates/client1.crt",
         "grpc.client.test.security.privateKeyPath=src/test/resources/certificates/client1.key"})
-@SpringJUnitConfig(classes = ServiceConfiguration.class)
+@SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
 @DirtiesContext
 public class BrokenClientSelfSignedMutualSetupTest extends AbstractBrokenServerClientTest {
 

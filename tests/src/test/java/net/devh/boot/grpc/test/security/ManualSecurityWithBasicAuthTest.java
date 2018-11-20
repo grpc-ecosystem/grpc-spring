@@ -22,6 +22,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.ManualSecurityConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
 import net.devh.boot.grpc.test.config.WithBasicAuthSecurityConfiguration;
@@ -36,8 +37,9 @@ import net.devh.boot.grpc.test.config.WithBasicAuthSecurityConfiguration;
         "grpc.client.test.negotiationType=PLAINTEXT",
         "grpc.client.bean.negotiationType=PLAINTEXT",
         "grpc.client.broken.negotiationType=PLAINTEXT"})
-@SpringJUnitConfig(classes = {ServiceConfiguration.class, ManualSecurityConfiguration.class,
-        WithBasicAuthSecurityConfiguration.class})
+@SpringJUnitConfig(
+        classes = {ServiceConfiguration.class, BaseAutoConfiguration.class, ManualSecurityConfiguration.class,
+                WithBasicAuthSecurityConfiguration.class})
 @DirtiesContext
 public class ManualSecurityWithBasicAuthTest extends AbstractSecurityWithBasicAuthTest {
 
