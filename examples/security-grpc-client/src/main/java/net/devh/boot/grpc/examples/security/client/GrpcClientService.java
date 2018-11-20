@@ -26,7 +26,7 @@ import net.devh.boot.grpc.examples.lib.HelloRequest;
 import net.devh.boot.grpc.examples.lib.SimpleGrpc.SimpleBlockingStub;
 
 /**
- * A dummy grpc client service that will call the
+ * A dummy grpc client service that will call the secured grpc service.
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
@@ -36,6 +36,12 @@ public class GrpcClientService {
     @GrpcClient("security-grpc-server")
     private SimpleBlockingStub simpleStub;
 
+    /**
+     * Send a message to the secured grpc service.
+     *
+     * @param name The name of the caller.
+     * @return The response from the server or an failure message.
+     */
     public String sendMessage(final String name) {
         try {
             final HelloReply response = this.simpleStub.sayHello(HelloRequest.newBuilder().setName(name).build());
