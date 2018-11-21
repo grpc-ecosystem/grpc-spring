@@ -15,7 +15,7 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.examples.cloud.server;
+package net.devh.boot.grpc.examples.security.server;
 
 import java.util.ArrayList;
 import java.util.Arrays;

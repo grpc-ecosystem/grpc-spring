@@ -15,21 +15,31 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.examples.cloud.server;
+package net.devh.boot.grpc.examples.security.server;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.security.access.annotation.Secured;
+
+import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.examples.lib.HelloReply;
+import net.devh.boot.grpc.examples.lib.HelloRequest;
+import net.devh.boot.grpc.examples.lib.SimpleGrpc;
+import net.devh.boot.grpc.server.service.GrpcService;
 
 /**
- * An example server application that demonstrates basic auth security.
+ * An example service that checks the user's authentication.
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-@SpringBootApplication
-public class SecurityGrpcServerApplication {
+@GrpcService
+public class GrpcServerService extends SimpleGrpc.SimpleImplBase {
 
-    public static void main(final String[] args) {
-        SpringApplication.run(SecurityGrpcServerApplication.class, args);
+    // A grpc method that requests the user to be authenticated and have the role "ROLE_GREET".
+    @Override
+    @Secured("ROLE_GREET")
+    public void sayHello(final HelloRequest req, final StreamObserver<HelloReply> responseObserver) {
+        final HelloReply reply = HelloReply.newBuilder().setMessage("Hello ==> " + req.getName()).build();
+        responseObserver.onNext(reply);
+        responseObserver.onCompleted();
     }
 
 }
