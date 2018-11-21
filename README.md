@@ -35,6 +35,26 @@ The latest version: ``1.4.1.RELEASE``
 
 ## Usage
 
+### gRPC server + client
+
+To add a dependency using Maven, use the following:
+
+````xml
+<dependency>
+  <groupId>net.devh</groupId>
+  <artifactId>grpc-spring-boot-starter</artifactId>
+  <version>2.1.0.RELEASE</version>
+</dependency>
+````
+
+To add a dependency using Gradle:
+
+````gradle
+dependencies {
+  compile 'net.devh:grpc-spring-boot-starter:2.1.0.RELEASE'
+}
+````
+
 ### gRPC server
 
 To add a dependency using Maven, use the following:
@@ -300,6 +320,10 @@ There are multiple ways for the client to authenticate itself. Currently only th
   grpc.client.test.security.certificateChainPath=certificates/client.crt
   grpc.client.test.security.privateKeyPath=certificates/client.key
   ````
+
+## Example-Projects
+
+Read more about our example projects [here](examples).
 
 ## Troubleshooting
 
