@@ -68,7 +68,7 @@ public class ConcurrentSecurityTest {
     @Test
     @DirtiesContext
     public void testSecuredCall() throws Throwable {
-        final int parallelCount = 50; // Limited for automated tests, increase for in depth tests
+        final int parallelCount = 10; // Limited for automated tests, increase for in depth tests
         log.info("--- Starting tests with secured call ---");
         final List<Executable> runnables = new ArrayList<>();
         for (int i = 0; i < parallelCount; i++) {
