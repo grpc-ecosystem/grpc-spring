@@ -21,6 +21,8 @@ application
 
 * Spring-Security support
 
+* Automatic metric support (micrometer/actuator based)
+
 ## Versions
 
 2.x.x.RELEASE support Spring Boot 2 & Spring Cloud Finchley.
