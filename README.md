@@ -13,15 +13,15 @@ application
 
 * Automatically creates and manages your grpc channels and stubs with `@GrpcClient`
 
-* Supports Spring Cloud (register services to Consul or Eureka and fetch gRPC server information)
+* Supports [Spring Cloud](https://spring.io/projects/spring-cloud) (register services to [Consul](https://github.com/spring-cloud/spring-cloud-consul) or [Eureka](https://github.com/spring-cloud/spring-cloud-netflix) and fetch gRPC server information)
 
-* Supports Spring Sleuth to trace application
+* Supports [Spring Sleuth](https://github.com/spring-cloud/spring-cloud-sleuth) to trace application
 
 * Supports global and custom gRPC server/client interceptors
 
-* Spring-Security support
+* [Spring-Security](https://github.com/spring-projects/spring-security) support
 
-* Automatic metric support (micrometer/actuator based)
+* Automatic metric support ([micrometer](https://micrometer.io/)/[actuator](https://github.com/spring-projects/spring-boot/tree/master/spring-boot-project/spring-boot-actuator) based)
 
 ## Versions
 
