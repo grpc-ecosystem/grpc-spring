@@ -17,6 +17,7 @@
 
 package net.devh.boot.grpc.client.channelfactory;
 
+import java.util.Collections;
 import java.util.List;
 
 import io.grpc.Channel;
@@ -43,7 +44,9 @@ public interface GrpcChannelFactory extends AutoCloseable {
      * @param name The name of the service.
      * @return The newly created channel for the given service.
      */
-    Channel createChannel(String name);
+    default Channel createChannel(final String name) {
+        return createChannel(name, Collections.emptyList());
+    }
 
     /**
      * Creates a new channel for the given service name. The returned channel will use all globally registered

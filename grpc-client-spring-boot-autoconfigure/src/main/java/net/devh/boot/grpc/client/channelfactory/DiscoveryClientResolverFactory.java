@@ -18,6 +18,7 @@
 package net.devh.boot.grpc.client.channelfactory;
 
 import java.net.URI;
+import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
@@ -30,27 +31,28 @@ import io.grpc.internal.GrpcUtil;
 
 /**
  * A name resolver factory that will create an {@link DiscoveryClientNameResolver} based on the target uri.
- * 
+ *
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
 public class DiscoveryClientResolverFactory extends NameResolverProvider {
 
     private final DiscoveryClient client;
-    private DiscoveryClientChannelFactory discoveryClientChannelFactory;
+    private final Consumer<DiscoveryClientNameResolver> nameResolverManager;
 
-    public DiscoveryClientResolverFactory(DiscoveryClient client,
-            DiscoveryClientChannelFactory discoveryClientChannelFactory) {
+    public DiscoveryClientResolverFactory(final DiscoveryClient client,
+            final Consumer<DiscoveryClientNameResolver> nameResolverManager) {
         this.client = client;
-        this.discoveryClientChannelFactory = discoveryClientChannelFactory;
+        this.nameResolverManager = nameResolverManager;
     }
 
     @Nullable
     @Override
-    public NameResolver newNameResolver(URI targetUri, Attributes params) {
-        DiscoveryClientNameResolver discoveryClientNameResolver = new DiscoveryClientNameResolver(targetUri.toString(),
-                client, params, GrpcUtil.TIMER_SERVICE, GrpcUtil.SHARED_CHANNEL_EXECUTOR);
-        discoveryClientChannelFactory.addDiscoveryClientNameResolver(discoveryClientNameResolver);
+    public NameResolver newNameResolver(final URI targetUri, final Attributes params) {
+        final DiscoveryClientNameResolver discoveryClientNameResolver =
+                new DiscoveryClientNameResolver(targetUri.toString(),
+                        this.client, params, GrpcUtil.TIMER_SERVICE, GrpcUtil.SHARED_CHANNEL_EXECUTOR);
+        this.nameResolverManager.accept(discoveryClientNameResolver);
         return discoveryClientNameResolver;
     }
 

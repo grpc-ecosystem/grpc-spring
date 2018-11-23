@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -40,6 +41,8 @@ import io.grpc.LoadBalancer.Factory;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.channelfactory.AddressChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
+import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
+import net.devh.boot.grpc.client.channelfactory.ShadedAddressChannelFactory;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 import net.devh.boot.grpc.client.security.AuthenticatingClientInterceptors;
@@ -101,7 +104,40 @@ public class WithBasicAuthSecurityConfiguration {
     }
 
     @Bean
-    AddressChannelFactory addressChannelFactory(final GrpcChannelsProperties properties,
+    @ConditionalOnClass(name = {"io.grpc.netty.shaded.io.netty.channel.Channel",
+            "io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder"})
+    GrpcChannelFactory shadedAddressChannelFactory(final GrpcChannelsProperties properties,
+            final Factory loadBalancerFactory, final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
+            final List<GrpcChannelConfigurer> channelConfigurers) {
+        return new ShadedAddressChannelFactory(properties, loadBalancerFactory, globalClientInterceptorRegistry,
+                channelConfigurers) {
+
+            @Override
+            public Channel createChannel(final String name, List<ClientInterceptor> interceptors) {
+                if ("bean".equals(name)) {
+                    // We use the GrpcClient#interceptorNames() here.
+                    return super.createChannel(name, interceptors);
+                }
+                interceptors = new ArrayList<>(interceptors);
+                // Fake per client authentication
+                String username;
+                if ("test".equals(name)) {
+                    username = "client1";
+                } else if ("broken".equals(name)) {
+                    username = "client2";
+                } else {
+                    throw new IllegalArgumentException("Unknown username");
+                }
+                interceptors.add(AuthenticatingClientInterceptors.basicAuth(username, username));
+                return super.createChannel(name, interceptors);
+            }
+
+        };
+    }
+
+    @Bean
+    @ConditionalOnClass(name = {"io.netty.channel.Channel", "io.grpc.netty.NettyChannelBuilder"})
+    GrpcChannelFactory addressChannelFactory(final GrpcChannelsProperties properties,
             final Factory loadBalancerFactory, final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
         return new AddressChannelFactory(properties, loadBalancerFactory, globalClientInterceptorRegistry,

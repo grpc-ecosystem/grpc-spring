@@ -22,10 +22,10 @@ import java.util.List;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -37,9 +37,9 @@ import io.grpc.DecompressorRegistry;
 import io.grpc.LoadBalancer;
 import io.grpc.util.RoundRobinLoadBalancerFactory;
 import net.devh.boot.grpc.client.channelfactory.AddressChannelFactory;
-import net.devh.boot.grpc.client.channelfactory.DiscoveryClientChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
+import net.devh.boot.grpc.client.channelfactory.ShadedAddressChannelFactory;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 import net.devh.boot.grpc.client.inject.GrpcClientBeanPostProcessor;
 import net.devh.boot.grpc.client.interceptor.AnnotationGlobalClientInterceptorConfigurer;
@@ -107,8 +107,53 @@ public class GrpcClientAutoConfiguration {
         return Collections.emptyList();
     }
 
-    @ConditionalOnMissingBean(value = GrpcChannelFactory.class,
-            type = "org.springframework.cloud.client.discovery.DiscoveryClient")
+    // First try the shaded netty channel factory with a discovery client
+    // @ConditionalOnMissingBean
+    // @ConditionalOnBean(name = "org.springframework.cloud.client.discovery.DiscoveryClient")
+    // @ConditionalOnClass(name = {"io.grpc.netty.shaded.io.netty.channel.Channel",
+    // "io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder"})
+    // @Bean
+    // public GrpcChannelFactory shadedDiscoveryClientChannelFactory(
+    // final GrpcChannelsProperties channels,
+    // final LoadBalancer.Factory loadBalancerFactory,
+    // final DiscoveryClient discoveryClient,
+    // final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
+    // final List<GrpcChannelConfigurer> channelConfigurers) {
+    // return new ShadedDiscoveryClientChannelFactory(channels, loadBalancerFactory, discoveryClient,
+    // globalClientInterceptorRegistry, channelConfigurers);
+    // }
+    //
+    // // Then try the normal netty channel factory with a discovery client
+    // @ConditionalOnMissingBean
+    // @ConditionalOnBean(name = "org.springframework.cloud.client.discovery.DiscoveryClient")
+    // @ConditionalOnClass(name = {"io.netty.channel.Channel", "io.grpc.netty.NettyChannelBuilder"})
+    // @Bean
+    // public GrpcChannelFactory discoveryClientChannelFactory(
+    // final GrpcChannelsProperties channels,
+    // final LoadBalancer.Factory loadBalancerFactory,
+    // final DiscoveryClient discoveryClient,
+    // final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
+    // final List<GrpcChannelConfigurer> channelConfigurers) {
+    // return new DiscoveryClientChannelFactory(channels, loadBalancerFactory, discoveryClient,
+    // globalClientInterceptorRegistry, channelConfigurers);
+    // }
+
+    // Then try the shaded netty channel factory without a discovery client
+    @ConditionalOnMissingBean(GrpcChannelFactory.class)
+    @ConditionalOnClass(name = {"io.grpc.netty.shaded.io.netty.channel.Channel",
+            "io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder"})
+    @Bean
+    public GrpcChannelFactory shadedAddressGrpcChannelFactory(final GrpcChannelsProperties properties,
+            final LoadBalancer.Factory loadBalancerFactory,
+            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
+            final List<GrpcChannelConfigurer> channelConfigurers) {
+        return new ShadedAddressChannelFactory(properties, loadBalancerFactory, globalClientInterceptorRegistry,
+                channelConfigurers);
+    }
+
+    // Finally try the normal netty channel factory without a discovery client
+    @ConditionalOnMissingBean(GrpcChannelFactory.class)
+    @ConditionalOnClass(name = {"io.netty.channel.Channel", "io.grpc.netty.NettyChannelBuilder"})
     @Bean
     public GrpcChannelFactory addressGrpcChannelFactory(final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory,
@@ -116,23 +161,6 @@ public class GrpcClientAutoConfiguration {
             final List<GrpcChannelConfigurer> channelConfigurers) {
         return new AddressChannelFactory(properties, loadBalancerFactory, globalClientInterceptorRegistry,
                 channelConfigurers);
-    }
-
-    @Configuration
-    @ConditionalOnBean(DiscoveryClient.class)
-    protected static class DiscoveryGrpcClientAutoConfiguration {
-
-        @ConditionalOnMissingBean
-        @Bean
-        public GrpcChannelFactory discoveryClientChannelFactory(
-                final GrpcChannelsProperties channels,
-                final LoadBalancer.Factory loadBalancerFactory,
-                final DiscoveryClient discoveryClient,
-                final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
-                final List<GrpcChannelConfigurer> channelConfigurers) {
-            return new DiscoveryClientChannelFactory(channels, loadBalancerFactory, discoveryClient,
-                    globalClientInterceptorRegistry, channelConfigurers);
-        }
     }
 
     @Configuration

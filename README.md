@@ -329,6 +329,11 @@ Read more about our example projects [here](examples).
 
 ## Troubleshooting
 
+Before you begin to dive into the details, make sure that the grpc and netty library versions are compatible with each other.
+This library brings all necessary dependencies for grpc and netty to work together.
+In some cases, however, you may need additional libraries such as tcnative or have other dependencies that require a different version of netty, which may cause conflicts.
+[grpc-java](https://github.com/grpc/grpc-java) has a [table](https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty) which shows compatible version combinations. As an alternative, you can replace the netty libraries with `grpc-netty-shaded`.
+
 ### Issues with SSL in general
 
 * `java.lang.IllegalStateException: Failed to load ApplicationContext`
@@ -339,11 +344,15 @@ or
 
 * `AbstractMethodError: io.netty.internal.tcnative.SSL.readFromSSL()`
 
+or
+
+* `javax.net.ssl.SSLHandshakeException: General OpenSslEngine problem`
+
 You don't have the (correct) library or version of `netty-tcnative...` in your classpath.
 
-(There is a breaking change between netty 4.1.24.Final -> 4.1.27.Final and netty-tcnative 2.0.8.Final -> 2.0.12.Final)
+(There is a breaking change between netty 4.1.24.Final -> 4.1.27.Final and netty-tcnative 2.0.8.Final -> 2.0.12.Final and also elsewhere)
 
-See also [grpc-java: Security](https://github.com/grpc/grpc-java/blob/master/SECURITY.md).
+See also [grpc-java: Security](https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty).
 
 ### Issues with SSL during tests
 

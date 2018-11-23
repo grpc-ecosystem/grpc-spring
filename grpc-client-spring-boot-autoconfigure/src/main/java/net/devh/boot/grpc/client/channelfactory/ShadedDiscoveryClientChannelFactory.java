@@ -39,13 +39,13 @@ import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
-public class DiscoveryClientChannelFactory extends AbstractNettyChannelFactory {
+public class ShadedDiscoveryClientChannelFactory extends AbstractShadedNettyChannelFactory {
 
     private final HeartbeatMonitor monitor = new HeartbeatMonitor();
     private final List<DiscoveryClientNameResolver> discoveryClientNameResolvers = Lists.newArrayList();
 
     /**
-     * Creates a new DiscoveryClientChannelFactory that will use the discovery client to resolve the grpc server
+     * Creates a new ShadedDiscoveryClientChannelFactory that will use the discovery client to resolve the grpc server
      * address.
      *
      * @param properties The properties for the channels to create.
@@ -54,11 +54,11 @@ public class DiscoveryClientChannelFactory extends AbstractNettyChannelFactory {
      * @param globalClientInterceptorRegistry The interceptor registry to use.
      * @param channelConfigurers The channel configurers to use. Can be empty.
      */
-    public DiscoveryClientChannelFactory(final GrpcChannelsProperties properties,
+    public ShadedDiscoveryClientChannelFactory(final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory, final DiscoveryClient client,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
-        <DiscoveryClientChannelFactory>super(properties, loadBalancerFactory,
+        <ShadedDiscoveryClientChannelFactory>super(properties, loadBalancerFactory,
                 thiz -> new DiscoveryClientResolverFactory(client, thiz::addDiscoveryClientNameResolver),
                 globalClientInterceptorRegistry, channelConfigurers);
     }

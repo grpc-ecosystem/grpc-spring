@@ -24,6 +24,7 @@ compileTestJava.dependsOn(processTestResources)
 
 dependencies {
     compile "io.grpc:grpc-netty:${grpcVersion}"
+    // compile "io.grpc:grpc-netty-shaded:${grpcVersion}"
     compile "io.grpc:grpc-protobuf:${grpcVersion}"
     compile "io.grpc:grpc-stub:${grpcVersion}"
 }
@@ -64,8 +65,8 @@ buildscript {
 }
 
 dependencies {
-    compile project(':grpc-server-spring-boot-starter')
-    compile project(':grpc-client-spring-boot-starter')
+    compile project(':grpc-server-spring-boot-starter') // exclude group: 'io.grpc', module: 'grpc-netty' 
+    compile project(':grpc-client-spring-boot-starter') // exclude group: 'io.grpc', module: 'grpc-netty'
     testImplementation(
         "io.grpc:grpc-testing:${grpcVersion}",
         "org.springframework.boot:spring-boot-starter-test:${springBootVersion}",

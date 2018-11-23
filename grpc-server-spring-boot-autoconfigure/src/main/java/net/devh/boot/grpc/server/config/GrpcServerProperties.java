@@ -21,7 +21,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.SocketUtils;
 
 import io.grpc.internal.GrpcUtil;
-import io.netty.handler.ssl.ClientAuth;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 

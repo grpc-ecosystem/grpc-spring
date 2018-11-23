@@ -35,9 +35,7 @@ import brave.grpc.GrpcTracing;
 import io.grpc.CompressorRegistry;
 import io.grpc.DecompressorRegistry;
 import io.grpc.Server;
-import io.grpc.netty.NettyServerBuilder;
 import io.grpc.services.HealthStatusManager;
-import io.netty.channel.Channel;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonTraceAutoConfiguration;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
@@ -49,6 +47,7 @@ import net.devh.boot.grpc.server.serverfactory.GrpcServerConfigurer;
 import net.devh.boot.grpc.server.serverfactory.GrpcServerFactory;
 import net.devh.boot.grpc.server.serverfactory.GrpcServerLifecycle;
 import net.devh.boot.grpc.server.serverfactory.NettyGrpcServerFactory;
+import net.devh.boot.grpc.server.serverfactory.ShadedNettyGrpcServerFactory;
 import net.devh.boot.grpc.server.service.AnnotationGrpcServiceDiscoverer;
 import net.devh.boot.grpc.server.service.GrpcServiceDefinition;
 import net.devh.boot.grpc.server.service.GrpcServiceDiscoverer;
@@ -112,12 +111,27 @@ public class GrpcServerAutoConfiguration {
         return Collections.emptyList();
     }
 
+    // First try the shaded netty server
     @ConditionalOnMissingBean
-    @ConditionalOnClass({Channel.class, NettyServerBuilder.class})
+    @ConditionalOnClass(name = {"io.grpc.netty.shaded.io.netty.channel.Channel",
+            "io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder"})
+    @Bean
+    public GrpcServerFactory shadedNettyGrpcServerFactory(final GrpcServerProperties properties,
+            final GrpcServiceDiscoverer serviceDiscoverer, final List<GrpcServerConfigurer> serverConfigurers) {
+        final GrpcServerFactory factory = new ShadedNettyGrpcServerFactory(properties, serverConfigurers);
+        for (final GrpcServiceDefinition service : serviceDiscoverer.findGrpcServices()) {
+            factory.addService(service);
+        }
+        return factory;
+    }
+
+    // Then try the normal netty server
+    @ConditionalOnMissingBean
+    @ConditionalOnClass(name = {"io.netty.channel.Channel", "io.grpc.netty.NettyServerBuilder"})
     @Bean
     public GrpcServerFactory nettyGrpcServerFactory(final GrpcServerProperties properties,
             final GrpcServiceDiscoverer serviceDiscoverer, final List<GrpcServerConfigurer> serverConfigurers) {
-        final NettyGrpcServerFactory factory = new NettyGrpcServerFactory(properties, serverConfigurers);
+        final GrpcServerFactory factory = new NettyGrpcServerFactory(properties, serverConfigurers);
         for (final GrpcServiceDefinition service : serviceDiscoverer.findGrpcServices()) {
             factory.addService(service);
         }

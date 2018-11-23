@@ -27,9 +27,9 @@ import javax.net.ssl.SSLException;
 
 import io.grpc.LoadBalancer;
 import io.grpc.NameResolver;
-import io.grpc.netty.GrpcSslContexts;
-import io.grpc.netty.NettyChannelBuilder;
-import io.netty.handler.ssl.SslContextBuilder;
+import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
+import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
@@ -44,7 +44,7 @@ import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  * @since 5/17/16
  */
-public abstract class AbstractNettyChannelFactory extends AbstractChannelFactory<NettyChannelBuilder> {
+public abstract class AbstractShadedNettyChannelFactory extends AbstractChannelFactory<NettyChannelBuilder> {
 
     private final LoadBalancer.Factory loadBalancerFactory;
     private final NameResolver.Factory nameResolverFactory;
@@ -58,7 +58,7 @@ public abstract class AbstractNettyChannelFactory extends AbstractChannelFactory
      * @param globalClientInterceptorRegistry The interceptor registry to use.
      * @param channelConfigurers The channel configurers to use. Can be empty.
      */
-    public AbstractNettyChannelFactory(final GrpcChannelsProperties properties,
+    public AbstractShadedNettyChannelFactory(final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory,
             final NameResolver.Factory nameResolverFactory,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
@@ -79,7 +79,8 @@ public abstract class AbstractNettyChannelFactory extends AbstractChannelFactory
      * @param channelConfigurers The channel configurers to use. Can be empty.
      */
     @SuppressWarnings("unchecked")
-    public <T extends AbstractNettyChannelFactory> AbstractNettyChannelFactory(final GrpcChannelsProperties properties,
+    public <T extends AbstractShadedNettyChannelFactory> AbstractShadedNettyChannelFactory(
+            final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory,
             final Function<T, NameResolver.Factory> nameResolverFactoryCreator,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
@@ -139,14 +140,14 @@ public abstract class AbstractNettyChannelFactory extends AbstractChannelFactory
      * @param negotiationType The negotiation type to convert.
      * @return The converted negotiation type.
      */
-    protected static io.grpc.netty.NegotiationType of(final NegotiationType negotiationType) {
+    protected static io.grpc.netty.shaded.io.grpc.netty.NegotiationType of(final NegotiationType negotiationType) {
         switch (negotiationType) {
             case PLAINTEXT:
-                return io.grpc.netty.NegotiationType.PLAINTEXT;
+                return io.grpc.netty.shaded.io.grpc.netty.NegotiationType.PLAINTEXT;
             case PLAINTEXT_UPGRADE:
-                return io.grpc.netty.NegotiationType.PLAINTEXT_UPGRADE;
+                return io.grpc.netty.shaded.io.grpc.netty.NegotiationType.PLAINTEXT_UPGRADE;
             case TLS:
-                return io.grpc.netty.NegotiationType.TLS;
+                return io.grpc.netty.shaded.io.grpc.netty.NegotiationType.TLS;
             default:
                 throw new IllegalArgumentException("Unsupported NegotiationType: " + negotiationType);
         }
