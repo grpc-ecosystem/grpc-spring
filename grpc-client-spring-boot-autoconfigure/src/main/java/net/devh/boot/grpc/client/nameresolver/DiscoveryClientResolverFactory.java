@@ -15,14 +15,19 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.client.channelfactory;
+package net.devh.boot.grpc.client.nameresolver;
 
 import java.net.URI;
-import java.util.function.Consumer;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.annotation.Nullable;
+import javax.annotation.PreDestroy;
 
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
+import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
+import org.springframework.context.event.EventListener;
 
 import io.grpc.Attributes;
 import io.grpc.NameResolver;
@@ -37,22 +42,22 @@ import io.grpc.internal.GrpcUtil;
  */
 public class DiscoveryClientResolverFactory extends NameResolverProvider {
 
-    private final DiscoveryClient client;
-    private final Consumer<DiscoveryClientNameResolver> nameResolverManager;
+    private final Collection<DiscoveryClientNameResolver> discoveryClientNameResolvers = new ArrayList<>();
+    private final HeartbeatMonitor monitor = new HeartbeatMonitor();
 
-    public DiscoveryClientResolverFactory(final DiscoveryClient client,
-            final Consumer<DiscoveryClientNameResolver> nameResolverManager) {
+    private final DiscoveryClient client;
+
+    public DiscoveryClientResolverFactory(final DiscoveryClient client) {
         this.client = client;
-        this.nameResolverManager = nameResolverManager;
     }
 
     @Nullable
     @Override
     public NameResolver newNameResolver(final URI targetUri, final Attributes params) {
         final DiscoveryClientNameResolver discoveryClientNameResolver =
-                new DiscoveryClientNameResolver(targetUri.toString(),
-                        this.client, params, GrpcUtil.TIMER_SERVICE, GrpcUtil.SHARED_CHANNEL_EXECUTOR);
-        this.nameResolverManager.accept(discoveryClientNameResolver);
+                new DiscoveryClientNameResolver(targetUri.toString(), this.client, GrpcUtil.TIMER_SERVICE,
+                        GrpcUtil.SHARED_CHANNEL_EXECUTOR);
+        this.discoveryClientNameResolvers.add(discoveryClientNameResolver);
         return discoveryClientNameResolver;
     }
 
@@ -69,6 +74,28 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
     @Override
     protected int priority() {
         return 5;
+    }
+
+    /**
+     * Triggers a refresh of the registered name resolvers.
+     *
+     * @param event The event that triggered the update.
+     */
+    @EventListener(HeartbeatEvent.class)
+    public void heartbeat(final HeartbeatEvent event) {
+        if (this.monitor.update(event.getValue())) {
+            for (final DiscoveryClientNameResolver discoveryClientNameResolver : this.discoveryClientNameResolvers) {
+                discoveryClientNameResolver.refresh();
+            }
+        }
+    }
+
+    /**
+     * Cleans up the name resolvers.
+     */
+    @PreDestroy
+    public void destroy() {
+        this.discoveryClientNameResolvers.clear();
     }
 
 }

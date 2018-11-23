@@ -21,7 +21,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.File;
 import java.util.List;
-import java.util.function.Function;
 
 import javax.net.ssl.SSLException;
 
@@ -37,14 +36,12 @@ import net.devh.boot.grpc.client.config.NegotiationType;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 
 /**
- * This abstract channel factory contains some shared code for other netty based {@link GrpcChannelFactory}s. This class
- * utilizes connection pooling and thus needs to be {@link #close() closed} after usage.
+ * This channel factory creates and managed shaded netty based {@link GrpcChannelFactory}s. This class utilizes
+ * connection pooling and thus needs to be {@link #close() closed} after usage.
  *
- * @author Michael (yidongnan@gmail.com)
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
- * @since 5/17/16
  */
-public abstract class AbstractShadedNettyChannelFactory extends AbstractChannelFactory<NettyChannelBuilder> {
+public class ShadedNettyChannelFactory extends AbstractChannelFactory<NettyChannelBuilder> {
 
     private final LoadBalancer.Factory loadBalancerFactory;
     private final NameResolver.Factory nameResolverFactory;
@@ -58,7 +55,7 @@ public abstract class AbstractShadedNettyChannelFactory extends AbstractChannelF
      * @param globalClientInterceptorRegistry The interceptor registry to use.
      * @param channelConfigurers The channel configurers to use. Can be empty.
      */
-    public AbstractShadedNettyChannelFactory(final GrpcChannelsProperties properties,
+    public ShadedNettyChannelFactory(final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory,
             final NameResolver.Factory nameResolverFactory,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
@@ -66,28 +63,6 @@ public abstract class AbstractShadedNettyChannelFactory extends AbstractChannelF
         super(properties, globalClientInterceptorRegistry, channelConfigurers);
         this.loadBalancerFactory = requireNonNull(loadBalancerFactory, "loadBalancerFactory");
         this.nameResolverFactory = requireNonNull(nameResolverFactory, "nameResolverFactory");
-    }
-
-    /**
-     * Creates a new AbstractNettyChannelFactory with partially lazy initialized references.
-     *
-     * @param <T> The type of the actual factory class or one of its super classes.
-     * @param properties The properties for the channels to create.
-     * @param loadBalancerFactory The load balancer factory to use.
-     * @param nameResolverFactoryCreator The function that creates the name resolver factory.
-     * @param globalClientInterceptorRegistry The interceptor registry to use.
-     * @param channelConfigurers The channel configurers to use. Can be empty.
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends AbstractShadedNettyChannelFactory> AbstractShadedNettyChannelFactory(
-            final GrpcChannelsProperties properties,
-            final LoadBalancer.Factory loadBalancerFactory,
-            final Function<T, NameResolver.Factory> nameResolverFactoryCreator,
-            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
-            final List<GrpcChannelConfigurer> channelConfigurers) {
-        super(properties, globalClientInterceptorRegistry, channelConfigurers);
-        this.loadBalancerFactory = loadBalancerFactory;
-        this.nameResolverFactory = nameResolverFactoryCreator.apply((T) this);
     }
 
     @Override

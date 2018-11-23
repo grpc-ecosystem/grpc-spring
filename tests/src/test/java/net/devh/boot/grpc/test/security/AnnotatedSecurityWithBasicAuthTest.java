@@ -33,10 +33,7 @@ import net.devh.boot.grpc.test.config.WithBasicAuthSecurityConfiguration;
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @Slf4j
-@SpringBootTest(properties = {
-        "grpc.client.test.negotiationType=PLAINTEXT",
-        "grpc.client.bean.negotiationType=PLAINTEXT",
-        "grpc.client.broken.negotiationType=PLAINTEXT"})
+@SpringBootTest
 @SpringJUnitConfig(
         classes = {ServiceConfiguration.class, BaseAutoConfiguration.class, AnnotatedSecurityConfiguration.class,
                 WithBasicAuthSecurityConfiguration.class})

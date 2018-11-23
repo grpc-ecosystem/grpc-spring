@@ -45,9 +45,7 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceStub;
 import net.devh.boot.grpc.test.util.GrpcAssertions;
 
 @Slf4j
-@SpringBootTest(properties = {
-        "grpc.client.test.negotiationType=PLAINTEXT",
-        "grpc.client.broken.negotiationType=PLAINTEXT"})
+@SpringBootTest
 @SpringJUnitConfig(
         classes = {ServiceConfiguration.class, BaseAutoConfiguration.class, ManualSecurityConfiguration.class,
                 WithBasicAuthSecurityConfiguration.class})

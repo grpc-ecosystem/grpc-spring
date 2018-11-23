@@ -44,7 +44,7 @@ import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  * @since 5/17/16
  */
-public abstract class AbstractNettyChannelFactory extends AbstractChannelFactory<NettyChannelBuilder> {
+public class NettyChannelFactory extends AbstractChannelFactory<NettyChannelBuilder> {
 
     private final LoadBalancer.Factory loadBalancerFactory;
     private final NameResolver.Factory nameResolverFactory;
@@ -58,7 +58,7 @@ public abstract class AbstractNettyChannelFactory extends AbstractChannelFactory
      * @param globalClientInterceptorRegistry The interceptor registry to use.
      * @param channelConfigurers The channel configurers to use. Can be empty.
      */
-    public AbstractNettyChannelFactory(final GrpcChannelsProperties properties,
+    public NettyChannelFactory(final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory,
             final NameResolver.Factory nameResolverFactory,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
@@ -79,7 +79,7 @@ public abstract class AbstractNettyChannelFactory extends AbstractChannelFactory
      * @param channelConfigurers The channel configurers to use. Can be empty.
      */
     @SuppressWarnings("unchecked")
-    public <T extends AbstractNettyChannelFactory> AbstractNettyChannelFactory(final GrpcChannelsProperties properties,
+    public <T extends NettyChannelFactory> NettyChannelFactory(final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory,
             final Function<T, NameResolver.Factory> nameResolverFactoryCreator,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
