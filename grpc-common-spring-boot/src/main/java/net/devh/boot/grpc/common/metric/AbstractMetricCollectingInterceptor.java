@@ -26,24 +26,21 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.grpc.MethodDescriptor;
 import io.grpc.ServiceDescriptor;
 import io.grpc.Status.Code;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * An abstract gRPC interceptor that will collect metrics for micrometer.
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
+@Slf4j
 public abstract class AbstractMetricCollectingInterceptor {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractMetricCollectingInterceptor.class);
 
     private final Map<MethodDescriptor<?, ?>, MetricSet> metricsForMethods = new ConcurrentHashMap<>();
 
@@ -123,7 +120,7 @@ public abstract class AbstractMetricCollectingInterceptor {
      * @return The newly created metric set for the given method.
      */
     protected MetricSet newMetricsFor(final MethodDescriptor<?, ?> method) {
-        LOGGER.debug("Creating new metrics for {}", method.getFullMethodName());
+        log.debug("Creating new metrics for {}", method.getFullMethodName());
         return new MetricSet(newRequestCounterFor(method), newResponseCounterFor(method), newTimerFunction(method));
     }
 
