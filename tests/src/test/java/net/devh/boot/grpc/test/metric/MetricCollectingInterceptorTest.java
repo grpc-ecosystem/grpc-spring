@@ -106,12 +106,12 @@ public class MetricCollectingInterceptorTest {
         for (final Meter meter : this.meterRegistry.find(METRIC_NAME_SERVER_REQUESTS_RECEIVED).counters()) {
             log.debug("Found meter: {}", meter.getId());
         }
-        final Counter requestsReveivedCounter = this.meterRegistry
+        final Counter requestsReceivedCounter = this.meterRegistry
                 .find(METRIC_NAME_SERVER_REQUESTS_RECEIVED)
                 .tag(TAG_METHOD_NAME, "normal")
                 .counter();
-        assertNotNull(requestsReveivedCounter);
-        assertEquals(1, requestsReveivedCounter.count());
+        assertNotNull(requestsReceivedCounter);
+        assertEquals(1, requestsReceivedCounter.count());
 
         final Counter responsesSentCounter = this.meterRegistry
                 .find(METRIC_NAME_SERVER_RESPONSES_SENT)
@@ -143,7 +143,7 @@ public class MetricCollectingInterceptorTest {
         assertTrue(clientTimer.max(TimeUnit.SECONDS) < 1);
 
         // Test-Server 2
-        assertEquals(2, requestsReveivedCounter.count());
+        assertEquals(2, requestsReceivedCounter.count());
         assertEquals(2, responsesSentCounter.count());
         assertEquals(2, serverTimer.count());
         assertTrue(serverTimer.max(TimeUnit.SECONDS) < 1);
@@ -189,12 +189,12 @@ public class MetricCollectingInterceptorTest {
         assertTrue(clientTimer.max(TimeUnit.SECONDS) < 1);
 
         // Test-Server
-        final Counter requestsReveivedCounter = this.meterRegistry
+        final Counter requestsReceivedCounter = this.meterRegistry
                 .find(METRIC_NAME_SERVER_REQUESTS_RECEIVED)
                 .tag(MetricConstants.TAG_METHOD_NAME, "unimplemented")
                 .counter();
-        assertNotNull(requestsReveivedCounter);
-        assertEquals(1, requestsReveivedCounter.count());
+        assertNotNull(requestsReceivedCounter);
+        assertEquals(1, requestsReceivedCounter.count());
 
         final Counter responsesSentCounter = this.meterRegistry
                 .find(METRIC_NAME_SERVER_RESPONSES_SENT)

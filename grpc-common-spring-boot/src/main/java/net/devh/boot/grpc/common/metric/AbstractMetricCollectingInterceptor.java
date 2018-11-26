@@ -32,6 +32,7 @@ import io.grpc.Status.Code;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -170,6 +171,7 @@ public abstract class AbstractMetricCollectingInterceptor {
     /**
      * Container for all metrics of a certain call. Used instead of 3 maps to improve performance.
      */
+    @Getter
     protected static class MetricSet {
 
         private final Counter requestCounter;
@@ -188,34 +190,6 @@ public abstract class AbstractMetricCollectingInterceptor {
             this.requestCounter = requestCounter;
             this.responseCounter = responseCounter;
             this.timerFunction = timerFunction;
-        }
-
-        /**
-         * Gets the request {@link Counter} for the method related to this instance.
-         *
-         * @return The request counter.
-         */
-        public final Counter getRequestCounter() {
-            return this.requestCounter;
-        }
-
-        /**
-         * Gets the response {@link Counter} for the method related to this instance.
-         *
-         * @return The response counter.
-         */
-        public final Counter getResponseCounter() {
-            return this.responseCounter;
-        }
-
-        /**
-         * Gets the {@link Function} that can be used to get the {@link Timer} for a given status code for the method
-         * related to this instance.
-         *
-         * @return The function that returns a timer for a given status code.
-         */
-        public final Function<Code, Timer> getTimerFunction() {
-            return this.timerFunction;
         }
 
     }

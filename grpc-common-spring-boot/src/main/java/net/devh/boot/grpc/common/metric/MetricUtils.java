@@ -37,13 +37,13 @@ public final class MetricUtils {
      *
      * @param method The method the counter will be created for.
      * @param name The name of the counter to use.
-     * @param decription The description of the counter to use.
+     * @param description The description of the counter to use.
      * @return The newly created counter builder.
      */
     public static Counter.Builder prepareCounterFor(final MethodDescriptor<?, ?> method,
-            final String name, final String decription) {
+            final String name, final String description) {
         return Counter.builder(name)
-                .description(decription)
+                .description(description)
                 .baseUnit("messages")
                 .tag(TAG_SERVICE_NAME, extractServiceName(method))
                 .tag(TAG_METHOD_NAME, extractMethodName(method));
@@ -54,13 +54,13 @@ public final class MetricUtils {
      *
      * @param method The method the timer will be created for.
      * @param name The name of the timer to use.
-     * @param decription The description of the timer to use.
+     * @param description The description of the timer to use.
      * @return The newly created timer builder.
      */
     public static Timer.Builder prepareTimerFor(final MethodDescriptor<?, ?> method,
-            final String name, final String decription) {
+            final String name, final String description) {
         return Timer.builder(name)
-                .description(decription)
+                .description(description)
                 .tag(TAG_SERVICE_NAME, extractServiceName(method))
                 .tag(TAG_METHOD_NAME, extractMethodName(method));
     }
