@@ -22,6 +22,8 @@ import static java.util.Objects.requireNonNull;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.aop.framework.Advised;
@@ -59,6 +61,7 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor, AutoClose
     // Lazy initialized when needed to avoid overly eager creation of that factory,
     // which might break proper bean setup
     private GrpcChannelFactory channelFactory = null;
+    private List<StubTransformer> stubTransformers = null;
 
     public GrpcClientBeanPostProcessor(final ApplicationContext applicationContext) {
         this.applicationContext = requireNonNull(applicationContext, "applicationContext");
@@ -85,11 +88,12 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor, AutoClose
             final Object target = getTargetBean(bean);
             for (final Field field : this.beansToProcess.get(beanName)) {
                 final GrpcClient annotation = AnnotationUtils.getAnnotation(field, GrpcClient.class);
+                final String name = annotation.value();
 
                 final List<ClientInterceptor> interceptors = interceptorsFromAnnotation(annotation);
-                final Channel channel = getChannelFactory().createChannel(annotation.value(), interceptors);
+                final Channel channel = getChannelFactory().createChannel(name, interceptors);
 
-                final Object value = valueForField(field, channel);
+                final Object value = valueForField(name, field, channel);
                 ReflectionUtils.setField(field, target, value);
             }
         }
@@ -108,6 +112,21 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor, AutoClose
             return factory;
         }
         return this.channelFactory;
+    }
+
+    /**
+     * Lazy getter for the {@link StubTransformer}s.
+     *
+     * @return The stub transformers to use.
+     */
+    private List<StubTransformer> getStubTransformers() {
+        if (this.stubTransformers == null) {
+            final Collection<StubTransformer> transformers =
+                    this.applicationContext.getBeansOfType(StubTransformer.class).values();
+            this.stubTransformers = new ArrayList<>(transformers);
+            return this.stubTransformers;
+        }
+        return this.stubTransformers;
     }
 
     /**
@@ -146,19 +165,28 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor, AutoClose
     /**
      * Creates the instance for the given field.
      *
+     * @param name The name that was used to create the channel.
      * @param field The field to create the instance for.
      * @param channel The channel that should be used to create the instance.
      * @return The value that matches the type of the given field.
      * @throws BeansException If the value of the field could not be created or the type of the field is unsupported.
      */
-    protected Object valueForField(final Field field, final Channel channel) throws BeansException {
+    protected Object valueForField(final String name, final Field field, final Channel channel) throws BeansException {
         final Class<?> fieldType = field.getType();
         if (Channel.class.equals(fieldType)) {
             return channel;
         } else if (AbstractStub.class.isAssignableFrom(fieldType)) {
             try {
-                final Constructor<?> constructor = ReflectionUtils.accessibleConstructor(fieldType, Channel.class);
-                return constructor.newInstance(channel);
+                @SuppressWarnings("unchecked")
+                final Class<? extends AbstractStub<?>> stubClass =
+                        (Class<? extends AbstractStub<?>>) fieldType.asSubclass(AbstractStub.class);
+                final Constructor<? extends AbstractStub<?>> constructor =
+                        ReflectionUtils.accessibleConstructor(stubClass, Channel.class);
+                AbstractStub<?> stub = constructor.newInstance(channel);
+                for (final StubTransformer stubTransformer : getStubTransformers()) {
+                    stub = stubTransformer.transform(name, stub);
+                }
+                return stub;
             } catch (final NoSuchMethodException | InstantiationException | IllegalAccessException
                     | IllegalArgumentException | InvocationTargetException e) {
                 throw new BeanInstantiationException(fieldType,

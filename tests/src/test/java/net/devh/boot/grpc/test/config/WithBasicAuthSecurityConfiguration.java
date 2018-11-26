@@ -17,8 +17,8 @@
 
 package net.devh.boot.grpc.test.config;
 
-import static net.devh.boot.grpc.client.security.AuthenticatingClientInterceptors.basicAuthCallCredentials;
 import static net.devh.boot.grpc.client.security.AuthenticatingClientInterceptors.callCredentialsInterceptor;
+import static net.devh.boot.grpc.client.security.CallCredentialsHelper.basicAuth;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -122,12 +122,14 @@ public class WithBasicAuthSecurityConfiguration {
     // Client-Side
 
     @Bean
+    @SuppressWarnings("deprecation") // Used to fake authentication based on the client's name (including Channels)
     ClientInterceptor basicAuthInterceptor() {
         // return AuthenticatingClientInterceptors.basicAuthInterceptor("client1", "client1");
-        return callCredentialsInterceptor(basicAuthCallCredentials("client1", "client1"));
+        return callCredentialsInterceptor(basicAuth("client1", "client1"));
     }
 
     @Bean // For testing only
+    @SuppressWarnings("deprecation") // Used to fake authentication based on the client's name (including Channels)
     GrpcChannelFactory testChannelFactory(final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
@@ -153,7 +155,7 @@ public class WithBasicAuthSecurityConfiguration {
                 } else {
                     throw new IllegalArgumentException("Unknown username: " + name);
                 }
-                interceptors.add(callCredentialsInterceptor(basicAuthCallCredentials(username, username)));
+                interceptors.add(callCredentialsInterceptor(basicAuth(username, username)));
                 return super.createChannel("test", interceptors);
             }
 
