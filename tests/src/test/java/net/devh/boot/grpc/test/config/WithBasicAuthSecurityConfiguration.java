@@ -99,7 +99,8 @@ public class WithBasicAuthSecurityConfiguration {
     }
 
     @Bean // For testing only
-    GrpcServerFactory testServerFactory(final GrpcServerProperties properties, GrpcServiceDiscoverer serviceDiscoverer) {
+    GrpcServerFactory testServerFactory(final GrpcServerProperties properties,
+            GrpcServiceDiscoverer serviceDiscoverer) {
         InProcessGrpcServerFactory factory = new InProcessGrpcServerFactory("test", properties);
         for (final GrpcServiceDefinition service : serviceDiscoverer.findGrpcServices()) {
             factory.addService(service);
