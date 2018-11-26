@@ -33,10 +33,12 @@ import io.grpc.Codec;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorConfigurer;
 import net.devh.boot.grpc.common.codec.GrpcCodec;
 import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorConfigurer;
+import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
 
 @SpringBootTest(properties = "grpc.client.test.negotiationType=PLAINTEXT")
-@SpringJUnitConfig(classes = {BeanCodecTest.CustomConfiguration.class, ServiceConfiguration.class})
+@SpringJUnitConfig(
+        classes = {BeanCodecTest.CustomConfiguration.class, ServiceConfiguration.class, BaseAutoConfiguration.class})
 @DirtiesContext
 public class BeanCodecTest extends AbstractCodecTest {
 

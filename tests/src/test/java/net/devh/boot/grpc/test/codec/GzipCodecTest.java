@@ -29,6 +29,7 @@ import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorConfigurer;
 import net.devh.boot.grpc.common.codec.GrpcCodecDefinition;
 import net.devh.boot.grpc.common.codec.GrpcCodecDiscoverer;
 import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorConfigurer;
+import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
 
 /**
@@ -38,7 +39,7 @@ import net.devh.boot.grpc.test.config.ServiceConfiguration;
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @SpringBootTest(properties = "grpc.client.test.negotiationType=PLAINTEXT")
-@SpringJUnitConfig(classes = ServiceConfiguration.class)
+@SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
 @DirtiesContext
 public class GzipCodecTest extends AbstractCodecTest {
 

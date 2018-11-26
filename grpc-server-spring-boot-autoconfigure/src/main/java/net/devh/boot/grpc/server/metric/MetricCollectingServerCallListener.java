@@ -15,29 +15,37 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.test;
+package net.devh.boot.grpc.server.metric;
 
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-
-import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
-import net.devh.boot.grpc.test.config.ServiceConfiguration;
+import io.grpc.ForwardingServerCallListener.SimpleForwardingServerCallListener;
+import io.grpc.ServerCall;
+import io.micrometer.core.instrument.Counter;
 
 /**
- * A test checking that the server and client can start and connect to each other with minimal config.
+ * A simple forwarding server call listener that collects metrics for micrometer.
  *
+ * @param <Q> The type of message received one or more times from the client.
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-@Slf4j
-@SpringBootTest(properties = "grpc.client.test.negotiationType=PLAINTEXT")
-@SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
-@DirtiesContext
-public class PlaintextSetupTest extends AbstractSimpleServerClientTest {
+class MetricCollectingServerCallListener<Q> extends SimpleForwardingServerCallListener<Q> {
 
-    public PlaintextSetupTest() {
-        log.info("--- PlaintextSetupTest ---");
+    private final Counter requestCounter;
+
+    /**
+     * Creates a new delegating ServerCallListener that will wrap the given server call listener to collect metrics.
+     *
+     * @param delegate The original listener to wrap.
+     * @param requestCounter The counter for incoming requests.
+     */
+    public MetricCollectingServerCallListener(final ServerCall.Listener<Q> delegate, final Counter requestCounter) {
+        super(delegate);
+        this.requestCounter = requestCounter;
+    }
+
+    @Override
+    public void onMessage(final Q requestMessage) {
+        this.requestCounter.increment();
+        super.onMessage(requestMessage);
     }
 
 }

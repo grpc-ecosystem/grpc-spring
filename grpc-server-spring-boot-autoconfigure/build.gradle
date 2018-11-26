@@ -11,6 +11,7 @@ dependencies {
 
     compile project(':grpc-common-spring-boot')
     compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
+    compileOnly("org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}")
     compileOnly("org.springframework.security:spring-security-core:${springSecurityVersion}")
     compileOnly("org.springframework.cloud:spring-cloud-starter-sleuth:${springCloudSleuthVersion}")
     compileOnly("org.springframework.cloud:spring-cloud-starter-consul-discovery:${springCloudConsulVersion}")

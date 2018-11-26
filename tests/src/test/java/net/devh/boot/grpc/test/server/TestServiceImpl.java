@@ -28,9 +28,15 @@ import net.devh.boot.grpc.server.service.GrpcService;
 import net.devh.boot.grpc.test.proto.SomeType;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceImplBase;
 
-@GrpcService
 @Slf4j
+@GrpcService
 public class TestServiceImpl extends TestServiceImplBase {
+
+    public static final int METHOD_COUNT = 3;
+
+    public TestServiceImpl() {
+        log.info("Created TestServiceImpl");
+    }
 
     @Override
     public void normal(final Empty request, final StreamObserver<SomeType> responseObserver) {

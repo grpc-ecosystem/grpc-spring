@@ -15,30 +15,54 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.test;
+package net.devh.boot.grpc.test.metric;
 
+import static net.devh.boot.grpc.test.server.TestServiceImpl.METHOD_COUNT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Meter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.server.autoconfigure.GrpcServerMetricAutoConfiguration;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
-import net.devh.boot.grpc.test.config.InProcessConfiguration;
+import net.devh.boot.grpc.test.config.MetricConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
 
 /**
- * A test checking that the server and client can start and connect to each other in process.
+ * A test to verify that the server auto configuration works.
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @Slf4j
 @SpringBootTest
-@SpringJUnitConfig(classes = {InProcessConfiguration.class, ServiceConfiguration.class, BaseAutoConfiguration.class})
+@SpringJUnitConfig(classes = {MetricConfiguration.class, ServiceConfiguration.class, BaseAutoConfiguration.class})
+@ImportAutoConfiguration(GrpcServerMetricAutoConfiguration.class)
 @DirtiesContext
-public class InProcessSetupTest extends AbstractSimpleServerClientTest {
+public class MetricAutoConfigurationTest {
 
-    public InProcessSetupTest() {
-        log.info("--- InProcessSetupTest ---");
+    @Autowired
+    private MeterRegistry meterRegistry;
+
+    @Test
+    @DirtiesContext
+    public void testAutoDiscovery() {
+        log.info("--- Starting tests with auto discovery ---");
+        for (final Meter meter : meterRegistry.getMeters()) {
+            log.debug("Found meter: {}", meter.getId());
+        }
+        assertEquals(METHOD_COUNT * 2,
+                this.meterRegistry.getMeters().stream().filter(Counter.class::isInstance).count());
+        assertEquals(METHOD_COUNT, this.meterRegistry.getMeters().stream().filter(Timer.class::isInstance).count());
+        log.info("--- Test completed ---");
     }
 
 }

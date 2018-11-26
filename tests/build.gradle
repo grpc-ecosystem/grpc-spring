@@ -69,6 +69,7 @@ dependencies {
     testImplementation(
         "io.grpc:grpc-testing:${grpcVersion}",
         "org.springframework.boot:spring-boot-starter-test:${springBootVersion}",
+        "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}",
         "org.springframework.security:spring-security-config:${springSecurityVersion}",
         "io.netty:netty-tcnative-boringssl-static:${nettyTCNativeVersion}",
         "org.junit.jupiter:junit-jupiter-api:${jUnitVersion}"

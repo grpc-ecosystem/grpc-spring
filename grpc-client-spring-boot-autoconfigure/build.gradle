@@ -11,6 +11,7 @@ dependencies {
 
     compile project(':grpc-common-spring-boot')
     compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
+    compileOnly("org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}")
     compileOnly("org.springframework.cloud:spring-cloud-starter-sleuth:${springCloudSleuthVersion}")
     compileOnly("org.springframework.cloud:spring-cloud-starter-consul-discovery:${springCloudConsulVersion}")
     compileOnly("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:${springCloudEurekaVersion}")

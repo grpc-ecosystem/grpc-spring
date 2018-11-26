@@ -15,29 +15,18 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.test;
+package net.devh.boot.grpc.test.config;
 
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.context.annotation.Configuration;
 
-import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
-import net.devh.boot.grpc.test.config.ServiceConfiguration;
+import net.devh.boot.grpc.client.autoconfigure.GrpcClientAutoConfiguration;
+import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
+import net.devh.boot.grpc.server.autoconfigure.GrpcServerAutoConfiguration;
 
-/**
- * A test checking that the server and client can start and connect to each other with minimal config.
- *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
- */
-@Slf4j
-@SpringBootTest(properties = "grpc.client.test.negotiationType=PLAINTEXT")
-@SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
-@DirtiesContext
-public class PlaintextSetupTest extends AbstractSimpleServerClientTest {
-
-    public PlaintextSetupTest() {
-        log.info("--- PlaintextSetupTest ---");
-    }
+@Configuration
+@ImportAutoConfiguration({GrpcCommonCodecAutoConfiguration.class, GrpcServerAutoConfiguration.class,
+        GrpcClientAutoConfiguration.class})
+public class BaseAutoConfiguration {
 
 }

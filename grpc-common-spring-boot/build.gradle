@@ -9,6 +9,7 @@ dependencies {
     annotationProcessor("org.springframework.boot:spring-boot-autoconfigure-processor:${springBootVersion}")
 
     compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
+    compileOnly("org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}")
     compile("io.grpc:grpc-core:${grpcVersion}")
 
     compileOnly("org.springframework.cloud:spring-cloud-starter-sleuth:${springCloudSleuthVersion}")
