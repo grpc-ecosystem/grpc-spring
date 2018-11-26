@@ -26,6 +26,19 @@ protobuf {
     }
 }
 
+eclipse {
+    classpath {
+        file.beforeMerged { cp ->
+            def generatedGrpcFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder('src/generated/main/grpc', null);
+            generatedGrpcFolder.entryAttributes['ignore_optional_problems'] = 'true';
+            cp.entries.add( generatedGrpcFolder );
+            def generatedJavaFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder('src/generated/main/java', null);
+            generatedJavaFolder.entryAttributes['ignore_optional_problems'] = 'true';
+            cp.entries.add( generatedJavaFolder );
+        }
+    }
+}
+
 idea {
     module {
         sourceDirs += file("src/generated/main/java")
