@@ -22,6 +22,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
 
 /**
@@ -37,7 +38,7 @@ import net.devh.boot.grpc.test.config.ServiceConfiguration;
         "grpc.client.test.security.authorityOverride=localhost",
         "grpc.client.test.security.trustCertCollectionPath=src/test/resources/certificates/trusted-servers-collection"
 })
-@SpringJUnitConfig(classes = ServiceConfiguration.class)
+@SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
 @DirtiesContext
 public class SelfSignedServerSetupTest extends AbstractSimpleServerClientTest {
 

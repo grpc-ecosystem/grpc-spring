@@ -15,36 +15,52 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.test.security;
+package net.devh.boot.grpc.test.metric;
 
+import static net.devh.boot.grpc.test.server.TestServiceImpl.METHOD_COUNT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.test.config.AnnotatedSecurityConfiguration;
-import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
-import net.devh.boot.grpc.test.config.WithBasicAuthSecurityConfiguration;
 
 /**
- * A test checking that the server and client can start and connect to each other with minimal config.
+ * A test to verify that the server auto configuration works.
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @Slf4j
-@SpringBootTest(properties = {
-        "grpc.client.test.negotiationType=PLAINTEXT",
-        "grpc.client.bean.negotiationType=PLAINTEXT",
-        "grpc.client.broken.negotiationType=PLAINTEXT"})
-@SpringJUnitConfig(
-        classes = {ServiceConfiguration.class, BaseAutoConfiguration.class, AnnotatedSecurityConfiguration.class,
-                WithBasicAuthSecurityConfiguration.class})
+@SpringBootTest
+@SpringJUnitConfig(classes = ServiceConfiguration.class)
+@EnableAutoConfiguration
 @DirtiesContext
-public class AnnotatedSecurityWithBasicAuthTest extends AbstractSecurityWithBasicAuthTest {
+public class MetricFullAutoConfigurationTest {
 
-    public AnnotatedSecurityWithBasicAuthTest() {
-        log.info("--- AnnotatedSecurityWithBasicAuthConfiguration ---");
+    @Autowired
+    private MeterRegistry meterRegistry;
+
+    @Test
+    @DirtiesContext
+    public void testAutoDiscovery() {
+        log.info("--- Starting tests with full auto discovery ---");
+        assertEquals(METHOD_COUNT * 2, this.meterRegistry.getMeters().stream()
+                .filter(Counter.class::isInstance)
+                .filter(m -> m.getId().getName().startsWith("grpc.")) // Only count grpc metrics
+                .count());
+        assertEquals(METHOD_COUNT, this.meterRegistry.getMeters().stream()
+                .filter(Timer.class::isInstance)
+                .filter(m -> m.getId().getName().startsWith("grpc.")) // Only count grpc metrics
+                .count());
+        log.info("--- Test completed ---");
     }
 
 }
