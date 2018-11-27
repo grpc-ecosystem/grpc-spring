@@ -71,6 +71,13 @@ publishing {
                             name 'Michael Zhang'
                             email 'yidongnan@gmail.com'
                         }
+                        developer {
+                            id 'ST-DDT'
+                            name 'Daniel Theuke'
+                            email 'daniel.theuke@heuboe.de'
+                            organization 'Heusch/Boesefeldt GmbH'
+                            organizationUrl 'http://www.heuboe.de'
+                        }
                     }
                 }
             }
