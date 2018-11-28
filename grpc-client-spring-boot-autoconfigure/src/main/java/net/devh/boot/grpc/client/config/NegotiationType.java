@@ -15,33 +15,27 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.test.security;
-
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-
-import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
-import net.devh.boot.grpc.test.config.ManualSecurityConfiguration;
-import net.devh.boot.grpc.test.config.ServiceConfiguration;
-import net.devh.boot.grpc.test.config.WithBasicAuthSecurityConfiguration;
+package net.devh.boot.grpc.client.config;
 
 /**
- * A test checking that the server and client can start and connect to each other with minimal config.
- *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * Identifies the negotiation used for starting up HTTP/2.
  */
-@Slf4j
-@SpringBootTest
-@SpringJUnitConfig(
-        classes = {ServiceConfiguration.class, BaseAutoConfiguration.class, ManualSecurityConfiguration.class,
-                WithBasicAuthSecurityConfiguration.class})
-@DirtiesContext
-public class ManualSecurityWithBasicAuthTest extends AbstractSecurityWithBasicAuthTest {
+public enum NegotiationType {
 
-    public ManualSecurityWithBasicAuthTest() {
-        log.info("--- ManualSecurityWithBasicAuthTest ---");
-    }
+    /**
+     * Uses TLS ALPN/NPN negotiation, assumes an SSL connection.
+     */
+    TLS,
+
+    /**
+     * Use the HTTP UPGRADE protocol for a plaintext (non-SSL) upgrade from HTTP/1.1 to HTTP/2.
+     */
+    PLAINTEXT_UPGRADE,
+
+    /**
+     * Just assume the connection is plaintext (non-SSL) and the remote endpoint supports HTTP/2 directly without an
+     * upgrade.
+     */
+    PLAINTEXT;
 
 }

@@ -23,6 +23,8 @@ application
 
 * Automatic metric support ([micrometer](https://micrometer.io/)/[actuator](https://github.com/spring-projects/spring-boot/tree/master/spring-boot-project/spring-boot-actuator) based)
 
+* Also works with grpc-netty-shaded
+
 ## Versions
 
 2.x.x.RELEASE support Spring Boot 2 & Spring Cloud Finchley.
@@ -323,11 +325,79 @@ There are multiple ways for the client to authenticate itself. Currently only th
   grpc.client.test.security.privateKeyPath=certificates/client.key
   ````
 
+## Running with grpc-netty-shaded
+
+This library also supports `grpc-netty-shaded` which might prevent conflicts with incompatible grpc-versions or conflitcts between libraries that require different versions of netty.
+
+**Note:** If the shaded netty is present on the classpath, then this library will always favor it over the normal grpc-netty one.
+
+You can use it with Maven like this:
+
+````xml
+<dependency>
+    <groupId>io.grpc</groupId>
+    <artifactId>grpc-netty-shaded</artifactId>
+    <version>${grpcVersion}</version>
+</dependency>
+
+<!-- For both -->
+<dependency>
+    <groupId>net.devh</groupId>
+    <artifactId>grpc-spring-boot-starter</artifactId>
+    <version>...</version>
+    <exclusions>
+        <exclusion>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+<!-- For the server -->
+<dependency>
+    <groupId>net.devh</groupId>
+    <artifactId>grpc-server-spring-boot-starter</artifactId>
+    <version>...</version>
+    <exclusions>
+        <exclusion>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+<!-- For the client -->
+<dependency>
+    <groupId>net.devh</groupId>
+    <artifactId>grpc-client-spring-boot-starter</artifactId>
+    <version>...</version>
+    <exclusions>
+        <exclusion>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+````
+
+and like this when using Gradle:
+
+````groovy
+compile "io.grpc:grpc-netty-shaded:${grpcVersion}"
+
+compile 'net.devh:grpc-spring-boot-starter:...' exclude group: 'io.grpc', module: 'grpc-netty' // For both
+compile 'net.devh:grpc-client-spring-boot-starter:...' exclude group: 'io.grpc', module: 'grpc-netty' // For the client
+compile 'net.devh:grpc-server-spring-boot-starter:...' exclude group: 'io.grpc', module: 'grpc-netty' // For the server
+````
+
 ## Example-Projects
 
 Read more about our example projects [here](examples).
 
 ## Troubleshooting
+
+Before you begin to dive into the details, make sure that the grpc and netty library versions are compatible with each other.
+This library brings all necessary dependencies for grpc and netty to work together.
+In some cases, however, you may need additional libraries such as tcnative or have other dependencies that require a different version of netty, which may cause conflicts.
+[grpc-java](https://github.com/grpc/grpc-java) has a [table](https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty) which shows compatible version combinations. As an alternative, you can replace the netty libraries with `grpc-netty-shaded`.
 
 ### Issues with SSL in general
 
@@ -339,11 +409,15 @@ or
 
 * `AbstractMethodError: io.netty.internal.tcnative.SSL.readFromSSL()`
 
+or
+
+* `javax.net.ssl.SSLHandshakeException: General OpenSslEngine problem`
+
 You don't have the (correct) library or version of `netty-tcnative...` in your classpath.
 
-(There is a breaking change between netty 4.1.24.Final -> 4.1.27.Final and netty-tcnative 2.0.8.Final -> 2.0.12.Final)
+(There is a breaking change between netty 4.1.24.Final -> 4.1.27.Final and netty-tcnative 2.0.8.Final -> 2.0.12.Final and also elsewhere)
 
-See also [grpc-java: Security](https://github.com/grpc/grpc-java/blob/master/SECURITY.md).
+See also [grpc-java: Security](https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty).
 
 ### Issues with SSL during tests
 

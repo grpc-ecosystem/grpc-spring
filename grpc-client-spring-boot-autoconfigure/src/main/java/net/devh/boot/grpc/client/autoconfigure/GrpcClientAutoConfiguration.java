@@ -22,29 +22,33 @@ import java.util.List;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 import brave.grpc.GrpcTracing;
 import io.grpc.CompressorRegistry;
 import io.grpc.DecompressorRegistry;
 import io.grpc.LoadBalancer;
+import io.grpc.NameResolver;
 import io.grpc.util.RoundRobinLoadBalancerFactory;
-import net.devh.boot.grpc.client.channelfactory.AddressChannelFactory;
-import net.devh.boot.grpc.client.channelfactory.DiscoveryClientChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
+import net.devh.boot.grpc.client.channelfactory.InProcessChannelFactory;
+import net.devh.boot.grpc.client.channelfactory.NettyChannelFactory;
+import net.devh.boot.grpc.client.channelfactory.ShadedNettyChannelFactory;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 import net.devh.boot.grpc.client.inject.GrpcClientBeanPostProcessor;
 import net.devh.boot.grpc.client.interceptor.AnnotationGlobalClientInterceptorConfigurer;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorConfigurer;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
+import net.devh.boot.grpc.client.nameresolver.AddressChannelResolverFactory;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonTraceAutoConfiguration;
 
@@ -82,9 +86,17 @@ public class GrpcClientAutoConfiguration {
     }
 
     @ConditionalOnMissingBean
+    @Lazy // Not needed for InProcessChannelFactories
     @Bean
     public LoadBalancer.Factory grpcLoadBalancerFactory() {
         return RoundRobinLoadBalancerFactory.getInstance();
+    }
+
+    @ConditionalOnMissingBean
+    @Lazy // Not needed for InProcessChannelFactories
+    @Bean
+    public NameResolver.Factory grpcNameResolverFactory(final GrpcChannelsProperties properties) {
+        return new AddressChannelResolverFactory(properties);
     }
 
     @ConditionalOnBean(CompressorRegistry.class)
@@ -107,32 +119,40 @@ public class GrpcClientAutoConfiguration {
         return Collections.emptyList();
     }
 
-    @ConditionalOnMissingBean(value = GrpcChannelFactory.class,
-            type = "org.springframework.cloud.client.discovery.DiscoveryClient")
+    // First try the shaded netty channel factory
+    @ConditionalOnMissingBean(GrpcChannelFactory.class)
+    @ConditionalOnClass(name = {"io.grpc.netty.shaded.io.netty.channel.Channel",
+            "io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder"})
     @Bean
-    public GrpcChannelFactory addressGrpcChannelFactory(final GrpcChannelsProperties properties,
+    public GrpcChannelFactory shadedNettyGrpcChannelFactory(final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory,
+            final NameResolver.Factory nameResolverFactory,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
-        return new AddressChannelFactory(properties, loadBalancerFactory, globalClientInterceptorRegistry,
-                channelConfigurers);
+        return new ShadedNettyChannelFactory(properties, loadBalancerFactory, nameResolverFactory,
+                globalClientInterceptorRegistry, channelConfigurers);
     }
 
-    @Configuration
-    @ConditionalOnBean(DiscoveryClient.class)
-    protected static class DiscoveryGrpcClientAutoConfiguration {
+    // Then try the normal netty channel factory
+    @ConditionalOnMissingBean(GrpcChannelFactory.class)
+    @ConditionalOnClass(name = {"io.netty.channel.Channel", "io.grpc.netty.NettyChannelBuilder"})
+    @Bean
+    public GrpcChannelFactory nettyGrpcChannelFactory(final GrpcChannelsProperties properties,
+            final LoadBalancer.Factory loadBalancerFactory,
+            final NameResolver.Factory nameResolverFactory,
+            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
+            final List<GrpcChannelConfigurer> channelConfigurers) {
+        return new NettyChannelFactory(properties, loadBalancerFactory, nameResolverFactory,
+                globalClientInterceptorRegistry, channelConfigurers);
+    }
 
-        @ConditionalOnMissingBean
-        @Bean
-        public GrpcChannelFactory discoveryClientChannelFactory(
-                final GrpcChannelsProperties channels,
-                final LoadBalancer.Factory loadBalancerFactory,
-                final DiscoveryClient discoveryClient,
-                final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
-                final List<GrpcChannelConfigurer> channelConfigurers) {
-            return new DiscoveryClientChannelFactory(channels, loadBalancerFactory, discoveryClient,
-                    globalClientInterceptorRegistry, channelConfigurers);
-        }
+    // Finally try the in process channel factory
+    @ConditionalOnMissingBean(GrpcChannelFactory.class)
+    @Bean
+    public GrpcChannelFactory inProcessGrpcChannelFactory(final GrpcChannelsProperties properties,
+            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
+            final List<GrpcChannelConfigurer> channelConfigurers) {
+        return new InProcessChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
     }
 
     @Configuration

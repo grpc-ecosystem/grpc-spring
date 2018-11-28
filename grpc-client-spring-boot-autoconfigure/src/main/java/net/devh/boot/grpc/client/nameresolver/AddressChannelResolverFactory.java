@@ -15,7 +15,7 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.client.channelfactory;
+package net.devh.boot.grpc.client.nameresolver;
 
 import java.net.URI;
 
@@ -29,7 +29,7 @@ import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 
 /**
  * A name resolver factory that will create an {@link AddressChannelNameResolver} based on the target uri.
- * 
+ *
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
@@ -37,14 +37,14 @@ public class AddressChannelResolverFactory extends NameResolverProvider {
 
     private final GrpcChannelsProperties properties;
 
-    public AddressChannelResolverFactory(GrpcChannelsProperties properties) {
+    public AddressChannelResolverFactory(final GrpcChannelsProperties properties) {
         this.properties = properties;
     }
 
     @Nullable
     @Override
-    public NameResolver newNameResolver(URI targetUri, Attributes params) {
-        return new AddressChannelNameResolver(targetUri.toString(), properties.getChannel(targetUri.toString()), params,
+    public NameResolver newNameResolver(final URI targetUri, final Attributes params) {
+        return new AddressChannelNameResolver(targetUri.toString(), this.properties.getChannel(targetUri.toString()),
                 GrpcUtil.SHARED_CHANNEL_EXECUTOR);
     }
 

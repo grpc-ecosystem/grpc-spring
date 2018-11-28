@@ -36,11 +36,11 @@ import io.grpc.ClientInterceptor;
 import io.grpc.ClientInterceptors;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.netty.NegotiationType;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
+import net.devh.boot.grpc.client.config.NegotiationType;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 
 /**

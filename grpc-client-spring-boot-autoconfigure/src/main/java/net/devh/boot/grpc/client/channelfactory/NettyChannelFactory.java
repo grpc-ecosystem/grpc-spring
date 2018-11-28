@@ -28,12 +28,12 @@ import javax.net.ssl.SSLException;
 import io.grpc.LoadBalancer;
 import io.grpc.NameResolver;
 import io.grpc.netty.GrpcSslContexts;
-import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
 import io.netty.handler.ssl.SslContextBuilder;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
+import net.devh.boot.grpc.client.config.NegotiationType;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 
 /**
@@ -44,7 +44,7 @@ import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  * @since 5/17/16
  */
-public abstract class AbstractNettyChannelFactory extends AbstractChannelFactory<NettyChannelBuilder> {
+public class NettyChannelFactory extends AbstractChannelFactory<NettyChannelBuilder> {
 
     private final LoadBalancer.Factory loadBalancerFactory;
     private final NameResolver.Factory nameResolverFactory;
@@ -58,7 +58,7 @@ public abstract class AbstractNettyChannelFactory extends AbstractChannelFactory
      * @param globalClientInterceptorRegistry The interceptor registry to use.
      * @param channelConfigurers The channel configurers to use. Can be empty.
      */
-    public AbstractNettyChannelFactory(final GrpcChannelsProperties properties,
+    public NettyChannelFactory(final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory,
             final NameResolver.Factory nameResolverFactory,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
@@ -79,7 +79,7 @@ public abstract class AbstractNettyChannelFactory extends AbstractChannelFactory
      * @param channelConfigurers The channel configurers to use. Can be empty.
      */
     @SuppressWarnings("unchecked")
-    public <T extends AbstractNettyChannelFactory> AbstractNettyChannelFactory(final GrpcChannelsProperties properties,
+    public <T extends NettyChannelFactory> NettyChannelFactory(final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory,
             final Function<T, NameResolver.Factory> nameResolverFactoryCreator,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
@@ -97,11 +97,12 @@ public abstract class AbstractNettyChannelFactory extends AbstractChannelFactory
     }
 
     @Override
+    // Keep this in sync with ShadedNettyChannelFactory#configureSecurity
     protected void configureSecurity(final NettyChannelBuilder builder, final String name) {
         final GrpcChannelProperties properties = getPropertiesFor(name);
 
         final NegotiationType negotiationType = properties.getNegotiationType();
-        builder.negotiationType(negotiationType);
+        builder.negotiationType(of(negotiationType));
 
         if (negotiationType != NegotiationType.PLAINTEXT) {
             final Security security = properties.getSecurity();
@@ -130,6 +131,25 @@ public abstract class AbstractNettyChannelFactory extends AbstractChannelFactory
             } catch (final SSLException e) {
                 throw new IllegalStateException("Failed to create ssl context for grpc client", e);
             }
+        }
+    }
+
+    /**
+     * Converts the given negotiation type to netty's negotiation type.
+     *
+     * @param negotiationType The negotiation type to convert.
+     * @return The converted negotiation type.
+     */
+    protected static io.grpc.netty.NegotiationType of(final NegotiationType negotiationType) {
+        switch (negotiationType) {
+            case PLAINTEXT:
+                return io.grpc.netty.NegotiationType.PLAINTEXT;
+            case PLAINTEXT_UPGRADE:
+                return io.grpc.netty.NegotiationType.PLAINTEXT_UPGRADE;
+            case TLS:
+                return io.grpc.netty.NegotiationType.TLS;
+            default:
+                throw new IllegalArgumentException("Unsupported NegotiationType: " + negotiationType);
         }
     }
 

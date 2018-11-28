@@ -15,33 +15,29 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.test.security;
+package net.devh.boot.grpc.server.config;
 
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-
-import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
-import net.devh.boot.grpc.test.config.ManualSecurityConfiguration;
-import net.devh.boot.grpc.test.config.ServiceConfiguration;
-import net.devh.boot.grpc.test.config.WithBasicAuthSecurityConfiguration;
+import javax.net.ssl.SSLEngine;
 
 /**
- * A test checking that the server and client can start and connect to each other with minimal config.
- *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * Indicates the state of the {@link SSLEngine} with respect to client authentication. This configuration item really
+ * only applies when building the server-side SslContext.
  */
-@Slf4j
-@SpringBootTest
-@SpringJUnitConfig(
-        classes = {ServiceConfiguration.class, BaseAutoConfiguration.class, ManualSecurityConfiguration.class,
-                WithBasicAuthSecurityConfiguration.class})
-@DirtiesContext
-public class ManualSecurityWithBasicAuthTest extends AbstractSecurityWithBasicAuthTest {
+public enum ClientAuth {
 
-    public ManualSecurityWithBasicAuthTest() {
-        log.info("--- ManualSecurityWithBasicAuthTest ---");
-    }
+    /**
+     * Indicates that the {@link SSLEngine} will not request client authentication.
+     */
+    NONE,
+
+    /**
+     * Indicates that the {@link SSLEngine} will request client authentication.
+     */
+    OPTIONAL,
+
+    /**
+     * Indicates that the {@link SSLEngine} will <b>require</b> client authentication.
+     */
+    REQUIRE;
 
 }

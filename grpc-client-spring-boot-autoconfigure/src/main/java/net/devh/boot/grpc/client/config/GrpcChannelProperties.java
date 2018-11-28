@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.grpc.internal.GrpcUtil;
-import io.grpc.netty.NegotiationType;
 import lombok.Data;
 
 /**

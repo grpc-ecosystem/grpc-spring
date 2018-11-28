@@ -36,16 +36,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
-import io.grpc.LoadBalancer.Factory;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.client.channelfactory.AddressChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
+import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
+import net.devh.boot.grpc.client.channelfactory.InProcessChannelFactory;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 import net.devh.boot.grpc.client.security.AuthenticatingClientInterceptors;
+import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import net.devh.boot.grpc.server.security.authentication.BasicGrpcAuthenticationReader;
 import net.devh.boot.grpc.server.security.authentication.CompositeGrpcAuthenticationReader;
 import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
+import net.devh.boot.grpc.server.serverfactory.GrpcServerFactory;
+import net.devh.boot.grpc.server.serverfactory.InProcessGrpcServerFactory;
+import net.devh.boot.grpc.server.service.GrpcServiceDefinition;
+import net.devh.boot.grpc.server.service.GrpcServiceDiscoverer;
 
 @Slf4j
 @Configuration
@@ -93,6 +98,16 @@ public class WithBasicAuthSecurityConfiguration {
         return new CompositeGrpcAuthenticationReader(readers);
     }
 
+    @Bean // For testing only
+    GrpcServerFactory testServerFactory(final GrpcServerProperties properties,
+            GrpcServiceDiscoverer serviceDiscoverer) {
+        InProcessGrpcServerFactory factory = new InProcessGrpcServerFactory("test", properties);
+        for (final GrpcServiceDefinition service : serviceDiscoverer.findGrpcServices()) {
+            factory.addService(service);
+        }
+        return factory;
+    }
+
     // Client-Side
 
     @Bean
@@ -100,18 +115,17 @@ public class WithBasicAuthSecurityConfiguration {
         return AuthenticatingClientInterceptors.basicAuth("client1", "client1");
     }
 
-    @Bean
-    AddressChannelFactory addressChannelFactory(final GrpcChannelsProperties properties,
-            final Factory loadBalancerFactory, final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
+    @Bean // For testing only
+    GrpcChannelFactory testChannelFactory(final GrpcChannelsProperties properties,
+            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
-        return new AddressChannelFactory(properties, loadBalancerFactory, globalClientInterceptorRegistry,
-                channelConfigurers) {
+        return new InProcessChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers) {
 
             @Override
             public Channel createChannel(final String name, List<ClientInterceptor> interceptors) {
                 if ("bean".equals(name)) {
                     // We use the GrpcClient#interceptorNames() here.
-                    return super.createChannel(name, interceptors);
+                    return super.createChannel("test", interceptors);
                 }
                 interceptors = new ArrayList<>(interceptors);
                 // Fake per client authentication
@@ -124,7 +138,7 @@ public class WithBasicAuthSecurityConfiguration {
                     throw new IllegalArgumentException("Unknown username");
                 }
                 interceptors.add(AuthenticatingClientInterceptors.basicAuth(username, username));
-                return super.createChannel(name, interceptors);
+                return super.createChannel("test", interceptors);
             }
 
         };

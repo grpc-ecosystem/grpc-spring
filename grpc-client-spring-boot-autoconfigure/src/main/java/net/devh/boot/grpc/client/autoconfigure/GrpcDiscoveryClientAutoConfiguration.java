@@ -15,33 +15,25 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.test.security;
+package net.devh.boot.grpc.client.autoconfigure;
 
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
-import net.devh.boot.grpc.test.config.ManualSecurityConfiguration;
-import net.devh.boot.grpc.test.config.ServiceConfiguration;
-import net.devh.boot.grpc.test.config.WithBasicAuthSecurityConfiguration;
+import io.grpc.NameResolverProvider;
+import net.devh.boot.grpc.client.nameresolver.DiscoveryClientResolverFactory;
 
-/**
- * A test checking that the server and client can start and connect to each other with minimal config.
- *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
- */
-@Slf4j
-@SpringBootTest
-@SpringJUnitConfig(
-        classes = {ServiceConfiguration.class, BaseAutoConfiguration.class, ManualSecurityConfiguration.class,
-                WithBasicAuthSecurityConfiguration.class})
-@DirtiesContext
-public class ManualSecurityWithBasicAuthTest extends AbstractSecurityWithBasicAuthTest {
+@Configuration
+@ConditionalOnBean(DiscoveryClient.class)
+@AutoConfigureBefore(GrpcClientAutoConfiguration.class)
+public class GrpcDiscoveryClientAutoConfiguration {
 
-    public ManualSecurityWithBasicAuthTest() {
-        log.info("--- ManualSecurityWithBasicAuthTest ---");
+    @Bean
+    NameResolverProvider discoveryNameResolverProvider(final DiscoveryClient client) {
+        return new DiscoveryClientResolverFactory(client);
     }
 
 }

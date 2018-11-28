@@ -25,28 +25,29 @@ import javax.net.ssl.SSLException;
 
 import com.google.common.net.InetAddresses;
 
-import io.grpc.netty.GrpcSslContexts;
-import io.grpc.netty.NettyServerBuilder;
-import io.netty.handler.ssl.SslContextBuilder;
+import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
+import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import net.devh.boot.grpc.server.config.ClientAuth;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import net.devh.boot.grpc.server.config.GrpcServerProperties.Security;
 
 /**
- * Factory for netty based grpc servers.
+ * Factory for shaded netty based grpc servers.
  *
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
-public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServerBuilder> {
+public class ShadedNettyGrpcServerFactory
+        extends AbstractGrpcServerFactory<io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder> {
 
     /**
-     * Creates a new netty server factory with the given properties.
+     * Creates a new shaded netty server factory with the given properties.
      *
      * @param properties The properties used to configure the server.
      * @param serverConfigurers The server configurers to use. Can be empty.
      */
-    public NettyGrpcServerFactory(final GrpcServerProperties properties,
+    public ShadedNettyGrpcServerFactory(final GrpcServerProperties properties,
             final List<GrpcServerConfigurer> serverConfigurers) {
         super(properties, serverConfigurers);
     }
@@ -57,7 +58,7 @@ public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServe
     }
 
     @Override
-    // Keep this in sync with ShadedNettyGrpcServerFactory#configureSecurity
+    // Keep this in sync with NettyGrpcServerFactory#configureSecurity
     protected void configureSecurity(final NettyServerBuilder builder) {
         final Security security = this.properties.getSecurity();
         if (security.isEnabled()) {
@@ -89,14 +90,14 @@ public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServe
      * @param clientAuth The client auth option to convert.
      * @return The converted client auth option.
      */
-    protected static io.netty.handler.ssl.ClientAuth of(final ClientAuth clientAuth) {
+    protected static io.grpc.netty.shaded.io.netty.handler.ssl.ClientAuth of(final ClientAuth clientAuth) {
         switch (clientAuth) {
             case NONE:
-                return io.netty.handler.ssl.ClientAuth.NONE;
+                return io.grpc.netty.shaded.io.netty.handler.ssl.ClientAuth.NONE;
             case OPTIONAL:
-                return io.netty.handler.ssl.ClientAuth.OPTIONAL;
+                return io.grpc.netty.shaded.io.netty.handler.ssl.ClientAuth.OPTIONAL;
             case REQUIRE:
-                return io.netty.handler.ssl.ClientAuth.REQUIRE;
+                return io.grpc.netty.shaded.io.netty.handler.ssl.ClientAuth.REQUIRE;
             default:
                 throw new IllegalArgumentException("Unsupported ClientAuth: " + clientAuth);
         }

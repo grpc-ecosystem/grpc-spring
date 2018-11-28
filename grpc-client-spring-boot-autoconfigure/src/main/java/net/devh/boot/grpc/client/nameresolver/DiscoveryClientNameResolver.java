@@ -15,7 +15,7 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.client.channelfactory;
+package net.devh.boot.grpc.client.nameresolver;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -53,7 +53,6 @@ public class DiscoveryClientNameResolver extends NameResolver {
 
     private final String name;
     private final DiscoveryClient client;
-    private final Attributes attributes;
     private final SharedResourceHolder.Resource<ScheduledExecutorService> timerServiceResource;
     private final SharedResourceHolder.Resource<ExecutorService> executorResource;
     @GuardedBy("this")
@@ -71,12 +70,11 @@ public class DiscoveryClientNameResolver extends NameResolver {
     @GuardedBy("this")
     private List<ServiceInstance> serviceInstanceList;
 
-    public DiscoveryClientNameResolver(String name, DiscoveryClient client, Attributes attributes,
+    public DiscoveryClientNameResolver(String name, DiscoveryClient client,
             SharedResourceHolder.Resource<ScheduledExecutorService> timerServiceResource,
             SharedResourceHolder.Resource<ExecutorService> executorResource) {
         this.name = name;
         this.client = client;
-        this.attributes = attributes;
         this.timerServiceResource = timerServiceResource;
         this.executorResource = executorResource;
         this.serviceInstanceList = Lists.newArrayList();
