@@ -97,6 +97,7 @@ public class NettyChannelFactory extends AbstractChannelFactory<NettyChannelBuil
     }
 
     @Override
+    // Keep this in sync with ShadedNettyChannelFactory#configureSecurity
     protected void configureSecurity(final NettyChannelBuilder builder, final String name) {
         final GrpcChannelProperties properties = getPropertiesFor(name);
 
