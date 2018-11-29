@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -37,8 +38,29 @@ import com.google.common.collect.ImmutableSet;
  */
 public interface AccessPredicate extends Predicate<Authentication> {
 
+    @Override
+    default AccessPredicate negate() {
+        return t -> !test(t);
+    }
+
+    @Override
+    default AccessPredicate and(final Predicate<? super Authentication> other) {
+        requireNonNull(other);
+        return t -> test(t) && other.test(t);
+    }
+
+    @Override
+    default AccessPredicate or(final Predicate<? super Authentication> other) {
+        requireNonNull(other);
+        return t -> test(t) || other.test(t);
+    }
+
     /**
-     * Everyone can access the protected instance.
+     * All authenticated users can access the protected instance including anonymous users.
+     *
+     * <p>
+     * <b>Note:</b> If anonymous authentication is not configured then the users still don't have access.
+     * </p>
      *
      * @return A newly created AccessPredicate that always returns true.
      */
@@ -53,6 +75,15 @@ public interface AccessPredicate extends Predicate<Authentication> {
      */
     static AccessPredicate denyAll() {
         return authentication -> false;
+    }
+
+    /**
+     * All authenticated users can access the protected instance (excluding anonymous users).
+     *
+     * @return A newly created AccessPredicate that checks whether the user is explicitly authenticated.
+     */
+    static AccessPredicate fullyAuthenticated() {
+        return authentication -> !(authentication instanceof AnonymousAuthenticationToken);
     }
 
     /**

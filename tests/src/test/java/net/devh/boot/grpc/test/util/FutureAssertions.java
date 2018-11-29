@@ -17,19 +17,38 @@
 
 package net.devh.boot.grpc.test.util;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 public final class FutureAssertions {
 
+    public static <T> void assertFutureEquals(final T expected, final ListenableFuture<T> future,
+            final int timeout, final TimeUnit timeoutUnit) {
+        assertFutureEquals(expected, future, UnaryOperator.identity(), timeout, timeoutUnit);
+    }
+
+    public static <T, R> void assertFutureEquals(final T expected, final ListenableFuture<R> future,
+            final Function<R, T> unwrapper, final int timeout, final TimeUnit timeoutUnit) {
+        try {
+            assertEquals(expected, unwrapper.apply(future.get(timeout, timeoutUnit)));
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            fail(e);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public static <T extends Exception> T assertFutureThrows(final Class<T> expectedType,
-            final ListenableFuture<?> future, int timeout, TimeUnit timeoutUnit) {
+            final ListenableFuture<?> future, final int timeout, final TimeUnit timeoutUnit) {
         final Throwable cause =
                 assertThrows(ExecutionException.class, () -> future.get(timeout, timeoutUnit)).getCause();
         final Class<? extends Throwable> causeClass = cause.getClass();
