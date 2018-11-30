@@ -19,11 +19,11 @@ package net.devh.boot.grpc.server.security.authentication;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 /**
  * Reads {@link PreAuthenticatedAuthenticationToken bearer token} from the request.
