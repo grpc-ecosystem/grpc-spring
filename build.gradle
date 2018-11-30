@@ -19,6 +19,7 @@ buildscript {
 
         springBootVersion = '2.0.6.RELEASE'
         springSecurityVersion = '5.0.9.RELEASE'
+        springSecurityWebVersion = '5.1.2.RELEASE'
         springCloudVersion = 'Finchley.SR2'
         springCloudSleuthVersion = '2.0.2.RELEASE'
         springCloudConsulVersion = '2.0.1.RELEASE'
