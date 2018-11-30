@@ -43,7 +43,7 @@ public class BearerAuthenticationReader implements GrpcAuthenticationReader {
 
         if (header == null || !header.toLowerCase().startsWith(PREFIX)) {
             log.debug("No bearer auth header found");
-            throw new BadCredentialsException("Auth Header is not properly formatted");
+            return null;
         }
 
         // Cut away the "bearer " prefix
