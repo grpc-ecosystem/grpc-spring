@@ -17,19 +17,34 @@
 
 package net.devh.boot.grpc.server.autoconfigure;
 
+import static net.devh.boot.grpc.common.util.GrpcUtils.extractMethodName;
+
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegistryAutoConfiguration;
+import org.springframework.boot.actuate.info.InfoContributor;
+import org.springframework.boot.actuate.info.SimpleInfoContributor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 import io.grpc.BindableService;
+import io.grpc.MethodDescriptor;
+import io.grpc.ServiceDescriptor;
+import io.grpc.protobuf.services.ProtoReflectionService;
+import io.grpc.services.HealthStatusManager;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import net.devh.boot.grpc.server.metric.MetricCollectingServerInterceptor;
 
 /**
@@ -55,6 +70,48 @@ public class GrpcServerMetricAutoConfiguration {
             metricCollector.preregisterService(service);
         }
         return metricCollector;
+    }
+
+    @Bean
+    @Lazy
+    InfoContributor grpcInfoContributor(final GrpcServerProperties properties,
+            final Collection<BindableService> grpcServices, final HealthStatusManager healthStatusManager) {
+        final Map<String, Object> details = new LinkedHashMap<>();
+        details.put("port", properties.getPort());
+
+        if (properties.isReflectionServiceEnabled()) {
+            // Only expose services via web-info if we do the same via grpc.
+            final Map<String, List<String>> services = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+            details.put("services", services);
+            final List<BindableService> mutableGrpcServiceList = new ArrayList<>(grpcServices);
+            mutableGrpcServiceList.add(ProtoReflectionService.newInstance());
+            if (properties.isHealthServiceEnabled()) {
+                mutableGrpcServiceList.add(healthStatusManager.getHealthService());
+            }
+            for (final BindableService grpcService : mutableGrpcServiceList) {
+                final ServiceDescriptor serviceDescriptor = grpcService.bindService().getServiceDescriptor();
+
+                final List<String> methods = collectMethodNamesForService(serviceDescriptor);
+                services.put(serviceDescriptor.getName(), methods);
+            }
+        }
+
+        return new SimpleInfoContributor("grpc.server", details);
+    }
+
+    /**
+     * Gets all method names from the given service descriptor.
+     *
+     * @param serviceDescriptor The service descriptor to get the names from.
+     * @return The newly created and sorted list of the method names.
+     */
+    protected List<String> collectMethodNamesForService(final ServiceDescriptor serviceDescriptor) {
+        final List<String> methods = new ArrayList<>();
+        for (final MethodDescriptor<?, ?> grpcMethod : serviceDescriptor.getMethods()) {
+            methods.add(extractMethodName(grpcMethod));
+        }
+        methods.sort(String.CASE_INSENSITIVE_ORDER);
+        return methods;
     }
 
 }
