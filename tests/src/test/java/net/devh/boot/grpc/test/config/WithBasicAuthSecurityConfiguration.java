@@ -20,11 +20,9 @@ package net.devh.boot.grpc.test.config;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AnonymousAuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
@@ -46,7 +44,6 @@ import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 import net.devh.boot.grpc.client.security.AuthenticatingClientInterceptors;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
-import net.devh.boot.grpc.server.security.authentication.AnonymousAuthenticationReader;
 import net.devh.boot.grpc.server.security.authentication.BasicGrpcAuthenticationReader;
 import net.devh.boot.grpc.server.security.authentication.CompositeGrpcAuthenticationReader;
 import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
@@ -61,7 +58,7 @@ public class WithBasicAuthSecurityConfiguration {
 
     // Server-Side
 
-    private static final String ANONYMOUS_KEY = UUID.randomUUID().toString();
+    // private static final String ANONYMOUS_KEY = UUID.randomUUID().toString();
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -89,16 +86,16 @@ public class WithBasicAuthSecurityConfiguration {
         return provider;
     }
 
-    @Bean
-    AnonymousAuthenticationProvider anonymousAuthenticationProvider() {
-        return new AnonymousAuthenticationProvider(ANONYMOUS_KEY);
-    }
+    // @Bean
+    // AnonymousAuthenticationProvider anonymousAuthenticationProvider() {
+    // return new AnonymousAuthenticationProvider(ANONYMOUS_KEY);
+    // }
 
     @Bean
     AuthenticationManager authenticationManager() {
         final List<AuthenticationProvider> providers = new ArrayList<>();
         providers.add(daoAuthenticationProvider());
-        providers.add(anonymousAuthenticationProvider());
+        // providers.add(anonymousAuthenticationProvider());
         return new ProviderManager(providers);
     }
 
@@ -106,14 +103,14 @@ public class WithBasicAuthSecurityConfiguration {
     GrpcAuthenticationReader authenticationReader() {
         final List<GrpcAuthenticationReader> readers = new ArrayList<>();
         readers.add(new BasicGrpcAuthenticationReader());
-        readers.add(new AnonymousAuthenticationReader(ANONYMOUS_KEY));
+        // readers.add(new AnonymousAuthenticationReader(ANONYMOUS_KEY));
         return new CompositeGrpcAuthenticationReader(readers);
     }
 
     @Bean // For testing only
     GrpcServerFactory testServerFactory(final GrpcServerProperties properties,
-            GrpcServiceDiscoverer serviceDiscoverer) {
-        InProcessGrpcServerFactory factory = new InProcessGrpcServerFactory("test", properties);
+            final GrpcServiceDiscoverer serviceDiscoverer) {
+        final InProcessGrpcServerFactory factory = new InProcessGrpcServerFactory("test", properties);
         for (final GrpcServiceDefinition service : serviceDiscoverer.findGrpcServices()) {
             factory.addService(service);
         }

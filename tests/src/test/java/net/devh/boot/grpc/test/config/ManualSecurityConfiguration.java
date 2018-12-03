@@ -49,7 +49,7 @@ public class ManualSecurityConfiguration {
         source.set(TestServiceGrpc.getSecureDrainMethod(), AccessPredicate.hasRole("ROLE_CLIENT1"));
         source.set(TestServiceGrpc.getSecureSupplyMethod(), AccessPredicate.hasRole("ROLE_CLIENT1"));
         source.set(TestServiceGrpc.getSecureBidiMethod(), AccessPredicate.hasRole("ROLE_CLIENT1"));
-        source.setDefault(AccessPredicate.permitAll());
+        source.setDefault(null); // Public
         return source;
     }
 

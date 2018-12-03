@@ -29,16 +29,9 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.server.security.check.AccessPredicate;
-import net.devh.boot.grpc.server.security.check.ManualGrpcSecurityMetadataSource;
 
 /**
  * The AnonymousAuthenticationReader allows users without credentials to get an anonymous identity.
- *
- * <p>
- * <b>Note:</b> Anonymous authentication is currently required when using the {@link ManualGrpcSecurityMetadataSource
- * manually configured security} with {@link AccessPredicate#permitAll() permitAll}.
- * </p>
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */

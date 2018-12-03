@@ -32,7 +32,11 @@ import com.google.common.collect.ImmutableSet;
 
 /**
  * Predicate that can be used to check whether the given {@link Authentication} has access to the protected
- * service/method.
+ * service/method. This interface assumes, that the user is authenticated before the method is called.
+ *
+ * <p>
+ * <b>Note:</b> The {@link ManualGrpcSecurityMetadataSource} uses {@code null} for public access.
+ * </p>
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
@@ -58,14 +62,19 @@ public interface AccessPredicate extends Predicate<Authentication> {
     /**
      * All authenticated users can access the protected instance including anonymous users.
      *
-     * <p>
-     * <b>Note:</b> If anonymous authentication is not configured then the users still don't have access.
-     * </p>
-     *
      * @return A newly created AccessPredicate that always returns true.
      */
-    static AccessPredicate permitAll() {
+    static AccessPredicate authenticated() {
         return authentication -> true;
+    }
+
+    /**
+     * All authenticated users can access the protected instance excluding anonymous users.
+     *
+     * @return A newly created AccessPredicate that checks whether the user is explicitly authenticated.
+     */
+    static AccessPredicate fullyAuthenticated() {
+        return authentication -> !(authentication instanceof AnonymousAuthenticationToken);
     }
 
     /**
@@ -75,15 +84,6 @@ public interface AccessPredicate extends Predicate<Authentication> {
      */
     static AccessPredicate denyAll() {
         return authentication -> false;
-    }
-
-    /**
-     * All authenticated users can access the protected instance (excluding anonymous users).
-     *
-     * @return A newly created AccessPredicate that checks whether the user is explicitly authenticated.
-     */
-    static AccessPredicate fullyAuthenticated() {
-        return authentication -> !(authentication instanceof AnonymousAuthenticationToken);
     }
 
     /**
