@@ -55,7 +55,7 @@ public class ConcurrentSecurityTest {
     @GrpcClient("test")
     protected TestServiceStub testServiceStub;
 
-    @GrpcClient("broken")
+    @GrpcClient("noPerm")
     protected TestServiceStub brokenTestServiceStub;
 
     /**

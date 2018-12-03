@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -64,7 +65,7 @@ public class AuthenticatingServerInterceptor implements ServerInterceptor {
             log.debug("No credentials found: Continuing unauthenticated");
             try {
                 return next.startCall(call, headers);
-            } catch (AccessDeniedException e) {
+            } catch (final AccessDeniedException e) {
                 throw new BadCredentialsException("No credentials found in the request", e);
             }
         }
@@ -75,6 +76,12 @@ public class AuthenticatingServerInterceptor implements ServerInterceptor {
                 authentication.getAuthorities());
         try {
             return new AuthenticatingServerCallListener<>(next.startCall(call, headers), authentication);
+        } catch (final AccessDeniedException e) {
+            if (authentication instanceof AnonymousAuthenticationToken) {
+                throw new BadCredentialsException("No credentials found in the request", e);
+            } else {
+                throw e;
+            }
         } finally {
             log.debug("startCall - Authentication cleared");
             SecurityContextHolder.clearContext();
@@ -90,13 +97,13 @@ public class AuthenticatingServerInterceptor implements ServerInterceptor {
 
         private final Authentication authentication;
 
-        public AuthenticatingServerCallListener(final Listener<ReqT> delegate, Authentication authentication) {
+        public AuthenticatingServerCallListener(final Listener<ReqT> delegate, final Authentication authentication) {
             super(delegate);
             this.authentication = authentication;
         }
 
         @Override
-        public void onMessage(ReqT message) {
+        public void onMessage(final ReqT message) {
             try {
                 log.debug("onMessage - Authentication set");
                 SecurityContextHolder.getContext().setAuthentication(this.authentication);
@@ -113,6 +120,12 @@ public class AuthenticatingServerInterceptor implements ServerInterceptor {
                 log.debug("onHalfClose - Authentication set");
                 SecurityContextHolder.getContext().setAuthentication(this.authentication);
                 super.onHalfClose();
+            } catch (final AccessDeniedException e) {
+                if (this.authentication instanceof AnonymousAuthenticationToken) {
+                    throw new BadCredentialsException("No credentials found in the request", e);
+                } else {
+                    throw e;
+                }
             } finally {
                 log.debug("onHalfClose - Authentication cleared");
                 SecurityContextHolder.clearContext();

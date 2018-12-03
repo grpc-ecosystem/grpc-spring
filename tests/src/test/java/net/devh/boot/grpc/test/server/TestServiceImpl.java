@@ -17,7 +17,13 @@
 
 package net.devh.boot.grpc.test.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.google.protobuf.Empty;
@@ -32,7 +38,7 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceImplBase;
 @GrpcService
 public class TestServiceImpl extends TestServiceImplBase {
 
-    public static final int METHOD_COUNT = 3;
+    public static final int METHOD_COUNT = 6;
 
     public TestServiceImpl() {
         log.info("Created TestServiceImpl");
@@ -56,10 +62,96 @@ public class TestServiceImpl extends TestServiceImplBase {
     @Override
     @Secured("ROLE_CLIENT1")
     public void secure(final Empty request, final StreamObserver<SomeType> responseObserver) {
-        log.debug("secure: {}", SecurityContextHolder.getContext().getAuthentication());
+        assertAuthenticated("secure");
+
         final SomeType version = SomeType.newBuilder().setVersion("1.2.3").build();
         responseObserver.onNext(version);
         responseObserver.onCompleted();
+    }
+
+    @Override
+    @Secured("ROLE_CLIENT1")
+    public StreamObserver<SomeType> secureDrain(final StreamObserver<Empty> responseObserver) {
+        final Authentication authentication = assertAuthenticated("secureDrain");
+
+        return new StreamObserver<SomeType>() {
+
+            @Override
+            public void onNext(final SomeType input) {
+                assertSameAuthenticated("secureDrain-onNext", authentication);
+                assertEquals("1.2.3", input.getVersion());
+            }
+
+            @Override
+            public void onError(final Throwable t) {
+                assertSameAuthenticated("secureDrain-onError", authentication);
+                responseObserver.onError(t);
+            }
+
+            @Override
+            public void onCompleted() {
+                assertSameAuthenticated("secureDrain-onCompleted", authentication);
+                responseObserver.onNext(Empty.getDefaultInstance());
+                responseObserver.onCompleted();
+            }
+
+        };
+    }
+
+    @Override
+    @Secured("ROLE_CLIENT1")
+    public void secureSupply(final Empty request, final StreamObserver<SomeType> responseObserver) {
+        assertAuthenticated("secureListener");
+        responseObserver.onNext(SomeType.newBuilder().setVersion("1.2.3").build());
+        responseObserver.onNext(SomeType.newBuilder().setVersion("1.2.3").build());
+        responseObserver.onNext(SomeType.newBuilder().setVersion("1.2.3").build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    @Secured("ROLE_CLIENT1")
+    public StreamObserver<SomeType> secureBidi(final StreamObserver<SomeType> responseObserver) {
+        final Authentication authentication = assertAuthenticated("secureBidi");
+
+        return new StreamObserver<SomeType>() {
+
+            @Override
+            public void onNext(final SomeType input) {
+                assertSameAuthenticated("secureBidi-onNext", authentication);
+                assertEquals("1.2.3", input.getVersion());
+                responseObserver.onNext(input);
+            }
+
+            @Override
+            public void onError(final Throwable t) {
+                assertSameAuthenticated("secureBidi-onError", authentication);
+                responseObserver.onError(t);
+            }
+
+            @Override
+            public void onCompleted() {
+                assertSameAuthenticated("secureBidi-onCompleted", authentication);
+                responseObserver.onCompleted();
+            }
+
+        };
+    }
+
+    protected Authentication assertAuthenticated(final String method) {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return assertAuthenticated(method, authentication);
+    }
+
+    protected Authentication assertAuthenticated(final String method, final Authentication actual) {
+        assertNotNull(actual, "No user authentication");
+        assertTrue(actual.isAuthenticated(), "User not authenticated!");
+        log.debug("{}: {}", method, actual.getName());
+        return actual;
+    }
+
+    protected Authentication assertSameAuthenticated(final String method, final Authentication expected) {
+        assertSame(expected, SecurityContextHolder.getContext().getAuthentication());
+        return assertAuthenticated(method, expected);
     }
 
 }

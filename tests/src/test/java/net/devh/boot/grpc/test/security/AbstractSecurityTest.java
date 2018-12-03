@@ -18,120 +18,266 @@
 package net.devh.boot.grpc.test.security;
 
 import static io.grpc.Status.Code.PERMISSION_DENIED;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static net.devh.boot.grpc.test.proto.TestServiceGrpc.newBlockingStub;
+import static net.devh.boot.grpc.test.util.FutureAssertions.assertFutureEquals;
+import static net.devh.boot.grpc.test.util.GrpcAssertions.assertFutureFirstEquals;
 import static net.devh.boot.grpc.test.util.GrpcAssertions.assertFutureThrowsStatus;
 import static net.devh.boot.grpc.test.util.GrpcAssertions.assertThrowsStatus;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.springframework.test.annotation.DirtiesContext;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.Empty;
 
 import io.grpc.Channel;
+import io.grpc.Status.Code;
 import io.grpc.internal.testing.StreamRecorder;
-import lombok.extern.slf4j.Slf4j;
+import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.test.proto.SomeType;
-import net.devh.boot.grpc.test.proto.TestServiceGrpc;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceBlockingStub;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceFutureStub;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceStub;
+import net.devh.boot.grpc.test.util.DynamicTestCollection;
+import net.devh.boot.grpc.test.util.TriConsumer;
 
-@Slf4j
 public abstract class AbstractSecurityTest {
+
+    protected static final Empty EMPTY = Empty.getDefaultInstance();
 
     @GrpcClient("test")
     protected Channel channel;
     @GrpcClient("test")
-    protected TestServiceStub testServiceStub;
+    protected TestServiceStub serviceStub;
     @GrpcClient("test")
-    protected TestServiceBlockingStub testServiceBlockingStub;
+    protected TestServiceBlockingStub blockingStub;
     @GrpcClient("test")
-    protected TestServiceFutureStub testServiceFutureStub;
+    protected TestServiceFutureStub futureStub;
 
-    @GrpcClient("broken")
-    protected Channel brokenChannel;
-    @GrpcClient("broken")
-    protected TestServiceStub brokenTestServiceStub;
-    @GrpcClient("broken")
-    protected TestServiceBlockingStub brokenTestServiceBlockingStub;
-    @GrpcClient("broken")
-    protected TestServiceFutureStub brokenTestServiceFutureStub;
+    @GrpcClient("noPerm")
+    protected Channel noPermChannel;
+    @GrpcClient("noPerm")
+    protected TestServiceStub noPermStub;
+    @GrpcClient("noPerm")
+    protected TestServiceBlockingStub noPermBlockingStub;
+    @GrpcClient("noPerm")
+    protected TestServiceFutureStub noPermFutureStub;
 
     /**
-     * Test successful call.
+     * Tests for with unprotected methods.
      *
-     * @throws ExecutionException Should never happen.
-     * @throws InterruptedException Should never happen.
+     * @return The tests.
      */
     @Test
     @DirtiesContext
-    public void testSuccessfulCall() throws InterruptedException, ExecutionException {
-        log.info("--- Starting tests with successful call ---");
-        {
-            assertEquals("1.2.3",
-                    TestServiceGrpc.newBlockingStub(this.channel).normal(Empty.getDefaultInstance()).getVersion());
+    @TestFactory
+    public DynamicTestCollection unprotectedCallTests() {
+        return DynamicTestCollection.create()
+                .add("unprotected-default",
+                        () -> assertNormalCallSuccess(this.channel, this.serviceStub, this.blockingStub,
+                                this.futureStub))
+                .add("unprotected-noPerm",
+                        () -> assertNormalCallSuccess(this.noPermChannel, this.noPermStub, this.noPermBlockingStub,
+                                this.noPermFutureStub));
+    }
 
-            final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
-            this.testServiceStub.normal(Empty.getDefaultInstance(), streamRecorder);
-            assertEquals("1.2.3", streamRecorder.firstValue().get().getVersion());
-            assertEquals("1.2.3", this.testServiceBlockingStub.normal(Empty.getDefaultInstance()).getVersion());
-            assertEquals("1.2.3", this.testServiceFutureStub.normal(Empty.getDefaultInstance()).get().getVersion());
-        }
+    protected void assertNormalCallSuccess(final Channel channel,
+            final TestServiceStub serviceStub,
+            final TestServiceBlockingStub blockingStub,
+            final TestServiceFutureStub futureStub) {
+        assertUnarySuccessfulMethod(channel,
+                serviceStub, TestServiceStub::normal,
+                blockingStub, TestServiceBlockingStub::normal,
+                futureStub, TestServiceFutureStub::normal);
+    }
 
-        {
-            assertEquals("1.2.3",
-                    TestServiceGrpc.newBlockingStub(this.brokenChannel).normal(Empty.getDefaultInstance())
-                            .getVersion());
-
-            final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
-            this.brokenTestServiceStub.normal(Empty.getDefaultInstance(), streamRecorder);
-            assertEquals("1.2.3", streamRecorder.firstValue().get().getVersion());
-            assertEquals("1.2.3", this.brokenTestServiceBlockingStub.normal(Empty.getDefaultInstance()).getVersion());
-            assertEquals("1.2.3",
-                    this.brokenTestServiceFutureStub.normal(Empty.getDefaultInstance()).get().getVersion());
-        }
-
-        log.info("--- Test completed ---");
+    protected void assertNormalCallFailure(final Channel channel,
+            final TestServiceStub serviceStub,
+            final TestServiceBlockingStub blockingStub,
+            final TestServiceFutureStub futureStub,
+            final Code expectedCode) {
+        assertUnaryFailingMethod(channel,
+                serviceStub, TestServiceStub::normal,
+                blockingStub, TestServiceBlockingStub::normal,
+                futureStub, TestServiceFutureStub::normal,
+                expectedCode);
     }
 
     /**
-     * Test secured call.
+     * Tests with unary call.
      *
-     * @throws ExecutionException Should never happen.
-     * @throws InterruptedException Should never happen.
+     * @return The tests.
      */
     @Test
     @DirtiesContext
-    public void testSecuredCall() throws InterruptedException, ExecutionException {
-        log.info("--- Starting tests with secured call ---");
-        {
-            assertEquals("1.2.3",
-                    TestServiceGrpc.newBlockingStub(this.channel).secure(Empty.getDefaultInstance()).getVersion());
+    @TestFactory
+    public DynamicTestCollection unaryCallTest() {
+        return DynamicTestCollection.create()
+                .add("unary-default",
+                        () -> assertUnaryCallSuccess(this.channel, this.serviceStub, this.blockingStub,
+                                this.futureStub))
+                .add("unary-noPerm",
+                        () -> assertUnaryCallFailure(this.noPermChannel, this.noPermStub, this.noPermBlockingStub,
+                                this.noPermFutureStub, PERMISSION_DENIED));
+    }
 
-            final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
-            this.testServiceStub.secure(Empty.getDefaultInstance(), streamRecorder);
-            assertEquals("1.2.3", streamRecorder.firstValue().get().getVersion());
-            assertEquals("1.2.3", this.testServiceBlockingStub.secure(Empty.getDefaultInstance()).getVersion());
-            assertEquals("1.2.3", this.testServiceFutureStub.secure(Empty.getDefaultInstance()).get().getVersion());
-        }
+    protected void assertUnaryCallSuccess(final Channel channel,
+            final TestServiceStub serviceStub,
+            final TestServiceBlockingStub blockingStub,
+            final TestServiceFutureStub futureStub) {
+        assertUnarySuccessfulMethod(channel,
+                serviceStub, TestServiceStub::secure,
+                blockingStub, TestServiceBlockingStub::secure,
+                futureStub, TestServiceFutureStub::secure);
+    }
 
-        {
-            assertThrowsStatus(PERMISSION_DENIED,
-                    () -> TestServiceGrpc.newBlockingStub(this.brokenChannel).secure(Empty.getDefaultInstance()));
+    protected void assertUnaryCallFailure(final Channel channel,
+            final TestServiceStub serviceStub,
+            final TestServiceBlockingStub blockingStub,
+            final TestServiceFutureStub futureStub,
+            final Code expectedCode) {
+        assertUnaryFailingMethod(channel,
+                serviceStub, TestServiceStub::secure,
+                blockingStub, TestServiceBlockingStub::secure,
+                futureStub, TestServiceFutureStub::secure,
+                expectedCode);
+    }
 
-            final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
-            this.brokenTestServiceStub.secure(Empty.getDefaultInstance(), streamRecorder);
-            assertFutureThrowsStatus(PERMISSION_DENIED, streamRecorder.firstValue(), 5, TimeUnit.SECONDS);
-            assertThrowsStatus(PERMISSION_DENIED,
-                    () -> this.brokenTestServiceBlockingStub.secure(Empty.getDefaultInstance()));
-            assertFutureThrowsStatus(PERMISSION_DENIED,
-                    this.brokenTestServiceFutureStub.secure(Empty.getDefaultInstance()), 5, TimeUnit.SECONDS);
-        }
-        log.info("--- Test completed ---");
+    /**
+     * Tests with client streaming call.
+     *
+     * @return The tests.
+     */
+    @Test
+    @DirtiesContext
+    @TestFactory
+    public DynamicTestCollection clientStreamingCallTests() {
+        return DynamicTestCollection.create()
+                .add("clientStreaming-default", () -> assertClientStreamingCallSuccess(this.serviceStub))
+                .add("clientStreaming-noPerm",
+                        () -> assertClientStreamingCallFailure(this.noPermStub, PERMISSION_DENIED));
+    }
+
+    protected void assertClientStreamingCallSuccess(final TestServiceStub serviceStub) {
+        final StreamRecorder<Empty> responseRecorder = StreamRecorder.create();
+        final StreamObserver<SomeType> requestObserver = serviceStub.secureDrain(responseRecorder);
+        sendAndComplete(requestObserver, "1.2.3");
+        assertFutureFirstEquals(EMPTY, responseRecorder, 15, TimeUnit.SECONDS);
+    }
+
+    protected void assertClientStreamingCallFailure(final TestServiceStub serviceStub, final Code expectedCode) {
+        final StreamRecorder<Empty> responseRecorder = StreamRecorder.create();
+        final StreamObserver<SomeType> requestObserver = serviceStub.secureDrain(responseRecorder);
+        // Let the server throw an exception if he receives that (assert security):
+        sendAndComplete(requestObserver, "explode");
+        assertFutureThrowsStatus(expectedCode, responseRecorder, 15, SECONDS);
+    }
+
+    /**
+     * Tests with server streaming call.
+     *
+     * @return The tests.
+     */
+    @Test
+    @DirtiesContext
+    public DynamicTestCollection serverStreamingCallTests() {
+        return DynamicTestCollection.create()
+                .add("serverStreaming-default",
+                        () -> assertServerStreamingCallSuccess(this.serviceStub))
+                .add("serverStreaming-noPerm",
+                        () -> assertServerStreamingCallFailure(this.noPermStub, PERMISSION_DENIED));
+    }
+
+    protected void assertServerStreamingCallSuccess(final TestServiceStub testStub) {
+        final StreamRecorder<SomeType> responseRecorder = StreamRecorder.create();
+        testStub.secureSupply(EMPTY, responseRecorder);
+        assertFutureFirstEquals("1.2.3", responseRecorder, SomeType::getVersion, 5, SECONDS);
+    }
+
+    protected void assertServerStreamingCallFailure(final TestServiceStub serviceStub, final Code expectedCode) {
+        final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
+        serviceStub.secureSupply(EMPTY, streamRecorder);
+        assertFutureThrowsStatus(expectedCode, streamRecorder, 15, SECONDS);
+    }
+
+    /**
+     * Tests with bidirectional streaming call.
+     *
+     * @return The tests.
+     */
+    @Test
+    @DirtiesContext
+    public DynamicTestCollection bidiStreamingCallTests() {
+        return DynamicTestCollection.create()
+                .add("bidiStreaming-default", () -> assertBidiCallSuccess(this.serviceStub))
+                .add("bidiStreaming-noPerm", () -> assertBidiCallFailure(this.noPermStub, PERMISSION_DENIED));
+    }
+
+    protected void assertBidiCallSuccess(final TestServiceStub testStub) {
+        final StreamRecorder<SomeType> responseRecorder = StreamRecorder.create();
+        final StreamObserver<SomeType> requestObserver = testStub.secureBidi(responseRecorder);
+        sendAndComplete(requestObserver, "1.2.3");
+        assertFutureFirstEquals("1.2.3", responseRecorder, SomeType::getVersion, 5, SECONDS);
+    }
+
+    protected void assertBidiCallFailure(final TestServiceStub serviceStub, final Code expectedCode) {
+        final StreamRecorder<SomeType> responseRecorder = StreamRecorder.create();
+        final StreamObserver<SomeType> requestObserver = serviceStub.secureBidi(responseRecorder);
+        sendAndComplete(requestObserver, "explode");
+        assertFutureThrowsStatus(expectedCode, responseRecorder, 15, SECONDS);
+    }
+
+    // -------------------------------------
+
+    protected void assertUnarySuccessfulMethod(final Channel channel,
+            final TestServiceStub serviceStub,
+            final TriConsumer<TestServiceStub, Empty, StreamRecorder<SomeType>> serviceCall,
+            final TestServiceBlockingStub blockingStub,
+            final BiFunction<TestServiceBlockingStub, Empty, SomeType> blockingcall,
+            final TestServiceFutureStub futureStub,
+            final BiFunction<TestServiceFutureStub, Empty, ListenableFuture<SomeType>> futureCall) {
+
+        assertEquals("1.2.3", blockingcall.apply(newBlockingStub(channel), EMPTY).getVersion());
+
+        final StreamRecorder<SomeType> responseRecorder = StreamRecorder.create();
+        serviceCall.accept(serviceStub, EMPTY, responseRecorder);
+        assertFutureFirstEquals("1.2.3", responseRecorder, SomeType::getVersion, 5, SECONDS);
+
+        assertEquals("1.2.3", blockingcall.apply(blockingStub, EMPTY).getVersion());
+        assertFutureEquals("1.2.3", futureCall.apply(futureStub, EMPTY), SomeType::getVersion, 5, SECONDS);
+    }
+
+    protected void assertUnaryFailingMethod(final Channel channel,
+            final TestServiceStub serviceStub,
+            final TriConsumer<TestServiceStub, Empty, StreamRecorder<SomeType>> serviceCall,
+            final TestServiceBlockingStub blockingStub,
+            final BiFunction<TestServiceBlockingStub, Empty, SomeType> blockingcall,
+            final TestServiceFutureStub futureStub,
+            final BiFunction<TestServiceFutureStub, Empty, ListenableFuture<SomeType>> futureCall,
+            final Code expectedCode) {
+
+        assertThrowsStatus(expectedCode, () -> blockingcall.apply(newBlockingStub(channel), EMPTY));
+
+        final StreamRecorder<SomeType> responseRecorder = StreamRecorder.create();
+        serviceCall.accept(serviceStub, EMPTY, responseRecorder);
+        assertFutureThrowsStatus(expectedCode, responseRecorder, 5, SECONDS);
+
+        assertThrowsStatus(expectedCode, () -> blockingcall.apply(blockingStub, EMPTY));
+        assertFutureThrowsStatus(expectedCode, futureCall.apply(futureStub, EMPTY), 5, SECONDS);
+    }
+
+    protected void sendAndComplete(final StreamObserver<SomeType> requestObserver, final String message) {
+        requestObserver.onNext(SomeType.newBuilder().setVersion(message).build());
+        requestObserver.onNext(SomeType.newBuilder().setVersion(message).build());
+        requestObserver.onNext(SomeType.newBuilder().setVersion(message).build());
+        requestObserver.onCompleted();
     }
 
 }

@@ -17,11 +17,14 @@
 
 package net.devh.boot.grpc.test.util;
 
+import static net.devh.boot.grpc.test.util.FutureAssertions.assertFutureEquals;
 import static net.devh.boot.grpc.test.util.FutureAssertions.assertFutureThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import org.junit.jupiter.api.function.Executable;
 
@@ -29,16 +32,32 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+import io.grpc.internal.testing.StreamRecorder;
 
 public final class GrpcAssertions {
+
+    public static <T> void assertFutureFirstEquals(final T expected, final StreamRecorder<T> responseObserver,
+            final int timeout, final TimeUnit timeoutUnit) {
+        assertFutureFirstEquals(expected, responseObserver, UnaryOperator.identity(), timeout, timeoutUnit);
+    }
+
+    public static <T, R> void assertFutureFirstEquals(final T expected, final StreamRecorder<R> responseObserver,
+            final Function<R, T> unwrapper, final int timeout, final TimeUnit timeoutUnit) {
+        assertFutureEquals(expected, responseObserver.firstValue(), unwrapper, timeout, timeoutUnit);
+    }
 
     public static Status assertThrowsStatus(final Status.Code code, final Executable executable) {
         final StatusRuntimeException exception = assertThrows(StatusRuntimeException.class, executable);
         return assertStatus(code, exception);
     }
 
-    public static Status assertFutureThrowsStatus(final Status.Code code, final ListenableFuture<?> future, int timeout,
-            TimeUnit timeoutUnit) {
+    public static Status assertFutureThrowsStatus(final Status.Code code, final StreamRecorder<?> recorder,
+            final int timeout, final TimeUnit timeoutUnit) {
+        return assertFutureThrowsStatus(code, recorder.firstValue(), timeout, timeoutUnit);
+    }
+
+    public static Status assertFutureThrowsStatus(final Status.Code code, final ListenableFuture<?> future,
+            final int timeout, final TimeUnit timeoutUnit) {
         final StatusRuntimeException exception =
                 assertFutureThrows(StatusRuntimeException.class, future, timeout, timeoutUnit);
         return assertStatus(code, exception);

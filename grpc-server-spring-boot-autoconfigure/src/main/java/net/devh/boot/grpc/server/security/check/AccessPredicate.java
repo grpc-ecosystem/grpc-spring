@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -31,23 +32,72 @@ import com.google.common.collect.ImmutableSet;
 
 /**
  * Predicate that can be used to check whether the given {@link Authentication} has access to the protected
- * service/method.
+ * service/method. This interface assumes, that the user is authenticated before the method is called.
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 public interface AccessPredicate extends Predicate<Authentication> {
 
+    @Override
+    default AccessPredicate negate() {
+        return t -> !test(t);
+    }
+
+    @Override
+    default AccessPredicate and(final Predicate<? super Authentication> other) {
+        requireNonNull(other);
+        return t -> test(t) && other.test(t);
+    }
+
+    @Override
+    default AccessPredicate or(final Predicate<? super Authentication> other) {
+        requireNonNull(other);
+        return t -> test(t) || other.test(t);
+    }
+
     /**
-     * Everyone can access the protected instance.
+     * Special constant that symbolizes that everybody (including unauthenticated users) can access the instance (no
+     * protection).
+     *
+     * <p>
+     * <b>Note:</b> This is a special constant, that does not allow execution and mutation. It's sole purpose is to
+     * avoid ambiguity for {@code null} values. It should only be used in {@code ==} comparisons.
+     * </p>
+     *
+     * @return A special constant that symbolizes public access.
+     */
+    static AccessPredicate permitAll() {
+        return AccessPredicates.PERMIT_ALL;
+    }
+
+    /**
+     * All authenticated users can access the protected instance including anonymous users.
+     *
+     * <p>
+     * <b>Note:</b> The negation of this call is {@link #denyAll()} and NOT all unauthenticated.
+     * </p>
      *
      * @return A newly created AccessPredicate that always returns true.
      */
-    static AccessPredicate permitAll() {
+    static AccessPredicate authenticated() {
         return authentication -> true;
     }
 
     /**
+     * All authenticated users can access the protected instance excluding anonymous users.
+     *
+     * @return A newly created AccessPredicate that checks whether the user is explicitly authenticated.
+     */
+    static AccessPredicate fullyAuthenticated() {
+        return authentication -> !(authentication instanceof AnonymousAuthenticationToken);
+    }
+
+    /**
      * Nobody can access the protected instance.
+     *
+     * <p>
+     * <b>Note:</b> The negation of this call is {@link #authenticated()} and NOT {@link #permitAll()}.
+     * </p>
      *
      * @return A newly created AccessPredicate that always returns false.
      */
