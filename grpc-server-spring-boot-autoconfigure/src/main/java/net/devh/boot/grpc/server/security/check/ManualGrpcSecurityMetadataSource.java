@@ -25,22 +25,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nullable;
-
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 
 import io.grpc.MethodDescriptor;
 import io.grpc.ServiceDescriptor;
-import net.devh.boot.grpc.server.security.authentication.AnonymousAuthenticationReader;
 
 /**
  * A {@link GrpcSecurityMetadataSource} for manual configuration. For each {@link MethodDescriptor gRPC method} a
- * {@link AccessPredicate} can be defined, that checks whether the user is authenticated and has access. If you want to
- * allow public access then use {@code null} as the AccessPredicate parameter or enable
- * {@link AnonymousAuthenticationReader anonymous authentication}. This metadata source only works if an
- * {@link AccessDecisionManager} is configured with an {@link AccessPredicateVoter}.
+ * {@link AccessPredicate} can be defined, that checks whether the user is authenticated and has access. This metadata
+ * source only works if an {@link AccessDecisionManager} is configured with an {@link AccessPredicateVoter}.
  *
  * <p>
  * <b>Note:</b> This instance is initialized with {@link AccessPredicate#denyAll() deny all} as default.
@@ -68,16 +63,17 @@ public final class ManualGrpcSecurityMetadataSource extends AbstractGrpcSecurity
      * predicates.
      *
      * @param service The service to protect with a custom check.
-     * @param predicate The predicate used to check the {@link Authentication}. IIf set to null it will use the public
-     *        access.
+     * @param predicate The predicate used to check the {@link Authentication}.
+     * @return This instance for chaining.
      * @see #setDefault(AccessPredicate)
      */
-    public void set(final ServiceDescriptor service, @Nullable final AccessPredicate predicate) {
+    public ManualGrpcSecurityMetadataSource set(final ServiceDescriptor service, final AccessPredicate predicate) {
         requireNonNull(service, "service");
         final Collection<ConfigAttribute> wrappedPredicate = wrap(predicate);
         for (final MethodDescriptor<?, ?> method : service.getMethods()) {
             this.accessMap.put(method, wrappedPredicate);
         }
+        return this;
     }
 
     /**
@@ -85,47 +81,53 @@ public final class ManualGrpcSecurityMetadataSource extends AbstractGrpcSecurity
      * those methods.
      *
      * @param service The service to protect with only the default.
+     * @return This instance for chaining.
      * @see #setDefault(AccessPredicate)
      */
-    public void remove(final ServiceDescriptor service) {
+    public ManualGrpcSecurityMetadataSource remove(final ServiceDescriptor service) {
         requireNonNull(service, "service");
         for (final MethodDescriptor<?, ?> method : service.getMethods()) {
             this.accessMap.remove(method);
         }
+        return this;
     }
 
     /**
      * Set the given access predicate for the given method. This will replace previously set predicates.
      *
      * @param method The method to protect with a custom check.
-     * @param predicate The predicate used to check the {@link Authentication}. If set to null it will use the public
-     *        access.
+     * @param predicate The predicate used to check the {@link Authentication}.
+     * @return This instance for chaining.
      * @see #setDefault(AccessPredicate)
      */
-    public void set(final MethodDescriptor<?, ?> method, @Nullable final AccessPredicate predicate) {
+    public ManualGrpcSecurityMetadataSource set(final MethodDescriptor<?, ?> method, final AccessPredicate predicate) {
         requireNonNull(method, "method");
         this.accessMap.put(method, wrap(predicate));
+        return this;
     }
 
     /**
-     * Removes the any access predicate for the given method. After that, the default will be used for that method.
+     * Removes all access predicates for the given method. After that, the default will be used for that method.
      *
      * @param method The method to protect with only the default.
+     * @return This instance for chaining.
      * @see #setDefault(AccessPredicate)
      */
-    public void remove(final MethodDescriptor<?, ?> method) {
+    public ManualGrpcSecurityMetadataSource remove(final MethodDescriptor<?, ?> method) {
         requireNonNull(method, "method");
         this.accessMap.remove(method);
+        return this;
     }
 
     /**
      * Sets the default that will be used if no specific configuration has been made.
      *
-     * @param predicate The default predicate used to check the {@link Authentication}. If set to null it will use the
-     *        public access.
+     * @param predicate The default predicate used to check the {@link Authentication}.
+     * @return This instance for chaining.
      */
-    public void setDefault(final AccessPredicate predicate) {
+    public ManualGrpcSecurityMetadataSource setDefault(final AccessPredicate predicate) {
         this.defaultAttributes = wrap(predicate);
+        return this;
     }
 
     /**
@@ -135,7 +137,8 @@ public final class ManualGrpcSecurityMetadataSource extends AbstractGrpcSecurity
      * @return The newly created list with the given predicate.
      */
     protected Collection<ConfigAttribute> wrap(final AccessPredicate predicate) {
-        if (predicate == null) {
+        requireNonNull(predicate, "predicate");
+        if (predicate == AccessPredicates.PERMIT_ALL) {
             return of(); // Empty collection => public invocation
         }
         return of(new AccessPredicateConfigAttribute(predicate));
