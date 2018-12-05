@@ -19,7 +19,7 @@ package net.devh.boot.grpc.client.nameresolver;
 
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -48,18 +48,18 @@ public class AddressChannelNameResolver extends NameResolver {
     private final String name;
     private final GrpcChannelProperties properties;
 
-    private final SharedResourceHolder.Resource<ExecutorService> executorResource;
+    private final SharedResourceHolder.Resource<Executor> executorResource;
     @GuardedBy("this")
     private boolean shutdown;
     @GuardedBy("this")
-    private ExecutorService executor;
+    private Executor executor;
     @GuardedBy("this")
     private boolean resolving;
     @GuardedBy("this")
     private Listener listener;
 
-    public AddressChannelNameResolver(String name, GrpcChannelProperties properties,
-            SharedResourceHolder.Resource<ExecutorService> executorResource) {
+    public AddressChannelNameResolver(final String name, final GrpcChannelProperties properties,
+            final SharedResourceHolder.Resource<Executor> executorResource) {
         this.name = name;
         this.properties = properties;
         this.executorResource = executorResource;
