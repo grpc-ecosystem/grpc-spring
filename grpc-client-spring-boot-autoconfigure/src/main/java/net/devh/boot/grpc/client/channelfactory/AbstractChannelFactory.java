@@ -250,11 +250,12 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
 
     /**
      * Closes this channel factory and the channels created by this instance. The shutdown happens in two phases, first
-     * an orderly shutdown is initiated on all channels and then the method waits for all channels to terminate.
+     * an orderly shutdown is initiated on all channels and then the method waits for all channels to terminate. If the
+     * channels don't have terminated after 60 seconds then they will be forcefully shutdown.
      */
     @Override
     @PreDestroy
-    public synchronized void close() throws InterruptedException {
+    public synchronized void close() {
         if (this.shutdown) {
             return;
         }
@@ -262,11 +263,24 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         for (final ManagedChannel channel : this.channels.values()) {
             channel.shutdown();
         }
-        for (final ManagedChannel channel : this.channels.values()) {
-            int i = 0;
-            do {
-                log.debug("Awaiting channel shutdown: {} ({}s)", channel, i++);
-            } while (!channel.awaitTermination(1, TimeUnit.SECONDS));
+        try {
+            final long waitLimit = System.currentTimeMillis() + 60_000; // wait 60 seconds at max
+            for (final ManagedChannel channel : this.channels.values()) {
+                int i = 0;
+                do {
+                    log.debug("Awaiting channel shutdown: {} ({}s)", channel, i++);
+                } while (System.currentTimeMillis() < waitLimit && !channel.awaitTermination(1, TimeUnit.SECONDS));
+            }
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.debug("We got interrupted - Speeding up shutdown process");
+        } finally {
+            for (final ManagedChannel channel : this.channels.values()) {
+                if (!channel.isTerminated()) {
+                    log.debug("Channel not terminated yet - force shutdown now: {} ", channel);
+                    channel.shutdownNow();
+                }
+            }
         }
         final int channelCount = this.channels.size();
         this.channels.clear();

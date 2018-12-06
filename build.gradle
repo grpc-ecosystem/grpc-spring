@@ -65,10 +65,7 @@ allprojects {
     }
 
     compileJava.options*.compilerArgs = [
-            "-Xlint:serial", "-Xlint:varargs", "-Xlint:classfile", "-Xlint:dep-ann",
-            "-Xlint:divzero", "-Xlint:empty", "-Xlint:finally", "-Xlint:overrides",
-            "-Xlint:path", "-Xlint:static", "-Xlint:try", "-Xlint:fallthrough",
-            "-Xlint:deprecation", "-Xlint:unchecked", "-Xlint:-options"
+            "-Xlint:all", "-Xlint:-cast", "-Xlint:-processing"
     ]
 
     spotless {
