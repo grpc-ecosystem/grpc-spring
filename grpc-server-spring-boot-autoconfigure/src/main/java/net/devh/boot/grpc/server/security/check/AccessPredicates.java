@@ -35,6 +35,9 @@ final class AccessPredicates {
      */
     static final AccessPredicate PERMIT_ALL = new AccessPredicate() {
 
+        /**
+         * @deprecated Should never be called
+         */
         @Override
         @Deprecated // Should never be called
         public boolean test(final Authentication t) {
@@ -42,18 +45,27 @@ final class AccessPredicates {
                     "Tried to execute the 'permit-all' access predicate. The server's security configuration is broken.");
         }
 
+        /**
+         * @deprecated Should never be called
+         */
         @Override
         @Deprecated // Should never be called
         public AccessPredicate and(final Predicate<? super Authentication> other) {
             throw new UnsupportedOperationException("Not allowed for 'permit-all' access predicate");
         }
 
+        /**
+         * @deprecated Should never be called
+         */
         @Override
         @Deprecated // Should never be called
         public AccessPredicate or(final Predicate<? super Authentication> other) {
             throw new UnsupportedOperationException("Not allowed for 'permit-all' access predicate");
         }
 
+        /**
+         * @deprecated Should never be called
+         */
         @Override
         @Deprecated // Should never be called
         public AccessPredicate negate() {
