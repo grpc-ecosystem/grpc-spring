@@ -26,6 +26,8 @@ buildscript {
         springCloudEurekaVersion = '2.0.2.RELEASE'
         braveInstrumentationGrpc = '5.5.0'
         jUnitVersion = '5.3.1'
+
+        lombokVersion='1.18.4'
     }
     dependencies {
         classpath "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE"
@@ -38,10 +40,9 @@ plugins {
     id "net.nemerosa.versioning" version "2.8.2"
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.7'
+wrapper {
+    gradleVersion = '5.0'
 }
-
 
 def buildTimeAndDate = OffsetDateTime.now()
 
@@ -127,9 +128,10 @@ allprojects {
         maven { url 'https://repo.spring.io/libs-milestone' }
     }
     dependencies {
-        compileOnly('org.projectlombok:lombok:1.18.4')
-        testCompile('org.projectlombok:lombok:1.18.4')
-        annotationProcessor('org.projectlombok:lombok:1.18.4')
+        compileOnly("org.projectlombok:lombok:${lombokVersion}")
+        testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
+        annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+        testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
     }
     buildscript {
         repositories {

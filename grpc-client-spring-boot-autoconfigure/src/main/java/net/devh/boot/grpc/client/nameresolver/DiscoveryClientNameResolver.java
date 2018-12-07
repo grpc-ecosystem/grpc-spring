@@ -26,9 +26,9 @@ import java.util.concurrent.ScheduledFuture;
 
 import javax.annotation.concurrent.GuardedBy;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.util.CollectionUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -126,7 +126,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
                     return;
                 }
 
-                if (CollectionUtils.isNotEmpty(newServiceInstanceList)) {
+                if (!CollectionUtils.isEmpty(newServiceInstanceList)) {
                     if (isNeedToUpdateServiceInstanceList(newServiceInstanceList)) {
                         serviceInstanceList = newServiceInstanceList;
                     } else {

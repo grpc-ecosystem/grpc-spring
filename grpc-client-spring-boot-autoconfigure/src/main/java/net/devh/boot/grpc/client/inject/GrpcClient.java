@@ -57,7 +57,7 @@ public @interface GrpcClient {
      * this client.
      *
      * <p>
-     * <b>Example:</b> <code>@GrpcClient("myClient")</code> &lt;-&gt; <tt>grpc.client.myClient.port=9090</tt>
+     * <b>Example:</b> <code>@GrpcClient("myClient")</code> &lt;-&gt; {@code grpc.client.myClient.port=9090}
      * </p>
      *
      * <p>

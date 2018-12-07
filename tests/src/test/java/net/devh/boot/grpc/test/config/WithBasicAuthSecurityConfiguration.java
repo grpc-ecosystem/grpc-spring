@@ -58,6 +58,8 @@ public class WithBasicAuthSecurityConfiguration {
 
     // Server-Side
 
+    // private static final String ANONYMOUS_KEY = UUID.randomUUID().toString();
+
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
@@ -84,10 +86,16 @@ public class WithBasicAuthSecurityConfiguration {
         return provider;
     }
 
+    // @Bean
+    // AnonymousAuthenticationProvider anonymousAuthenticationProvider() {
+    // return new AnonymousAuthenticationProvider(ANONYMOUS_KEY);
+    // }
+
     @Bean
     AuthenticationManager authenticationManager() {
         final List<AuthenticationProvider> providers = new ArrayList<>();
         providers.add(daoAuthenticationProvider());
+        // providers.add(anonymousAuthenticationProvider());
         return new ProviderManager(providers);
     }
 
@@ -95,13 +103,14 @@ public class WithBasicAuthSecurityConfiguration {
     GrpcAuthenticationReader authenticationReader() {
         final List<GrpcAuthenticationReader> readers = new ArrayList<>();
         readers.add(new BasicGrpcAuthenticationReader());
+        // readers.add(new AnonymousAuthenticationReader(ANONYMOUS_KEY));
         return new CompositeGrpcAuthenticationReader(readers);
     }
 
     @Bean // For testing only
     GrpcServerFactory testServerFactory(final GrpcServerProperties properties,
-            GrpcServiceDiscoverer serviceDiscoverer) {
-        InProcessGrpcServerFactory factory = new InProcessGrpcServerFactory("test", properties);
+            final GrpcServiceDiscoverer serviceDiscoverer) {
+        final InProcessGrpcServerFactory factory = new InProcessGrpcServerFactory("test", properties);
         for (final GrpcServiceDefinition service : serviceDiscoverer.findGrpcServices()) {
             factory.addService(service);
         }
@@ -132,10 +141,14 @@ public class WithBasicAuthSecurityConfiguration {
                 String username;
                 if ("test".equals(name)) {
                     username = "client1";
-                } else if ("broken".equals(name)) {
+                } else if ("noPerm".equals(name)) {
                     username = "client2";
+                } else if ("unknownUser".equals(name)) {
+                    username = "unknownUser";
+                } else if ("noAuth".equals(name)) {
+                    return super.createChannel("test", interceptors);
                 } else {
-                    throw new IllegalArgumentException("Unknown username");
+                    throw new IllegalArgumentException("Unknown username: " + name);
                 }
                 interceptors.add(AuthenticatingClientInterceptors.basicAuth(username, username));
                 return super.createChannel("test", interceptors);
