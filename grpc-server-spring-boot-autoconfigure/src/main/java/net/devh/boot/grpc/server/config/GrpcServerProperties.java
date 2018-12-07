@@ -35,10 +35,15 @@ import lombok.extern.slf4j.Slf4j;
 @ConfigurationProperties("grpc.server")
 public class GrpcServerProperties {
 
+    public static String ANY_IP_ADDRESS = "*";
+    public static String ANY_IPv4_ADDRESS = "0.0.0.0";
+    public static String ANY_IPv6_ADDRESS = "::";
+
     /**
-     * Bind address for the server. Defaults to {@code 0.0.0.0}.
+     * Bind address for the server. Defaults to {@link #ANY_IP_ADDRESS "*"}. Alternatively you can restrict this to
+     * {@link #ANY_IPv4_ADDRESS "0.0.0.0"} or {@link #ANY_IPv6_ADDRESS "::"}. Or restrict it to exactly one IP address.
      */
-    private String address = "0.0.0.0";
+    private String address = ANY_IP_ADDRESS;
 
     /**
      * Server port to listen on. Defaults to {@code 9090}. If set to {@code 0} a random available port will be selected

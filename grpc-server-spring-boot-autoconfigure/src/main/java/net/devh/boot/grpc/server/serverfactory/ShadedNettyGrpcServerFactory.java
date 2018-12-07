@@ -54,7 +54,13 @@ public class ShadedNettyGrpcServerFactory
 
     @Override
     protected NettyServerBuilder newServerBuilder() {
-        return NettyServerBuilder.forAddress(new InetSocketAddress(InetAddresses.forString(getAddress()), getPort()));
+        final String address = getAddress();
+        final int port = getPort();
+        if (GrpcServerProperties.ANY_IP_ADDRESS.equals(address)) {
+            return NettyServerBuilder.forPort(port);
+        } else {
+            return NettyServerBuilder.forAddress(new InetSocketAddress(InetAddresses.forString(address), port));
+        }
     }
 
     @Override
