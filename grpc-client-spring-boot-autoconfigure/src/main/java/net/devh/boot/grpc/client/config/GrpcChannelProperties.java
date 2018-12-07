@@ -17,8 +17,7 @@
 
 package net.devh.boot.grpc.client.config;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.net.URI;
 import java.util.List;
 
 import io.grpc.internal.GrpcUtil;
@@ -34,23 +33,39 @@ import lombok.Data;
 public class GrpcChannelProperties {
 
     public static final String DEFAULT_HOST = "127.0.0.1";
-    public static final Integer DEFAULT_PORT = 9090;
-    private static final List<String> DEFAULT_HOSTS = Arrays.asList(DEFAULT_HOST);
-    private static final List<Integer> DEFAULT_PORTS = Arrays.asList(DEFAULT_PORT);
+    public static final int DEFAULT_PORT = 9090;
+    public static final URI DEFAULT_URI = URI.create("static://" + DEFAULT_HOST + ':' + DEFAULT_PORT);
 
     public static final GrpcChannelProperties DEFAULT = new GrpcChannelProperties();
 
     /**
-     * A list of hosts to connect to. These entries should be kept in tandem with the port entries. Defaults to
-     * {@link #DEFAULT_HOST}.
+     * The target uri in the format: 'schema://authority'. Defaults to 'static://127.0.0.1:9090'.
      */
-    private List<String> host = new ArrayList<>(DEFAULT_HOSTS);
+    private URI address = URI.create("static://" + DEFAULT_HOST + ':' + DEFAULT_PORT);
 
-    /**
-     * A list of ports to connect to. These entries should be kept in tandem with the host entries. Defaults to
-     * {@link #DEFAULT_PORT}.
-     */
-    private List<Integer> port = new ArrayList<>(DEFAULT_PORTS);
+    @Deprecated
+    public void setHost(final String host) {
+        throw new UnsupportedOperationException(
+                "Use the 'address' attribute with 'static://host1:port1,...,hostn:portn' instead");
+    }
+
+    @Deprecated
+    public void setHost(final List<String> hosts) {
+        throw new UnsupportedOperationException(
+                "Use the 'address' attribute with 'static://host1:port1,...,hostn:portn' instead");
+    }
+
+    @Deprecated
+    public void setPort(final String port) {
+        throw new UnsupportedOperationException(
+                "Use the 'address' attribute with 'static://host1:port1,...,hostn:portn' instead");
+    }
+
+    @Deprecated
+    public void setPort(final List<String> ports) {
+        throw new UnsupportedOperationException(
+                "Use the 'address' attribute with 'static://host1:port1,...,hostn:portn' instead");
+    }
 
     /**
      * Setting to enable keepalive. Default to {@code false}.

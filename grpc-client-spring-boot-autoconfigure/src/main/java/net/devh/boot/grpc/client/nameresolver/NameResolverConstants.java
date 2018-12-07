@@ -17,50 +17,28 @@
 
 package net.devh.boot.grpc.client.nameresolver;
 
-import java.net.URI;
-
-import javax.annotation.Nullable;
-
 import io.grpc.Attributes;
 import io.grpc.NameResolver;
-import io.grpc.NameResolverProvider;
-import io.grpc.internal.GrpcUtil;
-import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
+import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 
 /**
- * A name resolver factory that will create an {@link AddressChannelNameResolver} based on the target uri.
+ * Helper class with some constants that are used by {@link NameResolver}s or their factories.
  *
- * @author Michael (yidongnan@gmail.com)
- * @since 5/17/16
+ * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-public class AddressChannelResolverFactory extends NameResolverProvider {
+public final class NameResolverConstants {
 
-    private final GrpcChannelsProperties properties;
+    /**
+     * The name of the client, that was used to create the connection.
+     */
+    public static final Attributes.Key<String> PARAMS_CLIENT_NAME =
+            Attributes.Key.create("params-client-name");
+    /**
+     * The configuration that is associated with the client.
+     */
+    public static final Attributes.Key<GrpcChannelProperties> PARAMS_CLIENT_CONFIG =
+            Attributes.Key.create("params-client-config");
 
-    public AddressChannelResolverFactory(final GrpcChannelsProperties properties) {
-        this.properties = properties;
-    }
-
-    @Nullable
-    @Override
-    public NameResolver newNameResolver(final URI targetUri, final Attributes params) {
-        return new AddressChannelNameResolver(targetUri.toString(), this.properties.getChannel(targetUri.toString()),
-                GrpcUtil.SHARED_CHANNEL_EXECUTOR);
-    }
-
-    @Override
-    public String getDefaultScheme() {
-        return "address";
-    }
-
-    @Override
-    protected boolean isAvailable() {
-        return true;
-    }
-
-    @Override
-    protected int priority() {
-        return 5;
-    }
+    private NameResolverConstants() {}
 
 }

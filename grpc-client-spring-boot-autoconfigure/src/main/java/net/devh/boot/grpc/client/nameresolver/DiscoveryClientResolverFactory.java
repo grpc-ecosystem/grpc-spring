@@ -31,7 +31,6 @@ import org.springframework.context.event.EventListener;
 
 import io.grpc.Attributes;
 import io.grpc.NameResolver;
-import io.grpc.NameResolverProvider;
 import io.grpc.internal.GrpcUtil;
 
 /**
@@ -40,7 +39,9 @@ import io.grpc.internal.GrpcUtil;
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
-public class DiscoveryClientResolverFactory extends NameResolverProvider {
+public class DiscoveryClientResolverFactory extends NameResolver.Factory {
+
+    public static final String DISCOVERY_SCHEME = "discovery";
 
     private final Collection<DiscoveryClientNameResolver> discoveryClientNameResolvers = new ArrayList<>();
     private final HeartbeatMonitor monitor = new HeartbeatMonitor();
@@ -54,26 +55,19 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
     @Nullable
     @Override
     public NameResolver newNameResolver(final URI targetUri, final Attributes params) {
-        final DiscoveryClientNameResolver discoveryClientNameResolver =
-                new DiscoveryClientNameResolver(targetUri.toString(), this.client, GrpcUtil.TIMER_SERVICE,
-                        GrpcUtil.SHARED_CHANNEL_EXECUTOR);
-        this.discoveryClientNameResolvers.add(discoveryClientNameResolver);
-        return discoveryClientNameResolver;
+        if (DISCOVERY_SCHEME.equals(targetUri.getScheme())) {
+            final DiscoveryClientNameResolver discoveryClientNameResolver =
+                    new DiscoveryClientNameResolver(targetUri.getAuthority(), this.client,
+                            GrpcUtil.TIMER_SERVICE, GrpcUtil.SHARED_CHANNEL_EXECUTOR);
+            this.discoveryClientNameResolvers.add(discoveryClientNameResolver);
+            return discoveryClientNameResolver;
+        }
+        return null;
     }
 
     @Override
     public String getDefaultScheme() {
-        return "discoveryClient";
-    }
-
-    @Override
-    protected boolean isAvailable() {
-        return true;
-    }
-
-    @Override
-    protected int priority() {
-        return 5;
+        return DISCOVERY_SCHEME;
     }
 
     /**
