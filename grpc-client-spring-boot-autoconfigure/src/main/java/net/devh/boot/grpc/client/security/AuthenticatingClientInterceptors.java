@@ -114,6 +114,19 @@ public final class AuthenticatingClientInterceptors {
         return "Basic " + new String(encoded, UTF_8);
     }
 
+    /**
+     * Creates a new {@link ClientInterceptor} that adds the given bearer token as Bearer Authentication to all
+     * requests. The header will be encoded with {@link StandardCharsets#UTF_8 UTF_8}.
+     *
+     * @param token the bearer token
+     * @return The newly created basic auth interceptor.
+     */
+    public static ClientInterceptor bearerAuth(final String token) {
+        final Metadata extraHeaders = new Metadata();
+        extraHeaders.put(AUTHORIZATION_HEADER, "Bearer " + token);
+        return MetadataUtils.newAttachHeadersInterceptor(extraHeaders);
+    }
+
     private AuthenticatingClientInterceptors() {}
 
 }

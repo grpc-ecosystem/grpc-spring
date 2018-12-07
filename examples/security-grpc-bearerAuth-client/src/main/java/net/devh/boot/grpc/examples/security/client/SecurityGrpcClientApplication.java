@@ -15,38 +15,22 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.server.security.authentication;
+package net.devh.boot.grpc.examples.security.client;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
-
-import io.grpc.Metadata;
-import io.grpc.ServerCall;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Reads {@link PreAuthenticatedAuthenticationToken bearer token} from the request.
+ * An example client application that demonstrates bearer auth security.
  *
+ * @author Daniel Theuke (daniel.theuke@heuboe.de)
  * @author Gregor Eeckels (gregor.eeckels@gmail.com)
  */
-@Slf4j
-public class BearerAuthenticationReader implements GrpcAuthenticationReader {
-    private static final String PREFIX = "bearer ";
-    private static final int PREFIX_LENGTH = PREFIX.length();
+@SpringBootApplication
+public class SecurityGrpcClientApplication {
 
-    @Override
-    public Authentication readAuthentication(final ServerCall<?, ?> call, final Metadata headers) {
-        final String header = headers.get(AUTHORIZATION_HEADER);
-
-        if (header == null || !header.toLowerCase().startsWith(PREFIX)) {
-            log.debug("No bearer auth header found");
-            return null;
-        }
-
-        // Cut away the "bearer " prefix
-        final String accessToken = header.substring(PREFIX_LENGTH);
-
-        // Not authenticated yet, token needs to be processed
-        return new PreAuthenticatedAuthenticationToken(accessToken, null);
+    public static void main(final String[] args) {
+        SpringApplication.run(SecurityGrpcClientApplication.class, args);
     }
+
 }
