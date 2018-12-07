@@ -53,7 +53,7 @@ public class ConfigMappedNameResolverFactory extends NameResolver.Factory {
     @Nullable
     @Override
     public NameResolver newNameResolver(final URI targetUri, final Attributes params) {
-        final String clientName = targetUri.getAuthority();
+        final String clientName = targetUri.toString();
         final GrpcChannelProperties clientConfig = this.config.getChannel(clientName);
         final Attributes extendedParas = params.toBuilder()
                 .set(NameResolverConstants.PARAMS_CLIENT_NAME, clientName)

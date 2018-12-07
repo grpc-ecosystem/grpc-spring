@@ -32,16 +32,25 @@ import lombok.Data;
 @Data
 public class GrpcChannelProperties {
 
-    public static final String DEFAULT_HOST = "127.0.0.1";
+    public static final String DEFAULT_HOST = "localhost";
     public static final int DEFAULT_PORT = 9090;
     public static final URI DEFAULT_URI = URI.create("static://" + DEFAULT_HOST + ':' + DEFAULT_PORT);
 
     public static final GrpcChannelProperties DEFAULT = new GrpcChannelProperties();
 
     /**
-     * The target uri in the format: 'schema://authority'. Defaults to 'static://127.0.0.1:9090'.
+     * The target uri in the format: 'schema:/host/' or 'schema://authority'. Defaults to 'static://localhost:9090'.
      */
     private URI address = URI.create("static://" + DEFAULT_HOST + ':' + DEFAULT_PORT);
+
+    /**
+     * Sets the target address uri.
+     *
+     * @param uri The string representation of an uri to use as target address.
+     */
+    public void setAddress(final String uri) {
+        this.address = URI.create(uri);
+    }
 
     @Deprecated
     public void setHost(final String host) {

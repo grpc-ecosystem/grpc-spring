@@ -69,6 +69,7 @@ public class StaticNameResolverFactory extends NameResolverProvider {
      * @return The newly created name resolver for the given target.
      */
     private NameResolver of(final String targetAuthority, final Attributes params) {
+        requireNonNull(targetAuthority, "targetAuthority");
         // Determine target ips
         final String[] hosts = PATTERN_COMMA.split(targetAuthority);
         final List<SocketAddress> targets = new ArrayList<>(hosts.length);
