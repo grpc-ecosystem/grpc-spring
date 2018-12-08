@@ -30,6 +30,7 @@ import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceBlockingStub;
+import net.devh.boot.grpc.test.util.EnableOnIPv6;
 
 @SpringBootTest(properties = {
         "grpc.client.default.negotiationType=PLAINTEXT",
@@ -80,6 +81,7 @@ public class NameResolverConnectionTest {
     }
 
     @Test
+    @EnableOnIPv6
     public void testIpv6Connection() {
         assertEquals("1.2.3", this.ipv6Stub.normal(EMPTY).getVersion());
     }

@@ -32,6 +32,7 @@ import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceBlockingStub;
+import net.devh.boot.grpc.test.util.EnableOnIPv6;
 
 @SpringBootTest(properties = {
         "grpc.server.address=::1",
@@ -44,6 +45,7 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceBlockingStub;
 })
 @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
 @DirtiesContext
+@EnableOnIPv6
 public class NameResolverIPv6ConnectionTest {
 
     private static final Empty EMPTY = Empty.getDefaultInstance();
