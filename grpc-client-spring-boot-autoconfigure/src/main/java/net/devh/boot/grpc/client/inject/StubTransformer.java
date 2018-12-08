@@ -15,33 +15,35 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.examples.security.client;
+package net.devh.boot.grpc.client.inject;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-import io.grpc.CallCredentials;
-import net.devh.boot.grpc.client.inject.StubTransformer;
-import net.devh.boot.grpc.client.security.CallCredentialsHelper;
+import io.grpc.Channel;
+import io.grpc.stub.AbstractStub;
+import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 
 /**
- * The security configuration for the client. In this case we assume that we use the same passwords for all stubs. If
- * you need per stub credentials you can delete the grpcCredentials and define a {@link StubTransformer} yourself.
+ * A stub transformer will be used by the {@link GrpcClientBeanPostProcessor} to configure the stubs before they are
+ * assigned to their fields. Implementations should only call the {@code AbstractStub#with...} methods on the given
+ * stubs and return that result. Implementations should not use this transformer to replace the stub with a unrelated
+ * other instance.
+ *
+ * <p>
+ * <b>Note:</b> StubTransformer will only transform {@link AbstractStub}s and NOT {@link Channel}s. To configure
+ * channels use the {@link GrpcChannelFactory}.
+ * </p>
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
- * @see CallCredentialsHelper
  */
-@Configuration
-public class SecurityConfiguration {
+@FunctionalInterface
+public interface StubTransformer {
 
-    @Value("${auth.username}")
-    private String username;
-
-    @Bean
-    // Create credentials for username + password.
-    CallCredentials grpcCredentials() {
-        return CallCredentialsHelper.basicAuth(this.username, this.username + "Password");
-    }
+    /**
+     * Transform the given stub using {@code AbstractStub#with...} methods.
+     *
+     * @param name The name that was used to create the stub.
+     * @param stub The stub that should be transformed.
+     * @return The transformed stub.
+     */
+    AbstractStub<?> transform(String name, AbstractStub<?> stub);
 
 }

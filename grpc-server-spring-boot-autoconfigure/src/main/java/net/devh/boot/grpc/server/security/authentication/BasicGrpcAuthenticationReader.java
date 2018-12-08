@@ -18,6 +18,8 @@
 package net.devh.boot.grpc.server.security.authentication;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static net.devh.boot.grpc.common.security.SecurityConstants.AUTHORIZATION_HEADER;
+import static net.devh.boot.grpc.common.security.SecurityConstants.BASIC_AUTH_PREFIX;
 
 import java.util.Base64;
 
@@ -38,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BasicGrpcAuthenticationReader implements GrpcAuthenticationReader {
 
-    private static final String PREFIX = "basic ";
+    private static final String PREFIX = BASIC_AUTH_PREFIX.toLowerCase();
     private static final int PREFIX_LENGTH = PREFIX.length();
 
     @Override
