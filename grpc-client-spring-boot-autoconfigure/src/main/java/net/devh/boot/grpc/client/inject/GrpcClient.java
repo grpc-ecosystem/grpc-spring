@@ -35,18 +35,19 @@ import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
 
 /**
- * An annotation for fields of type {@link Channel} or subclasses of {@link AbstractStub}/gRPC client services.
- * Annotated fields will be automatically populated by Spring.
+ * An annotation for fields of type {@link Channel} or subclasses of {@link AbstractStub}/gRPC client services. Also
+ * works for annotated methods that only take a single parameter of the same types. Annotated fields/methods will be
+ * automatically populated/invoked by Spring.
  *
  * <p>
- * <b>Note:</b> Fields that are annotated with this annotation should NOT be annotated with {@link Autowired} or
+ * <b>Note:</b> Fields/Methods that are annotated with this annotation should NOT be annotated with {@link Autowired} or
  * {@link Inject} (conflict).
  * </p>
  *
  * @author Michael (yidongnan@gmail.com)
  * @since 2016/12/7
  */
-@Target({ElementType.FIELD})
+@Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
