@@ -99,6 +99,12 @@ public class GrpcServerProperties {
          */
         private String trustCertCollectionPath = null;
 
+        /**
+         * Sets the path to the private key path.
+         *
+         * @param certificatePath The path to the private key.
+         * @deprecated Use the privateKeyPath property instead.
+         */
         @Deprecated
         public void setCertificatePath(final String certificatePath) {
             log.warn("The 'grpc.server.security.certificatePath' property is deprecated. "
@@ -121,6 +127,12 @@ public class GrpcServerProperties {
         return this.port;
     }
 
+    /**
+     * Sets the maximum message size to use.
+     *
+     * @param maxMessageSize The max message size to use.
+     * @deprecated Use the maxInboundMessageSize property instead.
+     */
     @Deprecated
     public void setMaxMessageSize(final int maxMessageSize) {
         log.warn("The 'grpc.server.maxMessageSize' property is deprecated. "

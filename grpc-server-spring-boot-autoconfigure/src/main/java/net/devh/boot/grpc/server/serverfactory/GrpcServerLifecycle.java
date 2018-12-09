@@ -65,7 +65,7 @@ public class GrpcServerLifecycle implements SmartLifecycle {
 
     @Override
     public boolean isRunning() {
-        return this.server == null ? false : !this.server.isShutdown();
+        return this.server != null && !this.server.isShutdown();
     }
 
     @Override

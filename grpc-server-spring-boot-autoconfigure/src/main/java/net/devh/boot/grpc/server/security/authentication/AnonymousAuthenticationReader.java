@@ -62,8 +62,8 @@ public class AnonymousAuthenticationReader implements GrpcAuthenticationReader {
     public AnonymousAuthenticationReader(final String key, final Object principal,
             final Collection<? extends GrantedAuthority> authorities) {
         this.key = requireNonNull(key, "key");
-        this.principal = requireNonNull(principal, "principal");;
-        this.authorities = requireNonNull(authorities, "authorities");;
+        this.principal = requireNonNull(principal, "principal");
+        this.authorities = requireNonNull(authorities, "authorities");
     }
 
     @Override

@@ -16,6 +16,7 @@ dependencies {
     compileOnly("org.springframework.cloud:spring-cloud-starter-sleuth:${springCloudSleuthVersion}")
     compileOnly("org.springframework.cloud:spring-cloud-starter-consul-discovery:${springCloudConsulVersion}")
     compileOnly("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:${springCloudEurekaVersion}")
+    compileOnly("com.google.inject:guice:4.2.2") // Only needed to avoid some warnings during compilation (for eureka)
     compileOnly("io.zipkin.brave:brave-instrumentation-grpc:${braveInstrumentationGrpc}")
     compile("io.grpc:grpc-netty:${grpcVersion}")
     compileOnly("io.grpc:grpc-netty-shaded:${grpcVersion}")
