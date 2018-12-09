@@ -22,40 +22,39 @@ import static java.util.Objects.requireNonNull;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.aop.framework.Advised;
-import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
 
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
 import io.grpc.stub.AbstractStub;
-import lombok.SneakyThrows;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 
 /**
- * This {@link BeanPostProcessor} searches for fields in beans that are annotated with {@link GrpcClient} and sets them.
+ * This {@link BeanPostProcessor} searches for fields and methods in beans that are annotated with {@link GrpcClient}
+ * and sets them.
  *
  * @author Michael (yidongnan@gmail.com)
+ * @author Daniel Theuke (daniel.theuke@heuboe.de)
  * @since 5/17/16
  */
-public class GrpcClientBeanPostProcessor implements BeanPostProcessor, AutoCloseable {
+public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
 
-    private final Multimap<String, Field> beansToProcess = HashMultimap.create();
     private final ApplicationContext applicationContext;
 
     // Lazy initialized when needed to avoid overly eager creation of that factory,
@@ -68,13 +67,27 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor, AutoClose
     }
 
     @Override
-    public Object postProcessBeforeInitialization(final Object bean, final String beanName) {
+    public Object postProcessBeforeInitialization(final Object bean, final String beanName) throws BeansException {
         Class<?> clazz = bean.getClass();
         do {
             for (final Field field : clazz.getDeclaredFields()) {
-                if (field.isAnnotationPresent(GrpcClient.class)) {
+                GrpcClient annotation = AnnotationUtils.findAnnotation(field, GrpcClient.class);
+                if (annotation != null) {
                     ReflectionUtils.makeAccessible(field);
-                    this.beansToProcess.put(beanName, field);
+                    ReflectionUtils.setField(field, bean, processInjectionPoint(field, field.getType(), annotation));
+                }
+            }
+            for (final Method method : clazz.getDeclaredMethods()) {
+                GrpcClient annotation = AnnotationUtils.findAnnotation(method, GrpcClient.class);
+                if (annotation != null) {
+                    Class<?>[] paramTypes = method.getParameterTypes();
+                    if (paramTypes.length != 1) {
+                        throw new BeanDefinitionStoreException(
+                                "Method " + method + " doesn't have exactly one parameter.");
+                    }
+                    ReflectionUtils.makeAccessible(method);
+                    ReflectionUtils.invokeMethod(method, bean,
+                            processInjectionPoint(method, paramTypes[0], annotation));
                 }
             }
             clazz = clazz.getSuperclass();
@@ -82,22 +95,29 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor, AutoClose
         return bean;
     }
 
-    @Override
-    public Object postProcessAfterInitialization(final Object bean, final String beanName) throws BeansException {
-        if (this.beansToProcess.containsKey(beanName)) {
-            final Object target = getTargetBean(bean);
-            for (final Field field : this.beansToProcess.get(beanName)) {
-                final GrpcClient annotation = AnnotationUtils.getAnnotation(field, GrpcClient.class);
-                final String name = annotation.value();
-
-                final List<ClientInterceptor> interceptors = interceptorsFromAnnotation(annotation);
-                final Channel channel = getChannelFactory().createChannel(name, interceptors);
-
-                final Object value = valueForField(name, field, channel);
-                ReflectionUtils.setField(field, target, value);
-            }
+    /**
+     * Processes the given injection point and computes the appropriate value for the injection.
+     *
+     * @param <T> The type of the value to be injected.
+     * @param injectionTarget The target of the injection.
+     * @param injectionType The class that will be used to compute injection.
+     * @param annotation The annotation on the target with the metadata for the injection.
+     * @return The value to be injected for the given injection point.
+     */
+    protected <T> T processInjectionPoint(Member injectionTarget, Class<T> injectionType, GrpcClient annotation) {
+        final List<ClientInterceptor> interceptors = interceptorsFromAnnotation(annotation);
+        final String name = annotation.value();
+        final Channel channel = getChannelFactory().createChannel(name, interceptors);
+        if (channel == null) {
+            throw new IllegalStateException("Channel factory created a null channel");
         }
-        return bean;
+
+
+        final T value = valueForMember(name, injectionTarget, injectionType, channel);
+        if (value == null) {
+            throw new IllegalStateException("Injection value is null unexpectedly");
+        }
+        return value;
     }
 
     /**
@@ -163,53 +183,41 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor, AutoClose
     }
 
     /**
-     * Creates the instance for the given field.
+     * Creates the instance to be injected for the given member.
      *
      * @param name The name that was used to create the channel.
-     * @param field The field to create the instance for.
+     * @param <T> The type of the instance to be injected.
+     * @param injectionTarget The target member for the injection.
+     * @param injectionType The class that should injected.
      * @param channel The channel that should be used to create the instance.
      * @return The value that matches the type of the given field.
      * @throws BeansException If the value of the field could not be created or the type of the field is unsupported.
      */
-    protected Object valueForField(final String name, final Field field, final Channel channel) throws BeansException {
-        final Class<?> fieldType = field.getType();
-        if (Channel.class.equals(fieldType)) {
-            return channel;
-        } else if (AbstractStub.class.isAssignableFrom(fieldType)) {
+    protected <T> T valueForMember(final String name, Member injectionTarget, Class<T> injectionType,
+            final Channel channel) throws BeansException {
+        if (Channel.class.equals(injectionType)) {
+            return injectionType.cast(channel);
+        } else if (AbstractStub.class.isAssignableFrom(injectionType)) {
             try {
                 @SuppressWarnings("unchecked")
                 final Class<? extends AbstractStub<?>> stubClass =
-                        (Class<? extends AbstractStub<?>>) fieldType.asSubclass(AbstractStub.class);
+                        (Class<? extends AbstractStub<?>>) injectionType.asSubclass(AbstractStub.class);
                 final Constructor<? extends AbstractStub<?>> constructor =
                         ReflectionUtils.accessibleConstructor(stubClass, Channel.class);
                 AbstractStub<?> stub = constructor.newInstance(channel);
                 for (final StubTransformer stubTransformer : getStubTransformers()) {
                     stub = stubTransformer.transform(name, stub);
                 }
-                return stub;
+                return injectionType.cast(stub);
             } catch (final NoSuchMethodException | InstantiationException | IllegalAccessException
                     | IllegalArgumentException | InvocationTargetException e) {
-                throw new BeanInstantiationException(fieldType,
-                        "Failed to create gRPC client for field: " + field, e);
+                throw new BeanInstantiationException(injectionType,
+                        "Failed to create gRPC client for : " + injectionTarget, e);
             }
         } else {
-            throw new InvalidPropertyException(field.getDeclaringClass(), field.getName(),
-                    "Unsupported field type " + fieldType.getName());
+            throw new InvalidPropertyException(injectionTarget.getDeclaringClass(), injectionTarget.getName(),
+                    "Unsupported type " + injectionType.getName());
         }
-    }
-
-    @SneakyThrows
-    private Object getTargetBean(final Object bean) {
-        Object target = bean;
-        while (AopUtils.isAopProxy(target)) {
-            target = ((Advised) target).getTargetSource().getTarget();
-        }
-        return target;
-    }
-
-    @Override
-    public void close() {
-        this.beansToProcess.clear();
     }
 
 }
