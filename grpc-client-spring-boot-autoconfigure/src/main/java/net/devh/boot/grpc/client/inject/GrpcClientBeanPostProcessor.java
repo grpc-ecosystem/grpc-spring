@@ -24,6 +24,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.BeanInstantiationException;
@@ -58,6 +60,7 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     // Lazy initialized when needed to avoid overly eager creation of that factory,
     // which might break proper bean setup
     private GrpcChannelFactory channelFactory = null;
+    private List<StubTransformer> stubTransformers = null;
 
     public GrpcClientBeanPostProcessor(final ApplicationContext applicationContext) {
         this.applicationContext = requireNonNull(applicationContext, "applicationContext");
@@ -103,12 +106,14 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
      */
     protected <T> T processInjectionPoint(Member injectionTarget, Class<T> injectionType, GrpcClient annotation) {
         final List<ClientInterceptor> interceptors = interceptorsFromAnnotation(annotation);
-        final Channel channel = getChannelFactory().createChannel(annotation.value(), interceptors);
+        final String name = annotation.value();
+        final Channel channel = getChannelFactory().createChannel(name, interceptors);
         if (channel == null) {
             throw new IllegalStateException("Channel factory created a null channel");
         }
 
-        final T value = valueForMember(injectionTarget, injectionType, channel);
+
+        final T value = valueForMember(name, injectionTarget, injectionType, channel);
         if (value == null) {
             throw new IllegalStateException("Injection value is null unexpectedly");
         }
@@ -127,6 +132,21 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
             return factory;
         }
         return this.channelFactory;
+    }
+
+    /**
+     * Lazy getter for the {@link StubTransformer}s.
+     *
+     * @return The stub transformers to use.
+     */
+    private List<StubTransformer> getStubTransformers() {
+        if (this.stubTransformers == null) {
+            final Collection<StubTransformer> transformers =
+                    this.applicationContext.getBeansOfType(StubTransformer.class).values();
+            this.stubTransformers = new ArrayList<>(transformers);
+            return this.stubTransformers;
+        }
+        return this.stubTransformers;
     }
 
     /**
@@ -165,6 +185,7 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     /**
      * Creates the instance to be injected for the given member.
      *
+     * @param name The name that was used to create the channel.
      * @param <T> The type of the instance to be injected.
      * @param injectionTarget The target member for the injection.
      * @param injectionType The class that should injected.
@@ -172,14 +193,22 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
      * @return The value that matches the type of the given field.
      * @throws BeansException If the value of the field could not be created or the type of the field is unsupported.
      */
-    protected <T> T valueForMember(Member injectionTarget, Class<T> injectionType, final Channel channel)
-            throws BeansException {
+    protected <T> T valueForMember(final String name, Member injectionTarget, Class<T> injectionType,
+            final Channel channel) throws BeansException {
         if (Channel.class.equals(injectionType)) {
             return injectionType.cast(channel);
         } else if (AbstractStub.class.isAssignableFrom(injectionType)) {
             try {
-                final Constructor<T> constructor = ReflectionUtils.accessibleConstructor(injectionType, Channel.class);
-                return constructor.newInstance(channel);
+                @SuppressWarnings("unchecked")
+                final Class<? extends AbstractStub<?>> stubClass =
+                        (Class<? extends AbstractStub<?>>) injectionType.asSubclass(AbstractStub.class);
+                final Constructor<? extends AbstractStub<?>> constructor =
+                        ReflectionUtils.accessibleConstructor(stubClass, Channel.class);
+                AbstractStub<?> stub = constructor.newInstance(channel);
+                for (final StubTransformer stubTransformer : getStubTransformers()) {
+                    stub = stubTransformer.transform(name, stub);
+                }
+                return injectionType.cast(stub);
             } catch (final NoSuchMethodException | InstantiationException | IllegalAccessException
                     | IllegalArgumentException | InvocationTargetException e) {
                 throw new BeanInstantiationException(injectionType,
