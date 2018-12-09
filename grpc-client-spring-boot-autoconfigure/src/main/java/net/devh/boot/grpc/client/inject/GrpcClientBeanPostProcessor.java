@@ -149,7 +149,7 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor, AutoClose
                 clientInterceptor = this.applicationContext.getBean(interceptorClass);
             } else {
                 try {
-                    clientInterceptor = interceptorClass.newInstance();
+                    clientInterceptor = interceptorClass.getConstructor().newInstance();
                 } catch (final Exception e) {
                     throw new BeanCreationException("Failed to create interceptor instance", e);
                 }

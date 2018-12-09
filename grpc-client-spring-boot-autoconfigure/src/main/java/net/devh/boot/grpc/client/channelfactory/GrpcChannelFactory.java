@@ -67,4 +67,7 @@ public interface GrpcChannelFactory extends AutoCloseable {
      */
     Channel createChannel(String name, List<ClientInterceptor> interceptors);
 
+    @Override
+    void close();
+
 }
