@@ -35,7 +35,7 @@ import net.devh.boot.grpc.test.util.EnableOnIPv6;
 @SpringBootTest(properties = {
         "grpc.client.default.negotiationType=PLAINTEXT",
         "grpc.client.dns.negotiationType=PLAINTEXT",
-        "grpc.client.dns.address=dns:/localhost:9090/",
+        "grpc.client.dns.address=dns:///localhost:9090",
         "grpc.client.localhost.negotiationType=PLAINTEXT",
         "grpc.client.localhost.address=static://localhost:9090",
         "grpc.client.ipv4.negotiationType=PLAINTEXT",

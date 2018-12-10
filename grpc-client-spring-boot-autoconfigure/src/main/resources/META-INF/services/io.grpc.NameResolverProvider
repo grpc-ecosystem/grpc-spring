@@ -1,1 +1,1 @@
-net.devh.boot.grpc.client.nameresolver.StaticNameResolverFactory
+net.devh.boot.grpc.client.nameresolver.StaticNameResolverProvider

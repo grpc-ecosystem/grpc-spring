@@ -23,13 +23,10 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
-
-import com.google.common.collect.ImmutableList;
 
 import io.grpc.Attributes;
 import io.grpc.EquivalentAddressGroup;
@@ -38,15 +35,15 @@ import io.grpc.NameResolverProvider;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 
 /**
- * A name resolver factory that will create a {@link NameResolver} with static addresses. This factory uses the
+ * A name resolver provider that will create a {@link NameResolver} with static addresses. This factory uses the
  * {@link #STATIC_SCHEME "static" scheme}.
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-public class StaticNameResolverFactory extends NameResolverProvider {
+public class StaticNameResolverProvider extends NameResolverProvider {
 
     /**
-     * The constant containing the scheme that will be used by this factor.y
+     * The constant containing the scheme that will be used by this factory.
      */
     public static final String STATIC_SCHEME = "static";
 
@@ -105,48 +102,6 @@ public class StaticNameResolverFactory extends NameResolverProvider {
     @Override
     protected int priority() {
         return 5; // Default priority
-    }
-
-    /**
-     * A {@link NameResolver} that will always respond with a static set of target addresses.
-     */
-    public static class StaticNameResolver extends NameResolver {
-
-        private final String authority;
-        private final List<EquivalentAddressGroup> targets;
-
-        public StaticNameResolver(final String authority, final EquivalentAddressGroup target) {
-            this(authority, ImmutableList.of(requireNonNull(target, "target")));
-        }
-
-        public StaticNameResolver(final String authority, final Collection<EquivalentAddressGroup> targets) {
-            this.authority = requireNonNull(authority, "authority");
-            if (requireNonNull(targets, "targets").isEmpty()) {
-                throw new IllegalArgumentException("Must have at least one target");
-            }
-            this.targets = ImmutableList.copyOf(targets);
-        }
-
-        @Override
-        public String getServiceAuthority() {
-            return this.authority;
-        }
-
-        @Override
-        public void start(final Listener listener) {
-            listener.onAddresses(this.targets, Attributes.EMPTY);
-        }
-
-        @Override
-        public void refresh() {
-            // Does nothing
-        }
-
-        @Override
-        public void shutdown() {
-            // Does nothing
-        }
-
     }
 
 }
