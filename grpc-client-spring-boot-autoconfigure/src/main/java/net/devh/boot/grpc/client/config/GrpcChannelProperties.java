@@ -39,7 +39,26 @@ public class GrpcChannelProperties {
     public static final GrpcChannelProperties DEFAULT = new GrpcChannelProperties();
 
     /**
-     * The target uri in the format: 'schema:/host/' or 'schema://authority'. Defaults to 'static://localhost:9090'.
+     * The target uri in the format: {@code schema:[//[authority]][/path]}. Defaults to {@code static://localhost:9090}.
+     *
+     * <p>
+     * <b>Examples</b>
+     * </p>
+     *
+     * <ul>
+     * <li>{@code static://localhost:9090} (refers to exactly one IPv4 or IPv6 address, dependent on the jre
+     * configuration, it does not check whether there is actually someone listening on that network interface)</li>
+     * <li>{@code static://10.0.0.10}</li>
+     * <li>{@code static://10.0.0.10,10.11.12.11}</li>
+     * <li>{@code static://10.0.0.10:9090,10.0.0.11:80,10.0.0.12:1234,[::1]:8080}</li>
+     * <li>{@code dns:/localhost (might refer to the IPv4 or the IPv6 address or both, dependent on the system
+     * configuration, it does not check whether there is actually someone listening on that network interface)}</li>
+     * <li>{@code dns:/example.com}</li>
+     * <li>{@code dns:/example.com:9090}</li>
+     * <li>{@code dns:///example.com:9090}</li>
+     * <li>{@code discovery:/foo-service}</li>
+     * <li>{@code discovery:///foo-service}</li>
+     * </ul>
      */
     private URI address = URI.create("static://" + DEFAULT_HOST + ':' + DEFAULT_PORT);
 

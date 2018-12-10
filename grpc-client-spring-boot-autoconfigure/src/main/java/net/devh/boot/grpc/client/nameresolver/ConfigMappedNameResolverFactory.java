@@ -31,6 +31,12 @@ import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 /**
  * A {@link NameResolver} factory that uses the the properties to rewrite the target uri.
  *
+ * <p>
+ * The delegated factory can access the {@link NameResolverConstants#PARAMS_CLIENT_NAME name} and
+ * {@link NameResolverConstants#PARAMS_CLIENT_CONFIG properties} for the client via the extended and forwarded
+ * {@link Attributes}.
+ * </p>
+ *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 public class ConfigMappedNameResolverFactory extends NameResolver.Factory {

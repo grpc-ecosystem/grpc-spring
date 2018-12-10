@@ -56,8 +56,14 @@ public class DiscoveryClientResolverFactory extends NameResolver.Factory {
     @Override
     public NameResolver newNameResolver(final URI targetUri, final Attributes params) {
         if (DISCOVERY_SCHEME.equals(targetUri.getScheme())) {
+            final String serviceName = targetUri.getPath();
+            if (serviceName == null || serviceName.length() <= 1 || !serviceName.startsWith("/")) {
+                throw new IllegalArgumentException("Incorrectly formatted target uri; "
+                        + "expected: '" + DISCOVERY_SCHEME + ":[//]/<service-name>'; "
+                        + "but was '" + targetUri.toString() + "'");
+            }
             final DiscoveryClientNameResolver discoveryClientNameResolver =
-                    new DiscoveryClientNameResolver(targetUri.getAuthority(), this.client,
+                    new DiscoveryClientNameResolver(serviceName.substring(1), this.client,
                             GrpcUtil.TIMER_SERVICE, GrpcUtil.SHARED_CHANNEL_EXECUTOR);
             this.discoveryClientNameResolvers.add(discoveryClientNameResolver);
             return discoveryClientNameResolver;
