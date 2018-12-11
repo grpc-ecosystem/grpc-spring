@@ -1,4 +1,5 @@
 # AutoConfiguration
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 net.devh.boot.grpc.client.autoconfigure.GrpcClientAutoConfiguration,\
-net.devh.boot.grpc.client.autoconfigure.GrpcClientMetricAutoConfiguration
+net.devh.boot.grpc.client.autoconfigure.GrpcClientMetricAutoConfiguration,\
+net.devh.boot.grpc.client.autoconfigure.GrpcClientSecurityAutoConfiguration

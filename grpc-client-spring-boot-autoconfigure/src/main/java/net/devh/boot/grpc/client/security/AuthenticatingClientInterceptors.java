@@ -17,42 +17,55 @@
 
 package net.devh.boot.grpc.client.security;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
+import static net.devh.boot.grpc.common.security.SecurityConstants.AUTHORIZATION_HEADER;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
+import io.grpc.CallCredentials;
+import io.grpc.CallOptions;
+import io.grpc.Channel;
+import io.grpc.ClientCall;
 import io.grpc.ClientInterceptor;
 import io.grpc.Metadata;
-import io.grpc.Metadata.Key;
+import io.grpc.MethodDescriptor;
+import io.grpc.stub.AbstractStub;
 import io.grpc.stub.MetadataUtils;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import net.devh.boot.grpc.client.inject.StubTransformer;
 
 /**
- * Helper class that can be used to create authenticating {@link ClientInterceptor}.
+ * Helper class that can be used to create {@link CallCredentials} and the necessary {@link ClientInterceptor}s.
  *
  * <p>
- * These interceptors can be used like this:
+ * This class can be used like this:
  * </p>
  *
  * <pre>
- * <code>
- * &#64;Bean
- * ClientInterceptor basicAuthInterceptor() {
- *     return basicAuth("foo", "bar");
+ * <code>&#64;Bean
+ * CallCredentials grpcCallCredentials() {
+ *     // Note: This method uses experimental grpc-java-API features.
+ *     return CallCredentialsHelper.basicAuthCallCredentials("foo", "bar");
+ *     // return CallCredentialsHelper.requirePrivacy(...); // Always a good idea
  * }
- * </code>
+ *
+ * &#64;Bean
+ * ClientInterceptor grpcCallCredentialsInterceptor() {
+ *     return AuthenticatingClientInterceptors.callCredentialsInterceptor(grpcCallCredentials());
+ * }</code>
  * </pre>
  *
+ * <p>
+ * <b>Note:</b> You don't need extra call credentials if you authenticate yourself via certificates.
+ * </p>
  *
  * <ul>
- * <li>If you only need a single authenticating client interceptor for all clients, then you can register it globally.
+ * <li>If you only need a single CallCredentials for all clients, then you can register it globally.
  *
  * <pre>
  * <code>&#64;Bean
  * public GlobalClientInterceptorConfigurer basicAuthInterceptorConfigurer() {
- *     return registry -&gt; registry.addClientInterceptors(basicAuthInterceptor());
+ *     return registry -&gt; registry.addClientInterceptors(grpcCallCredentialsInterceptor());
  * }</code>
  * </pre>
  *
@@ -62,7 +75,7 @@ import net.devh.boot.grpc.client.inject.GrpcClient;
  * {@link GrpcClient#interceptorNames()} field to add a bean by name.
  *
  * <pre>
- * <code>&#64;GrpcClient(value = "testChannel", interceptorNames = "basicAuthInterceptor")
+ * <code>&#64;GrpcClient(value = "testChannel", interceptorNames = "grpcCallCredentialsInterceptorForTest")
  * private Channel testChannel;</code>
  * </pre>
  *
@@ -70,13 +83,11 @@ import net.devh.boot.grpc.client.inject.GrpcClient;
  * </ul>
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @deprecated Use the {@link CallCredentialsHelper} or create the {@link CallCredentials} and {@link StubTransformer}s
+ *             yourself.
  */
+@Deprecated
 public final class AuthenticatingClientInterceptors {
-
-    /**
-     * A convenience constant that contains the key for the HTTP Authorization Header.
-     */
-    public static final Key<String> AUTHORIZATION_HEADER = Key.of("Authorization", Metadata.ASCII_STRING_MARSHALLER);
 
     /**
      * Creates a new {@link ClientInterceptor} that adds the given username and passwords as basic auth to all requests.
@@ -85,33 +96,44 @@ public final class AuthenticatingClientInterceptors {
      * @param username The username to use.
      * @param password The password to use.
      * @return The newly created basic auth interceptor.
-     * @see #encodeBasicAuth(String, String)
+     * @see CallCredentialsHelper#encodeBasicAuth(String, String)
+     * @deprecated Use the (potentially) more secure {@link CallCredentials}.
      */
-    public static ClientInterceptor basicAuth(final String username, final String password) {
+    @Deprecated
+    public static ClientInterceptor basicAuthInterceptor(final String username, final String password) {
         final Metadata extraHeaders = new Metadata();
-        extraHeaders.put(AUTHORIZATION_HEADER, encodeBasicAuth(username, password));
+        extraHeaders.put(AUTHORIZATION_HEADER, CallCredentialsHelper.encodeBasicAuth(username, password));
         return MetadataUtils.newAttachHeadersInterceptor(extraHeaders);
     }
 
     /**
-     * Encodes the given username and password as basic auth. The header value will be encoded with
-     * {@link StandardCharsets#UTF_8 UTF_8}.
+     * Creates a new {@link ClientInterceptor} that will attach the given call credentials to the given call. This is an
+     * alternative to manually configuring the stubs using {@link AbstractStub#withCallCredentials(CallCredentials)}.
      *
-     * @param username The username to use.
-     * @param password The password to use.
-     * @return The encoded basic auth header value.
+     * @param callCredentials The call credentials to attach.
+     * @return The newly created client credentials interceptor.
+     * @see CallCredentialsHelper#basicAuth(String, String) Basic-Auth
+     * @deprecated Use {@link StubTransformer}s to set the credentials directly on {@link AbstractStub}s.
      */
-    public static String encodeBasicAuth(final String username, final String password) {
-        requireNonNull(username, "username");
-        requireNonNull(password, "password");
-        final String auth = username + ':' + password;
-        byte[] encoded;
-        try {
-            encoded = Base64.getEncoder().encode(auth.getBytes(UTF_8));
-        } catch (final IllegalArgumentException e) {
-            throw new IllegalArgumentException("Failed to encode basic authentication token", e);
+    @Deprecated
+    public static ClientInterceptor callCredentialsInterceptor(final CallCredentials callCredentials) {
+        return new CallCredentialsAttachingClientInterceptor(callCredentials);
+    }
+
+    private static final class CallCredentialsAttachingClientInterceptor implements ClientInterceptor {
+
+        private final CallCredentials credentials;
+
+        CallCredentialsAttachingClientInterceptor(final CallCredentials credentials) {
+            this.credentials = requireNonNull(credentials, "credentials");
         }
-        return "Basic " + new String(encoded, UTF_8);
+
+        @Override
+        public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(final MethodDescriptor<ReqT, RespT> method,
+                final CallOptions callOptions, final Channel next) {
+            return next.newCall(method, callOptions.withCallCredentials(this.credentials));
+        }
+
     }
 
     /**

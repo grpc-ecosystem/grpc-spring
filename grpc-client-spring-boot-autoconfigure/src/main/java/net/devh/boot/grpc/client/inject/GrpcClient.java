@@ -28,6 +28,8 @@ import javax.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import io.grpc.CallCredentials;
+import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
 import io.grpc.stub.AbstractStub;
@@ -35,18 +37,26 @@ import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
 
 /**
- * An annotation for fields of type {@link Channel} or subclasses of {@link AbstractStub}/gRPC client services.
- * Annotated fields will be automatically populated by Spring.
+ * An annotation for fields of type {@link Channel} or subclasses of {@link AbstractStub}/gRPC client services. Also
+ * works for annotated methods that only take a single parameter of the same types. Annotated fields/methods will be
+ * automatically populated/invoked by Spring.
  *
  * <p>
- * <b>Note:</b> Fields that are annotated with this annotation should NOT be annotated with {@link Autowired} or
+ * <b>Note:</b> Fields/Methods that are annotated with this annotation should NOT be annotated with {@link Autowired} or
  * {@link Inject} (conflict).
+ * </p>
+ *
+ * <p>
+ * <b>Note:</b> If you annotate an AbstractStub with this annotation the bean processing will also apply the
+ * {@link StubTransformer}s in the application context. These can be used, for example, to configure {@link CallOptions}
+ * such as {@link CallCredentials}. Please note that these transformations aren't applied if you inject a
+ * {@link Channel} only.
  * </p>
  *
  * @author Michael (yidongnan@gmail.com)
  * @since 2016/12/7
  */
-@Target({ElementType.FIELD})
+@Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited

@@ -25,7 +25,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
 import io.grpc.Metadata;
-import io.grpc.Metadata.Key;
 import io.grpc.ServerCall;
 
 /**
@@ -41,11 +40,6 @@ import io.grpc.ServerCall;
  */
 @FunctionalInterface
 public interface GrpcAuthenticationReader {
-
-    /**
-     * A convenience constant that contains the key for the HTTP Authorization Header.
-     */
-    Key<String> AUTHORIZATION_HEADER = Key.of("Authorization", Metadata.ASCII_STRING_MARSHALLER);
 
     /**
      * Tries to read the {@link Authentication} information from the given call and metadata.

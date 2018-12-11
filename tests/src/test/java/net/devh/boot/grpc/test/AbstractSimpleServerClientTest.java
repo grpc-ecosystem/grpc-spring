@@ -21,9 +21,12 @@ import static io.grpc.Status.Code.UNIMPLEMENTED;
 import static net.devh.boot.grpc.test.util.GrpcAssertions.assertFutureThrowsStatus;
 import static net.devh.boot.grpc.test.util.GrpcAssertions.assertThrowsStatus;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.PostConstruct;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.test.annotation.DirtiesContext;
@@ -56,6 +59,15 @@ public abstract class AbstractSimpleServerClientTest {
     protected TestServiceBlockingStub testServiceBlockingStub;
     @GrpcClient("test")
     protected TestServiceFutureStub testServiceFutureStub;
+
+    @PostConstruct
+    public void init() {
+        // Test injection
+        assertNotNull(this.channel, "channel");
+        assertNotNull(this.testServiceBlockingStub, "testServiceBlockingStub");
+        assertNotNull(this.testServiceFutureStub, "testServiceFutureStub");
+        assertNotNull(this.testServiceStub, "testServiceStub");
+    }
 
     /**
      * Test successful call.
