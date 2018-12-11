@@ -1,14 +1,34 @@
 language: java
-dist: precise
-jdk:
-- oraclejdk8
+
+matrix:
+  include:
+    - jdk: openjdk8
+      env: SKIP_RELEASE=false
+    - jdk: openjdk11
+      env: SKIP_RELEASE=true
+
+branches:
+  #Don't build tags
+  except:
+    - /^v\d.*$/
+
 before_cache:
-- rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
 cache:
   directories:
-  - "$HOME/.gradle/caches/"
-  - "$HOME/.gradle/wrapper/"
+    - "$HOME/.gradle/caches/"
+    - "$HOME/.gradle/wrapper/"
+
 before_install:
-- "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_BRANCH} == 'master' ]] && [[ ${TRAVIS_TAG} == '' ]] && openssl aes-256-cbc -K ${encrypted_35d5c0204248_key} -iv ${encrypted_35d5c0204248_iv} -in private.key.enc -out ./private.key -d && gpg --import ./private.key || echo"
+  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_BRANCH} == 'master' ]] && [[ ${TRAVIS_TAG} == '' ]] && openssl aes-256-cbc -K ${encrypted_35d5c0204248_key} -iv ${encrypted_35d5c0204248_iv} -in private.key.enc -out ./private.key -d && gpg --import ./private.key || echo"
+
+install:
+  - ./gradlew --version # Display Gradle, Groovy, JVM and other versions
+
+script:
+  - ./gradlew --warning-mode=all build
+
 after_success:
-- "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_BRANCH} == 'master' ]] && [[ ${TRAVIS_TAG} == '' ]] && ./gradlew publish"
+  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_BRANCH} == 'master' ]] && [[ ${TRAVIS_TAG} == '' ]] && [[ ${SKIP_RELEASE} == 'false' ]] && ./gradlew publish"

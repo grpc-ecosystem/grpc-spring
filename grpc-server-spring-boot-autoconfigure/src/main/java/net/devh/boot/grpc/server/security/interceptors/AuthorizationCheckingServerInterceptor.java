@@ -20,9 +20,11 @@ package net.devh.boot.grpc.server.security.interceptors;
 import static java.util.Objects.requireNonNull;
 
 import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.access.intercept.InterceptorStatusToken;
+import org.springframework.security.core.AuthenticationException;
 
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
@@ -30,6 +32,7 @@ import io.grpc.ServerCall;
 import io.grpc.ServerCall.Listener;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 import net.devh.boot.grpc.server.security.check.GrpcSecurityMetadataSource;
 
@@ -47,6 +50,7 @@ import net.devh.boot.grpc.server.security.check.GrpcSecurityMetadataSource;
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
+@Slf4j
 @GrpcGlobalServerInterceptor
 public class AuthorizationCheckingServerInterceptor extends AbstractSecurityInterceptor implements ServerInterceptor {
 
@@ -70,7 +74,14 @@ public class AuthorizationCheckingServerInterceptor extends AbstractSecurityInte
     public <ReqT, RespT> Listener<ReqT> interceptCall(final ServerCall<ReqT, RespT> call, final Metadata headers,
             final ServerCallHandler<ReqT, RespT> next) {
         final MethodDescriptor<ReqT, RespT> methodDescriptor = call.getMethodDescriptor();
-        final InterceptorStatusToken token = beforeInvocation(methodDescriptor);
+        final InterceptorStatusToken token;
+        try {
+            token = beforeInvocation(methodDescriptor);
+        } catch (final AuthenticationException | AccessDeniedException e) {
+            log.debug("Access denied");
+            throw e;
+        }
+        log.debug("Access granted");
         final Listener<ReqT> result;
         try {
             result = next.startCall(call, headers);

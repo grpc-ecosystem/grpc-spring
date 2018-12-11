@@ -13,9 +13,18 @@ service TestService {
 
     // Unimplemented method
     rpc unimplemented(google.protobuf.Empty) returns (SomeType) {}
-    
+
     // Secured method
     rpc secure(google.protobuf.Empty) returns (SomeType) {}
+
+    // Secured method with only multiple requests
+    rpc secureDrain(stream SomeType) returns (google.protobuf.Empty) {}
+
+    // Secured method with only multiple answers
+    rpc secureSupply(google.protobuf.Empty) returns (stream SomeType) {}
+
+    // Secured method with both multiple requests and answers
+    rpc secureBidi(stream SomeType) returns (stream SomeType) {}
 
 }
 

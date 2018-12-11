@@ -46,6 +46,9 @@ public class ManualSecurityConfiguration {
     GrpcSecurityMetadataSource grpcSecurityMetadataSource() {
         final ManualGrpcSecurityMetadataSource source = new ManualGrpcSecurityMetadataSource();
         source.set(TestServiceGrpc.getSecureMethod(), AccessPredicate.hasRole("ROLE_CLIENT1"));
+        source.set(TestServiceGrpc.getSecureDrainMethod(), AccessPredicate.hasRole("ROLE_CLIENT1"));
+        source.set(TestServiceGrpc.getSecureSupplyMethod(), AccessPredicate.hasRole("ROLE_CLIENT1"));
+        source.set(TestServiceGrpc.getSecureBidiMethod(), AccessPredicate.hasRole("ROLE_CLIENT1"));
         source.setDefault(AccessPredicate.permitAll());
         return source;
     }

@@ -17,76 +17,122 @@
 
 package net.devh.boot.grpc.test.security;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.util.concurrent.ExecutionException;
+import static io.grpc.Status.Code.UNAUTHENTICATED;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.springframework.test.annotation.DirtiesContext;
 
-import com.google.protobuf.Empty;
-
 import io.grpc.Channel;
-import io.grpc.internal.testing.StreamRecorder;
-import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
-import net.devh.boot.grpc.test.proto.SomeType;
-import net.devh.boot.grpc.test.proto.TestServiceGrpc;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceBlockingStub;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceFutureStub;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceStub;
+import net.devh.boot.grpc.test.util.DynamicTestCollection;
 
-@Slf4j
 public abstract class AbstractSecurityWithBasicAuthTest extends AbstractSecurityTest {
 
     @GrpcClient(value = "bean", interceptorNames = "basicAuthInterceptor")
     protected Channel beanChannel;
     @GrpcClient(value = "bean", interceptorNames = "basicAuthInterceptor")
-    protected TestServiceStub beanTestServiceStub;
+    protected TestServiceStub beanStub;
     @GrpcClient(value = "bean", interceptorNames = "basicAuthInterceptor")
-    protected TestServiceBlockingStub beanTestServiceBlockingStub;
+    protected TestServiceBlockingStub beanBlockingStub;
     @GrpcClient(value = "bean", interceptorNames = "basicAuthInterceptor")
-    protected TestServiceFutureStub beanTestServiceFutureStub;
+    protected TestServiceFutureStub beanFutureStub;
 
-    /**
-     * Test successful call.
-     *
-     * @throws ExecutionException Should never happen.
-     * @throws InterruptedException Should never happen.
-     */
+    @GrpcClient("unknownUser")
+    protected Channel unknownUserChannel;
+    @GrpcClient("unknownUser")
+    protected TestServiceStub unknownUserStub;
+    @GrpcClient("unknownUser")
+    protected TestServiceBlockingStub unknownUserBlockingStub;
+    @GrpcClient("unknownUser")
+    protected TestServiceFutureStub unknownUserFutureStub;
+
+    @GrpcClient("noAuth")
+    protected Channel noAuthChannel;
+    @GrpcClient("noAuth")
+    protected TestServiceStub noAuthStub;
+    @GrpcClient("noAuth")
+    protected TestServiceBlockingStub noAuthBlockingStub;
+    @GrpcClient("noAuth")
+    protected TestServiceFutureStub noAuthFutureStub;
+
+    @Override
     @Test
     @DirtiesContext
-    public void testSuccessfulCallBean() throws InterruptedException, ExecutionException {
-        log.info("--- Starting tests with successful call bean ---");
-        assertEquals("1.2.3",
-                TestServiceGrpc.newBlockingStub(this.beanChannel).normal(Empty.getDefaultInstance()).getVersion());
-        final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
-        this.beanTestServiceStub.normal(Empty.getDefaultInstance(), streamRecorder);
-        assertEquals("1.2.3", streamRecorder.firstValue().get().getVersion());
-        assertEquals("1.2.3", this.beanTestServiceBlockingStub.normal(Empty.getDefaultInstance()).getVersion());
-        assertEquals("1.2.3", this.beanTestServiceFutureStub.normal(Empty.getDefaultInstance()).get().getVersion());
-        log.info("--- Test completed ---");
+    @TestFactory
+    public DynamicTestCollection unprotectedCallTests() {
+        return super.unprotectedCallTests()
+                .add("unprotected-bean",
+                        () -> assertNormalCallSuccess(this.beanChannel, this.beanStub, this.beanBlockingStub,
+                                this.beanFutureStub))
+                .add("unprotected-unknownUser",
+                        () -> assertNormalCallFailure(this.unknownUserChannel, this.unknownUserStub,
+                                this.unknownUserBlockingStub, this.unknownUserFutureStub, UNAUTHENTICATED))
+                .add("unprotected-noAuth",
+                        () -> assertNormalCallSuccess(this.noAuthChannel, this.noAuthStub, this.noAuthBlockingStub,
+                                this.noAuthFutureStub));
     }
 
-    /**
-     * Test secured call.
-     *
-     * @throws ExecutionException Should never happen.
-     * @throws InterruptedException Should never happen.
-     */
+    @Override
     @Test
     @DirtiesContext
-    public void testSecuredCallBean() throws InterruptedException, ExecutionException {
-        log.info("--- Starting tests with secured call bean ---");
-        assertEquals("1.2.3",
-                TestServiceGrpc.newBlockingStub(this.beanChannel).secure(Empty.getDefaultInstance()).getVersion());
+    @TestFactory
+    public DynamicTestCollection unaryCallTest() {
+        return super.unaryCallTest()
+                .add("unary-bean",
+                        () -> assertUnaryCallSuccess(this.beanChannel, this.beanStub, this.beanBlockingStub,
+                                this.beanFutureStub))
+                .add("unary-unknownUser",
+                        () -> assertUnaryCallFailure(this.unknownUserChannel, this.unknownUserStub,
+                                this.unknownUserBlockingStub, this.unknownUserFutureStub, UNAUTHENTICATED))
+                .add("unary-noAuth",
+                        () -> assertUnaryCallFailure(this.noAuthChannel, this.noAuthStub, this.noAuthBlockingStub,
+                                this.noAuthFutureStub, UNAUTHENTICATED));
+    }
 
-        final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
-        this.beanTestServiceStub.secure(Empty.getDefaultInstance(), streamRecorder);
-        assertEquals("1.2.3", streamRecorder.firstValue().get().getVersion());
-        assertEquals("1.2.3", this.beanTestServiceBlockingStub.secure(Empty.getDefaultInstance()).getVersion());
-        assertEquals("1.2.3", this.beanTestServiceFutureStub.secure(Empty.getDefaultInstance()).get().getVersion());
-        log.info("--- Test completed ---");
+    @Override
+    @Test
+    @DirtiesContext
+    @TestFactory
+    public DynamicTestCollection clientStreamingCallTests() {
+        return super.clientStreamingCallTests()
+                .add("clientStreaming-bean",
+                        () -> assertClientStreamingCallSuccess(this.beanStub))
+                .add("clientStreaming-unknownUser",
+                        () -> assertClientStreamingCallFailure(this.unknownUserStub, UNAUTHENTICATED))
+                .add("clientStreaming-noAuth",
+                        () -> assertClientStreamingCallFailure(this.noAuthStub, UNAUTHENTICATED));
+    }
+
+    @Override
+    @Test
+    @DirtiesContext
+    @TestFactory
+    public DynamicTestCollection serverStreamingCallTests() {
+        return super.serverStreamingCallTests()
+                .add("serverStreaming-bean",
+                        () -> assertServerStreamingCallSuccess(this.beanStub))
+                .add("serverStreaming-unknownUser",
+                        () -> assertServerStreamingCallFailure(this.unknownUserStub, UNAUTHENTICATED))
+                .add("serverStreaming-noAuth",
+                        () -> assertServerStreamingCallFailure(this.noAuthStub, UNAUTHENTICATED));
+    }
+
+    @Override
+    @Test
+    @DirtiesContext
+    @TestFactory
+    public DynamicTestCollection bidiStreamingCallTests() {
+        return super.bidiStreamingCallTests()
+                .add("bidiStreaming-bean",
+                        () -> assertBidiCallSuccess(this.beanStub))
+                .add("bidiStreaming-unknownUser",
+                        () -> assertServerStreamingCallFailure(this.unknownUserStub, UNAUTHENTICATED))
+                .add("bidiStreaming-noAuth",
+                        () -> assertServerStreamingCallFailure(this.noAuthStub, UNAUTHENTICATED));
     }
 
 }

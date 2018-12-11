@@ -19,6 +19,8 @@ package net.devh.boot.grpc.common.metric;
 
 import static net.devh.boot.grpc.common.metric.MetricConstants.TAG_METHOD_NAME;
 import static net.devh.boot.grpc.common.metric.MetricConstants.TAG_SERVICE_NAME;
+import static net.devh.boot.grpc.common.util.GrpcUtils.extractMethodName;
+import static net.devh.boot.grpc.common.util.GrpcUtils.extractServiceName;
 
 import io.grpc.MethodDescriptor;
 import io.micrometer.core.instrument.Counter;
@@ -63,35 +65,6 @@ public final class MetricUtils {
                 .description(description)
                 .tag(TAG_SERVICE_NAME, extractServiceName(method))
                 .tag(TAG_METHOD_NAME, extractMethodName(method));
-    }
-
-    /**
-     * Extracts the service name from the given method.
-     *
-     * @param method The method to get the service name from.
-     * @return The extracted service name.
-     * @see MethodDescriptor#extractFullServiceName(String)
-     * @see #extractMethodName(MethodDescriptor)
-     */
-    public static String extractServiceName(final MethodDescriptor<?, ?> method) {
-        return MethodDescriptor.extractFullServiceName(method.getFullMethodName());
-    }
-
-    /**
-     * Extracts the method name from the given method.
-     *
-     * @param method The method to get the method name from.
-     * @return The extracted method name.
-     * @see #extractServiceName(MethodDescriptor)
-     */
-    public static String extractMethodName(final MethodDescriptor<?, ?> method) {
-        // This method is the equivalent of MethodDescriptor.extractFullServiceName
-        final String fullMethodName = method.getFullMethodName();
-        final int index = fullMethodName.lastIndexOf('/');
-        if (index == -1) {
-            return fullMethodName;
-        }
-        return fullMethodName.substring(index + 1);
     }
 
     private MetricUtils() {}
