@@ -20,7 +20,7 @@ package net.devh.boot.grpc.client.nameresolver;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 
@@ -54,13 +54,13 @@ public class DiscoveryClientNameResolver extends NameResolver {
     private final String name;
     private final DiscoveryClient client;
     private final SharedResourceHolder.Resource<ScheduledExecutorService> timerServiceResource;
-    private final SharedResourceHolder.Resource<ExecutorService> executorResource;
+    private final SharedResourceHolder.Resource<Executor> executorResource;
     @GuardedBy("this")
     private boolean shutdown;
     @GuardedBy("this")
     private ScheduledExecutorService timerService;
     @GuardedBy("this")
-    private ExecutorService executor;
+    private Executor executor;
     @GuardedBy("this")
     private ScheduledFuture<?> resolutionTask;
     @GuardedBy("this")
@@ -70,9 +70,9 @@ public class DiscoveryClientNameResolver extends NameResolver {
     @GuardedBy("this")
     private List<ServiceInstance> serviceInstanceList;
 
-    public DiscoveryClientNameResolver(String name, DiscoveryClient client,
-            SharedResourceHolder.Resource<ScheduledExecutorService> timerServiceResource,
-            SharedResourceHolder.Resource<ExecutorService> executorResource) {
+    public DiscoveryClientNameResolver(final String name, final DiscoveryClient client,
+            final SharedResourceHolder.Resource<ScheduledExecutorService> timerServiceResource,
+            final SharedResourceHolder.Resource<Executor> executorResource) {
         this.name = name;
         this.client = client;
         this.timerServiceResource = timerServiceResource;

@@ -37,7 +37,6 @@ import io.grpc.CompressorRegistry;
 import io.grpc.DecompressorRegistry;
 import io.grpc.LoadBalancer;
 import io.grpc.NameResolver;
-import io.grpc.util.RoundRobinLoadBalancerFactory;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.InProcessChannelFactory;
@@ -88,8 +87,10 @@ public class GrpcClientAutoConfiguration {
     @ConditionalOnMissingBean
     @Lazy // Not needed for InProcessChannelFactories
     @Bean
+    @SuppressWarnings("deprecation") // Required to stay compatible with pre 1.17.0 versions
     public LoadBalancer.Factory grpcLoadBalancerFactory() {
-        return RoundRobinLoadBalancerFactory.getInstance();
+        return io.grpc.util.RoundRobinLoadBalancerFactory.getInstance();
+        // return LoadBalancerRegistry.getDefaultRegistry().getProvider("round_robin");
     }
 
     @ConditionalOnMissingBean
