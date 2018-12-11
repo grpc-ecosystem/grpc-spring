@@ -82,11 +82,6 @@ public class OIDCAuthenticationProvider implements AuthenticationProvider {
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.springframework.security.authentication.AuthenticationProvider#supports (java.lang.Class)
-     */
     @Override
     public boolean supports(Class<?> authentication) {
         return PreAuthenticatedAuthenticationToken.class.isAssignableFrom(authentication);

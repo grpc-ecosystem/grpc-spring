@@ -18,7 +18,6 @@
 package net.devh.boot.grpc.examples.security.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,14 +25,10 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * A simple rest controller that can be used to send a request and show its response.
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @author Gregor Eeckels (gregor.eeckels@gmail.com)
  */
 @RestController
 public class GrpcClientController {
-
-    @Value("${auth.username}")
-    private String username;
-
     @Autowired
     private GrpcClientService grpcClientService;
 
@@ -41,7 +36,7 @@ public class GrpcClientController {
     public String printMessage() {
         final StringBuilder sb = new StringBuilder();
         sb.append("Input:\n")
-                .append("Message: test, with Token string: TestToken\n")
+                .append("Message: test, Bearer Token is configured in SecurityConfiguration Class\n")
                 .append("Response:\n")
                 .append(this.grpcClientService.sendMessage("test"));
         return sb.toString();

@@ -3,9 +3,6 @@ server:
 spring:
   application:
     name: security-grpc-client
-# auth.username: guest
-auth.username: user
-# auth.username: unknown
 grpc:
   client:
     security-grpc-server:

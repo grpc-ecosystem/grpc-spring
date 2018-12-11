@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class BearerAuthenticationReader implements GrpcAuthenticationReader {
+
     private static final String PREFIX = "bearer ";
     private static final int PREFIX_LENGTH = PREFIX.length();
 

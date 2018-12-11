@@ -28,7 +28,7 @@ import net.devh.boot.grpc.examples.lib.SimpleGrpc.SimpleBlockingStub;
 /**
  * A dummy grpc client service that will call the secured grpc service.
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @author Gregor Eeckels (gregor.eeckels@gmail.com)
  */
 @Service
 public class GrpcClientService {

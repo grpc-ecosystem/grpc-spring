@@ -17,30 +17,23 @@
 
 package net.devh.boot.grpc.examples.security.client;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import io.grpc.ClientInterceptor;
-import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorConfigurer;
 import net.devh.boot.grpc.client.security.AuthenticatingClientInterceptors;
 
 /**
- * The security configuration for the client. In this case we assume that we use the same passwords for all stubs. If
- * you need per stub credentials you can delete the securityInterceptorConfigurer and reference the required auth
- * interceptor in {@link GrpcClient#interceptorNames()}.
+ * The security configuration for the client.
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @author Gregor Eeckels (gregor.eeckels@gmail.com)
  */
 @Configuration
 public class SecurityConfiguration {
 
-    @Value("${auth.username}")
-    private String username;
-
     @Bean
-    // Create interceptor for username + password auth.
+    // Create interceptor for bearer auth.
     ClientInterceptor bearerAuthInterceptor() {
         // Example encoded JWT
         // You can generate your own at https://jwt.io/
