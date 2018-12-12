@@ -68,4 +68,9 @@ public class StaticNameResolver extends NameResolver {
         // Does nothing
     }
 
+    @Override
+    public String toString() {
+        return "StaticNameResolver [authority=" + this.authority + ", targets=" + this.targets + "]";
+    }
+
 }

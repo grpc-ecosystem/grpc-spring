@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 
 import io.grpc.Attributes;
 import io.grpc.NameResolver;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 
@@ -39,6 +40,7 @@ import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
+@Slf4j
 public class ConfigMappedNameResolverFactory extends NameResolver.Factory {
 
     private final GrpcChannelsProperties config;
@@ -61,6 +63,8 @@ public class ConfigMappedNameResolverFactory extends NameResolver.Factory {
     public NameResolver newNameResolver(final URI targetUri, final Attributes params) {
         final String clientName = targetUri.toString();
         final GrpcChannelProperties clientConfig = this.config.getChannel(clientName);
+        log.debug("Remapping target URI for {} to {} via {}",
+                clientName, clientConfig.getAddress(), this.delegate);
         final Attributes extendedParas = params.toBuilder()
                 .set(NameResolverConstants.PARAMS_CLIENT_NAME, clientName)
                 .set(NameResolverConstants.PARAMS_CLIENT_CONFIG, clientConfig)
@@ -71,6 +75,11 @@ public class ConfigMappedNameResolverFactory extends NameResolver.Factory {
     @Override
     public String getDefaultScheme() {
         return "";
+    }
+
+    @Override
+    public String toString() {
+        return "ConfigMappedNameResolverFactory [config=" + this.config + ", delegate=" + this.delegate + "]";
     }
 
 }

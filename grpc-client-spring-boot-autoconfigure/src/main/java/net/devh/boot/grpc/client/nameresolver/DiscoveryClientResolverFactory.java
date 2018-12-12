@@ -98,4 +98,10 @@ public class DiscoveryClientResolverFactory extends NameResolver.Factory {
         this.discoveryClientNameResolvers.clear();
     }
 
+    @Override
+    public String toString() {
+        return "DiscoveryClientResolverFactory [scheme=" + getDefaultScheme() +
+                ", discoveryClient=" + this.client + "]";
+    }
+
 }

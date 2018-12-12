@@ -51,7 +51,9 @@ public class CompositeNameResolverFactory extends NameResolver.Factory {
     @Nullable
     @Override
     public NameResolver newNameResolver(final URI targetUri, final Attributes params) {
+        log.debug("Trying to create new name resolver for: {}", targetUri);
         for (final NameResolver.Factory factory : this.factories) {
+            log.debug("- Attempting with: {}", factory);
             final NameResolver resolver = factory.newNameResolver(targetUri, params);
             if (resolver != null) {
                 return resolver;
@@ -64,6 +66,12 @@ public class CompositeNameResolverFactory extends NameResolver.Factory {
     @Override
     public String getDefaultScheme() {
         return this.defaultScheme;
+    }
+
+    @Override
+    public String toString() {
+        return "CompositeNameResolverFactory [defaultScheme=" + this.defaultScheme +
+                ", factories=" + this.factories + "]";
     }
 
 }

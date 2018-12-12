@@ -104,4 +104,9 @@ public class StaticNameResolverProvider extends NameResolverProvider {
         return 5; // Default priority
     }
 
+    @Override
+    public String toString() {
+        return "StaticNameResolverProvider [scheme=" + getDefaultScheme() + "]";
+    }
+
 }
