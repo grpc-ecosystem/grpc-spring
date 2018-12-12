@@ -20,6 +20,7 @@ eureka:
 grpc:
   client:
     cloud-grpc-server:
+      address: 'discovery:///cloud-grpc-server'
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiationType: plaintext
