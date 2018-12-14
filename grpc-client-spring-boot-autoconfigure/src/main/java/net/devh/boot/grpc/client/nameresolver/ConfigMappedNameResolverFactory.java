@@ -20,6 +20,7 @@ package net.devh.boot.grpc.client.nameresolver;
 import static java.util.Objects.requireNonNull;
 
 import java.net.URI;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -45,6 +46,7 @@ public class ConfigMappedNameResolverFactory extends NameResolver.Factory {
 
     private final GrpcChannelsProperties config;
     private final NameResolver.Factory delegate;
+    private final Function<String, URI> defaultUriMapper;
 
     /**
      * Creates a new ConfigMappedNameResolverFactory with the given config that resolves the remapped target uri using
@@ -52,10 +54,14 @@ public class ConfigMappedNameResolverFactory extends NameResolver.Factory {
      *
      * @param config The config used to remap the target uri.
      * @param delegate The delegate used to resolve the remapped target uri.
+     * @param defaultUriMapper The function to use when no uri is configured for a certain endpoint. This can be useful
+     *        if the address can be derived from the client name.
      */
-    public ConfigMappedNameResolverFactory(final GrpcChannelsProperties config, final NameResolver.Factory delegate) {
+    public ConfigMappedNameResolverFactory(final GrpcChannelsProperties config, final NameResolver.Factory delegate,
+            Function<String, URI> defaultUriMapper) {
         this.config = requireNonNull(config, "config");
         this.delegate = requireNonNull(delegate, "delegate");
+        this.defaultUriMapper = requireNonNull(defaultUriMapper, "defaultUriMapper");
     }
 
     @Nullable
@@ -63,13 +69,20 @@ public class ConfigMappedNameResolverFactory extends NameResolver.Factory {
     public NameResolver newNameResolver(final URI targetUri, final Attributes params) {
         final String clientName = targetUri.toString();
         final GrpcChannelProperties clientConfig = this.config.getChannel(clientName);
-        log.debug("Remapping target URI for {} to {} via {}",
-                clientName, clientConfig.getAddress(), this.delegate);
+        URI remappedUri = clientConfig.getAddress();
+        if (remappedUri == null) {
+            remappedUri = this.defaultUriMapper.apply(clientName);
+            if (remappedUri == null) {
+                throw new IllegalStateException("No targetUri provided for '" + clientName + "'"
+                        + " and defaultUri mapper returned null.");
+            }
+        }
+        log.debug("Remapping target URI for {} to {} via {}", clientName, remappedUri, this.delegate);
         final Attributes extendedParas = params.toBuilder()
                 .set(NameResolverConstants.PARAMS_CLIENT_NAME, clientName)
                 .set(NameResolverConstants.PARAMS_CLIENT_CONFIG, clientConfig)
                 .build();
-        return this.delegate.newNameResolver(clientConfig.getAddress(), extendedParas);
+        return this.delegate.newNameResolver(remappedUri, extendedParas);
     }
 
     @Override

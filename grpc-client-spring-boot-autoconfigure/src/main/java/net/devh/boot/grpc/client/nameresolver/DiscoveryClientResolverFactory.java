@@ -20,6 +20,7 @@ package net.devh.boot.grpc.client.nameresolver;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
@@ -41,7 +42,15 @@ import io.grpc.internal.GrpcUtil;
  */
 public class DiscoveryClientResolverFactory extends NameResolver.Factory {
 
+    /**
+     * The constant containing the scheme that will be used by this factory.
+     */
     public static final String DISCOVERY_SCHEME = "discovery";
+    /**
+     * The function that should be used as uri mapper, if discovery-client should be used as default.
+     */
+    public static final Function<String, URI> DISCOVERY_DEFAULT_URI_MAPPER =
+            clientName -> URI.create(DISCOVERY_SCHEME + ":///" + clientName);
 
     private final Collection<DiscoveryClientNameResolver> discoveryClientNameResolvers = new ArrayList<>();
     private final HeartbeatMonitor monitor = new HeartbeatMonitor();

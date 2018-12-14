@@ -52,6 +52,7 @@ import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 import net.devh.boot.grpc.client.nameresolver.CompositeNameResolverFactory;
 import net.devh.boot.grpc.client.nameresolver.ConfigMappedNameResolverFactory;
 import net.devh.boot.grpc.client.nameresolver.NameResolverConstants;
+import net.devh.boot.grpc.client.nameresolver.StaticNameResolverProvider;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonTraceAutoConfiguration;
 
@@ -122,7 +123,8 @@ public class GrpcClientAutoConfiguration {
     @Lazy // Not needed for InProcessChannelFactories
     @Bean
     public NameResolver.Factory grpcNameResolverFactory(final GrpcChannelsProperties channelProperties) {
-        return new ConfigMappedNameResolverFactory(channelProperties, NameResolverProvider.asFactory());
+        return new ConfigMappedNameResolverFactory(channelProperties, NameResolverProvider.asFactory(),
+                StaticNameResolverProvider.STATIC_DEFAULT_URI_MAPPER);
     }
 
     @ConditionalOnBean(CompressorRegistry.class)

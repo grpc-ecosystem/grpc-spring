@@ -38,6 +38,10 @@ public final class NameResolverConstants {
      */
     public static final Attributes.Key<GrpcChannelProperties> PARAMS_CLIENT_CONFIG =
             Attributes.Key.create("params-client-config");
+    /**
+     * The default port used if no specific port is configured.
+     */
+    public static final int DEFAULT_PORT = 9090;
 
     private NameResolverConstants() {}
 

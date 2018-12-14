@@ -24,6 +24,7 @@ import java.net.SocketAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
@@ -32,7 +33,6 @@ import io.grpc.Attributes;
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
 import io.grpc.NameResolverProvider;
-import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 
 /**
  * A name resolver provider that will create a {@link NameResolver} with static addresses. This factory uses the
@@ -46,6 +46,14 @@ public class StaticNameResolverProvider extends NameResolverProvider {
      * The constant containing the scheme that will be used by this factory.
      */
     public static final String STATIC_SCHEME = "static";
+    /**
+     * The default URI to use if target address is configured.
+     */
+    public static final URI STATIC_DEFAULT_URI = URI.create("static://localhost:" + NameResolverConstants.DEFAULT_PORT);
+    /**
+     * The function that should be used as default uri mapper, if no name based default can be computed.
+     */
+    public static final Function<String, URI> STATIC_DEFAULT_URI_MAPPER = clientName -> STATIC_DEFAULT_URI;
 
     private static final Pattern PATTERN_COMMA = Pattern.compile(",");
 
@@ -76,7 +84,7 @@ public class StaticNameResolverProvider extends NameResolverProvider {
             if (port == -1) {
                 final Integer defaultPort = params.get(NameResolver.Factory.PARAMS_DEFAULT_PORT);
                 if (defaultPort == null) {
-                    port = GrpcChannelProperties.DEFAULT_PORT;
+                    port = NameResolverConstants.DEFAULT_PORT;
                 } else {
                     port = defaultPort;
                 }

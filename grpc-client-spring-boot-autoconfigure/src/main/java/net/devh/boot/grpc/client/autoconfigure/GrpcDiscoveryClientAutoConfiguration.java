@@ -51,7 +51,8 @@ public class GrpcDiscoveryClientAutoConfiguration {
                 .add(NameResolverProvider.asFactory())
                 .build();
         return new ConfigMappedNameResolverFactory(channelProperties,
-                new CompositeNameResolverFactory(DiscoveryClientResolverFactory.DISCOVERY_SCHEME, factories));
+                new CompositeNameResolverFactory(DiscoveryClientResolverFactory.DISCOVERY_SCHEME, factories),
+                DiscoveryClientResolverFactory.DISCOVERY_DEFAULT_URI_MAPPER);
     }
 
 }

@@ -20,6 +20,7 @@ package net.devh.boot.grpc.client.config;
 import java.net.URI;
 import java.util.List;
 
+import io.grpc.NameResolver;
 import io.grpc.internal.GrpcUtil;
 import lombok.Data;
 
@@ -32,14 +33,11 @@ import lombok.Data;
 @Data
 public class GrpcChannelProperties {
 
-    public static final String DEFAULT_HOST = "localhost";
-    public static final int DEFAULT_PORT = 9090;
-    public static final URI DEFAULT_URI = URI.create("static://" + DEFAULT_HOST + ':' + DEFAULT_PORT);
-
     public static final GrpcChannelProperties DEFAULT = new GrpcChannelProperties();
 
     /**
-     * The target uri in the format: {@code schema:[//[authority]][/path]}. Defaults to {@code static://localhost:9090}.
+     * The target uri in the format: {@code schema:[//[authority]][/path]}. If nothing is configured then the
+     * {@link NameResolver.Factory} will decide on the default.
      *
      * <p>
      * <b>Examples</b>
@@ -60,7 +58,7 @@ public class GrpcChannelProperties {
      * <li>{@code discovery:///foo-service}</li>
      * </ul>
      */
-    private URI address = URI.create("static://" + DEFAULT_HOST + ':' + DEFAULT_PORT);
+    private URI address = null;
 
     /**
      * Sets the target address uri.
