@@ -20,6 +20,7 @@ package net.devh.boot.grpc.client.nameresolver;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
@@ -31,7 +32,6 @@ import org.springframework.context.event.EventListener;
 
 import io.grpc.Attributes;
 import io.grpc.NameResolver;
-import io.grpc.NameResolverProvider;
 import io.grpc.internal.GrpcUtil;
 
 /**
@@ -40,7 +40,17 @@ import io.grpc.internal.GrpcUtil;
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
-public class DiscoveryClientResolverFactory extends NameResolverProvider {
+public class DiscoveryClientResolverFactory extends NameResolver.Factory {
+
+    /**
+     * The constant containing the scheme that will be used by this factory.
+     */
+    public static final String DISCOVERY_SCHEME = "discovery";
+    /**
+     * The function that should be used as uri mapper, if discovery-client should be used as default.
+     */
+    public static final Function<String, URI> DISCOVERY_DEFAULT_URI_MAPPER =
+            clientName -> URI.create(DISCOVERY_SCHEME + ":///" + clientName);
 
     private final Collection<DiscoveryClientNameResolver> discoveryClientNameResolvers = new ArrayList<>();
     private final HeartbeatMonitor monitor = new HeartbeatMonitor();
@@ -54,26 +64,25 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
     @Nullable
     @Override
     public NameResolver newNameResolver(final URI targetUri, final Attributes params) {
-        final DiscoveryClientNameResolver discoveryClientNameResolver =
-                new DiscoveryClientNameResolver(targetUri.toString(), this.client, GrpcUtil.TIMER_SERVICE,
-                        GrpcUtil.SHARED_CHANNEL_EXECUTOR);
-        this.discoveryClientNameResolvers.add(discoveryClientNameResolver);
-        return discoveryClientNameResolver;
+        if (DISCOVERY_SCHEME.equals(targetUri.getScheme())) {
+            final String serviceName = targetUri.getPath();
+            if (serviceName == null || serviceName.length() <= 1 || !serviceName.startsWith("/")) {
+                throw new IllegalArgumentException("Incorrectly formatted target uri; "
+                        + "expected: '" + DISCOVERY_SCHEME + ":[//]/<service-name>'; "
+                        + "but was '" + targetUri.toString() + "'");
+            }
+            final DiscoveryClientNameResolver discoveryClientNameResolver =
+                    new DiscoveryClientNameResolver(serviceName.substring(1), this.client,
+                            GrpcUtil.TIMER_SERVICE, GrpcUtil.SHARED_CHANNEL_EXECUTOR);
+            this.discoveryClientNameResolvers.add(discoveryClientNameResolver);
+            return discoveryClientNameResolver;
+        }
+        return null;
     }
 
     @Override
     public String getDefaultScheme() {
-        return "discoveryClient";
-    }
-
-    @Override
-    protected boolean isAvailable() {
-        return true;
-    }
-
-    @Override
-    protected int priority() {
-        return 5;
+        return DISCOVERY_SCHEME;
     }
 
     /**
@@ -96,6 +105,12 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
     @PreDestroy
     public void destroy() {
         this.discoveryClientNameResolvers.clear();
+    }
+
+    @Override
+    public String toString() {
+        return "DiscoveryClientResolverFactory [scheme=" + getDefaultScheme() +
+                ", discoveryClient=" + this.client + "]";
     }
 
 }

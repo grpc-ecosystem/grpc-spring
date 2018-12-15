@@ -15,36 +15,25 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.examples.cloud.client;
+package net.devh.boot.grpc.test.util;
 
-import org.springframework.stereotype.Service;
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
 
-import io.grpc.Channel;
-import io.grpc.StatusRuntimeException;
-import net.devh.boot.grpc.client.inject.GrpcClient;
-import net.devh.boot.grpc.examples.lib.HelloReply;
-import net.devh.boot.grpc.examples.lib.HelloRequest;
-import net.devh.boot.grpc.examples.lib.SimpleGrpc;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
- * @author Michael (yidongnan@gmail.com)
- * @since 2016/11/8
+ * An annotation for JUnit tests that will enable the test if the current host has an IPv6 loopback address.
+ *
+ * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-@Service
-public class GrpcClientService {
-
-    @GrpcClient("cloud-grpc-server")
-    private Channel serverChannel;
-
-    public String sendMessage(final String name) {
-        try {
-            final SimpleGrpc.SimpleBlockingStub stub = SimpleGrpc.newBlockingStub(this.serverChannel);
-            final HelloReply response = stub.sayHello(HelloRequest.newBuilder().setName(name).build());
-            return response.getMessage();
-        } catch (final StatusRuntimeException e) {
-            e.printStackTrace();
-            return "FAILED with " + e.getStatus().getCode();
-        }
-    }
-
+@Target({METHOD, TYPE, ANNOTATION_TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@ExtendWith(RequireIPv6Condition.class)
+public @interface EnableOnIPv6 {
 }

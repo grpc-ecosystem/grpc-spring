@@ -33,10 +33,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
 import brave.grpc.GrpcTracing;
+import io.grpc.Attributes;
 import io.grpc.CompressorRegistry;
 import io.grpc.DecompressorRegistry;
 import io.grpc.LoadBalancer;
 import io.grpc.NameResolver;
+import io.grpc.NameResolverProvider;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.InProcessChannelFactory;
@@ -47,7 +49,10 @@ import net.devh.boot.grpc.client.inject.GrpcClientBeanPostProcessor;
 import net.devh.boot.grpc.client.interceptor.AnnotationGlobalClientInterceptorConfigurer;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorConfigurer;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
-import net.devh.boot.grpc.client.nameresolver.AddressChannelResolverFactory;
+import net.devh.boot.grpc.client.nameresolver.CompositeNameResolverFactory;
+import net.devh.boot.grpc.client.nameresolver.ConfigMappedNameResolverFactory;
+import net.devh.boot.grpc.client.nameresolver.NameResolverConstants;
+import net.devh.boot.grpc.client.nameresolver.StaticNameResolverProvider;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonTraceAutoConfiguration;
 
@@ -93,11 +98,33 @@ public class GrpcClientAutoConfiguration {
         // return LoadBalancerRegistry.getDefaultRegistry().getProvider("round_robin");
     }
 
+    /**
+     * Creates a new name resolver factory with the given channel properties. The properties are used to map the client
+     * name to the actual service addresses. If you want to add more name resolver schemes or modify existing ones, you
+     * can do that in the following ways:
+     *
+     * <ul>
+     * <li>If you only rely on the client properties or other static beans, then you can simply add an entry to java's
+     * service discovery for {@link io.grpc.NameResolverProvider}s.</li>
+     * <li>If you need access to other beans, then you have to redefine this bean and use a
+     * {@link CompositeNameResolverFactory} as the delegate for the {@link ConfigMappedNameResolverFactory}.</li>
+     * </ul>
+     *
+     * <p>
+     * You can access the client {@link NameResolverConstants#PARAMS_CLIENT_NAME name} and
+     * {@link NameResolverConstants#PARAMS_CLIENT_CONFIG properties} via the {@link Attributes params} that are used to
+     * create the name resolver.
+     * </p>
+     *
+     * @param channelProperties The properties for the channels.
+     * @return The default config mapped name resolver factory.
+     */
     @ConditionalOnMissingBean
     @Lazy // Not needed for InProcessChannelFactories
     @Bean
-    public NameResolver.Factory grpcNameResolverFactory(final GrpcChannelsProperties properties) {
-        return new AddressChannelResolverFactory(properties);
+    public NameResolver.Factory grpcNameResolverFactory(final GrpcChannelsProperties channelProperties) {
+        return new ConfigMappedNameResolverFactory(channelProperties, NameResolverProvider.asFactory(),
+                StaticNameResolverProvider.STATIC_DEFAULT_URI_MAPPER);
     }
 
     @ConditionalOnBean(CompressorRegistry.class)
