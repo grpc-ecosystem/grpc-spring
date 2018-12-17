@@ -143,6 +143,7 @@ public final class AuthenticatingClientInterceptors {
      * @param token the bearer token
      * @return The newly created basic auth interceptor.
      */
+    @Deprecated
     public static ClientInterceptor bearerAuth(final String token) {
         final Metadata extraHeaders = new Metadata();
         extraHeaders.put(AUTHORIZATION_HEADER, "Bearer " + token);

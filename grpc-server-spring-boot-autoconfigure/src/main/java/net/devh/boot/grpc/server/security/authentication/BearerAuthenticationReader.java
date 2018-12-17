@@ -17,6 +17,9 @@
 
 package net.devh.boot.grpc.server.security.authentication;
 
+import static net.devh.boot.grpc.common.security.SecurityConstants.AUTHORIZATION_HEADER;
+import static net.devh.boot.grpc.common.security.SecurityConstants.BEARER_AUTH_PREFIX;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
@@ -32,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BearerAuthenticationReader implements GrpcAuthenticationReader {
 
-    private static final String PREFIX = "bearer ";
+    private static final String PREFIX = BEARER_AUTH_PREFIX;
     private static final int PREFIX_LENGTH = PREFIX.length();
 
     @Override
