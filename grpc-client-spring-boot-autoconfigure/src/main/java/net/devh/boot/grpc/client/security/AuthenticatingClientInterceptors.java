@@ -142,6 +142,7 @@ public final class AuthenticatingClientInterceptors {
      *
      * @param token the bearer token
      * @return The newly created basic auth interceptor.
+     * @deprecated Use {@link StubTransformer}s to set the credentials directly on {@link AbstractStub}s.
      */
     @Deprecated
     public static ClientInterceptor bearerAuth(final String token) {

@@ -39,8 +39,11 @@ public final class SecurityConstants {
      * username and password are {@link StandardCharsets#UTF_8 UTF_8} encoded before being turned into a base64 string.
      */
     public static final String BASIC_AUTH_PREFIX = "Basic ";
-    public static final String BEARER_AUTH_PREFIX = "Bearer ";
 
+    /**
+     * The prefix for bearer auth as used in the {@link #AUTHORIZATION_HEADER}.
+     */
+    public static final String BEARER_AUTH_PREFIX = "Bearer ";
 
     private SecurityConstants() {}
 

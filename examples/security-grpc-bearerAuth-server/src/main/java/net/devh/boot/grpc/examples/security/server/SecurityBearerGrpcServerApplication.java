@@ -21,7 +21,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * An example server application that demonstrates basic auth security.
+ * An example server application that demonstrates bearer auth security.
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
