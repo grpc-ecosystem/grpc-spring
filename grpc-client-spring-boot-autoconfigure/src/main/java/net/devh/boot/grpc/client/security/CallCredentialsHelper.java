@@ -21,6 +21,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static net.devh.boot.grpc.common.security.SecurityConstants.AUTHORIZATION_HEADER;
 import static net.devh.boot.grpc.common.security.SecurityConstants.BASIC_AUTH_PREFIX;
+import static net.devh.boot.grpc.common.security.SecurityConstants.BEARER_AUTH_PREFIX;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -155,6 +156,22 @@ public class CallCredentialsHelper {
                 return stub.withCallCredentials(credentials);
             }
         };
+    }
+
+    /**
+     * Creates a new call credential with the given token for bearer auth.
+     *
+     * <p>
+     * <b>Note:</b> This method uses experimental grpc-java-API features.
+     * </p>
+     *
+     * @param token the bearer token to use
+     * @return The newly created bearer auth credentials.
+     */
+    public static CallCredentials2 bearerAuth(final String token) {
+        final Metadata extraHeaders = new Metadata();
+        extraHeaders.put(AUTHORIZATION_HEADER, BEARER_AUTH_PREFIX + token);
+        return new StaticSecurityHeaderCallCredentials(extraHeaders);
     }
 
     /**

@@ -20,9 +20,8 @@ package net.devh.boot.grpc.examples.security.client;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import io.grpc.ClientInterceptor;
-import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorConfigurer;
-import net.devh.boot.grpc.client.security.AuthenticatingClientInterceptors;
+import io.grpc.CallCredentials;
+import net.devh.boot.grpc.client.security.CallCredentialsHelper;
 
 /**
  * The security configuration for the client.
@@ -32,21 +31,13 @@ import net.devh.boot.grpc.client.security.AuthenticatingClientInterceptors;
 @Configuration
 public class SecurityConfiguration {
 
+    private String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIx" +
+            "MjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjM5MDk" +
+            "wfQ.FHg7gTSQKoUdIJ6PqtoC_tuqCmXhBZvknvl8hftD1l0";
     @Bean
-    // Create interceptor for bearer auth.
-    ClientInterceptor bearerAuthInterceptor() {
-        // Example encoded JWT
-        // You can generate your own at https://jwt.io/
-        return AuthenticatingClientInterceptors.bearerAuth("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIx" +
-                "MjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjM5MDk" +
-                "wfQ.FHg7gTSQKoUdIJ6PqtoC_tuqCmXhBZvknvl8hftD1l0");
-    }
-
-    @Bean
-    // Register the auth interceptor globally.
-    public GlobalClientInterceptorConfigurer securityInterceptorConfigurer(
-            final ClientInterceptor bearerAuthInterceptor) {
-        return registry -> registry.addClientInterceptors(bearerAuthInterceptor);
+    // Create credentials bearer Token
+    CallCredentials grpcCredentials() {
+        return CallCredentialsHelper.bearerAuth(token);
     }
 
 }

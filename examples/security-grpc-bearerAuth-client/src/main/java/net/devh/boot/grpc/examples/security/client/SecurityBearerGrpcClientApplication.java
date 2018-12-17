@@ -26,10 +26,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author Gregor Eeckels (gregor.eeckels@gmail.com)
  */
 @SpringBootApplication
-public class SecurityGrpcClientApplication {
+public class SecurityBearerGrpcClientApplication {
 
     public static void main(final String[] args) {
-        SpringApplication.run(SecurityGrpcClientApplication.class, args);
+        SpringApplication.run(SecurityBearerGrpcClientApplication.class, args);
     }
 
 }
