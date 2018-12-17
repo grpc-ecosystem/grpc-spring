@@ -270,18 +270,40 @@ Then you can send queries to your server just like this:
 HelloReply response = stub.sayHello(HelloRequest.newBuilder().setName(name).build());
 ````
 
-By default, the client assumes that the server runs on `127.0.0.1` with port `9090`. These and other
+It is possible to configure the target address for each client individually.
+However in some cases, you can just rely on the default configuration.
+You can customize the default url mapping via `NameResolver.Factory` beans. If you don't configure that bean,
+then the default uri will be resolved as followed:
+
+* If a `DiscoveryClient` bean is present, then the client name will be used to search inside the discovery client.
+* Otherwise the client assumes that the server runs on `localhost` with port `9090`.
+
+These and other
 [settings](grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/springboot/autoconfigure/grpc/client/GrpcChannelProperties.java)
 can be changed via Spring's property mechanism. The clients use the `grpc.client.(serverName).` prefix.
+
+It is also possible to list multiple target IP addresses with automatic load balancing like this: 
+
+* `static://127.0.0.1:9090,[::1]:9090`
+
+You can also use service discovery based address resolution like this (requires a `DiscoveryClient` bean):
+
+* `discovery:///my-service-name`
+
+Additionally, you can use DNS based address resolution like this:
+
+* `dns:///example.com`
+
+This will automatically read all IP addresses from that domain and use them for load balancing.
+Please note that `grpc-java` caches the DNS response for performance reasons.
+Read more about these and other natively supported `NameResolverProviders` in the official [grpc-java sources](https://github.com/grpc/grpc-java).
 
 #### Example-Properties
 
 ````properties
-grpc.client.(gRPC server name).host[0]=127.0.0.1
-grpc.client.(gRPC server name).port[0]=9090
+grpc.client.(gRPC server name).address=static://localhost:9090
 # Or
-grpc.client.myName.host=127.0.0.1
-grpc.client.myName.port=9090
+grpc.client.myName.address=static://localhost:9090
 ````
 
 #### Client-Authentication

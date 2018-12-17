@@ -206,4 +206,9 @@ public class DiscoveryClientNameResolver extends NameResolver {
         }
     }
 
+    @Override
+    public String toString() {
+        return "DiscoveryClientNameResolver [name=" + name + ", discoveryClient=" + client + "]";
+    }
+
 }

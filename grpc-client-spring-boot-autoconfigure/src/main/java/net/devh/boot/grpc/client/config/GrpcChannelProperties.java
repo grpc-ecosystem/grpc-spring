@@ -17,10 +17,10 @@
 
 package net.devh.boot.grpc.client.config;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.net.URI;
 import java.util.List;
 
+import io.grpc.NameResolver;
 import io.grpc.internal.GrpcUtil;
 import lombok.Data;
 
@@ -33,24 +33,65 @@ import lombok.Data;
 @Data
 public class GrpcChannelProperties {
 
-    public static final String DEFAULT_HOST = "127.0.0.1";
-    public static final Integer DEFAULT_PORT = 9090;
-    private static final List<String> DEFAULT_HOSTS = Arrays.asList(DEFAULT_HOST);
-    private static final List<Integer> DEFAULT_PORTS = Arrays.asList(DEFAULT_PORT);
-
     public static final GrpcChannelProperties DEFAULT = new GrpcChannelProperties();
 
     /**
-     * A list of hosts to connect to. These entries should be kept in tandem with the port entries. Defaults to
-     * {@link #DEFAULT_HOST}.
+     * The target uri in the format: {@code schema:[//[authority]][/path]}. If nothing is configured then the
+     * {@link NameResolver.Factory} will decide on the default.
+     *
+     * <p>
+     * <b>Examples</b>
+     * </p>
+     *
+     * <ul>
+     * <li>{@code static://localhost:9090} (refers to exactly one IPv4 or IPv6 address, dependent on the jre
+     * configuration, it does not check whether there is actually someone listening on that network interface)</li>
+     * <li>{@code static://10.0.0.10}</li>
+     * <li>{@code static://10.0.0.10,10.11.12.11}</li>
+     * <li>{@code static://10.0.0.10:9090,10.0.0.11:80,10.0.0.12:1234,[::1]:8080}</li>
+     * <li>{@code dns:/localhost (might refer to the IPv4 or the IPv6 address or both, dependent on the system
+     * configuration, it does not check whether there is actually someone listening on that network interface)}</li>
+     * <li>{@code dns:/example.com}</li>
+     * <li>{@code dns:/example.com:9090}</li>
+     * <li>{@code dns:///example.com:9090}</li>
+     * <li>{@code discovery:/foo-service}</li>
+     * <li>{@code discovery:///foo-service}</li>
+     * </ul>
      */
-    private List<String> host = new ArrayList<>(DEFAULT_HOSTS);
+    private URI address = null;
 
     /**
-     * A list of ports to connect to. These entries should be kept in tandem with the host entries. Defaults to
-     * {@link #DEFAULT_PORT}.
+     * Sets the target address uri.
+     *
+     * @param uri The string representation of an uri to use as target address.
      */
-    private List<Integer> port = new ArrayList<>(DEFAULT_PORTS);
+    public void setAddress(final String uri) {
+        this.address = URI.create(uri);
+    }
+
+    @Deprecated
+    public void setHost(final String host) {
+        throw new UnsupportedOperationException(
+                "Use the 'address' attribute with 'static://host1:port1,...,hostn:portn' instead");
+    }
+
+    @Deprecated
+    public void setHost(final List<String> hosts) {
+        throw new UnsupportedOperationException(
+                "Use the 'address' attribute with 'static://host1:port1,...,hostn:portn' instead");
+    }
+
+    @Deprecated
+    public void setPort(final String port) {
+        throw new UnsupportedOperationException(
+                "Use the 'address' attribute with 'static://host1:port1,...,hostn:portn' instead");
+    }
+
+    @Deprecated
+    public void setPort(final List<String> ports) {
+        throw new UnsupportedOperationException(
+                "Use the 'address' attribute with 'static://host1:port1,...,hostn:portn' instead");
+    }
 
     /**
      * Setting to enable keepalive. Default to {@code false}.

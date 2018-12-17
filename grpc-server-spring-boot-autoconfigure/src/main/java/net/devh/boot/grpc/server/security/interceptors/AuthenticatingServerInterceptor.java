@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -68,6 +69,12 @@ public class AuthenticatingServerInterceptor implements ServerInterceptor {
             } catch (final AccessDeniedException e) {
                 throw new BadCredentialsException("No credentials found in the request", e);
             }
+        }
+        if (authentication.getDetails() == null && authentication instanceof AbstractAuthenticationToken) {
+            // Append call attributes to the authentication request.
+            // This gives the AuthenticationManager access to information like remote and local address.
+            // It can then decide whether it wants to use its own user details or the attributes.
+            ((AbstractAuthenticationToken) authentication).setDetails(call.getAttributes());
         }
         log.debug("Credentials found: Authenticating...");
         authentication = this.authenticationManager.authenticate(authentication);

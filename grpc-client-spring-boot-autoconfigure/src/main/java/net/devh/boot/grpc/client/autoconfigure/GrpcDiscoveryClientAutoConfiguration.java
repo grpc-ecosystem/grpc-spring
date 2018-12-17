@@ -17,13 +17,23 @@
 
 package net.devh.boot.grpc.client.autoconfigure;
 
+import java.util.List;
+
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
+import com.google.common.collect.ImmutableList;
+
+import io.grpc.NameResolver;
 import io.grpc.NameResolverProvider;
+import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
+import net.devh.boot.grpc.client.nameresolver.CompositeNameResolverFactory;
+import net.devh.boot.grpc.client.nameresolver.ConfigMappedNameResolverFactory;
 import net.devh.boot.grpc.client.nameresolver.DiscoveryClientResolverFactory;
 
 @Configuration
@@ -31,9 +41,18 @@ import net.devh.boot.grpc.client.nameresolver.DiscoveryClientResolverFactory;
 @AutoConfigureBefore(GrpcClientAutoConfiguration.class)
 public class GrpcDiscoveryClientAutoConfiguration {
 
+    @ConditionalOnMissingBean
+    @Lazy // Not needed for InProcessChannelFactories
     @Bean
-    NameResolverProvider discoveryNameResolverProvider(final DiscoveryClient client) {
-        return new DiscoveryClientResolverFactory(client);
+    NameResolver.Factory grpcNameResolverProviderWithDiscovery(final GrpcChannelsProperties channelProperties,
+            final DiscoveryClient client) {
+        final List<NameResolver.Factory> factories = ImmutableList.<NameResolver.Factory>builder()
+                .add(new DiscoveryClientResolverFactory(client))
+                .add(NameResolverProvider.asFactory())
+                .build();
+        return new ConfigMappedNameResolverFactory(channelProperties,
+                new CompositeNameResolverFactory(DiscoveryClientResolverFactory.DISCOVERY_SCHEME, factories),
+                DiscoveryClientResolverFactory.DISCOVERY_DEFAULT_URI_MAPPER);
     }
 
 }
