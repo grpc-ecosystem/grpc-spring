@@ -15,36 +15,40 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.common.security;
+package net.devh.boot.grpc.examples.security.client;
 
-import java.nio.charset.StandardCharsets;
+import org.springframework.stereotype.Service;
 
-import io.grpc.Metadata;
-import io.grpc.Metadata.Key;
+import io.grpc.StatusRuntimeException;
+import net.devh.boot.grpc.client.inject.GrpcClient;
+import net.devh.boot.grpc.examples.lib.HelloReply;
+import net.devh.boot.grpc.examples.lib.HelloRequest;
+import net.devh.boot.grpc.examples.lib.SimpleGrpc.SimpleBlockingStub;
 
 /**
- * A helper class with constants related to grpc security.
+ * A dummy grpc client service that will call the secured grpc service.
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @author Gregor Eeckels (gregor.eeckels@gmail.com)
  */
-public final class SecurityConstants {
+@Service
+public class GrpcClientService {
+
+    @GrpcClient("security-grpc-server")
+    private SimpleBlockingStub simpleStub;
 
     /**
-     * A convenience constant that contains the key for the HTTP Authorization Header.
+     * Send a message to the secured grpc service.
+     *
+     * @param name The name of the caller.
+     * @return The response from the server or an failure message.
      */
-    public static final Key<String> AUTHORIZATION_HEADER = Key.of("Authorization", Metadata.ASCII_STRING_MARSHALLER);
-
-    /**
-     * The prefix for basic auth as used in the {@link #AUTHORIZATION_HEADER}. This library assumes that the both the
-     * username and password are {@link StandardCharsets#UTF_8 UTF_8} encoded before being turned into a base64 string.
-     */
-    public static final String BASIC_AUTH_PREFIX = "Basic ";
-
-    /**
-     * The prefix for bearer auth as used in the {@link #AUTHORIZATION_HEADER}.
-     */
-    public static final String BEARER_AUTH_PREFIX = "Bearer ";
-
-    private SecurityConstants() {}
+    public String sendMessage(final String name) {
+        try {
+            final HelloReply response = this.simpleStub.sayHello(HelloRequest.newBuilder().setName(name).build());
+            return response.getMessage();
+        } catch (final StatusRuntimeException e) {
+            return "FAILED with " + e.getStatus().getCode().name();
+        }
+    }
 
 }

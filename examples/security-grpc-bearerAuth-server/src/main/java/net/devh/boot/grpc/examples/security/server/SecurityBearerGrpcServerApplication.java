@@ -15,36 +15,21 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.common.security;
+package net.devh.boot.grpc.examples.security.server;
 
-import java.nio.charset.StandardCharsets;
-
-import io.grpc.Metadata;
-import io.grpc.Metadata.Key;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * A helper class with constants related to grpc security.
+ * An example server application that demonstrates bearer auth security.
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-public final class SecurityConstants {
+@SpringBootApplication
+public class SecurityBearerGrpcServerApplication {
 
-    /**
-     * A convenience constant that contains the key for the HTTP Authorization Header.
-     */
-    public static final Key<String> AUTHORIZATION_HEADER = Key.of("Authorization", Metadata.ASCII_STRING_MARSHALLER);
-
-    /**
-     * The prefix for basic auth as used in the {@link #AUTHORIZATION_HEADER}. This library assumes that the both the
-     * username and password are {@link StandardCharsets#UTF_8 UTF_8} encoded before being turned into a base64 string.
-     */
-    public static final String BASIC_AUTH_PREFIX = "Basic ";
-
-    /**
-     * The prefix for bearer auth as used in the {@link #AUTHORIZATION_HEADER}.
-     */
-    public static final String BEARER_AUTH_PREFIX = "Bearer ";
-
-    private SecurityConstants() {}
+    public static void main(final String[] args) {
+        SpringApplication.run(SecurityBearerGrpcServerApplication.class, args);
+    }
 
 }

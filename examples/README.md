@@ -42,7 +42,7 @@
 
 5. Visit http://localhost:8080/ to see the result.
 
-## With security
+## With Basic auth security
 
 1. Try the security-grpc-server example first run:
 
@@ -59,3 +59,21 @@
 3. Visit http://localhost:8080/ to see the result.
 
 *You can configure the client's username in the application.yml.*
+
+## With Bearer auth security
+
+1. Try the security-grpc-bearerAuth-server example first run:
+
+    ````sh
+    ./gradlew :example:security-grpc-bearerAuth-server:bootRun
+    ````
+
+2. In a different terminal window run:
+
+    ````sh
+    ./gradlew :example:security-grpc-bearerAuth-client:bootRun
+    ````
+
+3. Visit http://localhost:8080/ to see the result.
+
+*You can configure the bearer token in the SecurityConfiguration.java*

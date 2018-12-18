@@ -136,6 +136,21 @@ public final class AuthenticatingClientInterceptors {
 
     }
 
+    /**
+     * Creates a new {@link ClientInterceptor} that adds the given bearer token as Bearer Authentication to all
+     * requests. The header will be encoded with {@link StandardCharsets#UTF_8 UTF_8}.
+     *
+     * @param token the bearer token
+     * @return The newly created basic auth interceptor.
+     * @deprecated Use {@link StubTransformer}s to set the credentials directly on {@link AbstractStub}s.
+     */
+    @Deprecated
+    public static ClientInterceptor bearerAuth(final String token) {
+        final Metadata extraHeaders = new Metadata();
+        extraHeaders.put(AUTHORIZATION_HEADER, "Bearer " + token);
+        return MetadataUtils.newAttachHeadersInterceptor(extraHeaders);
+    }
+
     private AuthenticatingClientInterceptors() {}
 
 }

@@ -15,36 +15,31 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.common.security;
+package net.devh.boot.grpc.examples.security.server;
 
-import java.nio.charset.StandardCharsets;
+import org.springframework.security.access.annotation.Secured;
 
-import io.grpc.Metadata;
-import io.grpc.Metadata.Key;
+import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.examples.lib.HelloReply;
+import net.devh.boot.grpc.examples.lib.HelloRequest;
+import net.devh.boot.grpc.examples.lib.SimpleGrpc;
+import net.devh.boot.grpc.server.service.GrpcService;
 
 /**
- * A helper class with constants related to grpc security.
+ * An example service that checks the user's authentication.
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-public final class SecurityConstants {
+@GrpcService
+public class GrpcServerService extends SimpleGrpc.SimpleImplBase {
 
-    /**
-     * A convenience constant that contains the key for the HTTP Authorization Header.
-     */
-    public static final Key<String> AUTHORIZATION_HEADER = Key.of("Authorization", Metadata.ASCII_STRING_MARSHALLER);
-
-    /**
-     * The prefix for basic auth as used in the {@link #AUTHORIZATION_HEADER}. This library assumes that the both the
-     * username and password are {@link StandardCharsets#UTF_8 UTF_8} encoded before being turned into a base64 string.
-     */
-    public static final String BASIC_AUTH_PREFIX = "Basic ";
-
-    /**
-     * The prefix for bearer auth as used in the {@link #AUTHORIZATION_HEADER}.
-     */
-    public static final String BEARER_AUTH_PREFIX = "Bearer ";
-
-    private SecurityConstants() {}
+    // A grpc method that requests the user to be authenticated and have the role "ROLE_GREET".
+    @Override
+    @Secured("ROLE_GREET")
+    public void sayHello(final HelloRequest req, final StreamObserver<HelloReply> responseObserver) {
+        final HelloReply reply = HelloReply.newBuilder().setMessage("Hello ==> " + req.getName()).build();
+        responseObserver.onNext(reply);
+        responseObserver.onCompleted();
+    }
 
 }

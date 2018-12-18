@@ -1,0 +1,12 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: security-grpc-client
+grpc:
+  client:
+    security-grpc-server:
+      address: 'static://127.0.0.1:9090'
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: plaintext

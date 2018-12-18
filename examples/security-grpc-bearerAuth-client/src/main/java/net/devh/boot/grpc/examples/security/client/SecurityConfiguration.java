@@ -15,36 +15,30 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.common.security;
+package net.devh.boot.grpc.examples.security.client;
 
-import java.nio.charset.StandardCharsets;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import io.grpc.Metadata;
-import io.grpc.Metadata.Key;
+import io.grpc.CallCredentials;
+import net.devh.boot.grpc.client.security.CallCredentialsHelper;
 
 /**
- * A helper class with constants related to grpc security.
+ * The security configuration for the client.
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @author Gregor Eeckels (gregor.eeckels@gmail.com)
  */
-public final class SecurityConstants {
+@Configuration
+public class SecurityConfiguration {
 
-    /**
-     * A convenience constant that contains the key for the HTTP Authorization Header.
-     */
-    public static final Key<String> AUTHORIZATION_HEADER = Key.of("Authorization", Metadata.ASCII_STRING_MARSHALLER);
+    private String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIx" +
+            "MjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjM5MDk" +
+            "wfQ.FHg7gTSQKoUdIJ6PqtoC_tuqCmXhBZvknvl8hftD1l0";
 
-    /**
-     * The prefix for basic auth as used in the {@link #AUTHORIZATION_HEADER}. This library assumes that the both the
-     * username and password are {@link StandardCharsets#UTF_8 UTF_8} encoded before being turned into a base64 string.
-     */
-    public static final String BASIC_AUTH_PREFIX = "Basic ";
-
-    /**
-     * The prefix for bearer auth as used in the {@link #AUTHORIZATION_HEADER}.
-     */
-    public static final String BEARER_AUTH_PREFIX = "Bearer ";
-
-    private SecurityConstants() {}
+    @Bean
+    // Create credentials bearer Token
+    CallCredentials grpcCredentials() {
+        return CallCredentialsHelper.bearerAuth(token);
+    }
 
 }
