@@ -123,7 +123,7 @@ dependencies {
 
 * 通过在 `Channel` 类型的字段上加入 `@GrpcClient(serverName)` 注解，并创建一个自己的 grpc stub.
   * 不需要使用 `@Autowired` 或者 `@Inject` 来进行注入
-  
+
   ````java
   @GrpcClient("gRPC server name")
   private Channel channel;
@@ -135,7 +135,7 @@ dependencies {
       greeterStub = GreeterGrpc.newBlockingStub(channel);
   }
   ````
-  
+
 * 直接将 `@GrpcClient(serverName)` 注解加在你自己的 stub 上
   * 不需要使用 `@Autowired` 或者 `@Inject` 来进行注入
 
@@ -143,8 +143,8 @@ dependencies {
   @GrpcClient("gRPC server name")
   private GreeterGrpc.GreeterBlockingStub greeterStub;
   ````
- 
-**注意:** 你可以为多个 channels 和多个不同的 stubs 使用相同的 serverName (除非他们拦截器不一样). 
+
+**注意:** 你可以为多个 channels 和多个不同的 stubs 使用相同的 serverName (除非他们拦截器不一样).
 
 然后你可以直接向服务端发起请求，如下:
 
@@ -153,7 +153,7 @@ HelloReply response = stub.sayHello(HelloRequest.newBuilder().setName(name).buil
 ````
 
 默认情况下client假设服务端的地址是 `127.0.0.1`,端口是`9090`,这些配置 [settings](grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/springboot/autoconfigure/grpc/client/GrpcChannelProperties.java)
-都可以通过Spring的property机制进行更改，客户端上需要使用 `grpc.client.(serverName).`的前缀 
+都可以通过Spring的property机制进行更改，客户端上需要使用 `grpc.client.(serverName).`的前缀
 
 #### Properties示例
 
@@ -171,4 +171,3 @@ grpc.client.myName.port=9090
 ## 示例
 
 https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/examples
-

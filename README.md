@@ -30,7 +30,7 @@ application
 ## Versions
 
 2.x.x.RELEASE support Spring Boot 2 & Spring Cloud Finchley.
- 
+
 The latest version: ``2.1.0.RELEASE``
 
 1.x.x.RELEASE support Spring Boot 1 & Spring Cloud Edgware, Dalston, Camden.
@@ -150,9 +150,9 @@ config) to your dependencies and then configure it as needed.
       return new CompositeGrpcAuthenticationReader(readers);
   }
   ````
-  
+
   and some properties:
-  
+
   ````properties
   grpc.server.security.enabled=true
   grpc.server.security.certificateChainPath=certificates/server.crt
@@ -173,11 +173,11 @@ config) to your dependencies and then configure it as needed.
   @EnableGlobalMethodSecurity(proxyTargetClass = true, ...)
   public class SecurityConfiguration {
   ````
-  
-  `proxyTargetClass` is required, if you use annotation driven security!  
-  However, you will receive a warning that MyServiceImpl#bindService() method is final.  
-  You cannot avoid that warning (without massive amount of work), but it is safe to ignore it.  
-  The `#bindService()` method uses a reference to `this`, which will be used to invoke the methods.  
+
+  `proxyTargetClass` is required, if you use annotation driven security!
+  However, you will receive a warning that MyServiceImpl#bindService() method is final.
+  You cannot avoid that warning (without massive amount of work), but it is safe to ignore it.
+  The `#bindService()` method uses a reference to `this`, which will be used to invoke the methods.
   If the method is not final it will delegate to the original instance and thus it will bypass any security layer that
   you intend to add, unless you re-implement the `#bindService()` method on the outermost layer (which Spring does not).
 
@@ -240,7 +240,7 @@ There are three ways to get a connection to the gRPC server:
 
 * Annotate a field of type `Channel` with `@GrpcClient(serverName)` and create the grpc stub yourself.
   * Do not use in conjunction with `@Autowired` or `@Inject`
-  
+
   ````java
   @GrpcClient("gRPC server name")
   private Channel channel;
@@ -252,7 +252,7 @@ There are three ways to get a connection to the gRPC server:
       greeterStub = GreeterGrpc.newBlockingStub(channel);
   }
   ````
-  
+
 * Annotate a field of your grpc client stub with `@GrpcClient(serverName)`
   * Do not use in conjunction with `@Autowired` or `@Inject`
 
@@ -262,7 +262,7 @@ There are three ways to get a connection to the gRPC server:
   ````
 
 **Note:** You can use the same grpc server name for multiple channels and also different stubs (even with different
-interceptors). 
+interceptors).
 
 Then you can send queries to your server just like this:
 
@@ -282,7 +282,7 @@ These and other
 [settings](grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/springboot/autoconfigure/grpc/client/GrpcChannelProperties.java)
 can be changed via Spring's property mechanism. The clients use the `grpc.client.(serverName).` prefix.
 
-It is also possible to list multiple target IP addresses with automatic load balancing like this: 
+It is also possible to list multiple target IP addresses with automatic load balancing like this:
 
 * `static://127.0.0.1:9090,[::1]:9090`
 

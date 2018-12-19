@@ -26,7 +26,7 @@ buildscript {
         braveInstrumentationGrpc = '5.5.0'
         jUnitVersion = '5.3.1'
 
-        lombokVersion='1.18.4'
+        lombokVersion = '1.18.4'
     }
     dependencies {
         classpath "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE"
@@ -75,6 +75,11 @@ allprojects {
             importOrderFile rootProject.file('extra/eclipse/eclipse.importorder')
             eclipse().configFile rootProject.file('extra/eclipse/eclipse-formatter.xml')
         }
+        format("misc") {
+            target("**/*.gradle", "**/*.md", "**/*.yml")
+            trimTrailingWhitespace()
+            endWithNewline()
+        }
     }
 
     // Enable Checkstyle
@@ -87,7 +92,7 @@ allprojects {
         }
     }
 
-    // Copy LICENSE    
+    // Copy LICENSE
     tasks.withType(Jar) {
         from(project.rootDir) {
             include 'LICENSE'
@@ -123,12 +128,14 @@ allprojects {
         maven { url "https://plugins.gradle.org/m2/" }
         maven { url 'https://repo.spring.io/libs-milestone' }
     }
+
     dependencies {
         compileOnly("org.projectlombok:lombok:${lombokVersion}")
         testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
         annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
         testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
     }
+
     buildscript {
         repositories {
             mavenLocal()
