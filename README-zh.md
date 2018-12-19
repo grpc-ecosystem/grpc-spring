@@ -52,7 +52,7 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-spring-boot-starter</artifactId>
-  <version>2.1.0.RELEASE</version>
+  <version>2.2.0.RELEASE</version>
 </dependency>
 ````
 
@@ -60,7 +60,7 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-spring-boot-starter:2.1.0.RELEASE'
+  compile 'net.devh:grpc-spring-boot-starter:2.2.0.RELEASE'
 }
 ````
 
@@ -72,7 +72,7 @@ dependencies {
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-server-spring-boot-starter</artifactId>
-  <version>2.1.0.RELEASE</version>
+  <version>2.2.0.RELEASE</version>
 </dependency>
 ````
 
@@ -80,7 +80,7 @@ dependencies {
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-server-spring-boot-starter:2.1.0.RELEASE'
+  compile 'net.devh:grpc-server-spring-boot-starter:2.2.0.RELEASE'
 }
 ````
 
@@ -206,7 +206,7 @@ grpc.server.address=0.0.0.0
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-client-spring-boot-starter</artifactId>
-  <version>2.1.0.RELEASE</version>
+  <version>2.2.0.RELEASE</version>
 </dependency>
 ````
 
@@ -214,7 +214,7 @@ grpc.server.address=0.0.0.0
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-client-spring-boot-starter:2.1.0.RELEASE'
+  compile 'net.devh:grpc-client-spring-boot-starter:2.2.0.RELEASE'
 }
 ````
 
