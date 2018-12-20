@@ -26,7 +26,7 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 
 * 支持 [Spring-Security](https://github.com/spring-projects/spring-security)
 
-* 支持 metric ([micrometer](https://micrometer.io/)/[actuator](https://github .com/spring-projects/spring-boot/tree/master/spring-boot-project/spring-boot-actuator) based)
+* 支持 metric ([micrometer](https://micrometer.io/) / [actuator](https://github.com/spring-projects/spring-boot/tree/master/spring-boot-project/spring-boot-actuator))
 
 * 可以使用 grpc-netty-shaded
 
@@ -100,8 +100,7 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
 ````
 
 设置 gRPC 的 host 跟 port ，默认的监听的 host 是 0.0.0.0，默认的 port 是 9090。其他配置属性可以参考
-[settings](grpc-server-spring-boot-autoconfigure/src/main/java/net/devh/springboot/autoconfigure/grpc/server
-/GrpcServerProperties.java)。所有的配置文件在 server 中使用需增加 `grpc.server.` 的前缀
+[settings](grpc-server-spring-boot-autoconfigure/src/main/java/net/devh/springboot/autoconfigure/grpc/server/GrpcServerProperties.java)。所有的配置文件在 server 中使用需增加 `grpc.server.` 的前缀
 
 #### Properties示例
 
@@ -274,8 +273,7 @@ HelloReply response = stub.sayHello(HelloRequest.newBuilder().setName(name).buil
 * 如果存在一个 `DiscoveryClient` 的 bean，这时会使用 client name 去注册中心上进行获取对应服务的 address
 * 否则 client 端将使用 `localhost` 和 `9090` 端口
 
-其他的配置属性参考 [settings](grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/springboot/autoconfigure/grpc/client
-/GrpcChannelProperties.java)，所有的配置文件在 client 端使用时需要增加 `grpc.client.(serverName).`的前缀
+其他的配置属性参考 [settings](grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/springboot/autoconfigure/grpc/client/GrpcChannelProperties.java)，所有的配置文件在 client 端使用时需要增加 `grpc.client.(serverName).`的前缀
 
 你也可以配置多个目标地址，请求时会自动使用负载均衡
 
@@ -409,4 +407,4 @@ compile 'net.devh:grpc-server-spring-boot-starter:...' exclude group: 'io.grpc',
 
 ## 贡献
 
-我们总是欢迎大家为这个项目做出自己的贡献! 贡献时需要参考 [CONTRIBUTING.md](CONTRIBUTING.md) 文档.
+我们欢迎任何人为这个项目做出自己的贡献! 贡献时需要参考 [CONTRIBUTING.md](CONTRIBUTING.md) 文档.
