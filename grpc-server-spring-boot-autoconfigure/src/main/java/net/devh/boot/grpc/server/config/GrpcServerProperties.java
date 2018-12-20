@@ -35,10 +35,19 @@ import lombok.extern.slf4j.Slf4j;
 @ConfigurationProperties("grpc.server")
 public class GrpcServerProperties {
 
+    /**
+     * A constant that defines, that the server should listen to any IPv4 and IPv6 address.
+     */
     public static final String ANY_IP_ADDRESS = "*";
 
+    /**
+     * A constant that defines, that the server should listen to any IPv4 address.
+     */
     public static final String ANY_IPv4_ADDRESS = "0.0.0.0";
 
+    /**
+     * A constant that defines, that the server should listen to any IPv6 address.
+     */
     public static final String ANY_IPv6_ADDRESS = "::";
 
     /**
@@ -75,6 +84,9 @@ public class GrpcServerProperties {
      */
     private final Security security = new Security();
 
+    /**
+     * The security configuration for the gRPC server.
+     */
     @Data
     public static class Security {
 
