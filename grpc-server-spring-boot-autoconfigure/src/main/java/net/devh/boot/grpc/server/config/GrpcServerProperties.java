@@ -35,9 +35,11 @@ import lombok.extern.slf4j.Slf4j;
 @ConfigurationProperties("grpc.server")
 public class GrpcServerProperties {
 
-    public static String ANY_IP_ADDRESS = "*";
-    public static String ANY_IPv4_ADDRESS = "0.0.0.0";
-    public static String ANY_IPv6_ADDRESS = "::";
+    public static final String ANY_IP_ADDRESS = "*";
+
+    public static final String ANY_IPv4_ADDRESS = "0.0.0.0";
+
+    public static final String ANY_IPv6_ADDRESS = "::";
 
     /**
      * Bind address for the server. Defaults to {@link #ANY_IP_ADDRESS "*"}. Alternatively you can restrict this to
