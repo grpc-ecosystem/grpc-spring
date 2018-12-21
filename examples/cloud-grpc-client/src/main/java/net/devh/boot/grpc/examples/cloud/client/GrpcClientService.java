@@ -19,12 +19,11 @@ package net.devh.boot.grpc.examples.cloud.client;
 
 import org.springframework.stereotype.Service;
 
-import io.grpc.Channel;
 import io.grpc.StatusRuntimeException;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.examples.lib.HelloReply;
 import net.devh.boot.grpc.examples.lib.HelloRequest;
-import net.devh.boot.grpc.examples.lib.SimpleGrpc;
+import net.devh.boot.grpc.examples.lib.SimpleGrpc.SimpleBlockingStub;
 
 /**
  * @author Michael (yidongnan@gmail.com)
@@ -34,15 +33,13 @@ import net.devh.boot.grpc.examples.lib.SimpleGrpc;
 public class GrpcClientService {
 
     @GrpcClient("cloud-grpc-server")
-    private Channel serverChannel;
+    private SimpleBlockingStub simpleStub;
 
     public String sendMessage(final String name) {
         try {
-            final SimpleGrpc.SimpleBlockingStub stub = SimpleGrpc.newBlockingStub(this.serverChannel);
-            final HelloReply response = stub.sayHello(HelloRequest.newBuilder().setName(name).build());
+            final HelloReply response = this.simpleStub.sayHello(HelloRequest.newBuilder().setName(name).build());
             return response.getMessage();
         } catch (final StatusRuntimeException e) {
-            e.printStackTrace();
             return "FAILED with " + e.getStatus().getCode();
         }
     }

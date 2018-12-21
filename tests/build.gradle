@@ -65,7 +65,7 @@ buildscript {
 }
 
 dependencies {
-    compile project(':grpc-server-spring-boot-starter') // exclude group: 'io.grpc', module: 'grpc-netty' 
+    compile project(':grpc-server-spring-boot-starter') // exclude group: 'io.grpc', module: 'grpc-netty'
     compile project(':grpc-client-spring-boot-starter') // exclude group: 'io.grpc', module: 'grpc-netty'
     if (JavaVersion.current().isJava9Compatible()) {
         // Workaround for @javax.annotation.Generated

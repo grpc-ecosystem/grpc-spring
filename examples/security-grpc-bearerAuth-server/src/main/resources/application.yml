@@ -1,8 +1,6 @@
 spring:
   application:
     name: security-grpc-server
-server:
-  port: 0
 grpc:
   server:
     port: 9090

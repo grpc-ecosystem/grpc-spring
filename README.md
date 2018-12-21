@@ -3,8 +3,10 @@
 [![Build Status](https://travis-ci.org/yidongnan/grpc-spring-boot-starter.svg?branch=master)](https://travis-ci.org/yidongnan/grpc-spring-boot-starter)
 [![Maven Central with version prefix filter](https://img.shields.io/maven-central/v/net.devh/grpc-spring-boot-starter.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.devh%22%20grpc)
 [![MIT License](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
+
 [![Client-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-client-spring-boot-autoconfigure.svg?label=Client-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-client-spring-boot-autoconfigure)
 [![Server-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-server-spring-boot-autoconfigure.svg?label=Server-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-server-spring-boot-autoconfigure)
+[![Common-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-common-spring-boot-autoconfigure.svg?label=Common-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-common-spring-boot-autoconfigure)
 
 README: [English](README.md) | [中文](README-zh.md)
 
@@ -30,7 +32,7 @@ application
 ## Versions
 
 2.x.x.RELEASE support Spring Boot 2 & Spring Cloud Finchley.
- 
+
 The latest version: ``2.1.0.RELEASE``
 
 1.x.x.RELEASE support Spring Boot 1 & Spring Cloud Edgware, Dalston, Camden.
@@ -49,7 +51,7 @@ To add a dependency using Maven, use the following:
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-spring-boot-starter</artifactId>
-  <version>2.1.0.RELEASE</version>
+  <version>2.2.0.RELEASE</version>
 </dependency>
 ````
 
@@ -57,7 +59,7 @@ To add a dependency using Gradle:
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-spring-boot-starter:2.1.0.RELEASE'
+  compile 'net.devh:grpc-spring-boot-starter:2.2.0.RELEASE'
 }
 ````
 
@@ -69,7 +71,7 @@ To add a dependency using Maven, use the following:
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-server-spring-boot-starter</artifactId>
-  <version>2.1.0.RELEASE</version>
+  <version>2.2.0.RELEASE</version>
 </dependency>
 ````
 
@@ -77,7 +79,7 @@ To add a dependency using Gradle:
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-server-spring-boot-starter:2.1.0.RELEASE'
+  compile 'net.devh:grpc-server-spring-boot-starter:2.2.0.RELEASE'
 }
 ````
 
@@ -150,9 +152,9 @@ config) to your dependencies and then configure it as needed.
       return new CompositeGrpcAuthenticationReader(readers);
   }
   ````
-  
+
   and some properties:
-  
+
   ````properties
   grpc.server.security.enabled=true
   grpc.server.security.certificateChainPath=certificates/server.crt
@@ -173,11 +175,11 @@ config) to your dependencies and then configure it as needed.
   @EnableGlobalMethodSecurity(proxyTargetClass = true, ...)
   public class SecurityConfiguration {
   ````
-  
-  `proxyTargetClass` is required, if you use annotation driven security!  
-  However, you will receive a warning that MyServiceImpl#bindService() method is final.  
-  You cannot avoid that warning (without massive amount of work), but it is safe to ignore it.  
-  The `#bindService()` method uses a reference to `this`, which will be used to invoke the methods.  
+
+  `proxyTargetClass` is required, if you use annotation driven security!
+  However, you will receive a warning that MyServiceImpl#bindService() method is final.
+  You cannot avoid that warning (without massive amount of work), but it is safe to ignore it.
+  The `#bindService()` method uses a reference to `this`, which will be used to invoke the methods.
   If the method is not final it will delegate to the original instance and thus it will bypass any security layer that
   you intend to add, unless you re-implement the `#bindService()` method on the outermost layer (which Spring does not).
 
@@ -208,7 +210,7 @@ To add a dependency using Maven, use the following:
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-client-spring-boot-starter</artifactId>
-  <version>2.1.0.RELEASE</version>
+  <version>2.2.0.RELEASE</version>
 </dependency>
 ````
 
@@ -216,7 +218,7 @@ To add a dependency using Gradle:
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-client-spring-boot-starter:2.1.0.RELEASE'
+  compile 'net.devh:grpc-client-spring-boot-starter:2.2.0.RELEASE'
 }
 ````
 
@@ -240,7 +242,7 @@ There are three ways to get a connection to the gRPC server:
 
 * Annotate a field of type `Channel` with `@GrpcClient(serverName)` and create the grpc stub yourself.
   * Do not use in conjunction with `@Autowired` or `@Inject`
-  
+
   ````java
   @GrpcClient("gRPC server name")
   private Channel channel;
@@ -252,7 +254,7 @@ There are three ways to get a connection to the gRPC server:
       greeterStub = GreeterGrpc.newBlockingStub(channel);
   }
   ````
-  
+
 * Annotate a field of your grpc client stub with `@GrpcClient(serverName)`
   * Do not use in conjunction with `@Autowired` or `@Inject`
 
@@ -262,7 +264,7 @@ There are three ways to get a connection to the gRPC server:
   ````
 
 **Note:** You can use the same grpc server name for multiple channels and also different stubs (even with different
-interceptors). 
+interceptors).
 
 Then you can send queries to your server just like this:
 
@@ -282,7 +284,7 @@ These and other
 [settings](grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/springboot/autoconfigure/grpc/client/GrpcChannelProperties.java)
 can be changed via Spring's property mechanism. The clients use the `grpc.client.(serverName).` prefix.
 
-It is also possible to list multiple target IP addresses with automatic load balancing like this: 
+It is also possible to list multiple target IP addresses with automatic load balancing like this:
 
 * `static://127.0.0.1:9090,[::1]:9090`
 
