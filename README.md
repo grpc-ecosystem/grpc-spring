@@ -1,4 +1,4 @@
-# Grpc Spring Boot Starter
+# gRPC Spring Boot Starter
 
 [![Build Status](https://travis-ci.org/yidongnan/grpc-spring-boot-starter.svg?branch=master)](https://travis-ci.org/yidongnan/grpc-spring-boot-starter)
 [![Maven Central with version prefix filter](https://img.shields.io/maven-central/v/net.devh/grpc-spring-boot-starter.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.devh%22%20grpc)
@@ -33,7 +33,7 @@ application
 
 2.x.x.RELEASE support Spring Boot 2 & Spring Cloud Finchley.
 
-The latest version: ``2.1.0.RELEASE``
+The latest version: ``2.2.0.RELEASE``
 
 1.x.x.RELEASE support Spring Boot 1 & Spring Cloud Edgware, Dalston, Camden.
 

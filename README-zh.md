@@ -6,7 +6,7 @@
 
 [![Client-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-client-spring-boot-autoconfigure.svg?label=Client-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-client-spring-boot-autoconfigure)
 [![Server-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-server-spring-boot-autoconfigure.svg?label=Server-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-server-spring-boot-autoconfigure)
-[![Common-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-common-spring-boot-autoconfigure.svg?label=Common-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-common-spring-boot-autoconfigure)
+[![Common-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-common-spring-boot.svg?label=Common-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-common-spring-boot)
 
 README: [English](README.md) | [中文](README-zh.md)
 
@@ -34,7 +34,7 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 
 2.x.x.RELEASE 支持 Spring Boot 2 & Spring Cloud Finchley。
 
-最新的版本：``2.1.0.RELEASE``
+最新的版本：``2.2.0.RELEASE``
 
 1.x.x.RELEASE 支持 Spring Boot 1 & Spring Cloud Edgware 、Dalston、Camden。
 
