@@ -92,6 +92,16 @@ allprojects {
         }
     }
 
+    tasks.withType(Javadoc) {
+        def links = [
+                'https://docs.oracle.com/javase/8/docs/api/',
+                'https://grpc.io/grpc-java/javadoc/',
+                'https://docs.spring.io/spring-framework/docs/5.0.9.RELEASE/javadoc-api/',
+                'https://docs.spring.io/spring-security/site/docs/5.0.9.RELEASE/api/'
+            ];
+        options.setLinks(links)
+    }
+
     // Copy LICENSE
     tasks.withType(Jar) {
         from(project.rootDir) {
