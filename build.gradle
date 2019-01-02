@@ -15,10 +15,11 @@ buildscript {
         grpcVersion = '1.17.1'
         protobufVersion = '3.6.1'
         protobufGradlePluginVersion = '0.8.7'
-        nettyTCNativeVersion = '2.0.17.Final'
+        nettyTCNativeVersion = '2.0.17.Final' // Needs to be compatbile with the 'grpcVersion'
 
-        springBootVersion = '2.0.6.RELEASE'
-        springSecurityVersion = '5.0.9.RELEASE'
+        springBootVersion = '2.0.7.RELEASE'
+        springVersion = '5.0.11.RELEASE' // Based on the version contained in 'springBootVersion'
+        springSecurityVersion = '5.0.10.RELEASE'
         springCloudVersion = 'Finchley.SR2'
         springCloudSleuthVersion = '2.0.2.RELEASE'
         springCloudConsulVersion = '2.0.1.RELEASE'
@@ -96,8 +97,8 @@ allprojects {
         def links = [
                 'https://docs.oracle.com/javase/8/docs/api/',
                 'https://grpc.io/grpc-java/javadoc/',
-                'https://docs.spring.io/spring-framework/docs/5.0.9.RELEASE/javadoc-api/',
-                'https://docs.spring.io/spring-security/site/docs/5.0.9.RELEASE/api/'
+                'https://docs.spring.io/spring-framework/docs/' + springVersion + '/javadoc-api/',
+                'https://docs.spring.io/spring-security/site/docs/' + springSecurityVersion + '/api/'
             ];
         options.setLinks(links)
     }
