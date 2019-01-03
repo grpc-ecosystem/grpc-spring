@@ -88,16 +88,6 @@ allprojects {
         }
     }
 
-    tasks.withType(Javadoc) {
-        def links = [
-                'https://docs.oracle.com/javase/8/docs/api/',
-                'https://grpc.io/grpc-java/javadoc/',
-                'https://docs.spring.io/spring-framework/docs/' + springFrameworkVersion + '/javadoc-api/',
-                'https://docs.spring.io/spring-security/site/docs/' + springSecurityVersion + '/api/'
-            ];
-        options.setLinks(links)
-    }
-
     // Copy LICENSE
     tasks.withType(Jar) {
         from(project.rootDir) {
@@ -163,6 +153,17 @@ allprojects {
             springSecurityVersion = dependencyManagement.importedProperties['spring-security.version']
         }
     }
+
+    tasks.withType(Javadoc) {
+        def links = [
+                'https://docs.oracle.com/javase/8/docs/api/',
+                'https://grpc.io/grpc-java/javadoc/',
+                'https://docs.spring.io/spring-framework/docs/' + springFrameworkVersion + '/javadoc-api/',
+                'https://docs.spring.io/spring-security/site/docs/' + springSecurityVersion + '/api/'
+            ];
+        options.setLinks(links)
+    }
+
 }
 
 apply from: './deploy.gradle'
