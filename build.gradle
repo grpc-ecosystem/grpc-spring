@@ -18,12 +18,7 @@ buildscript {
         nettyTCNativeVersion = '2.0.17.Final' // Needs to be compatbile with the 'grpcVersion'
 
         springBootVersion = '2.0.7.RELEASE'
-        springVersion = '5.0.11.RELEASE' // Based on the version contained in 'springBootVersion'
-        springSecurityVersion = '5.0.10.RELEASE'
         springCloudVersion = 'Finchley.SR2'
-        springCloudSleuthVersion = '2.0.2.RELEASE'
-        springCloudConsulVersion = '2.0.1.RELEASE'
-        springCloudEurekaVersion = '2.0.2.RELEASE'
         braveInstrumentationGrpc = '5.5.0'
         jUnitVersion = '5.3.1'
 
@@ -97,7 +92,7 @@ allprojects {
         def links = [
                 'https://docs.oracle.com/javase/8/docs/api/',
                 'https://grpc.io/grpc-java/javadoc/',
-                'https://docs.spring.io/spring-framework/docs/' + springVersion + '/javadoc-api/',
+                'https://docs.spring.io/spring-framework/docs/' + springFrameworkVersion + '/javadoc-api/',
                 'https://docs.spring.io/spring-security/site/docs/' + springSecurityVersion + '/api/'
             ];
         options.setLinks(links)
@@ -154,6 +149,18 @@ allprojects {
             jcenter()
             maven { url 'http://repo.spring.io/plugins-release' }
             maven { url "https://plugins.gradle.org/m2/" }
+        }
+
+        dependencyManagement {
+            imports {
+                mavenBom "org.springframework.boot:spring-boot-starter-parent:${springBootVersion}"
+                mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+            }
+        }
+
+        ext {
+            springFrameworkVersion = dependencyManagement.importedProperties['spring.version']
+            springSecurityVersion = dependencyManagement.importedProperties['spring-security.version']
         }
     }
 }

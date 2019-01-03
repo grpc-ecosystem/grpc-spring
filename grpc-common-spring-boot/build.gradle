@@ -6,12 +6,12 @@ version = "${projectVersion}"
 compileJava.dependsOn(processResources)
 
 dependencies {
-    annotationProcessor("org.springframework.boot:spring-boot-autoconfigure-processor:${springBootVersion}")
+    annotationProcessor("org.springframework.boot:spring-boot-autoconfigure-processor")
 
-    compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
-    compileOnly("org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}")
+    compile("org.springframework.boot:spring-boot-starter")
+    compileOnly("org.springframework.boot:spring-boot-starter-actuator")
+    compileOnly("org.springframework.cloud:spring-cloud-starter-sleuth")
+
     compile("io.grpc:grpc-core:${grpcVersion}")
-
-    compileOnly("org.springframework.cloud:spring-cloud-starter-sleuth:${springCloudSleuthVersion}")
     compileOnly("io.zipkin.brave:brave-instrumentation-grpc:${braveInstrumentationGrpc}")
 }
