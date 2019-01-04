@@ -15,11 +15,10 @@ buildscript {
         grpcVersion = '1.17.1'
         protobufVersion = '3.6.1'
         protobufGradlePluginVersion = '0.8.7'
-        nettyTCNativeVersion = '2.0.17.Final'
+        nettyTCNativeVersion = '2.0.17.Final' // Needs to be compatbile with the 'grpcVersion'
 
-        springBootVersion = '2.0.6.RELEASE'
-        springSecurityVersion = '5.0.9.RELEASE'
-        springCloudVersion = 'Finchley.SR2'
+        springBootVersion = '2.0.7.RELEASE'
+        springCloudVersion = 'Finchley.SR2' // Only used in examples
         springCloudSleuthVersion = '2.0.2.RELEASE'
         springCloudConsulVersion = '2.0.1.RELEASE'
         springCloudEurekaVersion = '2.0.2.RELEASE'
@@ -143,6 +142,33 @@ allprojects {
             jcenter()
             maven { url 'http://repo.spring.io/plugins-release' }
             maven { url "https://plugins.gradle.org/m2/" }
+        }
+    }
+}
+
+allprojects { project ->
+    if (!project.parent || project.parent.name != "examples") {
+        buildscript {
+            dependencyManagement {
+                imports {
+                    mavenBom "org.springframework.boot:spring-boot-starter-parent:${springBootVersion}"
+                }
+            }
+
+            ext {
+                springFrameworkVersion = dependencyManagement.importedProperties['spring.version']
+                springSecurityVersion = dependencyManagement.importedProperties['spring-security.version']
+            }
+        }
+
+        tasks.withType(Javadoc) {
+            def links = [
+                    'https://docs.oracle.com/javase/8/docs/api/',
+                    'https://grpc.io/grpc-java/javadoc/',
+                    'https://docs.spring.io/spring-framework/docs/' + springFrameworkVersion + '/javadoc-api/',
+                    'https://docs.spring.io/spring-security/site/docs/' + springSecurityVersion + '/api/'
+            ]
+            options.setLinks(links)
         }
     }
 }

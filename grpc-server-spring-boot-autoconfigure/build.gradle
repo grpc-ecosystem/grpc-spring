@@ -6,14 +6,14 @@ version = "${projectVersion}"
 compileJava.dependsOn(processResources)
 
 dependencies {
-    annotationProcessor("org.springframework.boot:spring-boot-autoconfigure-processor:${springBootVersion}")
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}")
+    annotationProcessor("org.springframework.boot:spring-boot-autoconfigure-processor")
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     compile project(':grpc-common-spring-boot')
-    compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
-    compileOnly("org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}")
-    compileOnly("org.springframework.security:spring-security-core:${springSecurityVersion}")
-    compileOnly("org.springframework.security:spring-security-web:${springSecurityVersion}")
+    compile("org.springframework.boot:spring-boot-starter")
+    compileOnly("org.springframework.boot:spring-boot-starter-actuator")
+    compileOnly("org.springframework.security:spring-security-core")
+    compileOnly("org.springframework.security:spring-security-web")
     compileOnly("org.springframework.cloud:spring-cloud-starter-sleuth:${springCloudSleuthVersion}")
     compileOnly("org.springframework.cloud:spring-cloud-starter-consul-discovery:${springCloudConsulVersion}")
     compileOnly("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:${springCloudEurekaVersion}")
