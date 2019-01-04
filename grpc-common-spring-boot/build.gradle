@@ -10,8 +10,8 @@ dependencies {
 
     compile("org.springframework.boot:spring-boot-starter")
     compileOnly("org.springframework.boot:spring-boot-starter-actuator")
-    compileOnly("org.springframework.cloud:spring-cloud-starter-sleuth")
-
     compile("io.grpc:grpc-core:${grpcVersion}")
+
+    compileOnly("org.springframework.cloud:spring-cloud-starter-sleuth:${springCloudSleuthVersion}")
     compileOnly("io.zipkin.brave:brave-instrumentation-grpc:${braveInstrumentationGrpc}")
 }
