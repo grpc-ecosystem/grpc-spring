@@ -100,7 +100,7 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
 ````
 
 By default, the grpc server will listen to port 9090. These and other
-[settings](grpc-server-spring-boot-autoconfigure/src/main/java/net/devh/springboot/autoconfigure/grpc/server/GrpcServerProperties.java)
+[settings](grpc-server-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/server/config/GrpcServerProperties.java)
 can be changed via Spring's property mechanism. The server uses the `grpc.server.` prefix.
 
 #### Example-Properties
@@ -281,7 +281,7 @@ then the default uri will be resolved as followed:
 * Otherwise the client assumes that the server runs on `localhost` with port `9090`.
 
 These and other
-[settings](grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/springboot/autoconfigure/grpc/client/GrpcChannelProperties.java)
+[settings](grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/config/GrpcChannelProperties.java)
 can be changed via Spring's property mechanism. The clients use the `grpc.client.(serverName).` prefix.
 
 It is also possible to list multiple target IP addresses with automatic load balancing like this:
