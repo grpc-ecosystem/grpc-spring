@@ -26,6 +26,7 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 
 import com.google.common.collect.ImmutableList;
 
@@ -44,15 +45,23 @@ public class GrpcDiscoveryClientAutoConfiguration {
     @ConditionalOnMissingBean
     @Lazy // Not needed for InProcessChannelFactories
     @Bean
+    @Primary
     NameResolver.Factory grpcNameResolverProviderWithDiscovery(final GrpcChannelsProperties channelProperties,
-            final DiscoveryClient client) {
+            final DiscoveryClientResolverFactory discoveryClientResolverFactory) {
         final List<NameResolver.Factory> factories = ImmutableList.<NameResolver.Factory>builder()
-                .add(new DiscoveryClientResolverFactory(client))
+                .add(discoveryClientResolverFactory)
                 .add(NameResolverProvider.asFactory())
                 .build();
         return new ConfigMappedNameResolverFactory(channelProperties,
                 new CompositeNameResolverFactory(DiscoveryClientResolverFactory.DISCOVERY_SCHEME, factories),
                 DiscoveryClientResolverFactory.DISCOVERY_DEFAULT_URI_MAPPER);
+    }
+
+    @ConditionalOnMissingBean
+    @Lazy // Not needed for InProcessChannelFactories
+    @Bean
+    DiscoveryClientResolverFactory grpcDiscoveryClientResolverFactory(final DiscoveryClient client) {
+        return new DiscoveryClientResolverFactory(client);
     }
 
 }
