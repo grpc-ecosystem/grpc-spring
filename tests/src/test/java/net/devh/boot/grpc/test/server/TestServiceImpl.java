@@ -26,10 +26,13 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.Empty;
 
+import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.server.security.interceptors.AuthenticatingServerInterceptor;
 import net.devh.boot.grpc.server.service.GrpcService;
 import net.devh.boot.grpc.test.proto.SomeType;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceImplBase;
@@ -62,7 +65,9 @@ public class TestServiceImpl extends TestServiceImplBase {
     @Override
     @Secured("ROLE_CLIENT1")
     public void secure(final Empty request, final StreamObserver<SomeType> responseObserver) {
-        assertAuthenticated("secure");
+        final Authentication authentication = assertAuthenticated("secure");
+
+        assertSameAuthenticatedGrcContextCancellation("secure-cancellation", authentication);
 
         final SomeType version = SomeType.newBuilder().setVersion("1.2.3").build();
         responseObserver.onNext(version);
@@ -73,6 +78,8 @@ public class TestServiceImpl extends TestServiceImplBase {
     @Secured("ROLE_CLIENT1")
     public StreamObserver<SomeType> secureDrain(final StreamObserver<Empty> responseObserver) {
         final Authentication authentication = assertAuthenticated("secureDrain");
+
+        assertSameAuthenticatedGrcContextCancellation("secureDrain-cancellation", authentication);
 
         return new StreamObserver<SomeType>() {
 
@@ -101,7 +108,10 @@ public class TestServiceImpl extends TestServiceImplBase {
     @Override
     @Secured("ROLE_CLIENT1")
     public void secureSupply(final Empty request, final StreamObserver<SomeType> responseObserver) {
-        assertAuthenticated("secureListener");
+        final Authentication authentication = assertAuthenticated("secureListener");
+
+        assertSameAuthenticatedGrcContextCancellation("secureSupply-cancellation", authentication);
+
         responseObserver.onNext(SomeType.newBuilder().setVersion("1.2.3").build());
         responseObserver.onNext(SomeType.newBuilder().setVersion("1.2.3").build());
         responseObserver.onNext(SomeType.newBuilder().setVersion("1.2.3").build());
@@ -112,6 +122,8 @@ public class TestServiceImpl extends TestServiceImplBase {
     @Secured("ROLE_CLIENT1")
     public StreamObserver<SomeType> secureBidi(final StreamObserver<SomeType> responseObserver) {
         final Authentication authentication = assertAuthenticated("secureBidi");
+
+        assertSameAuthenticatedGrcContextCancellation("secureBidi-cancellation", authentication);
 
         return new StreamObserver<SomeType>() {
 
@@ -149,8 +161,26 @@ public class TestServiceImpl extends TestServiceImplBase {
         return actual;
     }
 
+    protected void assertSameAuthenticatedGrcContextCancellation(final String method, final Authentication expected) {
+        Context.current().addListener(context -> {
+            assertSameAuthenticatedGrcContextOnly(method, expected, context);
+        }, MoreExecutors.directExecutor());
+    }
+
+    protected Authentication assertSameAuthenticatedGrcContextOnly(final String method, final Authentication expected,
+            final Context context) {
+        return assertSameAuthenticated(method, expected,
+                AuthenticatingServerInterceptor.AUTHENTICATION_CONTEXT_KEY.get(context));
+    }
+
     protected Authentication assertSameAuthenticated(final String method, final Authentication expected) {
-        assertSame(expected, SecurityContextHolder.getContext().getAuthentication());
+        assertSameAuthenticatedGrcContextOnly(method, expected, Context.current());
+        return assertSameAuthenticated(method, expected, SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    protected Authentication assertSameAuthenticated(final String method, final Authentication expected,
+            final Authentication actual) {
+        assertSame(expected, actual, method);
         return assertAuthenticated(method, expected);
     }
 
