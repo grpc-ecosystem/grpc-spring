@@ -81,6 +81,25 @@ cloudTest() {
 	echo "$EXPECTED"
 	sleep 2s
 
+	# Crash server
+	kill -s TERM $CLOUD_SERVER
+	echo "The server crashed (expected)"
+	sleep 10s
+
+	# and restart server
+	./gradlew :example:cloud-grpc-server:bootRun -x jar -x classes &
+	CLOUD_SERVER=$!
+	sleep 60s
+	
+	# Test again
+	RESPONSE2=$(curl -s localhost:8080/)
+	echo "Response:"
+	echo "$RESPONSE"
+	EXPECTED=$(echo -e "Hello ==> Michael")
+	echo "Expected:"
+	echo "$EXPECTED"
+	sleep 2s
+
 	# Shutdown
 	echo "Triggering shutdown"
 	kill -s TERM $EUREKA
@@ -89,15 +108,27 @@ cloudTest() {
 	kill -s TERM $CLOUD_CLIENT
 	sleep 5s
 
-	# Verify
+	# Verify part 1
 	if [ "$RESPONSE" = "$EXPECTED" ]; then
-		echo "#----------------------#"
-		echo "| Cloud example works! |"
-		echo "#----------------------#"
+		echo "#-----------------------------#"
+		echo "| Cloud example part 1 works! |"
+		echo "#-----------------------------#"
 	else
-		echo "#-----------------------#"
-		echo "| Cloud example failed! |"
-		echo "#-----------------------#"
+		echo "#------------------------------#"
+		echo "| Cloud example part 1 failed! |"
+		echo "#------------------------------#"
+		exit 1
+	fi
+
+	# Verify part 2
+	if [ "$RESPONSE2" = "$EXPECTED" ]; then
+		echo "#-----------------------------#"
+		echo "| Cloud example part 2 works! |"
+		echo "#-----------------------------#"
+	else
+		echo "#------------------------------#"
+		echo "| Cloud example part 2 failed! |"
+		echo "#------------------------------#"
 		exit 1
 	fi
 }
