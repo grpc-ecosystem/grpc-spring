@@ -331,34 +331,21 @@ grpc.client.myName.address=static://localhost:9090
 
 #### Client-Authentication
 
-There are multiple ways for the client to authenticate itself. Currently only the following are supported:
+**Note:** The following section only applies, if you use injected stubs. If you inject a channel, or create the stubs
+yourself, then you have to configure the credentials yourself. However, you might still be able to benefit from the
+provided helper methods.
+
+There are multiple ways for the client to authenticate itself. Simply define a bean of type `CallCredentials` and
+it will automatically be used for authentication. Currently the following are supported via helper methods:
 
 * **BasicAuth**
 
-  Using a `ClientInterceptor` (other authentication mechanisms can be implemented in a similar fashion).
-
   ````java
   @Bean
-  ClientInterceptor basicAuthInterceptor() {
-      return AuthenticatingClientInterceptors.basicAuth(username, password);
+  CallCredentials grpcCredentials() {
+    return CallCredentialsHelper.basicAuth(username, password);
   }
   ````
-
-  * For all clients the same credentials
-
-    ````java
-    @Bean
-    public GlobalClientInterceptorConfigurer basicAuthInterceptorConfigurer() {
-        return registry -> registry.addClientInterceptors(basicAuthInterceptor());
-    }
-    ````
-
-  * Different credentials per client
-
-    ````java
-    @GrpcClient(value = "myClient", interceptorNames = "basicAuthInterceptor")
-    private MyServiceStub myServiceStub;
-    ````
 
 * **Bearer Authentication (OAuth2, OpenID-Connect)**
 
@@ -380,6 +367,24 @@ There are multiple ways for the client to authenticate itself. Currently only th
   grpc.client.test.security.certificateChainPath=certificates/client.crt
   grpc.client.test.security.privateKeyPath=certificates/client.key
   ````
+
+* **Different credentials per client(name)**
+
+  Instead of adding a `CallCredentials` bean to your context you have to define a `StubTransformer` bean:
+
+  ````java
+  @Bean
+  StubTransformer grpcCredentialsStubTransformer() {
+    return CallCredentialsHelper.mappedCredentialsStubTransformer(
+        Map.of(
+            clientA, callCredentialsAC,
+            clientB, callCredentialsB,
+            clientC, callCredentialsAC));
+  }
+  ````
+
+  **Note:** There might be conflicts if you configure exactly one `CallCredentials` in the application context in
+  this scenario.
 
 ## Running with grpc-netty-shaded
 
