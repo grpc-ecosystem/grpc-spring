@@ -135,6 +135,27 @@ config) to your dependencies and then configure it as needed.
   }
   ````
 
+* **Bearer Authentication (OAuth2/OpenID-Connect)**
+
+  ````java
+  @Bean
+  AuthenticationManager authenticationManager() {
+      final List<AuthenticationProvider> providers = new ArrayList<>();
+      providers.add(...); // Possibly JwtAuthenticationProvider
+      return new ProviderManager(providers);
+  }
+
+  @Bean
+  GrpcAuthenticationReader authenticationReader() {
+      final List<GrpcAuthenticationReader> readers = new ArrayList<>();
+      readers.add(new BearerAuthenticationReader(accessToken -> new BearerTokenAuthenticationToken(accessToken)));
+      return new CompositeGrpcAuthenticationReader(readers);
+  }
+  ````
+
+  You might also want to define your own *GrantedAuthoritiesConverter* to map the permissions/roles in the bearer token
+  to Spring Security's `GrantedAuthority`s.
+
 * **Certificate Authentication**
 
   ````java
@@ -338,6 +359,15 @@ There are multiple ways for the client to authenticate itself. Currently only th
     @GrpcClient(value = "myClient", interceptorNames = "basicAuthInterceptor")
     private MyServiceStub myServiceStub;
     ````
+
+* **Bearer Authentication (OAuth2, OpenID-Connect)**
+
+  ````java
+  @Bean
+  CallCredentials grpcCredentials() {
+    return CallCredentialsHelper.bearerAuth(token);
+  }
+  ````
 
 * **Certificate Authentication**
 
