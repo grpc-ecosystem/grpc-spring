@@ -28,6 +28,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import io.grpc.Context;
+import io.grpc.Contexts;
 import io.grpc.ForwardingServerCallListener.SimpleForwardingServerCallListener;
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
@@ -42,11 +44,21 @@ import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReade
  * A server interceptor that tries to {@link GrpcAuthenticationReader read} the credentials from the client and
  * {@link AuthenticationManager#authenticate(Authentication) authenticate} them.
  *
+ * <p>
+ * <b>Note:</b> This interceptor works similar to
+ * {@link Contexts#interceptCall(Context, ServerCall, Metadata, ServerCallHandler)}.
+ * </p>
+ *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @Slf4j
 @GrpcGlobalServerInterceptor
 public class AuthenticatingServerInterceptor implements ServerInterceptor {
+
+    /**
+     * The context key that can be used to retrieve the associated {@link Authentication}.
+     */
+    public static final Context.Key<Authentication> AUTHENTICATION_CONTEXT_KEY = Context.key("authentication");
 
     private final AuthenticationManager authenticationManager;
     private final GrpcAuthenticationReader grpcAuthenticationReader;
@@ -78,11 +90,14 @@ public class AuthenticatingServerInterceptor implements ServerInterceptor {
         }
         log.debug("Credentials found: Authenticating...");
         authentication = this.authenticationManager.authenticate(authentication);
+
+        final Context context = Context.current().withValue(AUTHENTICATION_CONTEXT_KEY, authentication);
+        final Context previousContext = context.attach();
         SecurityContextHolder.getContext().setAuthentication(authentication);
         log.debug("Authentication successful: Continuing as {} ({})", authentication.getName(),
                 authentication.getAuthorities());
         try {
-            return new AuthenticatingServerCallListener<>(next.startCall(call, headers), authentication);
+            return new AuthenticatingServerCallListener<>(next.startCall(call, headers), authentication, context);
         } catch (final AccessDeniedException e) {
             if (authentication instanceof AnonymousAuthenticationToken) {
                 throw new BadCredentialsException("No credentials found in the request", e);
@@ -90,8 +105,9 @@ public class AuthenticatingServerInterceptor implements ServerInterceptor {
                 throw e;
             }
         } finally {
-            log.debug("startCall - Authentication cleared");
             SecurityContextHolder.clearContext();
+            context.detach(previousContext);
+            log.debug("startCall - Authentication cleared");
         }
     }
 
@@ -103,29 +119,35 @@ public class AuthenticatingServerInterceptor implements ServerInterceptor {
     private class AuthenticatingServerCallListener<ReqT> extends SimpleForwardingServerCallListener<ReqT> {
 
         private final Authentication authentication;
+        private final Context context;
 
-        public AuthenticatingServerCallListener(final Listener<ReqT> delegate, final Authentication authentication) {
+        public AuthenticatingServerCallListener(final Listener<ReqT> delegate, final Authentication authentication,
+                final Context context) {
             super(delegate);
             this.authentication = authentication;
+            this.context = context;
         }
 
         @Override
         public void onMessage(final ReqT message) {
+            final Context previous = this.context.attach();
             try {
-                log.debug("onMessage - Authentication set");
                 SecurityContextHolder.getContext().setAuthentication(this.authentication);
+                log.debug("onMessage - Authentication set");
                 super.onMessage(message);
             } finally {
-                log.debug("onMessage - Authentication cleared");
                 SecurityContextHolder.clearContext();
+                this.context.detach(previous);
+                log.debug("onMessage - Authentication cleared");
             }
         }
 
         @Override
         public void onHalfClose() {
+            final Context previous = this.context.attach();
             try {
-                log.debug("onHalfClose - Authentication set");
                 SecurityContextHolder.getContext().setAuthentication(this.authentication);
+                log.debug("onHalfClose - Authentication set");
                 super.onHalfClose();
             } catch (final AccessDeniedException e) {
                 if (this.authentication instanceof AnonymousAuthenticationToken) {
@@ -134,13 +156,15 @@ public class AuthenticatingServerInterceptor implements ServerInterceptor {
                     throw e;
                 }
             } finally {
-                log.debug("onHalfClose - Authentication cleared");
                 SecurityContextHolder.clearContext();
+                this.context.detach(previous);
+                log.debug("onHalfClose - Authentication cleared");
             }
         }
 
         @Override
         public void onCancel() {
+            final Context previous = this.context.attach();
             try {
                 log.debug("onCancel - Authentication set");
                 SecurityContextHolder.getContext().setAuthentication(this.authentication);
@@ -148,11 +172,13 @@ public class AuthenticatingServerInterceptor implements ServerInterceptor {
             } finally {
                 log.debug("onCancel - Authentication cleared");
                 SecurityContextHolder.clearContext();
+                this.context.detach(previous);
             }
         }
 
         @Override
         public void onComplete() {
+            final Context previous = this.context.attach();
             try {
                 log.debug("onComplete - Authentication set");
                 SecurityContextHolder.getContext().setAuthentication(this.authentication);
@@ -160,11 +186,13 @@ public class AuthenticatingServerInterceptor implements ServerInterceptor {
             } finally {
                 log.debug("onComplete - Authentication cleared");
                 SecurityContextHolder.clearContext();
+                this.context.detach(previous);
             }
         }
 
         @Override
         public void onReady() {
+            final Context previous = this.context.attach();
             try {
                 log.debug("onReady - Authentication set");
                 SecurityContextHolder.getContext().setAuthentication(this.authentication);
@@ -172,6 +200,7 @@ public class AuthenticatingServerInterceptor implements ServerInterceptor {
             } finally {
                 log.debug("onReady - Authentication cleared");
                 SecurityContextHolder.clearContext();
+                this.context.detach(previous);
             }
         }
 
