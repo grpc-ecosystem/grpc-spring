@@ -28,14 +28,14 @@ import net.devh.boot.grpc.server.service.GrpcService;
 /**
  * An example service that checks the user's authentication.
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @author Gregor Eeckels (gregor.eeckels@gmail.com)
  */
 @GrpcService
 public class GrpcServerService extends SimpleGrpc.SimpleImplBase {
 
     // A grpc method that requests the user to be authenticated and have the role "ROLE_GREET".
     @Override
-    @Secured("ROLE_GREET")
+    @Secured("ROLE_TEST")
     public void sayHello(final HelloRequest req, final StreamObserver<HelloReply> responseObserver) {
         final HelloReply reply = HelloReply.newBuilder().setMessage("Hello ==> " + req.getName()).build();
         responseObserver.onNext(reply);

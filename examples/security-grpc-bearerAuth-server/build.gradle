@@ -1,5 +1,11 @@
 apply plugin: 'org.springframework.boot'
 
+repositories {
+    maven {
+        url 'https://repo.spring.io/list/snapshot'
+    }
+}
+
 dependencies {
     compile('org.springframework.boot:spring-boot-starter')
     compile('org.springframework.security:spring-security-config')
@@ -8,6 +14,10 @@ dependencies {
     compile project(':examples:grpc-lib')
     compile('com.nimbusds:nimbus-jose-jwt:6.4.2')
     compile('org.springframework.security.oauth:spring-security-oauth2:2.3.4.RELEASE')
+    compile('org.springframework.security:spring-security-web')
+    compile('org.springframework.security:spring-security-oauth2-resource-server:5.2.0.BUILD-SNAPSHOT')
+    compile('org.springframework.security:spring-security-oauth2-jose:5.2.0.BUILD-SNAPSHOT')
+    compile('org.springframework.security:spring-security-oauth2-core:5.2.0.BUILD-SNAPSHOT')
 }
 
 buildscript {

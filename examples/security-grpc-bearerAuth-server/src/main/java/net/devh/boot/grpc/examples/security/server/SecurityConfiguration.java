@@ -20,14 +20,18 @@ package net.devh.boot.grpc.examples.security.server;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtProcessors;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 
 import net.devh.boot.grpc.server.security.authentication.BearerAuthenticationReader;
 import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
@@ -35,7 +39,6 @@ import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReade
 /**
  * The security configuration. If you use spring security for web applications most of the stuff is already configured.
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
  * @author Gregor Eeckels (gregor.eeckels@gmail.com)
  */
 @Configuration
@@ -48,26 +51,47 @@ import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReade
 @EnableGlobalMethodSecurity(securedEnabled = true, proxyTargetClass = true)
 public class SecurityConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(SecurityConfiguration.class);
+    @Bean
+    JwtAuthenticationConverter jwtAuthenticationConverter() {
+        final JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(keyCloakGrantedAuthoritiesConverter());
+        return converter;
+    }
 
     @Bean
-    OIDCAuthenticationProvider oidcAuthenticationProvider() {
-        final OIDCAuthenticationProvider provider = new OIDCAuthenticationProvider();
+    KeyCloakGrantedAuthoritiesConverter keyCloakGrantedAuthoritiesConverter() {
+        return new KeyCloakGrantedAuthoritiesConverter();
+    }
+
+    @Bean
+    JwtAuthenticationProvider jwtAuthenticationProvider() {
+        final JwtAuthenticationProvider provider = new JwtAuthenticationProvider(jwtDecoder());
+        provider.setJwtAuthenticationConverter(jwtAuthenticationConverter());
         return provider;
     }
 
     @Bean
-    // Add the authentication providers to the manager.
+    /*
+     * Add the authentication providers to the manager.
+     */
     AuthenticationManager authenticationManager() {
         final List<AuthenticationProvider> providers = new ArrayList<>();
-        providers.add(oidcAuthenticationProvider());
+        providers.add(jwtAuthenticationProvider());
         return new ProviderManager(providers);
     }
 
     @Bean
     // Configure which authentication types you support.
     GrpcAuthenticationReader authenticationReader() {
-        return new BearerAuthenticationReader();
+        return new BearerAuthenticationReader(accessToken -> new BearerTokenAuthenticationToken(accessToken));
+    }
+
+    @Bean
+    JwtDecoder jwtDecoder() {
+        // Uses local Keycloak instance running on port 8080 with the realm: TestRealm
+        final String endpointURI = "http://localhost:8080/auth/realms/TestRealm/protocol/openid-connect/certs";
+        final JwtDecoder decoder = new NimbusJwtDecoder(JwtProcessors.withJwkSetUri(endpointURI).build());
+        return decoder;
     }
 
 }
