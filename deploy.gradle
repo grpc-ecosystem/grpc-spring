@@ -14,7 +14,7 @@ gradle.taskGraph.whenReady { taskGraph ->
 }
 
 ext {
-    isReleaseVersion = !(projectVersion =~ /\.SNAPSHOT$/)
+    isReleaseVersion = !(projectVersion =~ /-SNAPSHOT$/)
     isNeedSign = System.getenv('GPG_ID') && isReleaseVersion
 }
 
