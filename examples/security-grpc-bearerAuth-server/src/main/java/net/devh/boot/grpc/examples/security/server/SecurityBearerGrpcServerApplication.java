@@ -23,7 +23,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * An example server application that demonstrates bearer auth security.
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @author Gregor Eeckels (gregor.eeckels@gmail.com
  */
 @SpringBootApplication
 public class SecurityBearerGrpcServerApplication {

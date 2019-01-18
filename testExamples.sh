@@ -217,4 +217,4 @@ securityBearerAuthTest() {
 localTest
 cloudTest
 securityBasicAuthTest
-securityBearerAuthTest
+#securityBearerAuthTest
