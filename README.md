@@ -223,6 +223,25 @@ config) to your dependencies and then configure it as needed.
   }
   ````
 
+#### Customizing a Server
+
+This library also supports custom changes to the ServerBuilder during creation by creating GrpcServerConfigurer beans.
+
+````java
+  @Bean
+  public GrpcServerConfigurer keepAliveServerConfigurer() {
+    return serverBuilder -> {
+      if (serverBuilder instanceof NettyServerBuilder) {
+        ((NettyServerBuilder)serverBuilder)
+            .keepAliveTime(30, TimeUnit.SECONDS)
+            .keepAliveTimeout(5, TimeUnit.SECONDS)
+            .permitKeepAliveWithoutCalls(true);
+      }
+    };
+  }
+````
+
+
 ### gRPC client
 
 To add a dependency using Maven, use the following:
