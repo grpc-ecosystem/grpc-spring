@@ -20,7 +20,6 @@ package net.devh.boot.grpc.client.config;
 import java.net.URI;
 import java.util.List;
 
-import io.grpc.NameResolver;
 import io.grpc.internal.GrpcUtil;
 import lombok.Data;
 
@@ -37,7 +36,7 @@ public class GrpcChannelProperties {
 
     /**
      * The target uri in the format: {@code schema:[//[authority]][/path]}. If nothing is configured then the
-     * {@link NameResolver.Factory} will decide on the default.
+     * {@link io.grpc.NameResolver.Factory} will decide on the default.
      *
      * <p>
      * <b>Examples</b>
