@@ -20,7 +20,6 @@ package net.devh.boot.grpc.client.nameresolver;
 import static java.util.Objects.requireNonNull;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +76,7 @@ public class StaticNameResolverProvider extends NameResolverProvider {
         requireNonNull(targetAuthority, "targetAuthority");
         // Determine target ips
         final String[] hosts = PATTERN_COMMA.split(targetAuthority);
-        final List<SocketAddress> targets = new ArrayList<>(hosts.length);
+        final List<EquivalentAddressGroup> targets = new ArrayList<>(hosts.length);
         for (final String host : hosts) {
             final URI uri = URI.create("//" + host);
             int port = uri.getPort();
@@ -89,12 +88,12 @@ public class StaticNameResolverProvider extends NameResolverProvider {
                     port = defaultPort;
                 }
             }
-            targets.add(new InetSocketAddress(uri.getHost(), port));
+            targets.add(new EquivalentAddressGroup(new InetSocketAddress(uri.getHost(), port)));
         }
         if (targets.isEmpty()) {
             throw new IllegalArgumentException("Must have at least one target, but was: " + targetAuthority);
         }
-        return new StaticNameResolver(targetAuthority, new EquivalentAddressGroup(targets));
+        return new StaticNameResolver(targetAuthority, targets);
     }
 
     @Override
