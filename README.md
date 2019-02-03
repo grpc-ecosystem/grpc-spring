@@ -110,6 +110,24 @@ grpc.server.port=9090
 grpc.server.address=0.0.0.0
 ````
 
+#### Customizing a Server
+
+This library also supports custom changes to the `ServerBuilder` during creation by creating `GrpcServerConfigurer` beans.
+
+````java
+@Bean
+public GrpcServerConfigurer keepAliveServerConfigurer() {
+  return serverBuilder -> {
+    if (serverBuilder instanceof NettyServerBuilder) {
+      ((NettyServerBuilder) serverBuilder)
+          .keepAliveTime(30, TimeUnit.SECONDS)
+          .keepAliveTimeout(5, TimeUnit.SECONDS)
+          .permitKeepAliveWithoutCalls(true);
+    }
+  };
+}
+````
+
 #### Server-Security
 
 This library supports securing the grpc application with Spring-Security. You only have to add Spring-Security (core or
