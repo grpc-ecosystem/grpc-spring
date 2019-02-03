@@ -168,9 +168,9 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
     protected void configureKeepAlive(final T builder, final String name) {
         final GrpcChannelProperties properties = getPropertiesFor(name);
         if (properties.isEnableKeepAlive()) {
-            builder.keepAliveWithoutCalls(properties.isKeepAliveWithoutCalls())
-                    .keepAliveTime(properties.getKeepAliveTime(), TimeUnit.SECONDS)
-                    .keepAliveTimeout(properties.getKeepAliveTimeout(), TimeUnit.SECONDS);
+            builder.keepAliveTime(properties.getKeepAliveTime().toNanos(), TimeUnit.NANOSECONDS)
+                    .keepAliveTimeout(properties.getKeepAliveTimeout().toNanos(), TimeUnit.NANOSECONDS)
+                    .keepAliveWithoutCalls(properties.isKeepAliveWithoutCalls());
         }
     }
 

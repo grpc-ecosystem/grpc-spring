@@ -23,4 +23,22 @@ dependencies {
     compile("io.grpc:grpc-protobuf:${grpcVersion}")
     compile("io.grpc:grpc-stub:${grpcVersion}")
     compile("io.grpc:grpc-services:${grpcVersion}")
+
+    testImplementation(
+        "io.grpc:grpc-testing:${grpcVersion}",
+        "org.springframework.boot:spring-boot-starter-test",
+        "org.junit.jupiter:junit-jupiter-api:${jUnitVersion}"
+    )
+    testRuntimeOnly(
+        "org.junit.jupiter:junit-jupiter-engine:${jUnitVersion}"
+    )
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        // failFast = true
+        // showStandardStreams = true
+        exceptionFormat = 'full'
+    }
 }

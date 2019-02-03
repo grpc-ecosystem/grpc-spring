@@ -18,10 +18,16 @@
 package net.devh.boot.grpc.client.config;
 
 import java.net.URI;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.boot.convert.DurationUnit;
 
 import io.grpc.NameResolver;
 import io.grpc.internal.GrpcUtil;
+import io.grpc.netty.NettyChannelBuilder;
 import lombok.Data;
 
 /**
@@ -94,25 +100,38 @@ public class GrpcChannelProperties {
     }
 
     /**
-     * Setting to enable keepalive. Default to {@code false}.
+     * Setting to enable keepAlive. Default to {@code false}.
      */
     private boolean enableKeepAlive = false;
 
     /**
-     * Sets whether keepalive will be performed when there are no outstanding RPC on a connection. Defaults to
+     * The default delay before we send a keepAlive. Very large values such as 1000 days might disable keepAlives.
+     * Defaults to {@code 60s}. Default unit {@link ChronoUnit#SECONDS SECONDS}.
+     *
+     * @see #enableKeepAlive
+     * @see NettyChannelBuilder#keepAliveTime(long, TimeUnit)
+     */
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration keepAliveTime = Duration.of(60, ChronoUnit.SECONDS);
+
+    /**
+     * The default timeout for a keepAlive ping request. Defaults to {@code 20s}. Default unit {@link ChronoUnit#SECONDS
+     * SECONDS}.
+     *
+     * @see #enableKeepAlive
+     * @see NettyChannelBuilder#keepAliveTimeout(long, TimeUnit)
+     */
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration keepAliveTimeout = Duration.of(20, ChronoUnit.SECONDS);
+
+    /**
+     * Sets whether keepAlive will be performed when there are no outstanding RPC on a connection. Defaults to
      * {@code false}.
+     *
+     * @see #enableKeepAlive
+     * @see NettyChannelBuilder#keepAliveWithoutCalls(boolean)
      */
     private boolean keepAliveWithoutCalls = false;
-
-    /**
-     * The default delay in seconds before we send a keepalive. Defaults to {@code 60}.
-     */
-    private long keepAliveTime = 60;
-
-    /**
-     * The default timeout in seconds for a keepalive ping request. Defaults to {@code 20}.
-     */
-    private long keepAliveTimeout = 20;
 
     /**
      * The maximum message size in bytes allowed to be received by the channel. If not set ({@code null}) then it will
