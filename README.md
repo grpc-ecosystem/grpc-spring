@@ -19,7 +19,7 @@ application
 
 * Supports [Spring Cloud](https://spring.io/projects/spring-cloud) (register services to [Consul](https://github.com/spring-cloud/spring-cloud-consul) or [Eureka](https://github.com/spring-cloud/spring-cloud-netflix) and fetch gRPC server information)
 
-* Supports [Spring Sleuth](https://github.com/spring-cloud/spring-cloud-sleuth) to trace application
+* Supports [Spring Sleuth](https://github.com/spring-cloud/spring-cloud-sleuth) as distributed tracing solution (If [brave-instrumentation-grpc](https://mvnrepository.com/artifact/io.zipkin.brave/brave-instrumentation-grpc) is present)
 
 * Supports global and custom gRPC server/client interceptors
 
@@ -345,6 +345,28 @@ Read more about these and other natively supported `NameResolverProviders` in th
 grpc.client.(gRPC server name).address=static://localhost:9090
 # Or
 grpc.client.myName.address=static://localhost:9090
+````
+
+#### Customizing a Client
+
+This library also supports custom changes to the `ManagedChannelBuilder` and gRPC client stubs during creation by creating `GrpcChannelConfigurer` and `StubTransformer` beans.
+
+````java
+@Bean
+public GrpcChannelConfigurer keepAliveClientConfigurer() {
+  return (channelBuilder, name) -> {
+    if (channelBuilder instanceof NettyChannelBuilder) {
+      ((NettyChannelBuilder) channelBuilder)
+          .keepAliveTime(15, TimeUnit.SECONDS)
+          .keepAliveTimeout(5, TimeUnit.SECONDS);
+    }
+  };
+}
+
+@Bean
+public StubTransformer authenticationStubTransformer() {
+  return (clientName, stub) -> stub.withCallCredentials(grpcCredentials(clientName));
+}
 ````
 
 #### Client-Authentication
