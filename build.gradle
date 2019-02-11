@@ -12,25 +12,24 @@ buildscript {
     ext {
         projectVersion = '2.3.0-SNAPSHOT'
 
-        grpcVersion = '1.17.1'
+        grpcVersion = '1.18.0'
         protobufVersion = '3.6.1'
-        protobufGradlePluginVersion = '0.8.7'
-        nettyTCNativeVersion = '2.0.17.Final' // Needs to be compatbile with the 'grpcVersion'
+        protobufGradlePluginVersion = '0.8.8'
 
-        springBootVersion = '2.0.7.RELEASE'
-        springCloudVersion = 'Finchley.SR2' // Only used in examples
-        springCloudSleuthVersion = '2.0.2.RELEASE'
-        springCloudConsulVersion = '2.0.1.RELEASE'
-        springCloudEurekaVersion = '2.0.2.RELEASE'
-        braveInstrumentationGrpc = '5.5.0'
-        jUnitVersion = '5.3.1'
+        springBootVersion = '2.1.2.RELEASE'
+        springCloudVersion = 'Greenwich.RELEASE' // Only used in examples
+        springCloudSleuthVersion = '2.1.0.RELEASE'
+        springCloudConsulVersion = '2.1.0.RELEASE'
+        springCloudEurekaVersion = '2.1.0.RELEASE'
+        braveInstrumentationGrpc = '5.6.0'
+        jUnitVersion = '5.3.2'
 
         lombokVersion = '1.18.4'
     }
     dependencies {
         classpath "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
-        classpath "com.diffplug.spotless:spotless-plugin-gradle:3.16.0"
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:3.17.0"
     }
 }
 
