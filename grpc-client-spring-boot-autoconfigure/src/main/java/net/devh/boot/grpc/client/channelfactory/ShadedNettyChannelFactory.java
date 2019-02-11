@@ -36,7 +36,7 @@ import net.devh.boot.grpc.client.config.NegotiationType;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 
 /**
- * This channel factory creates and managed shaded netty based {@link GrpcChannelFactory}s. This class utilizes
+ * This channel factory creates and manages shaded netty based {@link GrpcChannelFactory}s. This class utilizes
  * connection pooling and thus needs to be {@link #close() closed} after usage.
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
@@ -47,7 +47,7 @@ public class ShadedNettyChannelFactory extends AbstractChannelFactory<NettyChann
     private final NameResolver.Factory nameResolverFactory;
 
     /**
-     * Creates a new AbstractNettyChannelFactory with eager initialized references.
+     * Creates a new GrpcChannelFactory for shaded netty with the given options.
      *
      * @param properties The properties for the channels to create.
      * @param loadBalancerFactory The load balancer factory to use.
@@ -66,6 +66,9 @@ public class ShadedNettyChannelFactory extends AbstractChannelFactory<NettyChann
     }
 
     @Override
+    @SuppressWarnings("deprecation")
+    // TODO: Remove the #loadBalancerFactory() call and replace it with a string property
+    // This would break grpc compatibility with pre 1.18 versions.
     protected NettyChannelBuilder newChannelBuilder(final String name) {
         return NettyChannelBuilder.forTarget(name)
                 .loadBalancerFactory(this.loadBalancerFactory)
