@@ -25,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.boot.convert.DurationUnit;
 
-import io.grpc.NameResolver;
 import io.grpc.internal.GrpcUtil;
 import io.grpc.netty.NettyChannelBuilder;
 import lombok.Data;
@@ -43,7 +42,7 @@ public class GrpcChannelProperties {
 
     /**
      * The target uri in the format: {@code schema:[//[authority]][/path]}. If nothing is configured then the
-     * {@link NameResolver.Factory} will decide on the default.
+     * {@link io.grpc.NameResolver.Factory} will decide on the default.
      *
      * <p>
      * <b>Examples</b>
