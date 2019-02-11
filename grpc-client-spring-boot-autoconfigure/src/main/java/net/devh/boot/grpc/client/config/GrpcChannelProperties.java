@@ -25,7 +25,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.boot.convert.DataSizeUnit;
 import org.springframework.boot.convert.DurationUnit;
+import org.springframework.util.unit.DataSize;
+import org.springframework.util.unit.DataUnit;
 
 import io.grpc.LoadBalancerRegistry;
 import io.grpc.ManagedChannelBuilder;
@@ -270,17 +273,19 @@ public class GrpcChannelProperties {
     // Message Transfer
     // --------------------------------------------------
 
-    private Integer maxInboundMessageSize = null;
+    @DataSizeUnit(DataUnit.BYTES)
+    private DataSize maxInboundMessageSize = null;
 
     /**
-     * Gets the maximum message size in bytes allowed to be received by the channel. If not set ({@code null}) then it
-     * {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE gRPC's default} should be used.
+     * Gets the maximum message size allowed to be received by the channel. If not set ({@code null}) then
+     * {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE gRPC's default} should be used. If set to {@code -1} then it will use
+     * the highest possible limit (not recommended).
      *
      * @return The maximum message size allowed or null if the default should be used.
-     *
-     * @see #setMaxInboundMessageSize(Integer)
+     * 
+     * @see #setMaxInboundMessageSize(DataSize)
      */
-    public Integer getMaxInboundMessageSize() {
+    public DataSize getMaxInboundMessageSize() {
         return this.maxInboundMessageSize;
     }
 
@@ -294,11 +299,11 @@ public class GrpcChannelProperties {
      *
      * @see ManagedChannelBuilder#maxInboundMessageSize(int)
      */
-    public void setMaxInboundMessageSize(final Integer maxInboundMessageSize) {
-        if (maxInboundMessageSize == null || maxInboundMessageSize >= 0) {
+    public void setMaxInboundMessageSize(final DataSize maxInboundMessageSize) {
+        if (maxInboundMessageSize == null || maxInboundMessageSize.toBytes() >= 0) {
             this.maxInboundMessageSize = maxInboundMessageSize;
-        } else if (maxInboundMessageSize == -1) {
-            this.maxInboundMessageSize = Integer.MAX_VALUE;
+        } else if (maxInboundMessageSize.toBytes() == -1) {
+            this.maxInboundMessageSize = DataSize.ofBytes(Integer.MAX_VALUE);
         } else {
             throw new IllegalArgumentException("Unsupported maxInboundMessageSize: " + maxInboundMessageSize);
         }
@@ -558,7 +563,7 @@ public class GrpcChannelProperties {
          * @return The cipher suite accepted for secure connections or null.
          */
         public List<String> getCiphers() {
-            return ciphers;
+            return this.ciphers;
         }
 
         /**
@@ -576,7 +581,7 @@ public class GrpcChannelProperties {
          * @return The protocols accepted for secure connections or null.
          */
         public String[] getProtocols() {
-            return protocols;
+            return this.protocols;
         }
 
         /**

@@ -29,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
 import javax.annotation.concurrent.GuardedBy;
 
+import org.springframework.util.unit.DataSize;
+
 import com.google.common.collect.Lists;
 
 import io.grpc.Channel;
@@ -228,9 +230,9 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
      */
     protected void configureLimits(final T builder, final String name) {
         final GrpcChannelProperties properties = getPropertiesFor(name);
-        final Integer maxInboundMessageSize = properties.getMaxInboundMessageSize();
+        final DataSize maxInboundMessageSize = properties.getMaxInboundMessageSize();
         if (maxInboundMessageSize != null) {
-            builder.maxInboundMessageSize(maxInboundMessageSize);
+            builder.maxInboundMessageSize((int) maxInboundMessageSize.toBytes());
         }
     }
 
