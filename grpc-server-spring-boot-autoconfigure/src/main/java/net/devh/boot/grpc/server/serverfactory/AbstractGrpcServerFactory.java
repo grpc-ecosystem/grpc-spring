@@ -88,6 +88,7 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
      */
     protected void configure(final T builder) {
         configureServices(builder);
+        configureKeepAlive(builder);
         configureSecurity(builder);
         configureLimits(builder);
         for (final GrpcServerConfigurer serverConfigurer : this.serverConfigurers) {
@@ -115,6 +116,17 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
                     + service.getBeanClazz().getName());
             builder.addService(service.getDefinition());
             this.healthStatusManager.setStatus(serviceName, HealthCheckResponse.ServingStatus.SERVING);
+        }
+    }
+
+    /**
+     * Configures the keep alive options that should be used by the server.
+     *
+     * @param builder The server builder to configure.
+     */
+    protected void configureKeepAlive(final T builder) {
+        if (this.properties.isEnableKeepAlive()) {
+            throw new IllegalStateException("KeepAlive is enabled but this implementation does not support keepAlive!");
         }
     }
 

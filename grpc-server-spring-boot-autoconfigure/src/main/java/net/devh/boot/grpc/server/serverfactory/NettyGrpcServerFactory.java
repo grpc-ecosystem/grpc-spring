@@ -20,6 +20,7 @@ package net.devh.boot.grpc.server.serverfactory;
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLException;
 
@@ -60,6 +61,17 @@ public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServe
         } else {
             return NettyServerBuilder.forAddress(new InetSocketAddress(InetAddresses.forString(address), port));
         }
+    }
+
+    @Override
+    // Keep this in sync with ShadedNettyGrpcServerFactory#configureKeepAlive
+    protected void configureKeepAlive(final NettyServerBuilder builder) {
+        if (this.properties.isEnableKeepAlive()) {
+            builder.keepAliveTime(this.properties.getKeepAliveTime().toNanos(), TimeUnit.NANOSECONDS)
+                    .keepAliveTimeout(this.properties.getKeepAliveTimeout().toNanos(), TimeUnit.NANOSECONDS);
+        }
+        builder.permitKeepAliveTime(this.properties.getPermitKeepAliveTime().toNanos(), TimeUnit.NANOSECONDS)
+                .permitKeepAliveWithoutCalls(this.properties.isPermitKeepAliveWithoutCalls());
     }
 
     @Override

@@ -1,7 +1,7 @@
 apply plugin: 'com.google.protobuf'
 
 dependencies {
-    compile "io.grpc:grpc-netty:${grpcVersion}"
+    compile "io.grpc:grpc-netty-shaded:${grpcVersion}"
     compile "io.grpc:grpc-protobuf:${grpcVersion}"
     compile "io.grpc:grpc-stub:${grpcVersion}"
     if (JavaVersion.current().isJava9Compatible()) {

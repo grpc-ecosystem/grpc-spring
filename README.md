@@ -27,11 +27,11 @@ application
 
 * Automatic metric support ([micrometer](https://micrometer.io/)/[actuator](https://github.com/spring-projects/spring-boot/tree/master/spring-boot-project/spring-boot-actuator) based)
 
-* Also works with grpc-netty-shaded
+* Also works with (non-shaded) grpc-netty
 
 ## Versions
 
-2.x.x.RELEASE support Spring Boot 2 & Spring Cloud Finchley.
+2.x.x.RELEASE support Spring Boot 2 & Spring Cloud Finchley, Greenwich.
 
 The latest version: ``2.2.1.RELEASE``
 
@@ -426,18 +426,19 @@ it will automatically be used for authentication. Currently the following are su
   **Note:** There might be conflicts if you configure exactly one `CallCredentials` in the application context in
   this scenario.
 
-## Running with grpc-netty-shaded
+## Running with (non-shaded) grpc-netty
 
-This library also supports `grpc-netty-shaded` which might prevent conflicts with incompatible grpc-versions or conflitcts between libraries that require different versions of netty.
+This library supports both `grpc-netty` and `grpc-netty-shaded`.
+The later one might prevent conflicts with incompatible grpc-versions or conflicts between libraries that require different versions of netty.
 
-**Note:** If the shaded netty is present on the classpath, then this library will always favor it over the normal grpc-netty one.
+**Note:** If the shaded netty is present on the classpath, then this library will always favor it over the non-shaded grpc-netty one.
 
 You can use it with Maven like this:
 
 ````xml
 <dependency>
     <groupId>io.grpc</groupId>
-    <artifactId>grpc-netty-shaded</artifactId>
+    <artifactId>grpc-netty</artifactId>
     <version>${grpcVersion}</version>
 </dependency>
 
@@ -449,11 +450,11 @@ You can use it with Maven like this:
     <exclusions>
         <exclusion>
             <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty</artifactId>
+            <artifactId>grpc-netty-shaded</artifactId>
         </exclusion>
     </exclusions>
 </dependency>
-<!-- For the server -->
+<!-- For the server (only) -->
 <dependency>
     <groupId>net.devh</groupId>
     <artifactId>grpc-server-spring-boot-starter</artifactId>
@@ -461,11 +462,11 @@ You can use it with Maven like this:
     <exclusions>
         <exclusion>
             <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty</artifactId>
+            <artifactId>grpc-netty-shaded</artifactId>
         </exclusion>
     </exclusions>
 </dependency>
-<!-- For the client -->
+<!-- For the client (only) -->
 <dependency>
     <groupId>net.devh</groupId>
     <artifactId>grpc-client-spring-boot-starter</artifactId>
@@ -473,7 +474,7 @@ You can use it with Maven like this:
     <exclusions>
         <exclusion>
             <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty</artifactId>
+            <artifactId>grpc-netty-shaded</artifactId>
         </exclusion>
     </exclusions>
 </dependency>
@@ -482,11 +483,11 @@ You can use it with Maven like this:
 and like this when using Gradle:
 
 ````groovy
-compile "io.grpc:grpc-netty-shaded:${grpcVersion}"
+compile "io.grpc:grpc-netty:${grpcVersion}"
 
-compile 'net.devh:grpc-spring-boot-starter:...' exclude group: 'io.grpc', module: 'grpc-netty' // For both
-compile 'net.devh:grpc-client-spring-boot-starter:...' exclude group: 'io.grpc', module: 'grpc-netty' // For the client
-compile 'net.devh:grpc-server-spring-boot-starter:...' exclude group: 'io.grpc', module: 'grpc-netty' // For the server
+compile 'net.devh:grpc-spring-boot-starter:...' exclude group: 'io.grpc', module: 'grpc-netty-shaded' // For both
+compile 'net.devh:grpc-client-spring-boot-starter:...' exclude group: 'io.grpc', module: 'grpc-netty-shaded' // For the client (only)
+compile 'net.devh:grpc-server-spring-boot-starter:...' exclude group: 'io.grpc', module: 'grpc-netty-shaded' // For the server (only)
 ````
 
 ## Example-Projects
@@ -498,7 +499,8 @@ Read more about our example projects [here](examples).
 Before you begin to dive into the details, make sure that the grpc and netty library versions are compatible with each other.
 This library brings all necessary dependencies for grpc and netty to work together.
 In some cases, however, you may need additional libraries such as tcnative or have other dependencies that require a different version of netty, which may cause conflicts.
-[grpc-java](https://github.com/grpc/grpc-java) has a [table](https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty) which shows compatible version combinations. As an alternative, you can replace the netty libraries with `grpc-netty-shaded`.
+To prevent such issues gRPC and us recommend using the grpc-netty-shaded dependency.
+If you are using the (non-shaded) grpc-netty, please check the [table](https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty) provided by [grpc-java](https://github.com/grpc/grpc-java), which displays compatible version combinations.
 
 ### Issues with SSL in general
 

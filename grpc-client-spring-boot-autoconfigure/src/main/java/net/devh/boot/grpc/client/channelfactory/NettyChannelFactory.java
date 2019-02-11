@@ -21,7 +21,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.File;
 import java.util.List;
-import java.util.function.Function;
 
 import javax.net.ssl.SSLException;
 
@@ -37,8 +36,8 @@ import net.devh.boot.grpc.client.config.NegotiationType;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 
 /**
- * This abstract channel factory contains some shared code for other netty based {@link GrpcChannelFactory}s. This class
- * utilizes connection pooling and thus needs to be {@link #close() closed} after usage.
+ * This channel factory creates and manages netty based {@link GrpcChannelFactory}s. This class utilizes connection
+ * pooling and thus needs to be {@link #close() closed} after usage.
  *
  * @author Michael (yidongnan@gmail.com)
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
@@ -50,7 +49,7 @@ public class NettyChannelFactory extends AbstractChannelFactory<NettyChannelBuil
     private final NameResolver.Factory nameResolverFactory;
 
     /**
-     * Creates a new AbstractNettyChannelFactory with eager initialized references.
+     * Creates a new GrpcChannelFactory for netty with the given options.
      *
      * @param properties The properties for the channels to create.
      * @param loadBalancerFactory The load balancer factory to use.
@@ -68,28 +67,10 @@ public class NettyChannelFactory extends AbstractChannelFactory<NettyChannelBuil
         this.nameResolverFactory = requireNonNull(nameResolverFactory, "nameResolverFactory");
     }
 
-    /**
-     * Creates a new AbstractNettyChannelFactory with partially lazy initialized references.
-     *
-     * @param <T> The type of the actual factory class or one of its super classes.
-     * @param properties The properties for the channels to create.
-     * @param loadBalancerFactory The load balancer factory to use.
-     * @param nameResolverFactoryCreator The function that creates the name resolver factory.
-     * @param globalClientInterceptorRegistry The interceptor registry to use.
-     * @param channelConfigurers The channel configurers to use. Can be empty.
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends NettyChannelFactory> NettyChannelFactory(final GrpcChannelsProperties properties,
-            final LoadBalancer.Factory loadBalancerFactory,
-            final Function<T, NameResolver.Factory> nameResolverFactoryCreator,
-            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
-            final List<GrpcChannelConfigurer> channelConfigurers) {
-        super(properties, globalClientInterceptorRegistry, channelConfigurers);
-        this.loadBalancerFactory = loadBalancerFactory;
-        this.nameResolverFactory = nameResolverFactoryCreator.apply((T) this);
-    }
-
     @Override
+    @SuppressWarnings("deprecation")
+    // TODO: Remove the #loadBalancerFactory() call and replace it with a string property
+    // This would break grpc compatibility with pre 1.18 versions.
     protected NettyChannelBuilder newChannelBuilder(final String name) {
         return NettyChannelBuilder.forTarget(name)
                 .loadBalancerFactory(this.loadBalancerFactory)

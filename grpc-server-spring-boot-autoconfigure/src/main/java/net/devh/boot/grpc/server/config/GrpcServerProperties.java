@@ -17,10 +17,15 @@
 
 package net.devh.boot.grpc.server.config;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.convert.DurationUnit;
 import org.springframework.util.SocketUtils;
 
 import io.grpc.internal.GrpcUtil;
+import io.grpc.netty.NettyServerBuilder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -61,6 +66,50 @@ public class GrpcServerProperties {
      * and used.
      */
     private int port = 9090;
+
+    /**
+     * Setting to enable keepAlive. Default to {@code false}.
+     */
+    private boolean enableKeepAlive = false;
+
+    /**
+     * The default delay before we send a keepAlives. Defaults to {@code 60s}. Default unit {@link ChronoUnit#SECONDS
+     * SECONDS}.
+     *
+     * @see #enableKeepAlive
+     * @see NettyServerBuilder#keepAliveTime(long, java.util.concurrent.TimeUnit)
+     */
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration keepAliveTime = Duration.of(60, ChronoUnit.SECONDS);
+
+    /**
+     * The default timeout for a keepAlives ping request. Defaults to {@code 20s}. Default unit
+     * {@link ChronoUnit#SECONDS SECONDS}.
+     *
+     * @see #enableKeepAlive
+     * @see NettyServerBuilder#keepAliveTimeout(long, java.util.concurrent.TimeUnit)
+     */
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration keepAliveTimeout = Duration.of(20, ChronoUnit.SECONDS);
+
+
+    /**
+     * Specify the most aggressive keep-alive time clients are permitted to configure. Defaults to {@code 5min}. Default
+     * unit {@link ChronoUnit#SECONDS SECONDS}.
+     *
+     * @see NettyServerBuilder#permitKeepAliveTime(long, java.util.concurrent.TimeUnit)
+     */
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration permitKeepAliveTime = Duration.of(5, ChronoUnit.MINUTES);
+
+    /**
+     * Sets whether to allow clients to send keep-alive HTTP/2 PINGs even if there are no outstanding RPCs on the
+     * connection. Defaults to {@code false}.
+     *
+     * @see NettyServerBuilder#permitKeepAliveWithoutCalls(boolean)
+     */
+    @DurationUnit(ChronoUnit.SECONDS)
+    private boolean permitKeepAliveWithoutCalls = false;
 
     /**
      * The maximum message size in bytes allowed to be received by the server. If not set ({@code null}) then it will

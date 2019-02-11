@@ -148,7 +148,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
                     savedListener.onAddresses(equivalentAddressGroups, Attributes.EMPTY);
                 } else {
                     savedListener.onError(Status.UNAVAILABLE
-                            .withCause(new RuntimeException("UNAVAILABLE: NameResolver returned an empty list")));
+                            .withDescription("No servers found for " + name));
                 }
             } finally {
                 synchronized (DiscoveryClientNameResolver.this) {
