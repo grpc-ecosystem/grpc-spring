@@ -36,10 +36,22 @@ public class StaticNameResolver extends NameResolver {
     private final String authority;
     private final List<EquivalentAddressGroup> targets;
 
+    /**
+     * Creates a static name resolver with only a single target server.
+     *
+     * @param authority The authority this name resolver was created for.
+     * @param target The target address of the server to use.
+     */
     public StaticNameResolver(final String authority, final EquivalentAddressGroup target) {
         this(authority, ImmutableList.of(requireNonNull(target, "target")));
     }
 
+    /**
+     * Creates a static name resolver with multiple target servers.
+     *
+     * @param authority The authority this name resolver was created for.
+     * @param targets The target addresses of the servers to use.
+     */
     public StaticNameResolver(final String authority, final Collection<EquivalentAddressGroup> targets) {
         this.authority = requireNonNull(authority, "authority");
         if (requireNonNull(targets, "targets").isEmpty()) {
