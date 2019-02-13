@@ -26,12 +26,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.unit.DataSize;
 
 /**
  * Tests whether the property resolution using suffixes works.
  */
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(properties = "grpc.client.test.keepAliveTime=42m")
+@SpringBootTest(properties = {
+        "grpc.client.test.keepAliveTime=42m",
+        "grpc.client.test.maxInboundMessageSize=5MB"
+})
 class GrpcChannelPropertiesGivenUnitTest {
 
     @Autowired
@@ -39,7 +43,9 @@ class GrpcChannelPropertiesGivenUnitTest {
 
     @Test
     void test() {
-        assertEquals(Duration.ofMinutes(42), this.grpcChannelsProperties.getChannel("test").getKeepAliveTime());
+        final GrpcChannelProperties properties = this.grpcChannelsProperties.getChannel("test");
+        assertEquals(Duration.ofMinutes(42), properties.getKeepAliveTime());
+        assertEquals(DataSize.ofMegabytes(5), properties.getMaxInboundMessageSize());
     }
 
 }
