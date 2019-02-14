@@ -143,6 +143,13 @@ allprojects {
 
 Project commonProject = project(':grpc-common-spring-boot');
 
+String javaAPIdoc;
+if (JavaVersion.current().isJava9Compatible()) {
+    javaAPIdoc = 'https://docs.oracle.com/en/java/javase/11/docs/api';
+} else {
+    javaAPIdoc = 'https://docs.oracle.com/javase/8/docs/api/';
+}
+
 allprojects { project ->
     if (project.parent?.name != "examples") {
 
@@ -182,7 +189,7 @@ allprojects { project ->
                 options.linksOffline('https://static.javadoc.io/net.devh/grpc-common-spring-boot/' + projectVersion, commonProject.buildDir.getPath() + '/docs/javadoc')
             }
             options.links = [
-                    'https://docs.oracle.com/javase/8/docs/api/',
+                    javaAPIdoc,
                     'https://grpc.io/grpc-java/javadoc/',
                     'https://static.javadoc.io/io.micrometer/micrometer-core/' + micrometerVersion + '/',
                     'https://docs.spring.io/spring-framework/docs/' + springFrameworkVersion + '/javadoc-api/',
