@@ -145,7 +145,7 @@ public class GrpcServerAutoConfiguration {
     }
 
     @Configuration
-    @ConditionalOnProperty(value = "spring.sleuth.scheduled.enabled", matchIfMissing = true)
+    @ConditionalOnProperty(value = "spring.sleuth.grpc.enabled", matchIfMissing = true)
     @AutoConfigureAfter({TraceAutoConfiguration.class, GrpcCommonTraceAutoConfiguration.class})
     @ConditionalOnBean(GrpcTracing.class)
     protected static class TraceServerAutoConfiguration {

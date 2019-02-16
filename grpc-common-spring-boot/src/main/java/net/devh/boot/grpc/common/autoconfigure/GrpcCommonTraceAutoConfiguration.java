@@ -28,7 +28,7 @@ import brave.Tracing;
 import brave.grpc.GrpcTracing;
 
 @Configuration
-@ConditionalOnProperty(value = "spring.sleuth.scheduled.enabled", matchIfMissing = true)
+@ConditionalOnProperty(value = "spring.sleuth.grpc.enabled", matchIfMissing = true)
 @AutoConfigureAfter(TraceAutoConfiguration.class)
 @ConditionalOnClass(value = {Tracing.class, GrpcTracing.class})
 public class GrpcCommonTraceAutoConfiguration {
