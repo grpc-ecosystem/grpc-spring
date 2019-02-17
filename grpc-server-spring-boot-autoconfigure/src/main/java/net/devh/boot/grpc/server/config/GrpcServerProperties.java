@@ -17,20 +17,24 @@
 
 package net.devh.boot.grpc.server.config;
 
+import java.io.File;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.convert.DurationUnit;
 import org.springframework.util.SocketUtils;
 
 import io.grpc.internal.GrpcUtil;
-import io.grpc.netty.NettyServerBuilder;
+import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
+import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * The properties for the grpc server that will be started as part of the application.
+ * The properties for the gRPC server that will be started as part of the application.
  *
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
@@ -38,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 @Slf4j
 @ConfigurationProperties("grpc.server")
+@SuppressWarnings("javadoc")
 public class GrpcServerProperties {
 
     /**
@@ -58,17 +63,26 @@ public class GrpcServerProperties {
     /**
      * Bind address for the server. Defaults to {@link #ANY_IP_ADDRESS "*"}. Alternatively you can restrict this to
      * {@link #ANY_IPv4_ADDRESS "0.0.0.0"} or {@link #ANY_IPv6_ADDRESS "::"}. Or restrict it to exactly one IP address.
+     *
+     * @param address The address to bind to.
+     * @return The address the server should bind to.
      */
     private String address = ANY_IP_ADDRESS;
 
     /**
      * Server port to listen on. Defaults to {@code 9090}. If set to {@code 0} a random available port will be selected
      * and used.
+     *
+     * @param port The port the server should listen on.
+     * @return The port the server will listen on.
      */
     private int port = 9090;
 
     /**
      * Setting to enable keepAlive. Default to {@code false}.
+     *
+     * @param enableKeepAlive Whether keep alive should be enabled.
+     * @return True, if keep alive should be enabled. False otherwise.
      */
     private boolean enableKeepAlive = false;
 
@@ -76,8 +90,11 @@ public class GrpcServerProperties {
      * The default delay before we send a keepAlives. Defaults to {@code 60s}. Default unit {@link ChronoUnit#SECONDS
      * SECONDS}.
      *
-     * @see #enableKeepAlive
-     * @see NettyServerBuilder#keepAliveTime(long, java.util.concurrent.TimeUnit)
+     * @see #setEnableKeepAlive(boolean)
+     * @see NettyServerBuilder#keepAliveTime(long, TimeUnit)
+     *
+     * @param keepAliveTime The new default delay before sending keepAlives.
+     * @return The default delay before sending keepAlives.
      */
     @DurationUnit(ChronoUnit.SECONDS)
     private Duration keepAliveTime = Duration.of(60, ChronoUnit.SECONDS);
@@ -86,50 +103,69 @@ public class GrpcServerProperties {
      * The default timeout for a keepAlives ping request. Defaults to {@code 20s}. Default unit
      * {@link ChronoUnit#SECONDS SECONDS}.
      *
-     * @see #enableKeepAlive
-     * @see NettyServerBuilder#keepAliveTimeout(long, java.util.concurrent.TimeUnit)
+     * @see #setEnableKeepAlive(boolean)
+     * @see NettyServerBuilder#keepAliveTimeout(long, TimeUnit)
+     *
+     * @param keepAliveTimeout Sets the default timeout for a keepAlives ping request.
+     * @return The default timeout for a keepAlives ping request.
      */
     @DurationUnit(ChronoUnit.SECONDS)
     private Duration keepAliveTimeout = Duration.of(20, ChronoUnit.SECONDS);
-
 
     /**
      * Specify the most aggressive keep-alive time clients are permitted to configure. Defaults to {@code 5min}. Default
      * unit {@link ChronoUnit#SECONDS SECONDS}.
      *
-     * @see NettyServerBuilder#permitKeepAliveTime(long, java.util.concurrent.TimeUnit)
+     * @see NettyServerBuilder#permitKeepAliveTime(long, TimeUnit)
+     *
+     * @param permitKeepAliveTime The most aggressive keep-alive time clients are permitted to configure.
+     * @return The most aggressive keep-alive time clients are permitted to configure.
      */
     @DurationUnit(ChronoUnit.SECONDS)
     private Duration permitKeepAliveTime = Duration.of(5, ChronoUnit.MINUTES);
 
     /**
-     * Sets whether to allow clients to send keep-alive HTTP/2 PINGs even if there are no outstanding RPCs on the
+     * Whether clients are allowed to send keep-alive HTTP/2 PINGs even if there are no outstanding RPCs on the
      * connection. Defaults to {@code false}.
      *
      * @see NettyServerBuilder#permitKeepAliveWithoutCalls(boolean)
+     *
+     * @param permitKeepAliveWithoutCalls Whether to allow clients to send keep-alive requests without calls.
+     * @return True, if clients are allowed to send keep-alive requests without calls. False otherwise.
      */
     @DurationUnit(ChronoUnit.SECONDS)
     private boolean permitKeepAliveWithoutCalls = false;
 
     /**
      * The maximum message size in bytes allowed to be received by the server. If not set ({@code null}) then it will
-     * default to {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE DEFAULT_MAX_MESSAGE_SIZE}. If set to {@code -1} then it will
-     * use {@link Integer#MAX_VALUE} as limit.
+     * default to {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE gRPC's default}. If set to {@code -1} then it will use the
+     * highest possible limit (not recommended).
+     *
+     * @param maxInboundMessageSize The maximum message size.
+     * @return The maximum message size allowed.
      */
     private Integer maxInboundMessageSize = null;
 
     /**
-     * Whether grpc health service is enabled or not. Defaults to {@code true}.
+     * Whether gRPC health service is enabled or not. Defaults to {@code true}.
+     *
+     * @param healthServiceEnabled Whether gRPC health service is enabled.
+     * @return True, if the health service is enabled. False otherwise.
      */
     private boolean healthServiceEnabled = true;
 
     /**
      * Whether proto reflection service is enabled or not. Defaults to {@code true}.
+     *
+     * @param reflectionServiceEnabled Whether gRPC reflection service is enabled.
+     * @return True, if the reflection service is enabled. False otherwise.
      */
     private boolean reflectionServiceEnabled = true;
 
     /**
-     * Security options for transport security. Defaults to disabled.
+     * Security options for transport security. Defaults to disabled. We strongly recommend to enable this though.
+     *
+     * @return The security options for transport security.
      */
     private final Security security = new Security();
 
@@ -141,16 +177,29 @@ public class GrpcServerProperties {
 
         /**
          * Flag that controls whether transport security is used. Defaults to {@code false}.
+         *
+         * @param enabled Whether transport security should be enabled.
+         * @return True, if transport security should be enabled. False otherwise.
          */
         private boolean enabled = false;
 
         /**
-         * Path to SSL certificate chain. Required if {@link #enabled} is true.
+         * Path to SSL certificate chain. Required if {@link #isEnabled()} is true.
+         *
+         * @see GrpcSslContexts#forServer(File, File)
+         *
+         * @param certificateChainPath The path to the certificate chain.
+         * @return The path to the certificate chain or null, if security is not enabled.
          */
         private String certificateChainPath = null;
 
         /**
          * Path to private key. Required if {@link #enabled} is true.
+         *
+         * @see GrpcSslContexts#forServer(File, File)
+         *
+         * @param privateKeyPath The path to the private key.
+         * @return The path to the private key or null, if security is not enabled.
          */
         private String privateKeyPath = null;
 
@@ -158,26 +207,39 @@ public class GrpcServerProperties {
          * Whether the client has to authenticate himself via certificates. Can be either of {@link ClientAuth#NONE
          * NONE}, {@link ClientAuth#OPTIONAL OPTIONAL} or {@link ClientAuth#REQUIRE REQUIRE}. Defaults to
          * {@link ClientAuth#NONE}.
+         *
+         * @see SslContextBuilder#clientAuth(io.grpc.netty.shaded.io.netty.handler.ssl.ClientAuth)
+         *      SslContextBuilder#clientAuth(ClientAuth)
+         *
+         * @param clientAuth Whether the client has to authenticate himself via certificates.
+         * @return Whether the client has to authenticate himself via certificates.
          */
         private ClientAuth clientAuth = ClientAuth.NONE;
 
         /**
          * Path to the trusted certificate collection. If {@code null} or empty it will use the system's default
-         * collection (Default).
+         * collection (Default). This collection will be used to verify client certificates.
+         *
+         * @see SslContextBuilder#trustManager(File)
+         *
+         * @param trustCertCollectionPath The path to the trusted certificate collection.
+         * @return The path to the trusted certificate collection or null.
          */
         private String trustCertCollectionPath = null;
 
         /**
          * Sets the path to the private key path.
          *
-         * @param certificatePath The path to the private key.
+         * @see #setPrivateKeyPath(String)
+         *
+         * @param privateKeyPath The path to the private key.
          * @deprecated Use the privateKeyPath property instead.
          */
         @Deprecated
-        public void setCertificatePath(final String certificatePath) {
+        public void setCertificatePath(final String privateKeyPath) {
             log.warn("The 'grpc.server.security.certificatePath' property is deprecated. "
                     + "Use 'grpc.server.security.privateKeyPath' instead!");
-            setPrivateKeyPath(certificatePath);
+            setPrivateKeyPath(privateKeyPath);
         }
 
     }
@@ -210,10 +272,10 @@ public class GrpcServerProperties {
 
     /**
      * Gets the maximum message size in bytes allowed to be received by the server. If not set ({@code null}) then it
-     * will default to {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE DEFAULT_MAX_MESSAGE_SIZE}. If set to {@code -1} then it
-     * will use {@link Integer#MAX_VALUE} as limit.
+     * will default to {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE gRPC's default}. If set to {@code -1} then it will use
+     * the highest possible limit (not recommended).
      *
-     * @return The maximum message size in bytes allowed or null if the default should be used.
+     * @return The maximum message size allowed or null if the default should be used.
      */
     public Integer getMaxInboundMessageSize() {
         if (this.maxInboundMessageSize != null && this.maxInboundMessageSize == -1) {

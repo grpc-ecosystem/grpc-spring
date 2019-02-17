@@ -34,11 +34,25 @@ import lombok.Data;
  */
 @Data
 @ConfigurationProperties("grpc")
+@SuppressWarnings("javadoc")
 public class GrpcChannelsProperties {
 
+    /**
+     * The configuration mapping for each client.
+     *
+     * @param client The client mappings to use.
+     * @return The client mappings to use.
+     */
     @NestedConfigurationProperty
-    private Map<String, GrpcChannelProperties> client = Maps.newHashMap();
+    private final Map<String, GrpcChannelProperties> client = Maps.newHashMap();
 
+    /**
+     * Gets the properties for the given channel. This will return an instance with default values, if the channel does
+     * not have any configuration.
+     *
+     * @param name The name of the channel to get the properties for.
+     * @return The properties for the given channel name or an instance with default value, if it does not exist.
+     */
     public GrpcChannelProperties getChannel(final String name) {
         return this.client.getOrDefault(name, GrpcChannelProperties.DEFAULT);
     }
