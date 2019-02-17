@@ -1,5 +1,6 @@
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import io.franzbecker.gradle.lombok.task.DelombokTask
 
 buildscript {
     repositories {
@@ -35,6 +36,7 @@ buildscript {
 
 plugins {
     id "net.nemerosa.versioning" version "2.8.2"
+    id "io.franzbecker.gradle-lombok" version "2.0" apply false
 }
 
 wrapper {
@@ -53,8 +55,9 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'idea'
     apply plugin: 'eclipse'
-    apply plugin: "io.spring.dependency-management"
+    apply plugin: 'io.spring.dependency-management'
     apply plugin: 'com.diffplug.gradle.spotless'
+    apply plugin: 'io.franzbecker.gradle-lombok'
 
     compileJava {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -127,13 +130,6 @@ allprojects {
         maven { url 'https://repo.spring.io/libs-milestone' }
     }
 
-    dependencies {
-        compileOnly("org.projectlombok:lombok:${lombokVersion}")
-        testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
-        annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
-        testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
-    }
-
     buildscript {
         repositories {
             mavenLocal()
@@ -145,8 +141,18 @@ allprojects {
     }
 }
 
+Project commonProject = project(':grpc-common-spring-boot');
+
+String javaAPIdoc;
+if (JavaVersion.current().isJava9Compatible()) {
+    javaAPIdoc = 'https://docs.oracle.com/en/java/javase/11/docs/api';
+} else {
+    javaAPIdoc = 'https://docs.oracle.com/javase/8/docs/api/';
+}
+
 allprojects { project ->
-    if (!project.parent || project.parent.name != "examples") {
+    if (project.parent?.name != "examples") {
+
         buildscript {
             dependencyManagement {
                 imports {
@@ -155,19 +161,40 @@ allprojects { project ->
             }
 
             ext {
+                micrometerVersion = dependencyManagement.importedProperties['micrometer.version']
                 springFrameworkVersion = dependencyManagement.importedProperties['spring.version']
                 springSecurityVersion = dependencyManagement.importedProperties['spring-security.version']
             }
         }
+    }
+    if (project.name == 'grpc-common-spring-boot' || project.name == 'grpc-client-spring-boot-autoconfigure' || project.name == 'grpc-server-spring-boot-autoconfigure') {
+        // Properly generate javadocs for the important projects
 
-        tasks.withType(Javadoc) {
-            def links = [
-                    'https://docs.oracle.com/javase/8/docs/api/',
+        task delombok(type: DelombokTask, dependsOn: compileJava) {
+            ext.outputDir = file("$buildDir/delombok")
+            outputs.dir(outputDir)
+            sourceSets.main.java.srcDirs.each {
+                inputs.dir(it)
+                args(it, "-d", outputDir)
+            }
+        }
+
+        // Javadoc Task
+        javadoc {
+            dependsOn delombok
+            source = delombok.outputDir
+            failOnError = false
+            options.jFlags('-Dhttp.agent=gradle-javadoc') // Required for javadoc.io
+            if (project.name != 'grpc-common-spring-boot') {
+                options.linksOffline('https://static.javadoc.io/net.devh/grpc-common-spring-boot/' + projectVersion, commonProject.buildDir.getPath() + '/docs/javadoc')
+            }
+            options.links = [
+                    javaAPIdoc,
                     'https://grpc.io/grpc-java/javadoc/',
+                    'https://static.javadoc.io/io.micrometer/micrometer-core/' + micrometerVersion + '/',
                     'https://docs.spring.io/spring-framework/docs/' + springFrameworkVersion + '/javadoc-api/',
                     'https://docs.spring.io/spring-security/site/docs/' + springSecurityVersion + '/api/'
             ]
-            options.setLinks(links)
         }
     }
 }

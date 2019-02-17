@@ -31,7 +31,7 @@ import net.devh.boot.grpc.server.cloud.ConsulGrpcRegistrationCustomizer;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 
 /**
- * Configuration class that configures the required beans for grpc discovery via Consul.
+ * Configuration class that configures the required beans for gRPC discovery via Consul.
  *
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
@@ -41,6 +41,12 @@ import net.devh.boot.grpc.server.config.GrpcServerProperties;
 @ConditionalOnClass({ConsulDiscoveryProperties.class, ConsulClient.class, GrpcServerProperties.class})
 public class GrpcMetadataConsulConfiguration {
 
+    /**
+     * Creates a bean that registers the gRPC endpoint via consul.
+     *
+     * @param grpcServerProperties The server properties used to fill in the blanks.
+     * @return The newly created consulGrpcRegistrationCustomizer bean.
+     */
     @ConditionalOnMissingBean
     @Bean
     public ConsulRegistrationCustomizer consulGrpcRegistrationCustomizer(
