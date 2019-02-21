@@ -24,23 +24,18 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import brave.grpc.GrpcTracing;
 import io.grpc.CompressorRegistry;
 import io.grpc.DecompressorRegistry;
 import io.grpc.Server;
 import io.grpc.services.HealthStatusManager;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
-import net.devh.boot.grpc.common.autoconfigure.GrpcCommonTraceAutoConfiguration;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import net.devh.boot.grpc.server.interceptor.AnnotationGlobalServerInterceptorConfigurer;
-import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorConfigurer;
 import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorRegistry;
 import net.devh.boot.grpc.server.security.GrpcSecurityAutoConfiguration;
 import net.devh.boot.grpc.server.serverfactory.GrpcServerConfigurer;
@@ -142,20 +137,6 @@ public class GrpcServerAutoConfiguration {
     @Bean
     public GrpcServerLifecycle grpcServerLifecycle(final GrpcServerFactory factory) {
         return new GrpcServerLifecycle(factory);
-    }
-
-    @Configuration
-    @ConditionalOnProperty(value = "spring.sleuth.grpc.enabled", matchIfMissing = true)
-    @AutoConfigureAfter({TraceAutoConfiguration.class, GrpcCommonTraceAutoConfiguration.class})
-    @ConditionalOnBean(GrpcTracing.class)
-    protected static class TraceServerAutoConfiguration {
-
-        @Bean
-        public GlobalServerInterceptorConfigurer globalTraceServerInterceptorConfigurerAdapter(
-                final GrpcTracing grpcTracing) {
-            return registry -> registry.addServerInterceptors(grpcTracing.newServerInterceptor());
-        }
-
     }
 
 }
