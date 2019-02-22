@@ -24,15 +24,12 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
-import brave.grpc.GrpcTracing;
 import io.grpc.Attributes;
 import io.grpc.CompressorRegistry;
 import io.grpc.DecompressorRegistry;
@@ -47,14 +44,12 @@ import net.devh.boot.grpc.client.channelfactory.ShadedNettyChannelFactory;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 import net.devh.boot.grpc.client.inject.GrpcClientBeanPostProcessor;
 import net.devh.boot.grpc.client.interceptor.AnnotationGlobalClientInterceptorConfigurer;
-import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorConfigurer;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 import net.devh.boot.grpc.client.nameresolver.CompositeNameResolverFactory;
 import net.devh.boot.grpc.client.nameresolver.ConfigMappedNameResolverFactory;
 import net.devh.boot.grpc.client.nameresolver.NameResolverConstants;
 import net.devh.boot.grpc.client.nameresolver.StaticNameResolverProvider;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
-import net.devh.boot.grpc.common.autoconfigure.GrpcCommonTraceAutoConfiguration;
 
 /**
  * The auto configuration used by Spring-Boot that contains all beans to create and inject grpc clients into beans.
@@ -181,20 +176,6 @@ public class GrpcClientAutoConfiguration {
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
         return new InProcessChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
-    }
-
-    @Configuration
-    @ConditionalOnProperty(value = "spring.sleuth.grpc.enabled", matchIfMissing = true)
-    @AutoConfigureAfter({TraceAutoConfiguration.class, GrpcCommonTraceAutoConfiguration.class})
-    @ConditionalOnBean(GrpcTracing.class)
-    protected static class TraceClientAutoConfiguration {
-
-        @Bean
-        public GlobalClientInterceptorConfigurer globalTraceClientInterceptorConfigurerAdapter(
-                final GrpcTracing grpcTracing) {
-            return registry -> registry.addClientInterceptors(grpcTracing.newClientInterceptor());
-        }
-
     }
 
 }

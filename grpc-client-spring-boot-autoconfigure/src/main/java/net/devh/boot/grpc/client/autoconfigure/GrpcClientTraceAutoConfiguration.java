@@ -15,29 +15,28 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.common.autoconfigure;
+package net.devh.boot.grpc.client.autoconfigure;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import brave.Tracing;
 import brave.grpc.GrpcTracing;
+import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorConfigurer;
+import net.devh.boot.grpc.common.autoconfigure.GrpcCommonTraceAutoConfiguration;
 
 @Configuration
 @ConditionalOnProperty(value = "spring.sleuth.grpc.enabled", matchIfMissing = true)
-@AutoConfigureAfter(TraceAutoConfiguration.class)
-@ConditionalOnClass(value = {Tracing.class, GrpcTracing.class})
-public class GrpcCommonTraceAutoConfiguration {
+@AutoConfigureAfter(GrpcCommonTraceAutoConfiguration.class)
+@ConditionalOnBean(GrpcTracing.class)
+public class GrpcClientTraceAutoConfiguration {
 
     @Bean
-    @ConditionalOnMissingBean
-    public GrpcTracing grpcTracing(final Tracing tracing) {
-        return GrpcTracing.create(tracing);
+    public GlobalClientInterceptorConfigurer globalTraceClientInterceptorConfigurerAdapter(
+            final GrpcTracing grpcTracing) {
+        return registry -> registry.addClientInterceptors(grpcTracing.newClientInterceptor());
     }
 
 }
