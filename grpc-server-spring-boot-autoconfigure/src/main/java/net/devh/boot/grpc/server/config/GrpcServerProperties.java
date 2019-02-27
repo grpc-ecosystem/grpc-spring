@@ -31,7 +31,6 @@ import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * The properties for the gRPC server that will be started as part of the application.
@@ -40,7 +39,6 @@ import lombok.extern.slf4j.Slf4j;
  * @since 5/17/16
  */
 @Data
-@Slf4j
 @ConfigurationProperties("grpc.server")
 @SuppressWarnings("javadoc")
 public class GrpcServerProperties {
@@ -227,21 +225,6 @@ public class GrpcServerProperties {
          */
         private String trustCertCollectionPath = null;
 
-        /**
-         * Sets the path to the private key path.
-         *
-         * @see #setPrivateKeyPath(String)
-         *
-         * @param privateKeyPath The path to the private key.
-         * @deprecated Use the privateKeyPath property instead.
-         */
-        @Deprecated
-        public void setCertificatePath(final String privateKeyPath) {
-            log.warn("The 'grpc.server.security.certificatePath' property is deprecated. "
-                    + "Use 'grpc.server.security.privateKeyPath' instead!");
-            setPrivateKeyPath(privateKeyPath);
-        }
-
     }
 
     /**
@@ -255,19 +238,6 @@ public class GrpcServerProperties {
             this.port = SocketUtils.findAvailableTcpPort();
         }
         return this.port;
-    }
-
-    /**
-     * Sets the maximum message size to use.
-     *
-     * @param maxMessageSize The max message size to use.
-     * @deprecated Use the maxInboundMessageSize property instead.
-     */
-    @Deprecated
-    public void setMaxMessageSize(final int maxMessageSize) {
-        log.warn("The 'grpc.server.maxMessageSize' property is deprecated. "
-                + "Use 'grpc.server.maxInboundMessageSize' instead!");
-        this.maxInboundMessageSize = maxMessageSize == 0 ? null : maxMessageSize;
     }
 
     /**
