@@ -64,4 +64,10 @@ public class InProcessChannelFactory extends AbstractChannelFactory<InProcessCha
         return InProcessChannelBuilder.forName(name);
     }
 
+    @Override
+    protected void configureSecurity(final InProcessChannelBuilder builder, final String name) {
+        // No need to configure security as we are in process only.
+        // There is also no need to throw exceptions if transport security is configured.
+    }
+
 }
