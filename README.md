@@ -536,8 +536,8 @@ grpc.client.(gRPC server name).negotiationType=PLAINTEXT
 
 ### Server port already in use during tests
 
-Sometimes you just want to launch your application in your test to test the interaction between your services.
-This will also start the grpc server, however it won't be shut down after each test (class). You can avoid that issue by
+Sometimes you just want to launch your application in your test classes to check the interaction between your services.
+This will also start the grpc server, however it won't be shut down after each test (class) individually. You can avoid that issue by
 adding `@DirtiesContext` to your test classes or methods.
 
 ### No name matching XXX found
