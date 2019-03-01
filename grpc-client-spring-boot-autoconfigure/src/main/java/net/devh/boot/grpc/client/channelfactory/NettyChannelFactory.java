@@ -36,8 +36,11 @@ import net.devh.boot.grpc.client.config.NegotiationType;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 
 /**
- * This channel factory creates and manages netty based {@link GrpcChannelFactory}s. This class utilizes connection
- * pooling and thus needs to be {@link #close() closed} after usage.
+ * This channel factory creates and manages netty based {@link GrpcChannelFactory}s.
+ *
+ * <p>
+ * This class utilizes connection pooling and thus needs to be {@link #close() closed} after usage.
+ * </p>
  *
  * @author Michael (yidongnan@gmail.com)
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
@@ -85,7 +88,7 @@ public class NettyChannelFactory extends AbstractChannelFactory<NettyChannelBuil
         final NegotiationType negotiationType = properties.getNegotiationType();
         builder.negotiationType(of(negotiationType));
 
-        if (negotiationType != NegotiationType.PLAINTEXT) {
+        if (negotiationType == NegotiationType.TLS) {
             final Security security = properties.getSecurity();
 
             final String authorityOverwrite = security.getAuthorityOverride();
