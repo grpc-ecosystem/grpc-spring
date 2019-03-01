@@ -342,10 +342,15 @@ Read more about these and other natively supported `NameResolverProviders` in th
 #### Example-Properties
 
 ````properties
+grpc.client.GLOBAL.enableKeepAlive=true
+
 grpc.client.(gRPC server name).address=static://localhost:9090
 # Or
 grpc.client.myName.address=static://localhost:9090
 ````
+
+`GLOBAL` is a special constant that will be used as a fallback for configuration options that are not configured per client.
+Order of precedence: Per Client > `GLOBAL` > defaults
 
 #### Customizing a Client
 
