@@ -8,7 +8,7 @@
 		},
 		{
 			"name": "grpc.client",
-			"type": "java.util.Map<java.util.String,net.devh.boot.grpc.client.config.GrpcChannelProperties>",
+			"type": "java.util.Map<java.lang.String,net.devh.boot.grpc.client.config.GrpcChannelProperties>",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelsProperties",
 			"sourceMethod": "getClient()",
 			"description": "A container for named channel properties.\nEach channel has its own configuration. If you try to get a channel that does not have a configuration yet, it will be created. If something is not configured in the channel properties, it will be copied from the global config during the first retrieval. If some property is configured in neither the channel properties nor the global properties then a default value will be used."

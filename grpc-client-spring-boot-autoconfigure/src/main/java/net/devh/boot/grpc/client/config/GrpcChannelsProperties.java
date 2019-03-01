@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -46,7 +45,6 @@ public class GrpcChannelsProperties {
      */
     public static final String GLOBAL_PROPERTIES_KEY = "GLOBAL";
 
-    @NestedConfigurationProperty
     private final Map<String, GrpcChannelProperties> client = new ConcurrentHashMap<>();;
 
     /**
