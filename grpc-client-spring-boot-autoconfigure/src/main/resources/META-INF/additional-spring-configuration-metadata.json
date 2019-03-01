@@ -32,7 +32,7 @@
 			"name": "grpc.client.GLOBAL.address",
 			"type": "java.net.URI",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties",
-			"description": "Sets the target address uri for the channel.\nThe target uri must be in the format: schema:[\/\/[authority]][\/path].\nIf nothing is configured then the io.grpc.NameResolver.Factory will decide on the default.\nExamples:\n\t\"static:\/\/10.0.0.10:9090,10.11.12.11:9091\",\n\t\"dns:\/example.com:9090\",\n\t\"discovery:\/foo-service\""
+			"description": "The target address uri for the channel.\nThe target uri must be in the format: schema:[\/\/[authority]][\/path].\nIf nothing is configured then the io.grpc.NameResolver.Factory will decide on the default.\nExamples:\n\t\"static:\/\/10.0.0.10:9090,10.11.12.11:9091\",\n\t\"dns:\/example.com:9090\",\n\t\"discovery:\/foo-service\""
 		},
 		{
 			"name": "grpc.client.GLOBAL.enable-keep-alive",
@@ -111,7 +111,7 @@
 			"name": "grpc.client.GLOBAL.security.authority-override",
 			"type": "java.lang.String",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties$Security",
-			"description": "Sets the authority to check for during server certificate verification. By default the clients will use the name of the client to check the server certificate's common + alternative names."
+			"description": "The authority to check for during server certificate verification. By default the clients will use the name of the client to check the server certificate's common + alternative names."
 		}
 	]
 }
