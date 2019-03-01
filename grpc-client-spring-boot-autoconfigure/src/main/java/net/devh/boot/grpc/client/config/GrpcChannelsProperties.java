@@ -18,43 +18,78 @@
 package net.devh.boot.grpc.client.config;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
-import com.google.common.collect.Maps;
-
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
- * The container for named channel properties.
+ * A container for named channel properties. Each channel has its own configuration. If you try to get a channel that
+ * does not have a configuration yet, it will be created. If something is not configured in the channel properties, it
+ * will be copied from the global config during the first retrieval. If some property is configured in neither the
+ * channel properties nor the global properties then a default value will be used.
  *
  * @author Michael (yidongnan@gmail.com)
+ * @author Daniel Theuke (daniel.theuke@heuboe.de)
  * @since 5/17/16
  */
-@Data
+@ToString
+@EqualsAndHashCode
 @ConfigurationProperties("grpc")
-@SuppressWarnings("javadoc")
 public class GrpcChannelsProperties {
 
     /**
-     * The configuration mapping for each client.
-     *
-     * @param client The client mappings to use.
-     * @return The client mappings to use.
+     * The key that will be used for the {@code GLOBAL} properties.
      */
-    @NestedConfigurationProperty
-    private final Map<String, GrpcChannelProperties> client = Maps.newHashMap();
+    public static final String GLOBAL_PROPERTIES_KEY = "GLOBAL";
+
+    private final Map<String, GrpcChannelProperties> client = new ConcurrentHashMap<>();;
 
     /**
-     * Gets the properties for the given channel. This will return an instance with default values, if the channel does
-     * not have any configuration.
+     * Gets the configuration mapping for each client.
+     *
+     * @return The client configuration mappings.
+     */
+    public final Map<String, GrpcChannelProperties> getClient() {
+        return this.client;
+    }
+
+    /**
+     * Gets the properties for the given channel. If the properties for the specified channel name do not yet exist,
+     * they are created automatically. Before the instance is returned, the unset values are filled with values from the
+     * global properties.
      *
      * @param name The name of the channel to get the properties for.
-     * @return The properties for the given channel name or an instance with default value, if it does not exist.
+     * @return The properties for the given channel name.
      */
     public GrpcChannelProperties getChannel(final String name) {
-        return this.client.getOrDefault(name, GrpcChannelProperties.DEFAULT);
+        final GrpcChannelProperties properties = getRawChannel(name);
+        properties.copyDefaultsFrom(getGlobalChannel());
+        return properties;
+    }
+
+    /**
+     * Gets the global channel properties. Global properties are used, if the channel properties don't overwrite them.
+     * If neither the global nor the per client properties are set then default values will be used.
+     *
+     * @return The global channel properties.
+     */
+    public final GrpcChannelProperties getGlobalChannel() {
+        // This cannot be moved to its own field,
+        // as Spring replaces the instance in the map and inconsistencies would occur.
+        return getRawChannel(GLOBAL_PROPERTIES_KEY);
+    }
+
+    /**
+     * Gets or creates the channel properties for the given client.
+     *
+     * @param name The name of the channel to get the properties for.
+     * @return The properties for the given channel name.
+     */
+    private GrpcChannelProperties getRawChannel(final String name) {
+        return this.client.computeIfAbsent(name, key -> new GrpcChannelProperties());
     }
 
 }
