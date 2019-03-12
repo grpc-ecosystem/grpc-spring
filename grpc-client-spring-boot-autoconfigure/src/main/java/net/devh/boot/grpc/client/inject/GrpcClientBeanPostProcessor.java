@@ -71,16 +71,16 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
         Class<?> clazz = bean.getClass();
         do {
             for (final Field field : clazz.getDeclaredFields()) {
-                GrpcClient annotation = AnnotationUtils.findAnnotation(field, GrpcClient.class);
+                final GrpcClient annotation = AnnotationUtils.findAnnotation(field, GrpcClient.class);
                 if (annotation != null) {
                     ReflectionUtils.makeAccessible(field);
                     ReflectionUtils.setField(field, bean, processInjectionPoint(field, field.getType(), annotation));
                 }
             }
             for (final Method method : clazz.getDeclaredMethods()) {
-                GrpcClient annotation = AnnotationUtils.findAnnotation(method, GrpcClient.class);
+                final GrpcClient annotation = AnnotationUtils.findAnnotation(method, GrpcClient.class);
                 if (annotation != null) {
-                    Class<?>[] paramTypes = method.getParameterTypes();
+                    final Class<?>[] paramTypes = method.getParameterTypes();
                     if (paramTypes.length != 1) {
                         throw new BeanDefinitionStoreException(
                                 "Method " + method + " doesn't have exactly one parameter.");
@@ -104,18 +104,24 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
      * @param annotation The annotation on the target with the metadata for the injection.
      * @return The value to be injected for the given injection point.
      */
-    protected <T> T processInjectionPoint(Member injectionTarget, Class<T> injectionType, GrpcClient annotation) {
+    protected <T> T processInjectionPoint(final Member injectionTarget, final Class<T> injectionType,
+            final GrpcClient annotation) {
         final List<ClientInterceptor> interceptors = interceptorsFromAnnotation(annotation);
         final String name = annotation.value();
-        final Channel channel = getChannelFactory().createChannel(name, interceptors);
-        if (channel == null) {
-            throw new IllegalStateException("Channel factory created a null channel");
+        final Channel channel;
+        try {
+            channel = getChannelFactory().createChannel(name, interceptors);
+            if (channel == null) {
+                throw new IllegalStateException("Channel factory created a null channel for " + name);
+            }
+        } catch (final RuntimeException e) {
+            throw new IllegalStateException("Failed to create channel: " + name, e);
         }
-
 
         final T value = valueForMember(name, injectionTarget, injectionType, channel);
         if (value == null) {
-            throw new IllegalStateException("Injection value is null unexpectedly");
+            throw new IllegalStateException(
+                    "Injection value is null unexpectedly for " + name + " at " + injectionTarget);
         }
         return value;
     }
@@ -193,7 +199,7 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
      * @return The value that matches the type of the given field.
      * @throws BeansException If the value of the field could not be created or the type of the field is unsupported.
      */
-    protected <T> T valueForMember(final String name, Member injectionTarget, Class<T> injectionType,
+    protected <T> T valueForMember(final String name, final Member injectionTarget, final Class<T> injectionType,
             final Channel channel) throws BeansException {
         if (Channel.class.equals(injectionType)) {
             return injectionType.cast(channel);
