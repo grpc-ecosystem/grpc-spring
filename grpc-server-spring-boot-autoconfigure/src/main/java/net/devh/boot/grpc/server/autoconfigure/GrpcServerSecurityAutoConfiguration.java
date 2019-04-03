@@ -15,15 +15,18 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.server.security;
+package net.devh.boot.grpc.server.autoconfigure;
 
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.security.servlet.WebSecurityEnablerConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.authentication.AuthenticationManager;
 
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
 import net.devh.boot.grpc.server.security.check.GrpcSecurityMetadataSource;
 import net.devh.boot.grpc.server.security.interceptors.AuthenticatingServerInterceptor;
@@ -54,9 +57,11 @@ import net.devh.boot.grpc.server.security.interceptors.ExceptionTranslatingServe
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
+@Slf4j
 @Configuration
 @ConditionalOnBean(AuthenticationManager.class)
-public class GrpcSecurityAutoConfiguration {
+@AutoConfigureAfter(WebSecurityEnablerConfiguration.class)
+public class GrpcServerSecurityAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
@@ -64,6 +69,7 @@ public class GrpcSecurityAutoConfiguration {
     public AuthorizationCheckingServerInterceptor authorizationCheckingServerInterceptor(
             final AccessDecisionManager accessDecisionManager,
             final GrpcSecurityMetadataSource securityMetadataSource) {
+        log.warn("Create AuthorizationCheckingServerInterceptor");
         return new AuthorizationCheckingServerInterceptor(accessDecisionManager, securityMetadataSource);
     }
 
