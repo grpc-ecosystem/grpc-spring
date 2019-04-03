@@ -1,0 +1,3 @@
+# AutoConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+net.devh.boot.grpc.web.autoconfigure.GrpcServerWebAutoConfiguration

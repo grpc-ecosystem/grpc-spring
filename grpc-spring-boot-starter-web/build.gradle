@@ -1,0 +1,16 @@
+apply from: '../deploy.gradle'
+
+group = "net.devh"
+version = "${projectVersion}"
+
+compileJava.dependsOn(processResources)
+
+dependencies {
+    annotationProcessor("org.springframework.boot:spring-boot-autoconfigure-processor")
+
+    compile("org.springframework.boot:spring-boot-starter")
+    compile("org.springframework.boot:spring-boot-starter-actuator")
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("io.grpc:grpc-core:${grpcVersion}")
+    compile("io.grpc:grpc-protobuf:${grpcVersion}")
+}

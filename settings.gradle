@@ -5,6 +5,7 @@ include "grpc-client-spring-boot-autoconfigure"
 include "grpc-client-spring-boot-starter"
 include "grpc-server-spring-boot-autoconfigure"
 include "grpc-server-spring-boot-starter"
+include "grpc-spring-boot-starter-web"
 
 include "tests"
 
