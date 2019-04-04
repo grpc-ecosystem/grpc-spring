@@ -27,7 +27,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 
 import io.grpc.CompressorRegistry;
 import io.grpc.DecompressorRegistry;
@@ -37,7 +36,6 @@ import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import net.devh.boot.grpc.server.interceptor.AnnotationGlobalServerInterceptorConfigurer;
 import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorRegistry;
-import net.devh.boot.grpc.server.security.GrpcSecurityAutoConfiguration;
 import net.devh.boot.grpc.server.serverfactory.GrpcServerConfigurer;
 import net.devh.boot.grpc.server.serverfactory.GrpcServerFactory;
 import net.devh.boot.grpc.server.serverfactory.GrpcServerLifecycle;
@@ -56,8 +54,7 @@ import net.devh.boot.grpc.server.service.GrpcServiceDiscoverer;
 @Configuration
 @EnableConfigurationProperties
 @ConditionalOnClass(Server.class)
-@AutoConfigureAfter(GrpcCommonCodecAutoConfiguration.class)
-@Import(GrpcSecurityAutoConfiguration.class)
+@AutoConfigureAfter({GrpcCommonCodecAutoConfiguration.class})
 public class GrpcServerAutoConfiguration {
 
     @ConditionalOnMissingBean

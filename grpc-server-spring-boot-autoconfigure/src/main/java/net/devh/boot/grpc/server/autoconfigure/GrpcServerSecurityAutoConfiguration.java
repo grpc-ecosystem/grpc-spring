@@ -15,10 +15,12 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.server.security;
+package net.devh.boot.grpc.server.autoconfigure;
 
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.security.servlet.WebSecurityEnablerConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
@@ -56,7 +58,8 @@ import net.devh.boot.grpc.server.security.interceptors.ExceptionTranslatingServe
  */
 @Configuration
 @ConditionalOnBean(AuthenticationManager.class)
-public class GrpcSecurityAutoConfiguration {
+@AutoConfigureAfter(WebSecurityEnablerConfiguration.class)
+public class GrpcServerSecurityAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
