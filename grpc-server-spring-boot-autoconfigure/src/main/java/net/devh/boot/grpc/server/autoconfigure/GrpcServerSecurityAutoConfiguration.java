@@ -26,7 +26,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.authentication.AuthenticationManager;
 
-import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
 import net.devh.boot.grpc.server.security.check.GrpcSecurityMetadataSource;
 import net.devh.boot.grpc.server.security.interceptors.AuthenticatingServerInterceptor;
@@ -57,7 +56,6 @@ import net.devh.boot.grpc.server.security.interceptors.ExceptionTranslatingServe
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-@Slf4j
 @Configuration
 @ConditionalOnBean(AuthenticationManager.class)
 @AutoConfigureAfter(WebSecurityEnablerConfiguration.class)
@@ -69,7 +67,6 @@ public class GrpcServerSecurityAutoConfiguration {
     public AuthorizationCheckingServerInterceptor authorizationCheckingServerInterceptor(
             final AccessDecisionManager accessDecisionManager,
             final GrpcSecurityMetadataSource securityMetadataSource) {
-        log.warn("Create AuthorizationCheckingServerInterceptor");
         return new AuthorizationCheckingServerInterceptor(accessDecisionManager, securityMetadataSource);
     }
 
