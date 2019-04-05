@@ -17,11 +17,11 @@ buildscript {
         protobufVersion = '3.6.1'
         protobufGradlePluginVersion = '0.8.8'
 
-        springBootVersion = '2.1.2.RELEASE'
-        springCloudVersion = 'Greenwich.RELEASE' // Only used in examples
-        springCloudSleuthVersion = '2.1.0.RELEASE'
-        springCloudConsulVersion = '2.1.0.RELEASE'
-        springCloudEurekaVersion = '2.1.0.RELEASE'
+        springBootVersion = '2.1.4.RELEASE'
+        springCloudVersion = 'Greenwich.SR1' // Only used in examples
+        springCloudSleuthVersion = '2.1.1.RELEASE'
+        springCloudConsulVersion = '2.1.1.RELEASE'
+        springCloudEurekaVersion = '2.1.1.RELEASE'
         braveInstrumentationGrpc = '5.6.0'
         jUnitVersion = '5.3.2'
 
