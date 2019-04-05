@@ -28,7 +28,7 @@ install:
   - ./gradlew --version # Display Gradle, Groovy, JVM and other versions
 
 script:
-  - ./gradlew --warning-mode=all build
+  - ./gradlew --scan --stacktrace --warning-mode=all build
 
 after_success:
-  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_BRANCH} == 'master' ]] && [[ ${TRAVIS_TAG} == '' ]] && [[ ${SKIP_RELEASE} == 'false' ]] && ./gradlew publish"
+  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_BRANCH} == 'master' ]] && [[ ${TRAVIS_TAG} == '' ]] && [[ ${SKIP_RELEASE} == 'false' ]] && ./gradlew --scan publish -x check"
