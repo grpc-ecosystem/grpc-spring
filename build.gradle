@@ -83,16 +83,6 @@ allprojects {
         }
     }
 
-    // Enable Checkstyle
-    if (null != System.getenv('ENABLE_CHECKSTYLE')) {
-        apply plugin: 'checkstyle'
-        checkstyle {
-            toolVersion '8.14'
-            configFile new File(rootDir, "extra/checkstyle/checkstyle.xml")
-            showViolations true
-        }
-    }
-
     // Copy LICENSE
     tasks.withType(Jar) {
         from(project.rootDir) {
