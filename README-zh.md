@@ -34,7 +34,7 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 
 2.x.x.RELEASE 支持 Spring Boot 2 & Spring Cloud Finchley, Greenwich。
 
-最新的版本：``2.2.1.RELEASE``
+最新的版本：``2.3.0.RELEASE``
 
 1.x.x.RELEASE 支持 Spring Boot 1 & Spring Cloud Edgware 、Dalston、Camden。
 
@@ -52,7 +52,7 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-spring-boot-starter</artifactId>
-  <version>2.2.1.RELEASE</version>
+  <version>2.3.0.RELEASE</version>
 </dependency>
 ````
 
@@ -60,7 +60,7 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-spring-boot-starter:2.2.1.RELEASE'
+  compile 'net.devh:grpc-spring-boot-starter:2.3.0.RELEASE'
 }
 ````
 
@@ -72,7 +72,7 @@ dependencies {
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-server-spring-boot-starter</artifactId>
-  <version>2.2.1.RELEASE</version>
+  <version>2.3.0.RELEASE</version>
 </dependency>
 ````
 
@@ -80,7 +80,7 @@ dependencies {
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-server-spring-boot-starter:2.2.1.RELEASE'
+  compile 'net.devh:grpc-server-spring-boot-starter:2.3.0.RELEASE'
 }
 ````
 
@@ -244,7 +244,7 @@ public GrpcServerConfigurer keepAliveServerConfigurer() {
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-client-spring-boot-starter</artifactId>
-  <version>2.2.1.RELEASE</version>
+  <version>2.3.0.RELEASE</version>
 </dependency>
 ````
 
@@ -252,7 +252,7 @@ public GrpcServerConfigurer keepAliveServerConfigurer() {
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-client-spring-boot-starter:2.2.1.RELEASE'
+  compile 'net.devh:grpc-client-spring-boot-starter:2.3.0.RELEASE'
 }
 ````
 
