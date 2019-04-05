@@ -558,7 +558,3 @@ property with a name that is present in the certificate.
 ## Contributing
 
 Contributions are always welcomed! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
-
-## Show case
-
-https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/examples
