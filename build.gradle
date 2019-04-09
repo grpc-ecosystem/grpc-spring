@@ -13,7 +13,7 @@ buildscript {
     ext {
         projectVersion = '2.4.0-SNAPSHOT'
 
-        grpcVersion = '1.18.0'
+        grpcVersion = '1.19.0'
         protobufVersion = '3.6.1'
         protobufGradlePluginVersion = '0.8.8'
 
@@ -147,6 +147,13 @@ if (JavaVersion.current().isJava9Compatible()) {
 }
 
 allprojects { project ->
+   buildscript {
+        dependencyManagement {
+            imports {
+                mavenBom "io.grpc:grpc-bom:${grpcVersion}"
+            }
+        }
+    }
     if (project.parent?.name != "examples") {
 
         buildscript {

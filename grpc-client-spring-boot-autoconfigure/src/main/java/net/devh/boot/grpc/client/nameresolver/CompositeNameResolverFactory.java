@@ -43,6 +43,12 @@ public class CompositeNameResolverFactory extends NameResolver.Factory {
     private final List<NameResolver.Factory> factories;
     private final String defaultScheme;
 
+    /**
+     * Creates a new composite name resolver factory.
+     *
+     * @param defaultScheme The default scheme to use, if no scheme is specified.
+     * @param factories The factories used to resolve the address.
+     */
     public CompositeNameResolverFactory(final String defaultScheme, final List<NameResolver.Factory> factories) {
         this.factories = ImmutableList.copyOf(requireNonNull(factories, "factories"));
         this.defaultScheme = requireNonNull(defaultScheme, "defaultScheme");
