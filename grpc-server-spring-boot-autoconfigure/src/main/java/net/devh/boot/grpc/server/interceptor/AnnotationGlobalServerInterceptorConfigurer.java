@@ -17,8 +17,15 @@
 
 package net.devh.boot.grpc.server.interceptor;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.annotation.Order;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import io.grpc.ServerInterceptor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,11 +44,29 @@ public class AnnotationGlobalServerInterceptorConfigurer implements GlobalServer
     @Override
     public void addServerInterceptors(final GlobalServerInterceptorRegistry registry) {
         final String[] names = this.context.getBeanNamesForAnnotation(GrpcGlobalServerInterceptor.class);
-        for (final String name : names) {
+        final List<String> sortedInterceptorNames = sortBasedOnOrder(names);
+        for (final String name : sortedInterceptorNames) {
             final ServerInterceptor interceptor = this.context.getBean(name, ServerInterceptor.class);
             log.debug("Registering GlobalServerInterceptor: {} ({})", name, interceptor);
             registry.addServerInterceptors(interceptor);
         }
+    }
+
+    private List<String> sortBasedOnOrder(final String[] interceptorNames) {
+        Map<Integer, String> orderedInterceptorNames = Maps.newTreeMap();
+        List<String> unorderedInterceptorNames = Lists.newArrayList();
+        for (final String name : interceptorNames) {
+            Order interceptorOrder = this.context.findAnnotationOnBean(name, Order.class);
+            if (interceptorOrder != null) {
+                orderedInterceptorNames.put(Integer.valueOf(interceptorOrder.value()), name);
+            } else {
+                unorderedInterceptorNames.add(name);
+            }
+        }
+        List<String> sortedInterceptorNames = Lists.newArrayList();
+        sortedInterceptorNames.addAll(unorderedInterceptorNames);
+        sortedInterceptorNames.addAll(orderedInterceptorNames.values());
+        return sortedInterceptorNames;
     }
 
 }
