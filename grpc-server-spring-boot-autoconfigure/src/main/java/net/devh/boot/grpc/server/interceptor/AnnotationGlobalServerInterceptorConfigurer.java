@@ -17,9 +17,7 @@
 
 package net.devh.boot.grpc.server.interceptor;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -41,16 +39,15 @@ public class AnnotationGlobalServerInterceptorConfigurer implements GlobalServer
 
     @Override
     public void addServerInterceptors(final GlobalServerInterceptorRegistry registry) {
-
-        Map<String, Object> interceptorBeans = this.context.getBeansWithAnnotation(GrpcGlobalServerInterceptor.class)
+        this.context.getBeansWithAnnotation(GrpcGlobalServerInterceptor.class)
                 .entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByValue(AnnotationAwareOrderComparator.INSTANCE))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
-        interceptorBeans.forEach((name, interceptor) -> {
-            log.debug("Registering GlobalServerInterceptor: {} ({})", name, interceptor);
-            registry.addServerInterceptors((ServerInterceptor) interceptor);
-        });
+                .forEach(entry -> {
+                    ServerInterceptor interceptor = (ServerInterceptor) entry.getValue();
+                    log.debug("Registering GlobalServerInterceptor: {} ({})", entry.getKey(), interceptor);
+                    registry.addServerInterceptors(interceptor);
+                });
     }
 
 }
