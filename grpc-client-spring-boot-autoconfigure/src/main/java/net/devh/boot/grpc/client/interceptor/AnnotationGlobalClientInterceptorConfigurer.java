@@ -17,8 +17,13 @@
 
 package net.devh.boot.grpc.client.interceptor;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
 import io.grpc.ClientInterceptor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,12 +41,16 @@ public class AnnotationGlobalClientInterceptorConfigurer implements GlobalClient
 
     @Override
     public void addClientInterceptors(final GlobalClientInterceptorRegistry registry) {
-        final String[] names = this.context.getBeanNamesForAnnotation(GrpcGlobalClientInterceptor.class);
-        for (final String name : names) {
-            final ClientInterceptor interceptor = this.context.getBean(name, ClientInterceptor.class);
+
+        Map<String, Object> interceptorBeans = this.context.getBeansWithAnnotation(GrpcGlobalClientInterceptor.class)
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue(AnnotationAwareOrderComparator.INSTANCE))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
+        interceptorBeans.forEach((name, interceptor) -> {
             log.debug("Registering GlobalClientInterceptor: {} ({})", name, interceptor);
-            registry.addClientInterceptors(interceptor);
-        }
+            registry.addClientInterceptors((ClientInterceptor) interceptor);
+        });
     }
 
 }
