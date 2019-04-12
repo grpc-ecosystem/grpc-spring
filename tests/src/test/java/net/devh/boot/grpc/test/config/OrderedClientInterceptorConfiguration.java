@@ -30,34 +30,6 @@ import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
 @Configuration
 @Slf4j
 public class OrderedClientInterceptorConfiguration {
-
-    @GrpcGlobalClientInterceptor
-    @Order(10)
-    public class FirstOrderAnnotatedInterceptor implements ClientInterceptor {
-        public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
-                MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
-            return next.newCall(method, callOptions);
-        }
-    }
-
-    @GrpcGlobalClientInterceptor
-    @Order(20)
-    public class SecondOrderAnnotatedInterceptor implements ClientInterceptor {
-        public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
-                MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
-            return next.newCall(method, callOptions);
-        }
-    }
-
-    @GrpcGlobalClientInterceptor
-    @Priority(5)
-    public class FirstPriorityAnnotatedInterceptor implements ClientInterceptor {
-        public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
-                MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
-            return next.newCall(method, callOptions);
-        }
-    }
-
     @GrpcGlobalClientInterceptor
     @Priority(30)
     public class SecondPriorityAnnotatedInterceptor implements ClientInterceptor {
@@ -66,7 +38,14 @@ public class OrderedClientInterceptorConfiguration {
             return next.newCall(method, callOptions);
         }
     }
-
+    @GrpcGlobalClientInterceptor
+    @Order(20)
+    public class SecondOrderAnnotatedInterceptor implements ClientInterceptor {
+        public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+                MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
+            return next.newCall(method, callOptions);
+        }
+    }
     @GrpcGlobalClientInterceptor
     public class FirstOrderedInterfaceInterceptor implements ClientInterceptor, Ordered {
         public int getOrder() {
@@ -78,7 +57,14 @@ public class OrderedClientInterceptorConfiguration {
             return next.newCall(method, callOptions);
         }
     }
-
+    @GrpcGlobalClientInterceptor
+    @Order(10)
+    public class FirstOrderAnnotatedInterceptor implements ClientInterceptor {
+        public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+                MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
+            return next.newCall(method, callOptions);
+        }
+    }
     @GrpcGlobalClientInterceptor
     public class SecondOrderedInterfaceInterceptor implements ClientInterceptor, Ordered {
         public int getOrder() {
@@ -90,5 +76,18 @@ public class OrderedClientInterceptorConfiguration {
             return next.newCall(method, callOptions);
         }
     }
+
+
+
+    @GrpcGlobalClientInterceptor
+    @Priority(5)
+    public class FirstPriorityAnnotatedInterceptor implements ClientInterceptor {
+        public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+                MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
+            return next.newCall(method, callOptions);
+        }
+    }
+
+
 
 }

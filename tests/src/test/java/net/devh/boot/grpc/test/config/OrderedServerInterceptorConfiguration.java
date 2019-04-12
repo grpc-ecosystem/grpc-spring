@@ -35,8 +35,8 @@ import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 public class OrderedServerInterceptorConfiguration {
 
     @GrpcGlobalServerInterceptor
-    @Order(10)
-    public class FirstOrderAnnotatedInterceptor implements ServerInterceptor {
+    @Priority(30)
+    public class SecondPriorityAnnotatedInterceptor implements ServerInterceptor {
         public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
                 ServerCallHandler<ReqT, RespT> next) {
             return next.startCall(call, headers);
@@ -46,24 +46,6 @@ public class OrderedServerInterceptorConfiguration {
     @GrpcGlobalServerInterceptor
     @Order(20)
     public class SecondOrderAnnotatedInterceptor implements ServerInterceptor {
-        public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
-                ServerCallHandler<ReqT, RespT> next) {
-            return next.startCall(call, headers);
-        }
-    }
-
-    @GrpcGlobalServerInterceptor
-    @Priority(5)
-    public class FirstPriorityAnnotatedInterceptor implements ServerInterceptor {
-        public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
-                ServerCallHandler<ReqT, RespT> next) {
-            return next.startCall(call, headers);
-        }
-    }
-
-    @GrpcGlobalServerInterceptor
-    @Priority(30)
-    public class SecondPriorityAnnotatedInterceptor implements ServerInterceptor {
         public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
                 ServerCallHandler<ReqT, RespT> next) {
             return next.startCall(call, headers);
@@ -83,6 +65,15 @@ public class OrderedServerInterceptorConfiguration {
     }
 
     @GrpcGlobalServerInterceptor
+    @Order(10)
+    public class FirstOrderAnnotatedInterceptor implements ServerInterceptor {
+        public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
+                ServerCallHandler<ReqT, RespT> next) {
+            return next.startCall(call, headers);
+        }
+    }
+
+    @GrpcGlobalServerInterceptor
     public class SecondOrderedInterfaceInterceptor implements ServerInterceptor, Ordered {
         public int getOrder() {
             return 50;
@@ -94,4 +85,12 @@ public class OrderedServerInterceptorConfiguration {
         }
     }
 
+    @GrpcGlobalServerInterceptor
+    @Priority(5)
+    public class FirstPriorityAnnotatedInterceptor implements ServerInterceptor {
+        public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
+                ServerCallHandler<ReqT, RespT> next) {
+            return next.startCall(call, headers);
+        }
+    }
 }
