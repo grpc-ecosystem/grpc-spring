@@ -32,7 +32,7 @@ import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 
 @Configuration
 @Slf4j
-public class OrderedInterceptorConfiguration {
+public class OrderedServerInterceptorConfiguration {
 
     @GrpcGlobalServerInterceptor
     @Order(10)

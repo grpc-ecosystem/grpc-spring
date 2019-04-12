@@ -28,49 +28,49 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import com.google.common.collect.Iterators;
 
-import io.grpc.ServerInterceptor;
+import io.grpc.ClientInterceptor;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.server.autoconfigure.GrpcServerAutoConfiguration;
-import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorRegistry;
-import net.devh.boot.grpc.test.config.OrderedInterceptorConfiguration;
+import net.devh.boot.grpc.client.autoconfigure.GrpcClientAutoConfiguration;
+import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
+import net.devh.boot.grpc.test.config.OrderedClientInterceptorConfiguration;
 
 @Slf4j
 @SpringBootTest
-@SpringJUnitConfig(classes = {OrderedInterceptorConfiguration.class, GrpcServerAutoConfiguration.class})
+@SpringJUnitConfig(classes = {OrderedClientInterceptorConfiguration.class, GrpcClientAutoConfiguration.class})
 @DirtiesContext
-public class OrderedInterceptorTest {
+public class OrderedClientInterceptorTest {
 
     @Autowired
-    GlobalServerInterceptorRegistry registry;
+    GlobalClientInterceptorRegistry registry;
 
     @Test
     public void testOrderingByOrderAnnotation() {
-        int firstInterceptorIndex = findIndexOfClass(registry.getServerInterceptors(),
-                OrderedInterceptorConfiguration.FirstOrderAnnotatedInterceptor.class);
-        int secondInterceptorIndex = findIndexOfClass(registry.getServerInterceptors(),
-                OrderedInterceptorConfiguration.SecondOrderAnnotatedInterceptor.class);
+        int firstInterceptorIndex = findIndexOfClass(registry.getClientInterceptors(),
+                OrderedClientInterceptorConfiguration.FirstOrderAnnotatedInterceptor.class);
+        int secondInterceptorIndex = findIndexOfClass(registry.getClientInterceptors(),
+                OrderedClientInterceptorConfiguration.SecondOrderAnnotatedInterceptor.class);
         Assert.assertTrue(firstInterceptorIndex < secondInterceptorIndex);
     }
 
     @Test
     public void testOrderingByPriorityAnnotation() {
-        int firstInterceptorIndex = findIndexOfClass(registry.getServerInterceptors(),
-                OrderedInterceptorConfiguration.FirstPriorityAnnotatedInterceptor.class);
-        int secondInterceptorIndex = findIndexOfClass(registry.getServerInterceptors(),
-                OrderedInterceptorConfiguration.SecondPriorityAnnotatedInterceptor.class);
+        int firstInterceptorIndex = findIndexOfClass(registry.getClientInterceptors(),
+                OrderedClientInterceptorConfiguration.FirstPriorityAnnotatedInterceptor.class);
+        int secondInterceptorIndex = findIndexOfClass(registry.getClientInterceptors(),
+                OrderedClientInterceptorConfiguration.SecondPriorityAnnotatedInterceptor.class);
         Assert.assertTrue(firstInterceptorIndex < secondInterceptorIndex);
     }
 
     @Test
     public void testOrderingByOrderedInterface() {
-        int firstInterceptorIndex = findIndexOfClass(registry.getServerInterceptors(),
-                OrderedInterceptorConfiguration.FirstOrderedInterfaceInterceptor.class);
-        int secondInterceptorIndex = findIndexOfClass(registry.getServerInterceptors(),
-                OrderedInterceptorConfiguration.SecondOrderedInterfaceInterceptor.class);
+        int firstInterceptorIndex = findIndexOfClass(registry.getClientInterceptors(),
+                OrderedClientInterceptorConfiguration.FirstOrderedInterfaceInterceptor.class);
+        int secondInterceptorIndex = findIndexOfClass(registry.getClientInterceptors(),
+                OrderedClientInterceptorConfiguration.SecondOrderedInterfaceInterceptor.class);
         Assert.assertTrue(firstInterceptorIndex < secondInterceptorIndex);
     }
 
-    private int findIndexOfClass(List<ServerInterceptor> interceptors, Class clazz) {
+    private int findIndexOfClass(List<ClientInterceptor> interceptors, Class clazz) {
         return Iterators.indexOf(interceptors.iterator(), clazz::isInstance);
     }
 }
