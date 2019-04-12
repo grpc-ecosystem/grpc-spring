@@ -38,6 +38,7 @@ public class OrderedClientInterceptorConfiguration {
             return next.newCall(method, callOptions);
         }
     }
+
     @GrpcGlobalClientInterceptor
     @Order(20)
     public class SecondOrderAnnotatedInterceptor implements ClientInterceptor {
@@ -46,6 +47,7 @@ public class OrderedClientInterceptorConfiguration {
             return next.newCall(method, callOptions);
         }
     }
+
     @GrpcGlobalClientInterceptor
     public class FirstOrderedInterfaceInterceptor implements ClientInterceptor, Ordered {
         public int getOrder() {
@@ -57,6 +59,7 @@ public class OrderedClientInterceptorConfiguration {
             return next.newCall(method, callOptions);
         }
     }
+
     @GrpcGlobalClientInterceptor
     @Order(10)
     public class FirstOrderAnnotatedInterceptor implements ClientInterceptor {
@@ -65,6 +68,7 @@ public class OrderedClientInterceptorConfiguration {
             return next.newCall(method, callOptions);
         }
     }
+
     @GrpcGlobalClientInterceptor
     public class SecondOrderedInterfaceInterceptor implements ClientInterceptor, Ordered {
         public int getOrder() {
@@ -77,8 +81,6 @@ public class OrderedClientInterceptorConfiguration {
         }
     }
 
-
-
     @GrpcGlobalClientInterceptor
     @Priority(5)
     public class FirstPriorityAnnotatedInterceptor implements ClientInterceptor {
@@ -87,7 +89,4 @@ public class OrderedClientInterceptorConfiguration {
             return next.newCall(method, callOptions);
         }
     }
-
-
-
 }

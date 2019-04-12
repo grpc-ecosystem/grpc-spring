@@ -33,7 +33,6 @@ import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 @Configuration
 @Slf4j
 public class OrderedServerInterceptorConfiguration {
-
     @GrpcGlobalServerInterceptor
     @Priority(30)
     public class SecondPriorityAnnotatedInterceptor implements ServerInterceptor {
