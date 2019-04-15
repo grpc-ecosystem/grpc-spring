@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableList;
 
 import io.grpc.Attributes;
 import io.grpc.NameResolver;
+import io.grpc.NameResolver.Helper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -56,6 +57,22 @@ public class CompositeNameResolverFactory extends NameResolver.Factory {
 
     @Nullable
     @Override
+    public NameResolver newNameResolver(final URI targetUri, final Helper helper) {
+        log.debug("Trying to create new name resolver for: {}", targetUri);
+        for (final NameResolver.Factory factory : this.factories) {
+            log.debug("- Attempting with: {}", factory);
+            final NameResolver resolver = factory.newNameResolver(targetUri, helper);
+            if (resolver != null) {
+                return resolver;
+            }
+        }
+        log.info("Could not find name resolver for {}", targetUri);
+        return null;
+    }
+
+    @Nullable
+    @Override
+    @Deprecated
     public NameResolver newNameResolver(final URI targetUri, final Attributes params) {
         log.debug("Trying to create new name resolver for: {}", targetUri);
         for (final NameResolver.Factory factory : this.factories) {

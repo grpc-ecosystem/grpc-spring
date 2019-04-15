@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 
 import io.grpc.Attributes;
 import io.grpc.NameResolver;
+import io.grpc.NameResolver.Helper;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
@@ -66,6 +67,24 @@ public class ConfigMappedNameResolverFactory extends NameResolver.Factory {
 
     @Nullable
     @Override
+    public NameResolver newNameResolver(final URI targetUri, final Helper helper) {
+        final String clientName = targetUri.toString();
+        final GrpcChannelProperties clientConfig = this.config.getChannel(clientName);
+        URI remappedUri = clientConfig.getAddress();
+        if (remappedUri == null) {
+            remappedUri = this.defaultUriMapper.apply(clientName);
+            if (remappedUri == null) {
+                throw new IllegalStateException("No targetUri provided for '" + clientName + "'"
+                        + " and defaultUri mapper returned null.");
+            }
+        }
+        log.debug("Remapping target URI for {} to {} via {}", clientName, remappedUri, this.delegate);
+        return this.delegate.newNameResolver(remappedUri, helper);
+    }
+
+    @Nullable
+    @Override
+    @Deprecated
     public NameResolver newNameResolver(final URI targetUri, final Attributes params) {
         final String clientName = targetUri.toString();
         final GrpcChannelProperties clientConfig = this.config.getChannel(clientName);

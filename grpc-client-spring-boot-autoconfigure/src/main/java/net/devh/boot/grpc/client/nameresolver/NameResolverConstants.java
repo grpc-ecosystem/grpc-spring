@@ -31,11 +31,13 @@ public final class NameResolverConstants {
     /**
      * The name of the client, that was used to create the connection.
      */
+    @Deprecated
     public static final Attributes.Key<String> PARAMS_CLIENT_NAME =
             Attributes.Key.create("params-client-name");
     /**
      * The configuration that is associated with the client.
      */
+    @Deprecated
     public static final Attributes.Key<GrpcChannelProperties> PARAMS_CLIENT_CONFIG =
             Attributes.Key.create("params-client-config");
     /**
