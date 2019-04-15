@@ -23,13 +23,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
-import io.grpc.*;
-import lombok.extern.slf4j.Slf4j;
+import io.grpc.CallOptions;
+import io.grpc.Channel;
+import io.grpc.ClientCall;
+import io.grpc.ClientInterceptor;
+import io.grpc.MethodDescriptor;
 import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
 
 @Configuration
-@Slf4j
 public class OrderedClientInterceptorConfiguration {
+
     @GrpcGlobalClientInterceptor
     @Priority(30)
     public class SecondPriorityAnnotatedInterceptor implements ClientInterceptor {
@@ -89,4 +92,5 @@ public class OrderedClientInterceptorConfiguration {
             return next.newCall(method, callOptions);
         }
     }
+
 }
