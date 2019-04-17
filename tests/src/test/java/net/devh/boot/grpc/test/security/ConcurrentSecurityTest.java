@@ -17,6 +17,7 @@
 
 package net.devh.boot.grpc.test.security;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -36,7 +38,9 @@ import io.grpc.Status.Code;
 import io.grpc.internal.testing.StreamRecorder;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import net.devh.boot.grpc.server.serverfactory.GrpcServerLifecycle;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
+import net.devh.boot.grpc.test.config.InProcessConfiguration;
 import net.devh.boot.grpc.test.config.ManualSecurityConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
 import net.devh.boot.grpc.test.config.WithBasicAuthSecurityConfiguration;
@@ -47,10 +51,13 @@ import net.devh.boot.grpc.test.util.GrpcAssertions;
 @Slf4j
 @SpringBootTest
 @SpringJUnitConfig(
-        classes = {ServiceConfiguration.class, BaseAutoConfiguration.class, ManualSecurityConfiguration.class,
-                WithBasicAuthSecurityConfiguration.class})
+        classes = {ServiceConfiguration.class, InProcessConfiguration.class, BaseAutoConfiguration.class,
+                ManualSecurityConfiguration.class, WithBasicAuthSecurityConfiguration.class})
 @DirtiesContext
 public class ConcurrentSecurityTest {
+
+    @Autowired
+    private GrpcServerLifecycle serverLifecycle;
 
     @GrpcClient("test")
     protected TestServiceStub testServiceStub;
@@ -66,6 +73,7 @@ public class ConcurrentSecurityTest {
     @Test
     @DirtiesContext
     public void testSecuredCall() throws Throwable {
+        assertTrue("Server should be running", this.serverLifecycle.isRunning());
         final int parallelCount = 10; // Limited for automated tests, increase for in depth tests
         log.info("--- Starting tests with secured call ---");
         final List<Executable> runnables = new ArrayList<>();

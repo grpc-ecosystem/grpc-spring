@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.springframework.test.annotation.DirtiesContext;
 
-import io.grpc.Channel;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceBlockingStub;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceFutureStub;
@@ -32,17 +31,6 @@ import net.devh.boot.grpc.test.util.DynamicTestCollection;
 
 public abstract class AbstractSecurityWithBasicAuthTest extends AbstractSecurityTest {
 
-    @GrpcClient(value = "bean", interceptorNames = "basicAuthInterceptor")
-    protected Channel beanChannel;
-    @GrpcClient(value = "bean", interceptorNames = "basicAuthInterceptor")
-    protected TestServiceStub beanStub;
-    @GrpcClient(value = "bean", interceptorNames = "basicAuthInterceptor")
-    protected TestServiceBlockingStub beanBlockingStub;
-    @GrpcClient(value = "bean", interceptorNames = "basicAuthInterceptor")
-    protected TestServiceFutureStub beanFutureStub;
-
-    @GrpcClient("unknownUser")
-    protected Channel unknownUserChannel;
     @GrpcClient("unknownUser")
     protected TestServiceStub unknownUserStub;
     @GrpcClient("unknownUser")
@@ -50,8 +38,6 @@ public abstract class AbstractSecurityWithBasicAuthTest extends AbstractSecurity
     @GrpcClient("unknownUser")
     protected TestServiceFutureStub unknownUserFutureStub;
 
-    @GrpcClient("noAuth")
-    protected Channel noAuthChannel;
     @GrpcClient("noAuth")
     protected TestServiceStub noAuthStub;
     @GrpcClient("noAuth")
@@ -65,15 +51,11 @@ public abstract class AbstractSecurityWithBasicAuthTest extends AbstractSecurity
     @TestFactory
     public DynamicTestCollection unprotectedCallTests() {
         return super.unprotectedCallTests()
-                .add("unprotected-bean",
-                        () -> assertNormalCallSuccess(this.beanChannel, this.beanStub, this.beanBlockingStub,
-                                this.beanFutureStub))
                 .add("unprotected-unknownUser",
-                        () -> assertNormalCallFailure(this.unknownUserChannel, this.unknownUserStub,
-                                this.unknownUserBlockingStub, this.unknownUserFutureStub, UNAUTHENTICATED))
+                        () -> assertNormalCallFailure(this.unknownUserStub, this.unknownUserBlockingStub,
+                                this.unknownUserFutureStub, UNAUTHENTICATED))
                 .add("unprotected-noAuth",
-                        () -> assertNormalCallSuccess(this.noAuthChannel, this.noAuthStub, this.noAuthBlockingStub,
-                                this.noAuthFutureStub));
+                        () -> assertNormalCallSuccess(this.noAuthStub, this.noAuthBlockingStub, this.noAuthFutureStub));
     }
 
     @Override
@@ -82,15 +64,12 @@ public abstract class AbstractSecurityWithBasicAuthTest extends AbstractSecurity
     @TestFactory
     public DynamicTestCollection unaryCallTest() {
         return super.unaryCallTest()
-                .add("unary-bean",
-                        () -> assertUnaryCallSuccess(this.beanChannel, this.beanStub, this.beanBlockingStub,
-                                this.beanFutureStub))
                 .add("unary-unknownUser",
-                        () -> assertUnaryCallFailure(this.unknownUserChannel, this.unknownUserStub,
-                                this.unknownUserBlockingStub, this.unknownUserFutureStub, UNAUTHENTICATED))
+                        () -> assertUnaryCallFailure(this.unknownUserStub, this.unknownUserBlockingStub,
+                                this.unknownUserFutureStub, UNAUTHENTICATED))
                 .add("unary-noAuth",
-                        () -> assertUnaryCallFailure(this.noAuthChannel, this.noAuthStub, this.noAuthBlockingStub,
-                                this.noAuthFutureStub, UNAUTHENTICATED));
+                        () -> assertUnaryCallFailure(this.noAuthStub, this.noAuthBlockingStub, this.noAuthFutureStub,
+                                UNAUTHENTICATED));
     }
 
     @Override
@@ -99,8 +78,6 @@ public abstract class AbstractSecurityWithBasicAuthTest extends AbstractSecurity
     @TestFactory
     public DynamicTestCollection clientStreamingCallTests() {
         return super.clientStreamingCallTests()
-                .add("clientStreaming-bean",
-                        () -> assertClientStreamingCallSuccess(this.beanStub))
                 .add("clientStreaming-unknownUser",
                         () -> assertClientStreamingCallFailure(this.unknownUserStub, UNAUTHENTICATED))
                 .add("clientStreaming-noAuth",
@@ -113,8 +90,6 @@ public abstract class AbstractSecurityWithBasicAuthTest extends AbstractSecurity
     @TestFactory
     public DynamicTestCollection serverStreamingCallTests() {
         return super.serverStreamingCallTests()
-                .add("serverStreaming-bean",
-                        () -> assertServerStreamingCallSuccess(this.beanStub))
                 .add("serverStreaming-unknownUser",
                         () -> assertServerStreamingCallFailure(this.unknownUserStub, UNAUTHENTICATED))
                 .add("serverStreaming-noAuth",
@@ -127,8 +102,6 @@ public abstract class AbstractSecurityWithBasicAuthTest extends AbstractSecurity
     @TestFactory
     public DynamicTestCollection bidiStreamingCallTests() {
         return super.bidiStreamingCallTests()
-                .add("bidiStreaming-bean",
-                        () -> assertBidiCallSuccess(this.beanStub))
                 .add("bidiStreaming-unknownUser",
                         () -> assertServerStreamingCallFailure(this.unknownUserStub, UNAUTHENTICATED))
                 .add("bidiStreaming-noAuth",
