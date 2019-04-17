@@ -24,7 +24,6 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
-import io.grpc.Attributes;
 import io.grpc.NameResolver;
 import io.grpc.NameResolver.Helper;
 import lombok.extern.slf4j.Slf4j;
@@ -33,12 +32,6 @@ import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 
 /**
  * A {@link NameResolver} factory that uses the the properties to rewrite the target uri.
- *
- * <p>
- * The delegated factory can access the {@link NameResolverConstants#PARAMS_CLIENT_NAME name} and
- * {@link NameResolverConstants#PARAMS_CLIENT_CONFIG properties} for the client via the extended and forwarded
- * {@link Attributes}.
- * </p>
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
@@ -80,28 +73,6 @@ public class ConfigMappedNameResolverFactory extends NameResolver.Factory {
         }
         log.debug("Remapping target URI for {} to {} via {}", clientName, remappedUri, this.delegate);
         return this.delegate.newNameResolver(remappedUri, helper);
-    }
-
-    @Nullable
-    @Override
-    @Deprecated
-    public NameResolver newNameResolver(final URI targetUri, final Attributes params) {
-        final String clientName = targetUri.toString();
-        final GrpcChannelProperties clientConfig = this.config.getChannel(clientName);
-        URI remappedUri = clientConfig.getAddress();
-        if (remappedUri == null) {
-            remappedUri = this.defaultUriMapper.apply(clientName);
-            if (remappedUri == null) {
-                throw new IllegalStateException("No targetUri provided for '" + clientName + "'"
-                        + " and defaultUri mapper returned null.");
-            }
-        }
-        log.debug("Remapping target URI for {} to {} via {}", clientName, remappedUri, this.delegate);
-        final Attributes extendedParas = params.toBuilder()
-                .set(NameResolverConstants.PARAMS_CLIENT_NAME, clientName)
-                .set(NameResolverConstants.PARAMS_CLIENT_CONFIG, clientConfig)
-                .build();
-        return this.delegate.newNameResolver(remappedUri, extendedParas);
     }
 
     @Override
