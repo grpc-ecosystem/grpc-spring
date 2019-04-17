@@ -24,6 +24,7 @@ import io.grpc.ClientInterceptor;
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
+@FunctionalInterface
 public interface GlobalClientInterceptorConfigurer {
 
     /**
