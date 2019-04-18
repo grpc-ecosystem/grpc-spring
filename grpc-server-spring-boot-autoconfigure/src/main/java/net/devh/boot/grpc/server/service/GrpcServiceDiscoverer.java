@@ -28,6 +28,7 @@ import net.devh.boot.grpc.server.serverfactory.GrpcServerFactory;
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
+@FunctionalInterface
 public interface GrpcServiceDiscoverer {
 
     /**

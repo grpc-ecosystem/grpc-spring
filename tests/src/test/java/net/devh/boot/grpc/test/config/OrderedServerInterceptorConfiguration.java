@@ -27,12 +27,11 @@ import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
-import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 
 @Configuration
-@Slf4j
 public class OrderedServerInterceptorConfiguration {
+
     @GrpcGlobalServerInterceptor
     @Priority(30)
     public class SecondPriorityAnnotatedInterceptor implements ServerInterceptor {
@@ -92,4 +91,5 @@ public class OrderedServerInterceptorConfiguration {
             return next.startCall(call, headers);
         }
     }
+
 }
