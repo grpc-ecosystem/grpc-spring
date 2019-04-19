@@ -20,6 +20,7 @@ package net.devh.boot.grpc.test.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import io.grpc.inprocess.InProcessChannelBuilder;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.InProcessChannelFactory;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
@@ -36,7 +37,14 @@ public class InProcessConfiguration {
     @Bean
     GrpcChannelFactory grpcChannelFactory(final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
-        return new InProcessChannelFactory(properties, globalClientInterceptorRegistry);
+        return new InProcessChannelFactory(properties, globalClientInterceptorRegistry) {
+
+            @Override
+            protected InProcessChannelBuilder newChannelBuilder(final String name) {
+                return super.newChannelBuilder("test"); // Use fixed inMemory channel name: test
+            }
+
+        };
     }
 
     @Bean

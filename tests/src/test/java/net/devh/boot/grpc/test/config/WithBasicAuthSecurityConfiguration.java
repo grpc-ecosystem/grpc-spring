@@ -17,7 +17,6 @@
 
 package net.devh.boot.grpc.test.config;
 
-import static net.devh.boot.grpc.client.security.AuthenticatingClientInterceptors.callCredentialsInterceptor;
 import static net.devh.boot.grpc.client.security.CallCredentialsHelper.basicAuth;
 
 import java.util.ArrayList;
@@ -37,22 +36,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import io.grpc.Channel;
-import io.grpc.ClientInterceptor;
+import com.google.common.collect.ImmutableMap;
+
+import io.grpc.CallCredentials;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
-import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
-import net.devh.boot.grpc.client.channelfactory.InProcessChannelFactory;
-import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
-import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
-import net.devh.boot.grpc.server.config.GrpcServerProperties;
+import net.devh.boot.grpc.client.inject.StubTransformer;
+import net.devh.boot.grpc.client.security.CallCredentialsHelper;
 import net.devh.boot.grpc.server.security.authentication.BasicGrpcAuthenticationReader;
 import net.devh.boot.grpc.server.security.authentication.CompositeGrpcAuthenticationReader;
 import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
-import net.devh.boot.grpc.server.serverfactory.GrpcServerFactory;
-import net.devh.boot.grpc.server.serverfactory.InProcessGrpcServerFactory;
-import net.devh.boot.grpc.server.service.GrpcServiceDefinition;
-import net.devh.boot.grpc.server.service.GrpcServiceDiscoverer;
 
 @Slf4j
 @Configuration
@@ -109,57 +101,20 @@ public class WithBasicAuthSecurityConfiguration {
         return new CompositeGrpcAuthenticationReader(readers);
     }
 
-    @Bean // For testing only
-    GrpcServerFactory testServerFactory(final GrpcServerProperties properties,
-            final GrpcServiceDiscoverer serviceDiscoverer) {
-        final InProcessGrpcServerFactory factory = new InProcessGrpcServerFactory("test", properties);
-        for (final GrpcServiceDefinition service : serviceDiscoverer.findGrpcServices()) {
-            factory.addService(service);
-        }
-        return factory;
-    }
-
     // Client-Side
 
     @Bean
-    @SuppressWarnings("deprecation") // Used to fake authentication based on the client's name (including Channels)
-    ClientInterceptor basicAuthInterceptor() {
-        // return AuthenticatingClientInterceptors.basicAuthInterceptor("client1", "client1");
-        return callCredentialsInterceptor(basicAuth("client1", "client1"));
+    StubTransformer mappedCredentialsStubTransformer() {
+        return CallCredentialsHelper.mappedCredentialsStubTransformer(ImmutableMap.<String, CallCredentials>builder()
+                .put("test", testCallCredentials("client1"))
+                .put("noPerm", testCallCredentials("client2"))
+                .put("unknownUser", testCallCredentials("unknownUser"))
+                // .put("noAuth", null)
+                .build());
     }
 
-    @Bean // For testing only
-    @SuppressWarnings("deprecation") // Used to fake authentication based on the client's name (including Channels)
-    GrpcChannelFactory testChannelFactory(final GrpcChannelsProperties properties,
-            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
-            final List<GrpcChannelConfigurer> channelConfigurers) {
-        return new InProcessChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers) {
-
-            @Override
-            public Channel createChannel(final String name, List<ClientInterceptor> interceptors) {
-                if ("bean".equals(name)) {
-                    // We use the GrpcClient#interceptorNames() here.
-                    return super.createChannel("test", interceptors);
-                }
-                interceptors = new ArrayList<>(interceptors);
-                // Fake per client authentication
-                String username;
-                if ("test".equals(name)) {
-                    username = "client1";
-                } else if ("noPerm".equals(name)) {
-                    username = "client2";
-                } else if ("unknownUser".equals(name)) {
-                    username = "unknownUser";
-                } else if ("noAuth".equals(name)) {
-                    return super.createChannel("test", interceptors);
-                } else {
-                    throw new IllegalArgumentException("Unknown username: " + name);
-                }
-                interceptors.add(callCredentialsInterceptor(basicAuth(username, username)));
-                return super.createChannel("test", interceptors);
-            }
-
-        };
+    private CallCredentials testCallCredentials(final String username) {
+        return basicAuth(username, username);
     }
 
 }
