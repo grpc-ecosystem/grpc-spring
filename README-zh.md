@@ -170,7 +170,7 @@ public GrpcServerConfigurer keepAliveServerConfigurer() {
   }
   ````
 
-  你可能还想定义自己的 *GrantedAuthoritiesConverter* ，将权限和角色的信息映射到 Spring Security 的`GrantedAuthority` 中
+  你可能还想定义自己的 *GrantedAuthoritiesConverter* ，将权限和角色的信息映射到 Spring Security 的 `GrantedAuthority` 中
 
 * **Certificate Authentication（证书认证）**
 
@@ -369,18 +369,18 @@ public StubTransformer authenticationStubTransformer() {
 
 #### 客户端认证
 
-**注意:** 以下列出的一些方法仅仅适用于通过注入得到的 stubs，如果你通过注入 Channel，手动的在去创建 stubs，这就需要你自己手动的去配置凭证。然而你同样能从目前所提供的一些帮助类方法中收益。
+**注意:** 以下列出的一些方法仅仅适用于通过注入得到的 stubs，如果你通过注入 Channel，手动的在去创建 stubs，这就需要你自己手动的
+去配置凭证。然而你同样能从目前所提供的一些辅助类方法中收益。
 
-客户端认证有很多种不同的方式，但目前仅仅支持其中的一部分，支持列表如下：
+客户端有许多不同的认证方式，我们只需定义一个类型为 `CallCredentials` 的 bean，它会自动作用于身份验证。目前通过一些辅助方法可以支持
+下列的认证方式：
 
 * **BasicAuth**
 
-  使用 `ClientInterceptor` (其他认证机制可以以类似的方式实现).
-
   ````java
   @Bean
-  ClientInterceptor basicAuthInterceptor() {
-      return AuthenticatingClientInterceptors.basicAuth(username, password);
+  CallCredentials grpcCredentials() {
+    return CallCredentialsHelper.basicAuth(username, password);
   }
   ````
 
