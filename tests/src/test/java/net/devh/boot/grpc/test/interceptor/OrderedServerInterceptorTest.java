@@ -29,12 +29,10 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import com.google.common.collect.Iterators;
 
 import io.grpc.ServerInterceptor;
-import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.autoconfigure.GrpcServerAutoConfiguration;
 import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorRegistry;
 import net.devh.boot.grpc.test.config.OrderedServerInterceptorConfiguration;
 
-@Slf4j
 @SpringBootTest
 @SpringJUnitConfig(classes = {OrderedServerInterceptorConfiguration.class, GrpcServerAutoConfiguration.class})
 @DirtiesContext
@@ -70,7 +68,8 @@ public class OrderedServerInterceptorTest {
         Assert.assertTrue(firstInterceptorIndex < secondInterceptorIndex);
     }
 
-    private int findIndexOfClass(List<ServerInterceptor> interceptors, Class clazz) {
+    private int findIndexOfClass(List<ServerInterceptor> interceptors, Class<?> clazz) {
         return Iterators.indexOf(interceptors.iterator(), clazz::isInstance);
     }
+
 }

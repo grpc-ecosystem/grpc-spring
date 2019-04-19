@@ -24,6 +24,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.test.config.AnnotatedSecurityConfiguration;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
+import net.devh.boot.grpc.test.config.InProcessConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
 import net.devh.boot.grpc.test.config.WithBasicAuthSecurityConfiguration;
 
@@ -35,8 +36,8 @@ import net.devh.boot.grpc.test.config.WithBasicAuthSecurityConfiguration;
 @Slf4j
 @SpringBootTest
 @SpringJUnitConfig(
-        classes = {ServiceConfiguration.class, BaseAutoConfiguration.class, AnnotatedSecurityConfiguration.class,
-                WithBasicAuthSecurityConfiguration.class})
+        classes = {ServiceConfiguration.class, InProcessConfiguration.class, BaseAutoConfiguration.class,
+                AnnotatedSecurityConfiguration.class, WithBasicAuthSecurityConfiguration.class})
 @DirtiesContext
 public class AnnotatedSecurityWithBasicAuthTest extends AbstractSecurityWithBasicAuthTest {
 

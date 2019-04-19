@@ -19,7 +19,6 @@ package net.devh.boot.grpc.test.security;
 
 import static io.grpc.Status.Code.PERMISSION_DENIED;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static net.devh.boot.grpc.test.proto.TestServiceGrpc.newBlockingStub;
 import static net.devh.boot.grpc.test.util.FutureAssertions.assertFutureEquals;
 import static net.devh.boot.grpc.test.util.GrpcAssertions.assertFutureFirstEquals;
 import static net.devh.boot.grpc.test.util.GrpcAssertions.assertFutureThrowsStatus;
@@ -36,7 +35,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.Empty;
 
-import io.grpc.Channel;
 import io.grpc.Status.Code;
 import io.grpc.internal.testing.StreamRecorder;
 import io.grpc.stub.StreamObserver;
@@ -53,16 +51,12 @@ public abstract class AbstractSecurityTest {
     protected static final Empty EMPTY = Empty.getDefaultInstance();
 
     @GrpcClient("test")
-    protected Channel channel;
-    @GrpcClient("test")
     protected TestServiceStub serviceStub;
     @GrpcClient("test")
     protected TestServiceBlockingStub blockingStub;
     @GrpcClient("test")
     protected TestServiceFutureStub futureStub;
 
-    @GrpcClient("noPerm")
-    protected Channel noPermChannel;
     @GrpcClient("noPerm")
     protected TestServiceStub noPermStub;
     @GrpcClient("noPerm")
@@ -81,33 +75,28 @@ public abstract class AbstractSecurityTest {
     public DynamicTestCollection unprotectedCallTests() {
         return DynamicTestCollection.create()
                 .add("unprotected-default",
-                        () -> assertNormalCallSuccess(this.channel, this.serviceStub, this.blockingStub,
-                                this.futureStub))
+                        () -> assertNormalCallSuccess(this.serviceStub, this.blockingStub, this.futureStub))
                 .add("unprotected-noPerm",
-                        () -> assertNormalCallSuccess(this.noPermChannel, this.noPermStub, this.noPermBlockingStub,
-                                this.noPermFutureStub));
+                        () -> assertNormalCallSuccess(this.noPermStub, this.noPermBlockingStub, this.noPermFutureStub));
     }
 
-    protected void assertNormalCallSuccess(final Channel channel,
-            final TestServiceStub serviceStub,
+    protected void assertNormalCallSuccess(final TestServiceStub serviceStub,
             final TestServiceBlockingStub blockingStub,
             final TestServiceFutureStub futureStub) {
-        assertUnarySuccessfulMethod(channel,
-                serviceStub, TestServiceStub::normal,
-                blockingStub, TestServiceBlockingStub::normal,
-                futureStub, TestServiceFutureStub::normal);
+        assertUnarySuccessfulMethod(serviceStub,
+                TestServiceStub::normal, blockingStub,
+                TestServiceBlockingStub::normal, futureStub,
+                TestServiceFutureStub::normal);
     }
 
-    protected void assertNormalCallFailure(final Channel channel,
-            final TestServiceStub serviceStub,
+    protected void assertNormalCallFailure(final TestServiceStub serviceStub,
             final TestServiceBlockingStub blockingStub,
             final TestServiceFutureStub futureStub,
             final Code expectedCode) {
-        assertUnaryFailingMethod(channel,
-                serviceStub, TestServiceStub::normal,
-                blockingStub, TestServiceBlockingStub::normal,
-                futureStub, TestServiceFutureStub::normal,
-                expectedCode);
+        assertUnaryFailingMethod(serviceStub,
+                TestServiceStub::normal, blockingStub,
+                TestServiceBlockingStub::normal, futureStub,
+                TestServiceFutureStub::normal, expectedCode);
     }
 
     /**
@@ -121,33 +110,29 @@ public abstract class AbstractSecurityTest {
     public DynamicTestCollection unaryCallTest() {
         return DynamicTestCollection.create()
                 .add("unary-default",
-                        () -> assertUnaryCallSuccess(this.channel, this.serviceStub, this.blockingStub,
-                                this.futureStub))
+                        () -> assertUnaryCallSuccess(this.serviceStub, this.blockingStub, this.futureStub))
                 .add("unary-noPerm",
-                        () -> assertUnaryCallFailure(this.noPermChannel, this.noPermStub, this.noPermBlockingStub,
-                                this.noPermFutureStub, PERMISSION_DENIED));
+                        () -> assertUnaryCallFailure(this.noPermStub, this.noPermBlockingStub, this.noPermFutureStub,
+                                PERMISSION_DENIED));
     }
 
-    protected void assertUnaryCallSuccess(final Channel channel,
-            final TestServiceStub serviceStub,
+    protected void assertUnaryCallSuccess(final TestServiceStub serviceStub,
             final TestServiceBlockingStub blockingStub,
             final TestServiceFutureStub futureStub) {
-        assertUnarySuccessfulMethod(channel,
-                serviceStub, TestServiceStub::secure,
-                blockingStub, TestServiceBlockingStub::secure,
-                futureStub, TestServiceFutureStub::secure);
+        assertUnarySuccessfulMethod(serviceStub,
+                TestServiceStub::secure, blockingStub,
+                TestServiceBlockingStub::secure, futureStub,
+                TestServiceFutureStub::secure);
     }
 
-    protected void assertUnaryCallFailure(final Channel channel,
-            final TestServiceStub serviceStub,
+    protected void assertUnaryCallFailure(final TestServiceStub serviceStub,
             final TestServiceBlockingStub blockingStub,
             final TestServiceFutureStub futureStub,
             final Code expectedCode) {
-        assertUnaryFailingMethod(channel,
-                serviceStub, TestServiceStub::secure,
-                blockingStub, TestServiceBlockingStub::secure,
-                futureStub, TestServiceFutureStub::secure,
-                expectedCode);
+        assertUnaryFailingMethod(serviceStub,
+                TestServiceStub::secure, blockingStub,
+                TestServiceBlockingStub::secure, futureStub,
+                TestServiceFutureStub::secure, expectedCode);
     }
 
     /**
@@ -236,15 +221,12 @@ public abstract class AbstractSecurityTest {
 
     // -------------------------------------
 
-    protected void assertUnarySuccessfulMethod(final Channel channel,
-            final TestServiceStub serviceStub,
+    protected void assertUnarySuccessfulMethod(final TestServiceStub serviceStub,
             final TriConsumer<TestServiceStub, Empty, StreamRecorder<SomeType>> serviceCall,
             final TestServiceBlockingStub blockingStub,
             final BiFunction<TestServiceBlockingStub, Empty, SomeType> blockingcall,
             final TestServiceFutureStub futureStub,
             final BiFunction<TestServiceFutureStub, Empty, ListenableFuture<SomeType>> futureCall) {
-
-        assertEquals("1.2.3", blockingcall.apply(newBlockingStub(channel), EMPTY).getVersion());
 
         final StreamRecorder<SomeType> responseRecorder = StreamRecorder.create();
         serviceCall.accept(serviceStub, EMPTY, responseRecorder);
@@ -254,16 +236,13 @@ public abstract class AbstractSecurityTest {
         assertFutureEquals("1.2.3", futureCall.apply(futureStub, EMPTY), SomeType::getVersion, 5, SECONDS);
     }
 
-    protected void assertUnaryFailingMethod(final Channel channel,
-            final TestServiceStub serviceStub,
+    protected void assertUnaryFailingMethod(final TestServiceStub serviceStub,
             final TriConsumer<TestServiceStub, Empty, StreamRecorder<SomeType>> serviceCall,
             final TestServiceBlockingStub blockingStub,
             final BiFunction<TestServiceBlockingStub, Empty, SomeType> blockingcall,
             final TestServiceFutureStub futureStub,
             final BiFunction<TestServiceFutureStub, Empty, ListenableFuture<SomeType>> futureCall,
             final Code expectedCode) {
-
-        assertThrowsStatus(expectedCode, () -> blockingcall.apply(newBlockingStub(channel), EMPTY));
 
         final StreamRecorder<SomeType> responseRecorder = StreamRecorder.create();
         serviceCall.accept(serviceStub, EMPTY, responseRecorder);

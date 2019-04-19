@@ -136,7 +136,7 @@ public final class ManualGrpcSecurityMetadataSource extends AbstractGrpcSecurity
      * @param predicate The predicate to wrap.
      * @return The newly created list with the given predicate.
      */
-    protected Collection<ConfigAttribute> wrap(final AccessPredicate predicate) {
+    private Collection<ConfigAttribute> wrap(final AccessPredicate predicate) {
         requireNonNull(predicate, "predicate");
         if (predicate == AccessPredicates.PERMIT_ALL) {
             return of(); // Empty collection => public invocation

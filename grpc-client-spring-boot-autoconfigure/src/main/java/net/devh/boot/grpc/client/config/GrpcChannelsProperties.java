@@ -45,7 +45,7 @@ public class GrpcChannelsProperties {
      */
     public static final String GLOBAL_PROPERTIES_KEY = "GLOBAL";
 
-    private final Map<String, GrpcChannelProperties> client = new ConcurrentHashMap<>();;
+    private final Map<String, GrpcChannelProperties> client = new ConcurrentHashMap<>();
 
     /**
      * Gets the configuration mapping for each client.

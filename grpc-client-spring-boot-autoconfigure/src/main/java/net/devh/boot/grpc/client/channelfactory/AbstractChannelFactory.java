@@ -143,8 +143,8 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
     }
 
     /**
-     * Configures the given netty channel builder. This method can be overwritten to add features that are not yet
-     * supported by this library.
+     * Configures the given channel builder. This method can be overwritten to add features that are not yet supported
+     * by this library.
      *
      * @param builder The channel builder to configure.
      * @param name The name of the client to configure.
