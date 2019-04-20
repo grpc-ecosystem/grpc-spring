@@ -28,9 +28,9 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
-import io.grpc.Attributes;
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
+import io.grpc.NameResolver.Helper;
 import io.grpc.NameResolverProvider;
 
 /**
@@ -48,7 +48,7 @@ public class StaticNameResolverProvider extends NameResolverProvider {
     /**
      * The default URI to use if target address is configured.
      */
-    public static final URI STATIC_DEFAULT_URI = URI.create("static://localhost:" + NameResolverConstants.DEFAULT_PORT);
+    public static final URI STATIC_DEFAULT_URI = URI.create("static://localhost:9090");
     /**
      * The function that should be used as default uri mapper, if no name based default can be computed.
      */
@@ -58,7 +58,7 @@ public class StaticNameResolverProvider extends NameResolverProvider {
 
     @Nullable
     @Override
-    public NameResolver newNameResolver(final URI targetUri, final Attributes params) {
+    public NameResolver newNameResolver(final URI targetUri, final Helper params) {
         if (STATIC_SCHEME.equals(targetUri.getScheme())) {
             return of(targetUri.getAuthority(), params);
         }
@@ -69,10 +69,10 @@ public class StaticNameResolverProvider extends NameResolverProvider {
      * Creates a new {@link NameResolver} for the given authority and attributes.
      *
      * @param targetAuthority The authority to connect to.
-     * @param params Optional parameters that customize the resolve process.
+     * @param helper Optional parameters that customize the resolve process.
      * @return The newly created name resolver for the given target.
      */
-    private NameResolver of(final String targetAuthority, final Attributes params) {
+    private NameResolver of(final String targetAuthority, final Helper helper) {
         requireNonNull(targetAuthority, "targetAuthority");
         // Determine target ips
         final String[] hosts = PATTERN_COMMA.split(targetAuthority);
@@ -81,12 +81,7 @@ public class StaticNameResolverProvider extends NameResolverProvider {
             final URI uri = URI.create("//" + host);
             int port = uri.getPort();
             if (port == -1) {
-                final Integer defaultPort = params.get(NameResolver.Factory.PARAMS_DEFAULT_PORT);
-                if (defaultPort == null) {
-                    port = NameResolverConstants.DEFAULT_PORT;
-                } else {
-                    port = defaultPort;
-                }
+                port = helper.getDefaultPort();
             }
             targets.add(new EquivalentAddressGroup(new InetSocketAddress(uri.getHost(), port)));
         }

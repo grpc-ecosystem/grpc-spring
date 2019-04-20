@@ -24,7 +24,6 @@ import java.util.List;
 
 import javax.net.ssl.SSLException;
 
-import io.grpc.LoadBalancer;
 import io.grpc.NameResolver;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyChannelBuilder;
@@ -46,42 +45,35 @@ import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  * @since 5/17/16
  */
+// Keep this file in sync with ShadedNettyChannelFactory
 public class NettyChannelFactory extends AbstractChannelFactory<NettyChannelBuilder> {
 
-    private final LoadBalancer.Factory loadBalancerFactory;
     private final NameResolver.Factory nameResolverFactory;
 
     /**
      * Creates a new GrpcChannelFactory for netty with the given options.
      *
      * @param properties The properties for the channels to create.
-     * @param loadBalancerFactory The load balancer factory to use.
      * @param nameResolverFactory The name resolver factory to use.
      * @param globalClientInterceptorRegistry The interceptor registry to use.
      * @param channelConfigurers The channel configurers to use. Can be empty.
      */
     public NettyChannelFactory(final GrpcChannelsProperties properties,
-            final LoadBalancer.Factory loadBalancerFactory,
             final NameResolver.Factory nameResolverFactory,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
         super(properties, globalClientInterceptorRegistry, channelConfigurers);
-        this.loadBalancerFactory = requireNonNull(loadBalancerFactory, "loadBalancerFactory");
         this.nameResolverFactory = requireNonNull(nameResolverFactory, "nameResolverFactory");
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    // TODO: Remove the #loadBalancerFactory() call and replace it with a string property
-    // This would break grpc compatibility with pre 1.18 versions.
     protected NettyChannelBuilder newChannelBuilder(final String name) {
         return NettyChannelBuilder.forTarget(name)
-                .loadBalancerFactory(this.loadBalancerFactory)
+                .defaultLoadBalancingPolicy(getPropertiesFor(name).getDefaultLoadBalancingPolicy())
                 .nameResolverFactory(this.nameResolverFactory);
     }
 
     @Override
-    // Keep this in sync with ShadedNettyChannelFactory#configureSecurity
     protected void configureSecurity(final NettyChannelBuilder builder, final String name) {
         final GrpcChannelProperties properties = getPropertiesFor(name);
 

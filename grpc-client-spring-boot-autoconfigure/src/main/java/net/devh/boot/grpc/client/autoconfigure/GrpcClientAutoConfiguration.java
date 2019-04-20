@@ -24,16 +24,17 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
-import io.grpc.Attributes;
 import io.grpc.CompressorRegistry;
 import io.grpc.DecompressorRegistry;
 import io.grpc.LoadBalancer;
+import io.grpc.ManagedChannelBuilder;
 import io.grpc.NameResolver;
 import io.grpc.NameResolverProvider;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
@@ -41,13 +42,13 @@ import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.InProcessChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.NettyChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.ShadedNettyChannelFactory;
+import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 import net.devh.boot.grpc.client.inject.GrpcClientBeanPostProcessor;
 import net.devh.boot.grpc.client.interceptor.AnnotationGlobalClientInterceptorConfigurer;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 import net.devh.boot.grpc.client.nameresolver.CompositeNameResolverFactory;
 import net.devh.boot.grpc.client.nameresolver.ConfigMappedNameResolverFactory;
-import net.devh.boot.grpc.client.nameresolver.NameResolverConstants;
 import net.devh.boot.grpc.client.nameresolver.StaticNameResolverProvider;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 
@@ -84,13 +85,25 @@ public class GrpcClientAutoConfiguration {
         return new AnnotationGlobalClientInterceptorConfigurer();
     }
 
-    @ConditionalOnMissingBean
-    @Lazy // Not needed for InProcessChannelFactories
+    /**
+     * Creates the load balancer configurer bean for the given load balancer factory.
+     *
+     * @param loadBalancerFactory The factory that should be used for all
+     * @return The load balancer factory bean.
+     *
+     * @see ManagedChannelBuilder#loadBalancerFactory(io.grpc.LoadBalancer.Factory)
+     *
+     * @deprecated This method disables service-config-based policy selection, and may cause problems if NameResolver
+     *             returns GRPCLB balancer addresses but a non-GRPCLB LoadBalancer is passed in here. Use
+     *             {@link GrpcChannelProperties#setDefaultLoadBalancingPolicy(String)} instead.
+     */
+    @ConditionalOnSingleCandidate(LoadBalancer.Factory.class)
+    @ConditionalOnMissingBean(name = "grpcLoadBalancerConfigurer")
     @Bean
-    @SuppressWarnings("deprecation") // Required to stay compatible with pre 1.17.0 versions
-    public LoadBalancer.Factory grpcLoadBalancerFactory() {
-        return io.grpc.util.RoundRobinLoadBalancerFactory.getInstance();
-        // return LoadBalancerRegistry.getDefaultRegistry().getProvider("round_robin");
+    @SuppressWarnings("deprecation")
+    @Deprecated
+    public GrpcChannelConfigurer grpcLoadBalancerConfigurer(final LoadBalancer.Factory loadBalancerFactory) {
+        return (channel, name) -> channel.loadBalancerFactory(loadBalancerFactory);
     }
 
     /**
@@ -104,12 +117,6 @@ public class GrpcClientAutoConfiguration {
      * <li>If you need access to other beans, then you have to redefine this bean and use a
      * {@link CompositeNameResolverFactory} as the delegate for the {@link ConfigMappedNameResolverFactory}.</li>
      * </ul>
-     *
-     * <p>
-     * You can access the client {@link NameResolverConstants#PARAMS_CLIENT_NAME name} and
-     * {@link NameResolverConstants#PARAMS_CLIENT_CONFIG properties} via the {@link Attributes params} that are used to
-     * create the name resolver.
-     * </p>
      *
      * @param channelProperties The properties for the channels.
      * @return The default config mapped name resolver factory.
@@ -148,11 +155,10 @@ public class GrpcClientAutoConfiguration {
             "io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder"})
     @Bean
     public GrpcChannelFactory shadedNettyGrpcChannelFactory(final GrpcChannelsProperties properties,
-            final LoadBalancer.Factory loadBalancerFactory,
             final NameResolver.Factory nameResolverFactory,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
-        return new ShadedNettyChannelFactory(properties, loadBalancerFactory, nameResolverFactory,
+        return new ShadedNettyChannelFactory(properties, nameResolverFactory,
                 globalClientInterceptorRegistry, channelConfigurers);
     }
 
@@ -161,11 +167,10 @@ public class GrpcClientAutoConfiguration {
     @ConditionalOnClass(name = {"io.netty.channel.Channel", "io.grpc.netty.NettyChannelBuilder"})
     @Bean
     public GrpcChannelFactory nettyGrpcChannelFactory(final GrpcChannelsProperties properties,
-            final LoadBalancer.Factory loadBalancerFactory,
             final NameResolver.Factory nameResolverFactory,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
-        return new NettyChannelFactory(properties, loadBalancerFactory, nameResolverFactory,
+        return new NettyChannelFactory(properties, nameResolverFactory,
                 globalClientInterceptorRegistry, channelConfigurers);
     }
 

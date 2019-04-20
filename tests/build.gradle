@@ -23,10 +23,10 @@ eclipse {
 compileTestJava.dependsOn(processTestResources)
 
 dependencies {
-    // compile "io.grpc:grpc-netty:${grpcVersion}"
-    compile "io.grpc:grpc-netty-shaded:${grpcVersion}"
-    compile "io.grpc:grpc-protobuf:${grpcVersion}"
-    compile "io.grpc:grpc-stub:${grpcVersion}"
+    // compile "io.grpc:grpc-netty"
+    compile "io.grpc:grpc-netty-shaded"
+    compile "io.grpc:grpc-protobuf"
+    compile "io.grpc:grpc-stub"
 }
 
 protobuf {
@@ -39,7 +39,7 @@ protobuf {
     }
     plugins {
         grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+            artifact = "io.grpc:protoc-gen-grpc-java"
         }
     }
     generateProtoTasks {
@@ -73,7 +73,7 @@ dependencies {
         compile 'javax.annotation:javax.annotation-api:1.3.1'
     }
     testImplementation(
-        "io.grpc:grpc-testing:${grpcVersion}",
+        "io.grpc:grpc-testing",
         "org.springframework.boot:spring-boot-starter-test",
         "org.springframework.boot:spring-boot-starter-actuator",
         "org.springframework.security:spring-security-config",

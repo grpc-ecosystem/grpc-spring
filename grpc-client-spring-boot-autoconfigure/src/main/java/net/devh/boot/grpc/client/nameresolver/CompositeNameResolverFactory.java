@@ -26,8 +26,8 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
 
-import io.grpc.Attributes;
 import io.grpc.NameResolver;
+import io.grpc.NameResolver.Helper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -43,6 +43,12 @@ public class CompositeNameResolverFactory extends NameResolver.Factory {
     private final List<NameResolver.Factory> factories;
     private final String defaultScheme;
 
+    /**
+     * Creates a new composite name resolver factory.
+     *
+     * @param defaultScheme The default scheme to use, if no scheme is specified.
+     * @param factories The factories used to resolve the address.
+     */
     public CompositeNameResolverFactory(final String defaultScheme, final List<NameResolver.Factory> factories) {
         this.factories = ImmutableList.copyOf(requireNonNull(factories, "factories"));
         this.defaultScheme = requireNonNull(defaultScheme, "defaultScheme");
@@ -50,11 +56,11 @@ public class CompositeNameResolverFactory extends NameResolver.Factory {
 
     @Nullable
     @Override
-    public NameResolver newNameResolver(final URI targetUri, final Attributes params) {
+    public NameResolver newNameResolver(final URI targetUri, final Helper helper) {
         log.debug("Trying to create new name resolver for: {}", targetUri);
         for (final NameResolver.Factory factory : this.factories) {
             log.debug("- Attempting with: {}", factory);
-            final NameResolver resolver = factory.newNameResolver(targetUri, params);
+            final NameResolver resolver = factory.newNameResolver(targetUri, helper);
             if (resolver != null) {
                 return resolver;
             }

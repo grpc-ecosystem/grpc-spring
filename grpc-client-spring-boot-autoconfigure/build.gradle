@@ -17,13 +17,13 @@ dependencies {
     compileOnly("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:${springCloudEurekaVersion}")
     compileOnly("io.zipkin.brave:brave-instrumentation-grpc:${braveInstrumentationGrpc}")
     compileOnly("javax.inject:javax.inject:1")
-    compileOnly("io.grpc:grpc-netty:${grpcVersion}")
-    compile("io.grpc:grpc-netty-shaded:${grpcVersion}")
-    compile("io.grpc:grpc-protobuf:${grpcVersion}")
-    compile("io.grpc:grpc-stub:${grpcVersion}")
+    compileOnly("io.grpc:grpc-netty")
+    compile("io.grpc:grpc-netty-shaded")
+    compile("io.grpc:grpc-protobuf")
+    compile("io.grpc:grpc-stub")
 
     testImplementation(
-        "io.grpc:grpc-testing:${grpcVersion}",
+        "io.grpc:grpc-testing",
         "org.springframework.boot:spring-boot-starter-test",
         "org.junit.jupiter:junit-jupiter-api:${jUnitVersion}"
     )

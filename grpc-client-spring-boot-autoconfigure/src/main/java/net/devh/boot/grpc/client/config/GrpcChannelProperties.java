@@ -21,11 +21,11 @@ import java.io.File;
 import java.net.URI;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.boot.convert.DurationUnit;
 
+import io.grpc.LoadBalancerRegistry;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.NameResolverProvider;
 import io.grpc.internal.DnsNameResolverProvider;
@@ -117,52 +117,34 @@ public class GrpcChannelProperties {
         this.address = address == null ? null : URI.create(address);
     }
 
+    // --------------------------------------------------
+    // defaultLoadBalancingPolicy
+    // --------------------------------------------------
+
+    private String defaultLoadBalancingPolicy;
+    private static final String DEFAULT_DEFAULT_LOAD_BALANCING_POLICY = "round_robin";
+
     /**
-     * Removed property.
+     * Gets the default load balancing policy this channel should use.
      *
-     * @param host Removed.
-     * @deprecated Use {@link #setAddress(String)} instead.
+     * @return The default load balancing policy.
+     * @see ManagedChannelBuilder#defaultLoadBalancingPolicy(String)
      */
-    @Deprecated
-    public void setHost(final String host) {
-        throw new UnsupportedOperationException(
-                "Use the 'address' attribute with 'static://host1:port1,...,hostn:portn' instead");
+    public String getDefaultLoadBalancingPolicy() {
+        return this.defaultLoadBalancingPolicy == null ? DEFAULT_DEFAULT_LOAD_BALANCING_POLICY
+                : this.defaultLoadBalancingPolicy;
     }
 
     /**
-     * Removed property.
+     * Sets the default load balancing policy for this channel. This config might be overwritten by the service config
+     * received from the target address. The names have to be resolvable from the {@link LoadBalancerRegistry}. By
+     * default this the {@code round_robin} policy. Please note that this policy is different from the normal grpc-java
+     * default policy {@code pick_first}.
      *
-     * @param hosts Removed.
-     * @deprecated Use {@link #setAddress(String)} instead.
+     * @param defaultLoadBalancingPolicy The default load balancing policy to use or null to use the fallback.
      */
-    @Deprecated
-    public void setHost(final List<String> hosts) {
-        throw new UnsupportedOperationException(
-                "Use the 'address' attribute with 'static://host1:port1,...,hostn:portn' instead");
-    }
-
-    /**
-     * Removed property.
-     *
-     * @param port Removed.
-     * @deprecated Use {@link #setAddress(String)} instead.
-     */
-    @Deprecated
-    public void setPort(final String port) {
-        throw new UnsupportedOperationException(
-                "Use the 'address' attribute with 'static://host1:port1,...,hostn:portn' instead");
-    }
-
-    /**
-     * Removed property.
-     *
-     * @param ports Removed.
-     * @deprecated Use {@link #setAddress(String)} instead.
-     */
-    @Deprecated
-    public void setPort(final List<String> ports) {
-        throw new UnsupportedOperationException(
-                "Use the 'address' attribute with 'static://host1:port1,...,hostn:portn' instead");
+    public void setDefaultLoadBalancingPolicy(final String defaultLoadBalancingPolicy) {
+        this.defaultLoadBalancingPolicy = defaultLoadBalancingPolicy;
     }
 
     // --------------------------------------------------
@@ -401,6 +383,9 @@ public class GrpcChannelProperties {
         }
         if (this.address == null) {
             this.address = config.address;
+        }
+        if (this.defaultLoadBalancingPolicy == null) {
+            this.defaultLoadBalancingPolicy = config.defaultLoadBalancingPolicy;
         }
         if (this.enableKeepAlive == null) {
             this.enableKeepAlive = config.enableKeepAlive;

@@ -31,7 +31,6 @@ import java.util.concurrent.Executor;
 import javax.annotation.Nullable;
 
 import io.grpc.CallCredentials;
-import io.grpc.CallCredentials2;
 import io.grpc.Channel;
 import io.grpc.Metadata;
 import io.grpc.SecurityLevel;
@@ -57,8 +56,8 @@ import net.devh.boot.grpc.client.inject.StubTransformer;
  * </p>
  * <ul>
  * <li>{@link #basicAuth(String, String) Basic-Auth}</li>
- * <li>{@link #requirePrivacy(CallCredentials2) Require privacy for the connection} (Wrapper)</li>
- * <li>{@link #includeWhenPrivate(CallCredentials2) Include credentials only if connection is private} (Wrapper)</li>
+ * <li>{@link #requirePrivacy(CallCredentials) Require privacy for the connection} (Wrapper)</li>
+ * <li>{@link #includeWhenPrivate(CallCredentials) Include credentials only if connection is private} (Wrapper)</li>
  * </ul>
  *
  * <p>
@@ -168,7 +167,7 @@ public class CallCredentialsHelper {
      * @param token the bearer token to use
      * @return The newly created bearer auth credentials.
      */
-    public static CallCredentials2 bearerAuth(final String token) {
+    public static CallCredentials bearerAuth(final String token) {
         final Metadata extraHeaders = new Metadata();
         extraHeaders.put(AUTHORIZATION_HEADER, BEARER_AUTH_PREFIX + token);
         return new StaticSecurityHeaderCallCredentials(extraHeaders);
@@ -185,7 +184,7 @@ public class CallCredentialsHelper {
      * @param password The password to use.
      * @return The newly created basic auth credentials.
      */
-    public static CallCredentials2 basicAuth(final String username, final String password) {
+    public static CallCredentials basicAuth(final String username, final String password) {
         final Metadata extraHeaders = new Metadata();
         extraHeaders.put(AUTHORIZATION_HEADER, encodeBasicAuth(username, password));
         return new StaticSecurityHeaderCallCredentials(extraHeaders);
@@ -212,7 +211,7 @@ public class CallCredentialsHelper {
         return BASIC_AUTH_PREFIX + new String(encoded, UTF_8);
     }
 
-    private static final class StaticSecurityHeaderCallCredentials extends CallCredentials2 {
+    private static final class StaticSecurityHeaderCallCredentials extends CallCredentials {
 
         private final Metadata extraHeaders;
 
@@ -220,7 +219,6 @@ public class CallCredentialsHelper {
             this.extraHeaders = requireNonNull(extraHeaders, "extraHeaders");
         }
 
-        @SuppressWarnings("deprecation") // API evolution in progress
         @Override
         public void applyRequestMetadata(final RequestInfo requestInfo, final Executor appExecutor,
                 final MetadataApplier applier) {
@@ -258,22 +256,21 @@ public class CallCredentialsHelper {
      * @param callCredentials The call credentials to wrap.
      * @return The newly created call credentials.
      */
-    public static CallCredentials requirePrivacy(final CallCredentials2 callCredentials) {
+    public static CallCredentials requirePrivacy(final CallCredentials callCredentials) {
         return new RequirePrivacyCallCredentials(callCredentials);
     }
 
-    private static final class RequirePrivacyCallCredentials extends CallCredentials2 {
+    private static final class RequirePrivacyCallCredentials extends CallCredentials {
 
         private static final Status STATUS_LACKING_PRIVACY = Status.UNAUTHENTICATED
                 .withDescription("Connection security level does not ensure credential privacy");
 
-        private final CallCredentials2 callCredentials;
+        private final CallCredentials callCredentials;
 
-        RequirePrivacyCallCredentials(final CallCredentials2 callCredentials) {
+        RequirePrivacyCallCredentials(final CallCredentials callCredentials) {
             this.callCredentials = callCredentials;
         }
 
-        @SuppressWarnings("deprecation") // API evolution in progress
         @Override
         public void applyRequestMetadata(final RequestInfo requestInfo, final Executor appExecutor,
                 final MetadataApplier applier) {
@@ -301,15 +298,15 @@ public class CallCredentialsHelper {
      * @param callCredentials The call credentials to wrap.
      * @return The newly created call credentials.
      */
-    public static CallCredentials includeWhenPrivate(final CallCredentials2 callCredentials) {
+    public static CallCredentials includeWhenPrivate(final CallCredentials callCredentials) {
         return new IncludeWhenPrivateCallCredentials(callCredentials);
     }
 
-    private static final class IncludeWhenPrivateCallCredentials extends CallCredentials2 {
+    private static final class IncludeWhenPrivateCallCredentials extends CallCredentials {
 
-        private final CallCredentials2 callCredentials;
+        private final CallCredentials callCredentials;
 
-        IncludeWhenPrivateCallCredentials(final CallCredentials2 callCredentials) {
+        IncludeWhenPrivateCallCredentials(final CallCredentials callCredentials) {
             this.callCredentials = callCredentials;
         }
 
