@@ -211,6 +211,10 @@ public class CallCredentialsHelper {
         return BASIC_AUTH_PREFIX + new String(encoded, UTF_8);
     }
 
+    /**
+     * The static security header {@link CallCredentials} simply add a set of predefined headers to the call. Their
+     * specific meaning is server specific. This implementation can be used, for example, for BasicAuth.
+     */
     private static final class StaticSecurityHeaderCallCredentials extends CallCredentials {
 
         private final Metadata extraHeaders;
@@ -227,6 +231,11 @@ public class CallCredentialsHelper {
 
         @Override
         public void thisUsesUnstableApi() {} // API evolution in progress
+
+        @Override
+        public String toString() {
+            return "StaticSecurityHeaderCallCredentials [extraHeaders=" + this.extraHeaders + "]";
+        }
 
     }
 
@@ -260,6 +269,12 @@ public class CallCredentialsHelper {
         return new RequirePrivacyCallCredentials(callCredentials);
     }
 
+    /**
+     * A call credentials implementation with slightly increased security requirements. It ensures that the credentials
+     * aren't send via an insecure connection. However, it does not prevent requests via insecure connections. This
+     * wrapper does not have any other influence on the security of the underlying {@link CallCredentials}
+     * implementation.
+     */
     private static final class RequirePrivacyCallCredentials extends CallCredentials {
 
         private static final Status STATUS_LACKING_PRIVACY = Status.UNAUTHENTICATED
@@ -284,8 +299,12 @@ public class CallCredentialsHelper {
         @Override
         public void thisUsesUnstableApi() {} // API evolution in progress
 
-    }
+        @Override
+        public String toString() {
+            return "RequirePrivacyCallCredentials [callCredentials=" + this.callCredentials + "]";
+        }
 
+    }
 
     /**
      * Wraps the given call credentials in a new layer, that will only include the credentials if the connection
@@ -302,6 +321,11 @@ public class CallCredentialsHelper {
         return new IncludeWhenPrivateCallCredentials(callCredentials);
     }
 
+    /**
+     * A call credentials implementation with increased security requirements. It ensures that the credentials and
+     * requests aren't send via an insecure connection. This wrapper does not have any other influence on the security
+     * of the underlying {@link CallCredentials} implementation.
+     */
     private static final class IncludeWhenPrivateCallCredentials extends CallCredentials {
 
         private final CallCredentials callCredentials;
@@ -320,6 +344,11 @@ public class CallCredentialsHelper {
 
         @Override
         public void thisUsesUnstableApi() {} // API evolution in progress
+
+        @Override
+        public String toString() {
+            return "IncludeWhenPrivateCallCredentials [callCredentials=" + this.callCredentials + "]";
+        }
 
     }
 
