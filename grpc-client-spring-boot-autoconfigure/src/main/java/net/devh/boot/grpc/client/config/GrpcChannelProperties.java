@@ -550,6 +550,42 @@ public class GrpcChannelProperties {
 
         // --------------------------------------------------
 
+        private String ciphers = null;
+
+        /**
+         * @return The cipher suite accepted for secure connections or null.
+         */
+        public String getCiphers() {
+            return ciphers;
+        }
+
+        /**
+         * @param ciphers Cipher suite consisting of one or more cipher strings separated by colons, commas or spaces
+         */
+        public void setCiphers(String ciphers) {
+            this.ciphers = ciphers;
+        }
+
+        // --------------------------------------------------
+
+        private String protocols = null;
+
+        /**
+         * @return The protocols accepted for secure connections or null.
+         */
+        public String getProtocols() {
+            return protocols;
+        }
+
+        /**
+         * @param protocols Protocol list consisting of one or more protocols separated by colons, commas or spaces.
+         */
+        public void setProtocols(String protocols) {
+            this.protocols = protocols;
+        }
+
+        // --------------------------------------------------
+
         /**
          * Copies the defaults from the given configuration. Values are considered "default" if they are null. Please
          * note that the getters might return fallback values instead.
