@@ -237,7 +237,8 @@ public class GrpcServerProperties {
          * Specifies the protocols accepted for secure connections. If {@code null} or empty it will use the system's
          * default (all supported) protocols.
          *
-         * @return The  cipher suites accepted for secure connections or null.
+         * @param protocols Protocol list consisting of one or more protocols separated by colons, commas or spaces.
+         * @return The protocols accepted for secure connections or null.
          */
         private String protocols = null;
 
