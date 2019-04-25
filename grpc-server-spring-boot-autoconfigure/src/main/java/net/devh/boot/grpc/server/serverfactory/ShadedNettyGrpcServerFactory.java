@@ -19,6 +19,7 @@ package net.devh.boot.grpc.server.serverfactory;
 
 import java.io.File;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -92,6 +93,18 @@ public class ShadedNettyGrpcServerFactory
                     final File trustCertCollectionFile = toCheckedFile("trustCertCollection", trustCertCollectionPath);
                     sslContextBuilder.trustManager(trustCertCollectionFile);
                 }
+            }
+
+            if(security.getCiphers() != null && !security.getCiphers().isEmpty()) {
+                // splits the cipher list at colons, commas or spaces
+                String[] extractedCiphers = security.getCiphers().split("[:, ]");
+                sslContextBuilder.ciphers(Arrays.asList(extractedCiphers));
+            }
+
+            if(security.getProtocols() != null && !security.getProtocols().isEmpty()) {
+                // splits the protocol list at colons, commas or spaces
+                String[] extractedProtocols = security.getProtocols().split("[:, ]");
+                sslContextBuilder.protocols(extractedProtocols);
             }
 
             try {
