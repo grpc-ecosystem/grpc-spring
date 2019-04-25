@@ -20,6 +20,7 @@ package net.devh.boot.grpc.client.channelfactory;
 import static java.util.Objects.requireNonNull;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.net.ssl.SSLException;
@@ -98,6 +99,18 @@ public class ShadedNettyChannelFactory extends AbstractChannelFactory<NettyChann
             if (trustCertCollectionPath != null && !trustCertCollectionPath.isEmpty()) {
                 final File trustCertCollectionFile = toCheckedFile("trustCertCollection", trustCertCollectionPath);
                 sslContextBuilder.trustManager(trustCertCollectionFile);
+            }
+
+            if(security.getCiphers() != null && !security.getCiphers().isEmpty()) {
+                // splits the cipher list at colons, commas or spaces
+                String[] extractedCiphers = security.getCiphers().split("[:, ]");
+                sslContextBuilder.ciphers(Arrays.asList(extractedCiphers));
+            }
+
+            if(security.getProtocols() != null && !security.getProtocols().isEmpty()) {
+                // splits the protocol list at colons, commas or spaces
+                String[] extractedProtocols = security.getProtocols().split("[:, ]");
+                sslContextBuilder.protocols(extractedProtocols);
             }
 
             try {
