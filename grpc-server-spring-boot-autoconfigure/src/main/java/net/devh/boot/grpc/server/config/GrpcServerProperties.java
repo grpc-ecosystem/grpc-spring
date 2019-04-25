@@ -225,6 +225,22 @@ public class GrpcServerProperties {
          */
         private String trustCertCollectionPath = null;
 
+        /**
+         * Specifies the cipher suite. If {@code null} or empty it will use the system's default cipher suite.
+         *
+         * @param ciphers Cipher suite consisting of one or more cipher strings separated by colons, commas or spaces.
+         * @return The cipher suite accepted for secure connections or null.
+         */
+        private String ciphers = null;
+
+        /**
+         * Specifies the protocols accepted for secure connections. If {@code null} or empty it will use the system's
+         * default (all supported) protocols.
+         *
+         * @return The  cipher suites accepted for secure connections or null.
+         */
+        private String protocols = null;
+
     }
 
     /**
