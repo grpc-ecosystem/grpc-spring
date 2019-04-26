@@ -95,13 +95,13 @@ public class ShadedNettyGrpcServerFactory
                 }
             }
 
-            if(security.getCiphers() != null && !security.getCiphers().isEmpty()) {
+            if (security.getCiphers() != null && !security.getCiphers().isEmpty()) {
                 // splits the cipher list at colons, commas or spaces
                 String[] extractedCiphers = security.getCiphers().split("[:, ]");
                 sslContextBuilder.ciphers(Arrays.asList(extractedCiphers));
             }
 
-            if(security.getProtocols() != null && !security.getProtocols().isEmpty()) {
+            if (security.getProtocols() != null && !security.getProtocols().isEmpty()) {
                 // splits the protocol list at colons, commas or spaces
                 String[] extractedProtocols = security.getProtocols().split("[:, ]");
                 sslContextBuilder.protocols(extractedProtocols);
