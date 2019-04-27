@@ -52,20 +52,20 @@ public class InProcessOrAlternativeChannelFactory implements GrpcChannelFactory 
 
     private final GrpcChannelsProperties properties;
     private final InProcessChannelFactory inProcessChannelFactory;
-    private final GrpcChannelFactory alternatveChannelFactory;
+    private final GrpcChannelFactory alternativeChannelFactory;
 
     /**
      * Creates a new InProcessOrAlternativeChannelFactory with the given properties and channel factories.
      *
      * @param properties The properties used to resolved the target scheme
      * @param inProcessChannelFactory The in process channel factory implementation to use.
-     * @param alternatveChannelFactory The alternative channel factory implementation to use.
+     * @param alternativeChannelFactory The alternative channel factory implementation to use.
      */
     public InProcessOrAlternativeChannelFactory(final GrpcChannelsProperties properties,
-            final InProcessChannelFactory inProcessChannelFactory, final GrpcChannelFactory alternatveChannelFactory) {
+            final InProcessChannelFactory inProcessChannelFactory, final GrpcChannelFactory alternativeChannelFactory) {
         this.properties = requireNonNull(properties, "properties");
         this.inProcessChannelFactory = requireNonNull(inProcessChannelFactory, "inProcessChannelFactory");
-        this.alternatveChannelFactory = requireNonNull(alternatveChannelFactory, "alternatveChannelFactory");
+        this.alternativeChannelFactory = requireNonNull(alternativeChannelFactory, "alternativeChannelFactory");
     }
 
     @Override
@@ -74,7 +74,7 @@ public class InProcessOrAlternativeChannelFactory implements GrpcChannelFactory 
         if (address != null && IN_PROCESS_SCHEME.equals(address.getScheme())) {
             return this.inProcessChannelFactory.createChannel(address.getSchemeSpecificPart(), interceptors);
         }
-        return this.alternatveChannelFactory.createChannel(name, interceptors);
+        return this.alternativeChannelFactory.createChannel(name, interceptors);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class InProcessOrAlternativeChannelFactory implements GrpcChannelFactory 
         try {
             this.inProcessChannelFactory.close();
         } finally {
-            this.alternatveChannelFactory.close();
+            this.alternativeChannelFactory.close();
         }
     }
 
