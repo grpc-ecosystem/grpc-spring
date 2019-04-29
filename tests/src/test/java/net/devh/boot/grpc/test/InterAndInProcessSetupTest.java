@@ -59,7 +59,7 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceStub;
         "grpc.server.inProcessName=test",
         "grpc.server.port=9191",
         "grpc.client.GLOBAL.negotiationType=PLAINTEXT",
-        "grpc.client.inProcess.address=inProcess:test",
+        "grpc.client.inProcess.address=in-process:test",
         "grpc.client.interProcess.address=static://localhost:9191"})
 @EnableConfigurationProperties(GrpcServerProperties.class)
 @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})

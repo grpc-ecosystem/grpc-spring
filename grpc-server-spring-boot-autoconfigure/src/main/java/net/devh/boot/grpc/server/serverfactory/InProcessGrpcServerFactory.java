@@ -84,7 +84,7 @@ public class InProcessGrpcServerFactory extends AbstractGrpcServerFactory<InProc
 
     @Override
     public String getAddress() {
-        return "inProcess:" + this.name;
+        return "in-process:" + this.name;
     }
 
     @Override
