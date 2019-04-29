@@ -142,7 +142,7 @@ public class GrpcServerFactoryAutoConfiguration {
      */
     @ConditionalOnBean(InProcessGrpcServerFactory.class)
     @Bean
-    public GrpcServerLifecycle inProcessgrpcServerLifecycle(final InProcessGrpcServerFactory factory) {
+    public GrpcServerLifecycle inProcessGrpcServerLifecycle(final InProcessGrpcServerFactory factory) {
         return new GrpcServerLifecycle(factory);
     }
 

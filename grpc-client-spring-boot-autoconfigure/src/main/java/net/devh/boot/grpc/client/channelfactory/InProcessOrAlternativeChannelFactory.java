@@ -28,16 +28,16 @@ import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 
 /**
  * This channel factory is a switch between the {@link InProcessChannelFactory} and an alternative implementation. All
- * channels that are configured with the {@code inProcess} scheme will be handled by the in-process-channel-factory, the
- * other channels will be handled by the alternative implementation.
+ * channels that are configured with the {@code in-process} scheme will be handled by the in-process-channel-factory,
+ * the other channels will be handled by the alternative implementation.
  *
  * <p>
  * <b>The following examples show how the configured address will be mapped to an actual channel:</b>
  * </p>
  *
  * <ul>
- * <li><code>inProcess:foobar</code> -&gt; will use the <code>foobar</code> in-process-channel.</li>
- * <li><code>inProcess:foo/bar</code> -&gt; will use the <code>foo/bar</code> in-process-channel.</li>
+ * <li><code>in-process:foobar</code> -&gt; will use the <code>foobar</code> in-process-channel.</li>
+ * <li><code>in-process:foo/bar</code> -&gt; will use the <code>foo/bar</code> in-process-channel.</li>
  * <li><code>static://127.0.0.1</code> -&gt; will be handled by the alternative grpc channel factory.</li>
  * </ul>
  *
@@ -48,7 +48,7 @@ import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
  */
 public class InProcessOrAlternativeChannelFactory implements GrpcChannelFactory {
 
-    private static final String IN_PROCESS_SCHEME = "inProcess";
+    private static final String IN_PROCESS_SCHEME = "in-process";
 
     private final GrpcChannelsProperties properties;
     private final InProcessChannelFactory inProcessChannelFactory;
