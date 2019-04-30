@@ -37,6 +37,26 @@ public class InProcessGrpcServerFactory extends AbstractGrpcServerFactory<InProc
     /**
      * Creates a new in process server factory with the given properties.
      *
+     * @param properties The properties used to configure the server.
+     */
+    public InProcessGrpcServerFactory(final GrpcServerProperties properties) {
+        this(properties.getInProcessName(), properties);
+    }
+
+    /**
+     * Creates a new in process server factory with the given properties.
+     *
+     * @param properties The properties used to configure the server.
+     * @param serverConfigurers The server configurers to use. Can be empty.
+     */
+    public InProcessGrpcServerFactory(final GrpcServerProperties properties,
+            final List<GrpcServerConfigurer> serverConfigurers) {
+        this(properties.getInProcessName(), properties, serverConfigurers);
+    }
+
+    /**
+     * Creates a new in process server factory with the given properties.
+     *
      * @param name The name of the in process server.
      * @param properties The properties used to configure the server.
      */
@@ -64,7 +84,7 @@ public class InProcessGrpcServerFactory extends AbstractGrpcServerFactory<InProc
 
     @Override
     public String getAddress() {
-        return "inProcess:" + this.name;
+        return "in-process:" + this.name;
     }
 
     @Override
