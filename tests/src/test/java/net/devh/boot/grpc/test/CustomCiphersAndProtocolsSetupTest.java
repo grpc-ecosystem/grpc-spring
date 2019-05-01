@@ -78,7 +78,7 @@ class CustomCiphersAndProtocolsSetupTest extends AbstractSimpleServerClientTest 
     private TestServiceGrpc.TestServiceBlockingStub tlsNoSharedProtocolsStub;
 
     /**
-     * Tests behaviour with TLSv1.1 and shared protocols. Test should succeed, as the server supports TLSv1.1.
+     * Tests behaviour with TLSv1.1 and shared protocols. Test should fail, as the server does not support TLSv1.1.
      */
     @Test
     public void testTlsV11Stub() {
