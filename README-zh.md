@@ -108,6 +108,7 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
 ````properties
 grpc.server.port=9090
 grpc.server.address=0.0.0.0
+#grpc.server.inProcessName=test
 ````
 
 #### 对 Server 进行自定义
@@ -325,6 +326,10 @@ HelloReply response = stub.sayHello(HelloRequest.newBuilder().setName(name).buil
 此外，你也可以使用 DNS 的方式去获取目标地址
 
 * `dns:///example.com`
+
+同时，你也可以使用如下方式直接进程内访问
+
+* `in-process:test`
 
 它会通过DNS将域名解析出所有真实的 IP 地址，通过使用这些真实的IP地址去做负载均衡。
 需要注意的是 `grpc-java` 出于性能的考虑对 DNS 返回的结果做缓存。
