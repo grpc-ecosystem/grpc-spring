@@ -40,6 +40,7 @@ import io.grpc.NameResolverProvider;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.InProcessChannelFactory;
+import net.devh.boot.grpc.client.channelfactory.InProcessOrAlternativeChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.NettyChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.ShadedNettyChannelFactory;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties;
@@ -158,8 +159,12 @@ public class GrpcClientAutoConfiguration {
             final NameResolver.Factory nameResolverFactory,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
-        return new ShadedNettyChannelFactory(properties, nameResolverFactory,
-                globalClientInterceptorRegistry, channelConfigurers);
+        final ShadedNettyChannelFactory channelFactory =
+                new ShadedNettyChannelFactory(properties, nameResolverFactory,
+                        globalClientInterceptorRegistry, channelConfigurers);
+        final InProcessChannelFactory inProcessChannelFactory =
+                new InProcessChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
+        return new InProcessOrAlternativeChannelFactory(properties, inProcessChannelFactory, channelFactory);
     }
 
     // Then try the normal netty channel factory
@@ -170,8 +175,12 @@ public class GrpcClientAutoConfiguration {
             final NameResolver.Factory nameResolverFactory,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
-        return new NettyChannelFactory(properties, nameResolverFactory,
-                globalClientInterceptorRegistry, channelConfigurers);
+        final NettyChannelFactory channelFactory =
+                new NettyChannelFactory(properties, nameResolverFactory,
+                        globalClientInterceptorRegistry, channelConfigurers);
+        final InProcessChannelFactory inProcessChannelFactory =
+                new InProcessChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
+        return new InProcessOrAlternativeChannelFactory(properties, inProcessChannelFactory, channelFactory);
     }
 
     // Finally try the in process channel factory

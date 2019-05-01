@@ -108,6 +108,7 @@ can be changed via Spring's property mechanism. The server uses the `grpc.server
 ````properties
 grpc.server.port=9090
 grpc.server.address=0.0.0.0
+#grpc.server.inProcessName=test
 ````
 
 #### Customizing a Server
@@ -334,6 +335,10 @@ You can also use service discovery based address resolution like this (requires 
 Additionally, you can use DNS based address resolution like this:
 
 * `dns:///example.com`
+
+Or access the in-process-server like this:
+
+* `in-process:test`
 
 This will automatically read all IP addresses from that domain and use them for load balancing.
 Please note that `grpc-java` caches the DNS response for performance reasons.

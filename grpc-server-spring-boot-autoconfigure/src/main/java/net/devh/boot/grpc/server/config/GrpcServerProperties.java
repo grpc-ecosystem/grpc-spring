@@ -79,6 +79,14 @@ public class GrpcServerProperties {
     private int port = 9090;
 
     /**
+     * The name of the in-process server. If not set, then the in process server won't be started.
+     *
+     * @param inProcessName The name of the in-process server.
+     * @return The name of the in-process server or null if isn't configured.
+     */
+    private String inProcessName;
+
+    /**
      * Setting to enable keepAlive. Default to {@code false}.
      *
      * @param enableKeepAlive Whether keep alive should be enabled.
