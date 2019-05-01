@@ -17,20 +17,22 @@
 
 package net.devh.boot.grpc.test;
 
-import com.google.protobuf.Empty;
-import io.grpc.StatusRuntimeException;
-import net.devh.boot.grpc.client.inject.GrpcClient;
-import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
-import net.devh.boot.grpc.test.config.ServiceConfiguration;
-import net.devh.boot.grpc.test.proto.TestServiceGrpc;
+import static org.junit.jupiter.api.Assertions.*;
+
+import javax.net.ssl.SSLHandshakeException;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import javax.net.ssl.SSLHandshakeException;
+import com.google.protobuf.Empty;
 
-import static org.junit.jupiter.api.Assertions.*;
+import io.grpc.StatusRuntimeException;
+import net.devh.boot.grpc.client.inject.GrpcClient;
+import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
+import net.devh.boot.grpc.test.config.ServiceConfiguration;
+import net.devh.boot.grpc.test.proto.TestServiceGrpc;
 
 @SpringBootTest(properties = {
         "grpc.server.security.enabled=true",

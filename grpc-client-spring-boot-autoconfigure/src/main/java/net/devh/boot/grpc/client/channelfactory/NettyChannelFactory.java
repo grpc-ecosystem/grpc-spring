@@ -20,7 +20,6 @@ package net.devh.boot.grpc.client.channelfactory;
 import static java.util.Objects.requireNonNull;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.net.ssl.SSLException;

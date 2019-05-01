@@ -19,7 +19,6 @@ package net.devh.boot.grpc.server.serverfactory;
 
 import java.io.File;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 

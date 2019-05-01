@@ -613,10 +613,10 @@ public class GrpcChannelProperties {
             if (this.authorityOverride == null) {
                 this.authorityOverride = config.authorityOverride;
             }
-            if(this.ciphers == null) {
+            if (this.ciphers == null) {
                 this.ciphers = config.ciphers;
             }
-            if(this.protocols == null) {
+            if (this.protocols == null) {
                 this.protocols = config.protocols;
             }
         }
