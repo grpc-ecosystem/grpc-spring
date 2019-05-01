@@ -20,6 +20,8 @@ package net.devh.boot.grpc.server.config;
 import java.io.File;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -228,10 +230,14 @@ public class GrpcServerProperties {
         /**
          * Specifies the cipher suite. If {@code null} or empty it will use the system's default cipher suite.
          *
-         * @param ciphers Cipher suite consisting of one or more cipher strings separated by colons, commas or spaces.
+         * @param ciphers List of allowed ciphers
          * @return The cipher suite accepted for secure connections or null.
          */
-        private String ciphers = null;
+        private List<String> ciphers = null;
+
+        public void setCiphers(String ciphers) {
+            this.ciphers = Arrays.asList(ciphers.split("[ :,]"));
+        }
 
         /**
          * Specifies the protocols accepted for secure connections. If {@code null} or empty it will use the system's
@@ -240,8 +246,11 @@ public class GrpcServerProperties {
          * @param protocols Protocol list consisting of one or more protocols separated by colons, commas or spaces.
          * @return The protocols accepted for secure connections or null.
          */
-        private String protocols = null;
+        private String[] protocols = null;
 
+        public void setProtocols(String protocols) {
+            this.protocols = protocols.split("[ :,]");
+        }
     }
 
     /**

@@ -21,6 +21,8 @@ import java.io.File;
 import java.net.URI;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.boot.convert.DurationUnit;
@@ -550,12 +552,12 @@ public class GrpcChannelProperties {
 
         // --------------------------------------------------
 
-        private String ciphers = null;
+        private List<String> ciphers = null;
 
         /**
          * @return The cipher suite accepted for secure connections or null.
          */
-        public String getCiphers() {
+        public List<String> getCiphers() {
             return ciphers;
         }
 
@@ -563,17 +565,17 @@ public class GrpcChannelProperties {
          * @param ciphers Cipher suite consisting of one or more cipher strings separated by colons, commas or spaces
          */
         public void setCiphers(String ciphers) {
-            this.ciphers = ciphers;
+            this.ciphers = Arrays.asList(ciphers.split("[ :,]"));
         }
 
         // --------------------------------------------------
 
-        private String protocols = null;
+        private String[] protocols = null;
 
         /**
          * @return The protocols accepted for secure connections or null.
          */
-        public String getProtocols() {
+        public String[] getProtocols() {
             return protocols;
         }
 
@@ -581,7 +583,7 @@ public class GrpcChannelProperties {
          * @param protocols Protocol list consisting of one or more protocols separated by colons, commas or spaces.
          */
         public void setProtocols(String protocols) {
-            this.protocols = protocols;
+            this.protocols = protocols.split("[ :,]");
         }
 
         // --------------------------------------------------
