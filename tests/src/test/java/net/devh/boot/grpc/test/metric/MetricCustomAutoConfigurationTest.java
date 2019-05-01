@@ -65,7 +65,7 @@ public class MetricCustomAutoConfigurationTest {
     @DirtiesContext
     public void testAutoDiscovery() {
         log.info("--- Starting tests with custom auto discovery ---");
-        assertEquals(METHOD_COUNT * 2,
+        assertEquals(METHOD_COUNT * 4,
                 this.meterRegistry.getMeters().stream().filter(Counter.class::isInstance).count());
         assertEquals(METHOD_COUNT * 2,
                 this.meterRegistry.getMeters().stream().filter(Timer.class::isInstance).count());

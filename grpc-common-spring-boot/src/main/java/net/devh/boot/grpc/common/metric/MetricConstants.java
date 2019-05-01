@@ -27,9 +27,11 @@ public final class MetricConstants {
     public static final String METRIC_NAME_SERVER_PROCESSING_DURATION = "grpc.server.processing.duration";
     public static final String METRIC_NAME_SERVER_RESPONSES_SENT = "grpc.server.responses.sent";
     public static final String METRIC_NAME_SERVER_REQUESTS_RECEIVED = "grpc.server.requests.received";
+    public static final String METRIC_NAME_SERVER_REQUESTS_RESULT = "grpc.server.requests.result";
 
     public static final String METRIC_NAME_CLIENT_PROCESSING_DURATION = "grpc.client.processing.duration";
     public static final String METRIC_NAME_CLIENT_RESPONSES_RECEIVED = "grpc.client.responses.received";
+    public static final String METRIC_NAME_CLIENT_REQUESTS_RESULT = "grpc.client.requests.result";
     public static final String METRIC_NAME_CLIENT_REQUESTS_SENT = "grpc.client.requests.sent";
 
     /**

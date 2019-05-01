@@ -59,7 +59,7 @@ public class MetricAutoConfigurationTest {
         for (final Meter meter : meterRegistry.getMeters()) {
             log.debug("Found meter: {}", meter.getId());
         }
-        assertEquals(METHOD_COUNT * 2,
+        assertEquals(METHOD_COUNT * 3,
                 this.meterRegistry.getMeters().stream().filter(Counter.class::isInstance).count());
         assertEquals(METHOD_COUNT, this.meterRegistry.getMeters().stream().filter(Timer.class::isInstance).count());
         log.info("--- Test completed ---");

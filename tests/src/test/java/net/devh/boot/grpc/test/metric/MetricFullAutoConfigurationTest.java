@@ -52,7 +52,7 @@ public class MetricFullAutoConfigurationTest {
     @DirtiesContext
     public void testAutoDiscovery() {
         log.info("--- Starting tests with full auto discovery ---");
-        assertEquals(METHOD_COUNT * 2, this.meterRegistry.getMeters().stream()
+        assertEquals(METHOD_COUNT * 3, this.meterRegistry.getMeters().stream()
                 .filter(Counter.class::isInstance)
                 .filter(m -> m.getId().getName().startsWith("grpc.")) // Only count grpc metrics
                 .count());

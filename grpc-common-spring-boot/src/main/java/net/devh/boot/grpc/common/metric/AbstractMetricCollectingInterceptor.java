@@ -122,7 +122,8 @@ public abstract class AbstractMetricCollectingInterceptor {
      */
     protected MetricSet newMetricsFor(final MethodDescriptor<?, ?> method) {
         log.debug("Creating new metrics for {}", method.getFullMethodName());
-        return new MetricSet(newRequestCounterFor(method), newResponseCounterFor(method), newTimerFunction(method));
+        return new MetricSet(newRequestCounterFor(method), newResponseCounterFor(method), newTimerFunction(method),
+                newResultFunction(method));
     }
 
     /**
@@ -161,12 +162,39 @@ public abstract class AbstractMetricCollectingInterceptor {
     }
 
     /**
+     * Creates a new counter function using the given template. This method initializes the default counter.
+     *
+     * @param counterTemplate The template to create the instances from.
+     * @return The newly created function that returns a counter for a given code.
+     */
+    protected Function<Code, Counter> asResultFunction(final Supplier<Counter.Builder> counterTemplate) {
+        final Map<Code, Counter> cache = new EnumMap<>(Code.class);
+        final Function<Code, Counter> creator = code -> counterTemplate.get()
+                .tag(TAG_STATUS_CODE, code.name())
+                .register(this.registry);
+        final Function<Code, Counter> cacheResolver = code -> cache.computeIfAbsent(code, creator);
+        // Eager initialize
+        for (final Code code : this.eagerInitializedCodes) {
+            cacheResolver.apply(code);
+        }
+        return cacheResolver;
+    }
+
+    /**
      * Creates a new timer for a given code for the given method.
      *
      * @param method The method to create the timer for.
      * @return The newly created function that returns a timer for a given code.
      */
     protected abstract Function<Code, Timer> newTimerFunction(final MethodDescriptor<?, ?> method);
+
+    /**
+     * Creates a new counter for requests for a given code for the given method.
+     *
+     * @param method The method to create the counter for.
+     * @return The newly created function that returns a counter for a given code.
+     */
+    protected abstract Function<Code, Counter> newResultFunction(final MethodDescriptor<?, ?> method);
 
     /**
      * Container for all metrics of a certain call. Used instead of 3 maps to improve performance.
@@ -177,6 +205,7 @@ public abstract class AbstractMetricCollectingInterceptor {
         private final Counter requestCounter;
         private final Counter responseCounter;
         private final Function<Code, Timer> timerFunction;
+        public final Function<Code, Counter> resultFunction;
 
         /**
          * Creates a new metric set with the given meter instances.
@@ -186,10 +215,11 @@ public abstract class AbstractMetricCollectingInterceptor {
          * @param timerFunction The timer function to use.
          */
         public MetricSet(final Counter requestCounter, final Counter responseCounter,
-                final Function<Code, Timer> timerFunction) {
+                final Function<Code, Timer> timerFunction, final Function<Code, Counter> resultFunction) {
             this.requestCounter = requestCounter;
             this.responseCounter = responseCounter;
             this.timerFunction = timerFunction;
+            this.resultFunction = resultFunction;
         }
 
     }

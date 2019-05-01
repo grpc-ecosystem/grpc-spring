@@ -40,6 +40,7 @@ class MetricCollectingServerCall<Q, A> extends SimpleForwardingServerCall<Q, A> 
     private final Counter responseCounter;
     private final Function<Code, Timer> timerFunction;
     private final Timer.Sample timerSample;
+    private final Function<Code, Counter> resultFunction;
 
     /**
      * Creates a new delegating ServerCall that will wrap the given server call to collect metrics.
@@ -51,16 +52,19 @@ class MetricCollectingServerCall<Q, A> extends SimpleForwardingServerCall<Q, A> 
      */
     public MetricCollectingServerCall(final ServerCall<Q, A> delegate, final MeterRegistry registry,
             final Counter responseCounter,
-            final Function<Code, Timer> timerFunction) {
+            final Function<Code, Timer> timerFunction,
+            final Function<Code, Counter> resultFunction) {
         super(delegate);
         this.responseCounter = responseCounter;
         this.timerFunction = timerFunction;
         this.timerSample = Timer.start(registry);
+        this.resultFunction = resultFunction;
     }
 
     @Override
     public void close(final Status status, final Metadata responseHeaders) {
         this.timerSample.stop(this.timerFunction.apply(status.getCode()));
+        this.resultFunction.apply(status.getCode()).increment();
         super.close(status, responseHeaders);
     }
 

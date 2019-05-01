@@ -40,6 +40,7 @@ class MetricCollectingClientCall<Q, A> extends SimpleForwardingClientCall<Q, A> 
     private final Counter requestCounter;
     private final Counter responseCounter;
     private final Function<Code, Timer> timerFunction;
+    final Function<Code, Counter> resultFunction;
 
     /**
      * Creates a new delegating ClientCall that will wrap the given client call to collect metrics.
@@ -52,19 +53,21 @@ class MetricCollectingClientCall<Q, A> extends SimpleForwardingClientCall<Q, A> 
      */
     public MetricCollectingClientCall(final ClientCall<Q, A> delegate, final MeterRegistry registry,
             final Counter requestCounter, final Counter responseCounter,
-            final Function<Code, Timer> timerFunction) {
+            final Function<Code, Timer> timerFunction,
+            final Function<Code, Counter> resultFunction) {
         super(delegate);
         this.registry = registry;
         this.requestCounter = requestCounter;
         this.responseCounter = responseCounter;
         this.timerFunction = timerFunction;
+        this.resultFunction = resultFunction;
     }
 
     @Override
     public void start(final ClientCall.Listener<A> responseListener, final Metadata metadata) {
         super.start(
                 new MetricCollectingClientCallListener<>(responseListener, this.registry, this.responseCounter,
-                        this.timerFunction),
+                        this.timerFunction, this.resultFunction),
                 metadata);
     }
 

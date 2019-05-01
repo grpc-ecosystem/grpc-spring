@@ -18,6 +18,7 @@
 package net.devh.boot.grpc.client.metric;
 
 import static net.devh.boot.grpc.common.metric.MetricConstants.METRIC_NAME_CLIENT_PROCESSING_DURATION;
+import static net.devh.boot.grpc.common.metric.MetricConstants.METRIC_NAME_CLIENT_REQUESTS_RESULT;
 import static net.devh.boot.grpc.common.metric.MetricConstants.METRIC_NAME_CLIENT_REQUESTS_SENT;
 import static net.devh.boot.grpc.common.metric.MetricConstants.METRIC_NAME_CLIENT_RESPONSES_RECEIVED;
 import static net.devh.boot.grpc.common.metric.MetricUtils.prepareCounterFor;
@@ -101,6 +102,14 @@ public class MetricCollectingClientInterceptor extends AbstractMetricCollectingI
     }
 
     @Override
+    protected Function<Code, Counter> newResultFunction(final MethodDescriptor<?, ?> method) {
+        return asResultFunction(() -> this.counterCustomizer.apply(
+                prepareCounterFor(method,
+                        METRIC_NAME_CLIENT_REQUESTS_RESULT,
+                        "The request results as observed by the client")));
+    }
+
+    @Override
     public <Q, A> ClientCall<Q, A> interceptCall(final MethodDescriptor<Q, A> methodDescriptor,
             final CallOptions callOptions, final Channel channel) {
         final MetricSet metrics = metricsFor(methodDescriptor);
@@ -109,7 +118,8 @@ public class MetricCollectingClientInterceptor extends AbstractMetricCollectingI
                 this.registry,
                 metrics.getRequestCounter(),
                 metrics.getResponseCounter(),
-                metrics.getTimerFunction());
+                metrics.getTimerFunction(),
+                metrics.getResultFunction());
     }
 
 }

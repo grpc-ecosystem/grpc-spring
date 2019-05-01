@@ -20,6 +20,7 @@ package net.devh.boot.grpc.test.metric;
 import static io.grpc.Status.Code.OK;
 import static io.grpc.Status.Code.UNKNOWN;
 import static net.devh.boot.grpc.common.metric.MetricConstants.METRIC_NAME_CLIENT_PROCESSING_DURATION;
+import static net.devh.boot.grpc.common.metric.MetricConstants.METRIC_NAME_CLIENT_REQUESTS_RESULT;
 import static net.devh.boot.grpc.common.metric.MetricConstants.METRIC_NAME_CLIENT_REQUESTS_SENT;
 import static net.devh.boot.grpc.test.server.TestServiceImpl.METHOD_COUNT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -47,7 +48,7 @@ class MetricCollectingClientInterceptorTest {
         mcci.preregisterService(TestServiceGrpc.getServiceDescriptor());
 
         MetricTestHelper.logMeters(meterRegistry.getMeters());
-        assertEquals(METHOD_COUNT * 3, meterRegistry.getMeters().size());
+        assertEquals(METHOD_COUNT * 4, meterRegistry.getMeters().size());
         log.info("--- Test completed ---");
     }
 
@@ -63,7 +64,7 @@ class MetricCollectingClientInterceptorTest {
         mcci.preregisterService(TestServiceGrpc.getServiceDescriptor());
 
         MetricTestHelper.logMeters(meterRegistry.getMeters());
-        assertEquals(METHOD_COUNT * 10, meterRegistry.getMeters().size());
+        assertEquals(METHOD_COUNT * 12, meterRegistry.getMeters().size());
 
         final Counter counter = meterRegistry.find(METRIC_NAME_CLIENT_REQUESTS_SENT).counter();
         assertNotNull(counter);
@@ -72,6 +73,10 @@ class MetricCollectingClientInterceptorTest {
         final Timer timer = meterRegistry.find(METRIC_NAME_CLIENT_PROCESSING_DURATION).timer();
         assertNotNull(timer);
         assertEquals("timer", timer.getId().getTag("type"));
+
+        final Counter resultCounter = meterRegistry.find(METRIC_NAME_CLIENT_REQUESTS_RESULT).counter();
+        assertNotNull(resultCounter);
+        assertEquals("counter", counter.getId().getTag("type"));
         log.info("--- Test completed ---");
     }
 

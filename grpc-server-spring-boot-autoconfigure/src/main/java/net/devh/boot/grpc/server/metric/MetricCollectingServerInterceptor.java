@@ -19,6 +19,7 @@ package net.devh.boot.grpc.server.metric;
 
 import static net.devh.boot.grpc.common.metric.MetricConstants.METRIC_NAME_SERVER_PROCESSING_DURATION;
 import static net.devh.boot.grpc.common.metric.MetricConstants.METRIC_NAME_SERVER_REQUESTS_RECEIVED;
+import static net.devh.boot.grpc.common.metric.MetricConstants.METRIC_NAME_SERVER_REQUESTS_RESULT;
 import static net.devh.boot.grpc.common.metric.MetricConstants.METRIC_NAME_SERVER_RESPONSES_SENT;
 import static net.devh.boot.grpc.common.metric.MetricUtils.prepareCounterFor;
 import static net.devh.boot.grpc.common.metric.MetricUtils.prepareTimerFor;
@@ -123,13 +124,21 @@ public class MetricCollectingServerInterceptor extends AbstractMetricCollectingI
     }
 
     @Override
+    protected Function<Code, Counter> newResultFunction(final MethodDescriptor<?, ?> method) {
+        return asResultFunction(() -> this.counterCustomizer.apply(
+                prepareCounterFor(method,
+                        METRIC_NAME_SERVER_REQUESTS_RESULT,
+                        "The total results for each request")));
+    }
+
+    @Override
     public <Q, A> ServerCall.Listener<Q> interceptCall(
             final ServerCall<Q, A> call,
             final Metadata requestHeaders,
             final ServerCallHandler<Q, A> next) {
         final MetricSet metrics = metricsFor(call.getMethodDescriptor());
         final ServerCall<Q, A> monitoringCall = new MetricCollectingServerCall<>(call, this.registry,
-                metrics.getResponseCounter(), metrics.getTimerFunction());
+                metrics.getResponseCounter(), metrics.getTimerFunction(), metrics.getResultFunction());
         return new MetricCollectingServerCallListener<>(
                 next.startCall(monitoringCall, requestHeaders), metrics.getRequestCounter());
     }
