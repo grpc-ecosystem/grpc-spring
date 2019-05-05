@@ -94,6 +94,14 @@ public class ShadedNettyGrpcServerFactory
                 }
             }
 
+            if (security.getCiphers() != null && !security.getCiphers().isEmpty()) {
+                sslContextBuilder.ciphers(security.getCiphers());
+            }
+
+            if (security.getProtocols() != null && security.getProtocols().length > 0) {
+                sslContextBuilder.protocols(security.getProtocols());
+            }
+
             try {
                 builder.sslContext(sslContextBuilder.build());
             } catch (final SSLException e) {
