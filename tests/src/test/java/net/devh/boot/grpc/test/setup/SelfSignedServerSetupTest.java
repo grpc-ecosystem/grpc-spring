@@ -15,7 +15,7 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.test;
+package net.devh.boot.grpc.test.setup;
 
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
@@ -35,19 +35,15 @@ import net.devh.boot.grpc.test.config.ServiceConfiguration;
         "grpc.server.security.enabled=true",
         "grpc.server.security.certificateChainPath=src/test/resources/certificates/server.crt",
         "grpc.server.security.privateKeyPath=src/test/resources/certificates/server.key",
-        "grpc.server.security.trustCertCollectionPath=src/test/resources/certificates/trusted-clients-collection",
-        "grpc.server.security.clientAuth=REQUIRE",
         "grpc.client.test.security.authorityOverride=localhost",
-        "grpc.client.test.security.trustCertCollectionPath=src/test/resources/certificates/trusted-servers-collection",
-        "grpc.client.test.security.clientAuthEnabled=true",
-        "grpc.client.test.security.certificateChainPath=src/test/resources/certificates/client1.crt",
-        "grpc.client.test.security.privateKeyPath=src/test/resources/certificates/client1.key"})
+        "grpc.client.test.security.trustCertCollectionPath=src/test/resources/certificates/trusted-servers-collection"
+})
 @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
 @DirtiesContext
-public class SelfSignedMutualSetupTest extends AbstractSimpleServerClientTest {
+public class SelfSignedServerSetupTest extends AbstractSimpleServerClientTest {
 
-    public SelfSignedMutualSetupTest() {
-        log.info("--- SelfSignedMutualSetupTest ---");
+    public SelfSignedServerSetupTest() {
+        log.info("--- SelfSignedServerSetupTest ---");
     }
 
 }

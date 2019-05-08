@@ -71,7 +71,8 @@ public class GrpcServerProperties {
 
     /**
      * Server port to listen on. Defaults to {@code 9090}. If set to {@code 0} a random available port will be selected
-     * and used.
+     * and used. Use {@code -1} to disable the inter-process server (for example if you only want to use the in-process
+     * server).
      *
      * @param port The port the server should listen on.
      * @return The port the server will listen on.

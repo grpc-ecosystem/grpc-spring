@@ -25,8 +25,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
+import net.devh.boot.grpc.server.condition.ConditionalOnInterprocessServer;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import net.devh.boot.grpc.server.serverfactory.GrpcServerConfigurer;
 import net.devh.boot.grpc.server.serverfactory.GrpcServerFactory;
@@ -59,6 +61,7 @@ public class GrpcServerFactoryAutoConfiguration {
      */
     @ConditionalOnClass(name = {"io.grpc.netty.shaded.io.netty.channel.Channel",
             "io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder"})
+    @Conditional(ConditionalOnInterprocessServer.class)
     @Bean
     public ShadedNettyGrpcServerFactory shadedNettyGrpcServerFactory(final GrpcServerProperties properties,
             final GrpcServiceDiscoverer serviceDiscoverer, final List<GrpcServerConfigurer> serverConfigurers) {
@@ -75,8 +78,7 @@ public class GrpcServerFactoryAutoConfiguration {
      * @param factory The factory used to create the lifecycle.
      * @return The inter-process server lifecycle bean.
      */
-    @ConditionalOnClass(name = {"io.grpc.netty.shaded.io.netty.channel.Channel",
-            "io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder"})
+    @ConditionalOnBean(ShadedNettyGrpcServerFactory.class)
     @Bean
     public GrpcServerLifecycle shadedNettyGrpcServerLifecycle(ShadedNettyGrpcServerFactory factory) {
         return new GrpcServerLifecycle(factory);
@@ -91,7 +93,8 @@ public class GrpcServerFactoryAutoConfiguration {
      * @param serverConfigurers The server configurers that contain additional configuration for the server.
      * @return The shadedNettyGrpcServerFactory bean.
      */
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(ShadedNettyGrpcServerFactory.class)
+    @Conditional(ConditionalOnInterprocessServer.class)
     @ConditionalOnClass(name = {"io.netty.channel.Channel", "io.grpc.netty.NettyServerBuilder"})
     @Bean
     public NettyGrpcServerFactory nettyGrpcServerFactory(final GrpcServerProperties properties,
@@ -109,8 +112,7 @@ public class GrpcServerFactoryAutoConfiguration {
      * @param factory The factory used to create the lifecycle.
      * @return The inter-process server lifecycle bean.
      */
-    @ConditionalOnMissingBean
-    @ConditionalOnClass(name = {"io.netty.channel.Channel", "io.grpc.netty.NettyServerBuilder"})
+    @ConditionalOnBean(NettyGrpcServerFactory.class)
     @Bean
     public GrpcServerLifecycle nettyGrpcServerLifecycle(final NettyGrpcServerFactory factory) {
         return new GrpcServerLifecycle(factory);

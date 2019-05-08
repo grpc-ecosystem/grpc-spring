@@ -15,8 +15,9 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.test;
+package net.devh.boot.grpc.test.setup;
 
+import static net.devh.boot.grpc.test.util.GrpcAssertions.assertThrowsStatus;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import com.google.protobuf.Empty;
 
+import io.grpc.Status.Code;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
@@ -33,11 +35,9 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceBlockingStub;
 import net.devh.boot.grpc.test.util.EnableOnIPv6;
 
 @SpringBootTest(properties = {
-        "grpc.client.default.negotiationType=PLAINTEXT",
+        "grpc.server.address=::1",
         "grpc.client.dns.negotiationType=PLAINTEXT",
-        "grpc.client.dns.address=dns:///localhost:9090",
-        "grpc.client.localhost.negotiationType=PLAINTEXT",
-        "grpc.client.localhost.address=static://localhost:9090",
+        "grpc.client.dns.address=dns:/localhost:9090/",
         "grpc.client.ipv4.negotiationType=PLAINTEXT",
         "grpc.client.ipv4.address=static://127.0.0.1:9090",
         "grpc.client.ipv6.negotiationType=PLAINTEXT",
@@ -45,25 +45,17 @@ import net.devh.boot.grpc.test.util.EnableOnIPv6;
 })
 @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
 @DirtiesContext
-public class NameResolverConnectionTest {
+@EnableOnIPv6
+public class NameResolverIPv6ConnectionTest {
 
     private static final Empty EMPTY = Empty.getDefaultInstance();
 
-    @GrpcClient("default")
-    private TestServiceBlockingStub defaultStub;
     @GrpcClient("dns")
     private TestServiceBlockingStub dnsStub;
-    @GrpcClient("localhost")
-    private TestServiceBlockingStub localhostStub;
     @GrpcClient("ipv4")
     private TestServiceBlockingStub ipv4Stub;
     @GrpcClient("ipv6")
     private TestServiceBlockingStub ipv6Stub;
-
-    @Test
-    public void testDefaultConnection() {
-        assertEquals("1.2.3", this.defaultStub.normal(EMPTY).getVersion());
-    }
 
     @Test
     public void testDNSConnection() {
@@ -71,17 +63,11 @@ public class NameResolverConnectionTest {
     }
 
     @Test
-    public void testLocalhostConnection() {
-        assertEquals("1.2.3", this.localhostStub.normal(EMPTY).getVersion());
-    }
-
-    @Test
     public void testIpv4Connection() {
-        assertEquals("1.2.3", this.ipv4Stub.normal(EMPTY).getVersion());
+        assertThrowsStatus(Code.UNAVAILABLE, () -> this.ipv4Stub.normal(EMPTY));
     }
 
     @Test
-    @EnableOnIPv6
     public void testIpv6Connection() {
         assertEquals("1.2.3", this.ipv6Stub.normal(EMPTY).getVersion());
     }
