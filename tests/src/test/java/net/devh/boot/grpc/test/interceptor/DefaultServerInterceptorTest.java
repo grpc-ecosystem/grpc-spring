@@ -35,6 +35,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import io.grpc.ServerInterceptor;
 import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorRegistry;
 import net.devh.boot.grpc.server.metric.MetricCollectingServerInterceptor;
+import net.devh.boot.grpc.server.scope.GrpcRequestScope;
 import net.devh.boot.grpc.server.security.interceptors.AuthenticatingServerInterceptor;
 import net.devh.boot.grpc.server.security.interceptors.AuthorizationCheckingServerInterceptor;
 import net.devh.boot.grpc.server.security.interceptors.ExceptionTranslatingServerInterceptor;
@@ -58,6 +59,7 @@ public class DefaultServerInterceptorTest {
     @Test
     void testOrderingOfTheDefaultInterceptors() {
         List<ServerInterceptor> expected = new ArrayList<>();
+        expected.add(this.applicationContext.getBean(GrpcRequestScope.class));
         expected.add(this.applicationContext.getBean(MetricCollectingServerInterceptor.class));
         expected.add(this.applicationContext.getBean(ExceptionTranslatingServerInterceptor.class));
         expected.add(this.applicationContext.getBean(AuthenticatingServerInterceptor.class));
