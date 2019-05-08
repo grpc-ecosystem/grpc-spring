@@ -52,7 +52,10 @@ public class GrpcMetadataEurekaConfiguration {
         if (this.instance == null) {
             return;
         }
-        this.instance.getMetadataMap().put("gRPC.port", String.valueOf(this.grpcProperties.getPort()));
+        final int port = this.grpcProperties.getPort();
+        if (port != -1) {
+            this.instance.getMetadataMap().put("gRPC.port", Integer.toString(port));
+        }
     }
 
 }
