@@ -17,15 +17,15 @@ buildscript {
         protobufVersion = '3.7.1'
         protobufGradlePluginVersion = '0.8.8'
 
-        springBootVersion = '2.1.4.RELEASE'
+        springBootVersion = '2.1.5.RELEASE'
         springCloudVersion = 'Greenwich.SR1' // Only used in examples
         springCloudSleuthVersion = '2.1.1.RELEASE'
         springCloudConsulVersion = '2.1.1.RELEASE'
         springCloudEurekaVersion = '2.1.1.RELEASE'
-        braveInstrumentationGrpc = '5.6.0'
+        braveInstrumentationGrpc = '5.6.3'
         jUnitVersion = '5.3.2'
 
-        lombokVersion = '1.18.4'
+        lombokVersion = '1.18.8'
     }
     dependencies {
         classpath "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE"
