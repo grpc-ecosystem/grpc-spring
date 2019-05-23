@@ -15,8 +15,9 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.test;
+package net.devh.boot.grpc.test.setup;
 
+import static io.grpc.Status.Code.UNAVAILABLE;
 import static io.grpc.Status.Code.UNIMPLEMENTED;
 import static net.devh.boot.grpc.test.proto.TestServiceGrpc.newBlockingStub;
 import static net.devh.boot.grpc.test.util.GrpcAssertions.assertFutureThrowsStatus;
@@ -50,21 +51,21 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceFutureStub;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceStub;
 
 /**
- * Tests whether the parallel setup of inter- and in-process-server/client works.
+ * Test that ensures that it is possible to disable the inter-process server with a property.
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @Slf4j
 @SpringBootTest(properties = {
         "grpc.server.inProcessName=test",
-        "grpc.server.port=9191",
+        "grpc.server.port=-1",
         "grpc.client.GLOBAL.negotiationType=PLAINTEXT",
         "grpc.client.inProcess.address=in-process:test",
-        "grpc.client.interProcess.address=static://localhost:9191"})
+        "grpc.client.interProcess.address=static://localhost:9090"})
 @EnableConfigurationProperties(GrpcServerProperties.class)
 @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
 @DirtiesContext
-public class InterAndInProcessSetupTest {
+public class OnlyInProcessServerTest {
 
     private static final Empty EMPTY = Empty.getDefaultInstance();
 
@@ -86,8 +87,8 @@ public class InterAndInProcessSetupTest {
     @GrpcClient("inProcess")
     protected TestServiceFutureStub inProcessServiceFutureStub;
 
-    public InterAndInProcessSetupTest() {
-        log.info("--- InterAndInProcessSetupTest ---");
+    public OnlyInProcessServerTest() {
+        log.info("--- OnlyInProcessServerTest ---");
     }
 
     @PostConstruct
@@ -106,21 +107,19 @@ public class InterAndInProcessSetupTest {
 
     /**
      * Test successful call for inter-process server.
-     *
-     * @throws ExecutionException Should never happen.
-     * @throws InterruptedException Should never happen.
      */
     @Test
     @DirtiesContext
-    public void testSuccessfulInterProcessCall() throws InterruptedException, ExecutionException {
-        log.info("--- Starting tests with successful inter-process call ---");
-        assertEquals("1.2.3", newBlockingStub(this.interProcessChannel).normal(EMPTY).getVersion());
+    public void testSuccessfulInterProcessCall() {
+        log.info("--- Starting tests with successful but unavailable inter-process call ---");
+        assertThrowsStatus(UNAVAILABLE, () -> newBlockingStub(this.interProcessChannel).unimplemented(EMPTY));
 
         final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
-        this.interProcessServiceStub.normal(EMPTY, streamRecorder);
-        assertEquals("1.2.3", streamRecorder.firstValue().get().getVersion());
-        assertEquals("1.2.3", this.interProcessServiceBlockingStub.normal(EMPTY).getVersion());
-        assertEquals("1.2.3", this.interProcessServiceFutureStub.normal(EMPTY).get().getVersion());
+        this.interProcessServiceStub.unimplemented(EMPTY, streamRecorder);
+        assertFutureThrowsStatus(UNAVAILABLE, streamRecorder.firstValue(), 5, TimeUnit.SECONDS);
+        assertThrowsStatus(UNAVAILABLE, () -> this.interProcessServiceBlockingStub.unimplemented(EMPTY));
+        assertFutureThrowsStatus(UNAVAILABLE, this.interProcessServiceFutureStub.unimplemented(EMPTY),
+                5, TimeUnit.SECONDS);
         log.info("--- Test completed ---");
     }
 
@@ -151,13 +150,13 @@ public class InterAndInProcessSetupTest {
     @DirtiesContext
     public void testFailingInterProcessCall() {
         log.info("--- Starting tests with failing inter-process call ---");
-        assertThrowsStatus(UNIMPLEMENTED, () -> newBlockingStub(this.interProcessChannel).unimplemented(EMPTY));
+        assertThrowsStatus(UNAVAILABLE, () -> newBlockingStub(this.interProcessChannel).unimplemented(EMPTY));
 
         final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
         this.interProcessServiceStub.unimplemented(EMPTY, streamRecorder);
-        assertFutureThrowsStatus(UNIMPLEMENTED, streamRecorder.firstValue(), 5, TimeUnit.SECONDS);
-        assertThrowsStatus(UNIMPLEMENTED, () -> this.interProcessServiceBlockingStub.unimplemented(EMPTY));
-        assertFutureThrowsStatus(UNIMPLEMENTED, this.interProcessServiceFutureStub.unimplemented(EMPTY),
+        assertFutureThrowsStatus(UNAVAILABLE, streamRecorder.firstValue(), 5, TimeUnit.SECONDS);
+        assertThrowsStatus(UNAVAILABLE, () -> this.interProcessServiceBlockingStub.unimplemented(EMPTY));
+        assertFutureThrowsStatus(UNAVAILABLE, this.interProcessServiceFutureStub.unimplemented(EMPTY),
                 5, TimeUnit.SECONDS);
         log.info("--- Test completed ---");
     }

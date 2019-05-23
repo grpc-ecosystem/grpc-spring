@@ -15,29 +15,24 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.test;
+package net.devh.boot.grpc.server.condition;
 
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-
-import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
-import net.devh.boot.grpc.test.config.ServiceConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.NoneNestedConditions;
 
 /**
- * A test checking that the server and client can start and connect to each other with minimal config.
+ * A condition that matches if the {@code grpc.server.port} does not have the value {@code -1}.
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-@Slf4j
-@SpringBootTest(properties = "grpc.client.test.negotiationType=PLAINTEXT")
-@SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
-@DirtiesContext
-public class PlaintextSetupTest extends AbstractSimpleServerClientTest {
+public class ConditionalOnInterprocessServer extends NoneNestedConditions {
 
-    public PlaintextSetupTest() {
-        log.info("--- PlaintextSetupTest ---");
+    ConditionalOnInterprocessServer() {
+        super(ConfigurationPhase.REGISTER_BEAN);
+    }
+
+    @ConditionalOnProperty(name = "grpc.server.port", havingValue = "-1")
+    static class NoServerPortCondition {
     }
 
 }

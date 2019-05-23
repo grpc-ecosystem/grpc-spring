@@ -15,18 +15,13 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.test;
+package net.devh.boot.grpc.test.setup;
 
-import static io.grpc.Status.Code.UNIMPLEMENTED;
+import static io.grpc.Status.Code.UNAVAILABLE;
 import static net.devh.boot.grpc.test.util.GrpcAssertions.assertFutureThrowsStatus;
 import static net.devh.boot.grpc.test.util.GrpcAssertions.assertThrowsStatus;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PostConstruct;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.test.annotation.DirtiesContext;
@@ -43,14 +38,10 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceBlockingStub;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceFutureStub;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceStub;
 
-/**
- * A test checking that the server and client can start and connect to each other with minimal config.
- *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
- */
 @Slf4j
-public abstract class AbstractSimpleServerClientTest {
+public abstract class AbstractBrokenServerClientTest {
 
+    // Don't configure client
     @GrpcClient("test")
     protected Channel channel;
     @GrpcClient("test")
@@ -60,51 +51,40 @@ public abstract class AbstractSimpleServerClientTest {
     @GrpcClient("test")
     protected TestServiceFutureStub testServiceFutureStub;
 
-    @PostConstruct
-    public void init() {
-        // Test injection
-        assertNotNull(this.channel, "channel");
-        assertNotNull(this.testServiceBlockingStub, "testServiceBlockingStub");
-        assertNotNull(this.testServiceFutureStub, "testServiceFutureStub");
-        assertNotNull(this.testServiceStub, "testServiceStub");
-    }
-
     /**
-     * Test successful call.
-     *
-     * @throws ExecutionException Should never happen.
-     * @throws InterruptedException Should never happen.
+     * Test successful call with broken setup.
      */
     @Test
     @DirtiesContext
-    public void testSuccessfulCall() throws InterruptedException, ExecutionException {
-        log.info("--- Starting tests with successful call ---");
-        assertEquals("1.2.3",
-                TestServiceGrpc.newBlockingStub(this.channel).normal(Empty.getDefaultInstance()).getVersion());
+    public void testSuccessfulCallWithBrokenSetup() {
+        log.info("--- Starting tests with successful call with broken setup ---");
+        assertThrowsStatus(UNAVAILABLE,
+                () -> TestServiceGrpc.newBlockingStub(this.channel).normal(Empty.getDefaultInstance()));
 
         final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
         this.testServiceStub.normal(Empty.getDefaultInstance(), streamRecorder);
-        assertEquals("1.2.3", streamRecorder.firstValue().get().getVersion());
-        assertEquals("1.2.3", this.testServiceBlockingStub.normal(Empty.getDefaultInstance()).getVersion());
-        assertEquals("1.2.3", this.testServiceFutureStub.normal(Empty.getDefaultInstance()).get().getVersion());
+        assertFutureThrowsStatus(UNAVAILABLE, streamRecorder.firstValue(), 5, TimeUnit.SECONDS);
+        assertThrowsStatus(UNAVAILABLE, () -> this.testServiceBlockingStub.normal(Empty.getDefaultInstance()));
+        assertFutureThrowsStatus(UNAVAILABLE, this.testServiceFutureStub.normal(Empty.getDefaultInstance()),
+                5, TimeUnit.SECONDS);
         log.info("--- Test completed ---");
     }
 
     /**
-     * Test failing call.
+     * Test failing call with broken setup.
      */
     @Test
     @DirtiesContext
-    public void testFailingCall() {
-        log.info("--- Starting tests with failing call ---");
-        assertThrowsStatus(UNIMPLEMENTED,
+    public void testFailingCallWithBrokenSetup() {
+        log.info("--- Starting tests with failing call with broken setup ---");
+        assertThrowsStatus(UNAVAILABLE,
                 () -> TestServiceGrpc.newBlockingStub(this.channel).unimplemented(Empty.getDefaultInstance()));
 
         final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
         this.testServiceStub.unimplemented(Empty.getDefaultInstance(), streamRecorder);
-        assertFutureThrowsStatus(UNIMPLEMENTED, streamRecorder.firstValue(), 5, TimeUnit.SECONDS);
-        assertThrowsStatus(UNIMPLEMENTED, () -> this.testServiceBlockingStub.unimplemented(Empty.getDefaultInstance()));
-        assertFutureThrowsStatus(UNIMPLEMENTED, this.testServiceFutureStub.unimplemented(Empty.getDefaultInstance()),
+        assertFutureThrowsStatus(UNAVAILABLE, streamRecorder.firstValue(), 5, TimeUnit.SECONDS);
+        assertThrowsStatus(UNAVAILABLE, () -> this.testServiceBlockingStub.unimplemented(Empty.getDefaultInstance()));
+        assertFutureThrowsStatus(UNAVAILABLE, this.testServiceFutureStub.unimplemented(Empty.getDefaultInstance()),
                 5, TimeUnit.SECONDS);
         log.info("--- Test completed ---");
     }

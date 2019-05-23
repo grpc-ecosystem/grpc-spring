@@ -51,8 +51,11 @@ public class ConsulGrpcRegistrationCustomizer implements ConsulRegistrationCusto
         if (tags == null) {
             tags = new ArrayList<>();
         }
-        tags.add("gRPC.port=" + this.grpcServerProperties.getPort());
-        registration.getService().setTags(tags);
+        final int port = this.grpcServerProperties.getPort();
+        if (port != -1) {
+            tags.add("gRPC.port=" + port);
+            registration.getService().setTags(tags);
+        }
     }
 
 }
