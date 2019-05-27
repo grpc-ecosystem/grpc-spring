@@ -91,6 +91,11 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
         return bean;
     }
 
+    @Override
+    public Object postProcessAfterInitialization(final Object bean, final String beanName) throws BeansException {
+        return bean;
+    }
+
     /**
      * Processes the given injection point and computes the appropriate value for the injection.
      *
@@ -186,8 +191,8 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
                 @SuppressWarnings("unchecked")
                 final Class<? extends AbstractStub<?>> stubClass =
                         (Class<? extends AbstractStub<?>>) injectionType.asSubclass(AbstractStub.class);
-                final Constructor<? extends AbstractStub<?>> constructor =
-                        ReflectionUtils.accessibleConstructor(stubClass, Channel.class);
+                Constructor<? extends AbstractStub<?>> constructor = stubClass.getDeclaredConstructor(Channel.class);
+                ReflectionUtils.makeAccessible(constructor);
                 AbstractStub<?> stub = constructor.newInstance(channel);
                 return injectionType.cast(stub);
             } catch (final NoSuchMethodException | InstantiationException | IllegalAccessException
