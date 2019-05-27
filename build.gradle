@@ -36,8 +36,8 @@ allprojects {
     apply plugin: "io.spring.dependency-management"
 
     compileJava {
-        sourceCompatibility = JavaVersion.VERSION_1_6
-        targetCompatibility = JavaVersion.VERSION_1_6
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
         options.encoding = 'UTF-8'
     }
 
