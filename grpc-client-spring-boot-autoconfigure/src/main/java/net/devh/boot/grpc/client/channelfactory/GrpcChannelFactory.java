@@ -22,6 +22,7 @@ import java.util.List;
 
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
+import io.grpc.ClientInterceptors;
 import io.grpc.ManagedChannel;
 
 /**
@@ -57,15 +58,37 @@ public interface GrpcChannelFactory extends AutoCloseable {
      * </p>
      *
      * <p>
-     * <b>Note:</b> The given interceptors will be applied after the global interceptors. But the interceptors that were
-     * applied last, will be called first.
+     * <b>Note:</b> The given interceptors will be appended to the global interceptors and applied using
+     * {@link ClientInterceptors#interceptForward(Channel, ClientInterceptor...)}.
      * </p>
      *
      * @param name The name of the service.
      * @param interceptors A list of additional client interceptors that should be added to the channel.
      * @return The newly created channel for the given service.
      */
-    Channel createChannel(String name, List<ClientInterceptor> interceptors);
+    default Channel createChannel(String name, List<ClientInterceptor> interceptors) {
+        return createChannel(name, interceptors, false);
+    }
+
+    /**
+     * Creates a new channel for the given service name. The returned channel will use all globally registered
+     * {@link ClientInterceptor}s.
+     *
+     * <p>
+     * <b>Note:</b> The underlying implementation might reuse existing {@link ManagedChannel}s allow connection reuse.
+     * </p>
+     *
+     * <p>
+     * <b>Note:</b> The given interceptors will be appended to the global interceptors and applied using
+     * {@link ClientInterceptors#interceptForward(Channel, ClientInterceptor...)}.
+     * </p>
+     *
+     * @param name The name of the service.
+     * @param interceptors A list of additional client interceptors that should be added to the channel.
+     * @param sortInterceptors Whether the interceptors (both global and custom) should be sorted before being applied.
+     * @return The newly created channel for the given service.
+     */
+    Channel createChannel(String name, List<ClientInterceptor> interceptors, boolean sortInterceptors);
 
     @Override
     void close();

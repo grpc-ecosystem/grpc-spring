@@ -89,7 +89,8 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
     }
 
     @Override
-    public Channel createChannel(final String name, final List<ClientInterceptor> customInterceptors) {
+    public Channel createChannel(final String name, final List<ClientInterceptor> customInterceptors,
+            boolean sortInterceptors) {
         final Channel channel;
         synchronized (this) {
             if (this.shutdown) {
@@ -97,13 +98,11 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
             }
             channel = this.channels.computeIfAbsent(name, this::newManagedChannel);
         }
-        final List<ClientInterceptor> interceptors = Lists.newArrayList();
-        final List<ClientInterceptor> globalInterceptors = this.globalClientInterceptorRegistry.getClientInterceptors();
-        if (!globalInterceptors.isEmpty()) {
-            interceptors.addAll(globalInterceptors);
-        }
-        if (!customInterceptors.isEmpty()) {
-            interceptors.addAll(customInterceptors);
+        final List<ClientInterceptor> interceptors =
+                Lists.newArrayList(this.globalClientInterceptorRegistry.getClientInterceptors());
+        interceptors.addAll(customInterceptors);
+        if (sortInterceptors) {
+            this.globalClientInterceptorRegistry.sortInterceptors(interceptors);
         }
         return ClientInterceptors.intercept(channel, interceptors);
     }

@@ -27,6 +27,7 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 
 import io.grpc.CallOptions;
 import io.grpc.Channel;
@@ -39,6 +40,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
 import net.devh.boot.grpc.common.metric.AbstractMetricCollectingInterceptor;
+import net.devh.boot.grpc.common.util.InterceptorOrder;
 
 /**
  * A gRPC client interceptor that will collect metrics for micrometer.
@@ -46,6 +48,7 @@ import net.devh.boot.grpc.common.metric.AbstractMetricCollectingInterceptor;
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @GrpcGlobalClientInterceptor
+@Order(InterceptorOrder.ORDER_TRACING_METRICS)
 public class MetricCollectingClientInterceptor extends AbstractMetricCollectingInterceptor
         implements ClientInterceptor {
 
