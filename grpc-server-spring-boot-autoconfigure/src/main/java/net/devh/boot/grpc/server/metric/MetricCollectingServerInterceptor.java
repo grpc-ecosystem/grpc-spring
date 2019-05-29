@@ -26,6 +26,8 @@ import static net.devh.boot.grpc.common.metric.MetricUtils.prepareTimerFor;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
+import org.springframework.core.annotation.Order;
+
 import io.grpc.BindableService;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
@@ -39,6 +41,7 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import net.devh.boot.grpc.common.metric.AbstractMetricCollectingInterceptor;
+import net.devh.boot.grpc.common.util.InterceptorOrder;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 
 /**
@@ -47,6 +50,7 @@ import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @GrpcGlobalServerInterceptor
+@Order(InterceptorOrder.ORDER_TRACING_METRICS)
 public class MetricCollectingServerInterceptor extends AbstractMetricCollectingInterceptor
         implements ServerInterceptor {
 

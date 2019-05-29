@@ -17,11 +17,8 @@
 
 package net.devh.boot.grpc.server.interceptor;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
 import io.grpc.ServerInterceptor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,12 +37,9 @@ public class AnnotationGlobalServerInterceptorConfigurer implements GlobalServer
     @Override
     public void addServerInterceptors(final GlobalServerInterceptorRegistry registry) {
         this.context.getBeansWithAnnotation(GrpcGlobalServerInterceptor.class)
-                .entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByValue(AnnotationAwareOrderComparator.INSTANCE))
-                .forEach(entry -> {
-                    ServerInterceptor interceptor = (ServerInterceptor) entry.getValue();
-                    log.debug("Registering GlobalServerInterceptor: {} ({})", entry.getKey(), interceptor);
+                .forEach((name, bean) -> {
+                    ServerInterceptor interceptor = (ServerInterceptor) bean;
+                    log.debug("Registering GlobalServerInterceptor: {} ({})", name, interceptor);
                     registry.addServerInterceptors(interceptor);
                 });
     }
