@@ -17,7 +17,7 @@ application
 
 * Automatically creates and manages your grpc channels and stubs with `@GrpcClient`
 
-* Supports [Spring Cloud](https://spring.io/projects/spring-cloud) (register services to [Consul](https://github.com/spring-cloud/spring-cloud-consul) or [Eureka](https://github.com/spring-cloud/spring-cloud-netflix) and fetch gRPC server information)
+* Supports [Spring Cloud](https://spring.io/projects/spring-cloud) (register services to [Consul](https://github.com/spring-cloud/spring-cloud-consul) or [Eureka](https://github.com/spring-cloud/spring-cloud-netflix) or [Nacos](https://github.com/spring-cloud-incubator/spring-cloud-alibaba) and fetch gRPC server information)
 
 * Supports [Spring Sleuth](https://github.com/spring-cloud/spring-cloud-sleuth) as distributed tracing solution (If [brave-instrumentation-grpc](https://mvnrepository.com/artifact/io.zipkin.brave/brave-instrumentation-grpc) is present)
 

@@ -18,7 +18,7 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 
 * 使用`@ GrpcClient`自动创建和管理你的``channel``和``stub``
 
-* 支持 [Spring Cloud](https://spring.io/projects/spring-cloud)（向[Consul](https://github.com/spring-cloud/spring-cloud-consul)或[Eureka](https://github.com/spring-cloud/spring-cloud-netflix)注册服务并获取gRPC服务信息）
+* 支持 [Spring Cloud](https://spring.io/projects/spring-cloud)（向 [Consul](https://github.com/spring-cloud/spring-cloud-consul) 或 [Eureka](https://github.com/spring-cloud/spring-cloud-netflix) 或 [Nacos](https://github.com/spring-cloud-incubator/spring-cloud-alibaba) 注册服务并获取gRPC服务信息）
 
 * 支持 [Spring Sleuth](https://github.com/spring-cloud/spring-cloud-sleuth) 进行链路跟踪(需要单独引入 [brave-instrumentation-grpc](https://mvnrepository.com/artifact/io.zipkin.brave/brave-instrumentation-grpc))
 
