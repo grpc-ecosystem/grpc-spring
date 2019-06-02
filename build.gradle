@@ -22,6 +22,7 @@ buildscript {
         springCloudSleuthVersion = '2.1.1.RELEASE'
         springCloudConsulVersion = '2.1.1.RELEASE'
         springCloudEurekaVersion = '2.1.1.RELEASE'
+        springCloudAlibabaNacosVersion = '0.9.0.RELEASE'
         braveInstrumentationGrpc = '5.6.3'
         jUnitVersion = '5.3.2'
 
