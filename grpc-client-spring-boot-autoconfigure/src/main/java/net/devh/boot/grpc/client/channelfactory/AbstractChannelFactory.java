@@ -104,7 +104,7 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         if (sortInterceptors) {
             this.globalClientInterceptorRegistry.sortInterceptors(interceptors);
         }
-        return ClientInterceptors.intercept(channel, interceptors);
+        return ClientInterceptors.interceptForward(channel, interceptors);
     }
 
     /**
