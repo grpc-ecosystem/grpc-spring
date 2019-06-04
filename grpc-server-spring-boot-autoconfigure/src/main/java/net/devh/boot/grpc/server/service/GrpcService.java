@@ -27,11 +27,17 @@ import org.springframework.stereotype.Service;
 
 import io.grpc.BindableService;
 import io.grpc.ServerInterceptor;
+import io.grpc.ServerInterceptors;
 
 /**
  * Annotation that marks gRPC services that should be registered with a gRPC server. If spring-boot's auto configuration
  * is used, then the server will be created automatically. This annotation should only be added to implementations of
  * {@link BindableService} (GrpcService-ImplBase).
+ *
+ * <p>
+ * <b>Note:</b> These annotation allows the specification of custom interceptors. These will be appended to the global
+ * interceptors and applied using {@link ServerInterceptors#interceptForward(BindableService, ServerInterceptor...)}.
+ * </p>
  *
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
@@ -47,8 +53,7 @@ public @interface GrpcService {
      * type exists, it will be used; otherwise a new instance of that class will be created via no-args constructor.
      *
      * <p>
-     * <b>Note:</b> These interceptors will be applied after the global interceptors. But the interceptors that were
-     * applied last, will be called first.
+     * <b>Note:</b> Please read the javadocs regarding the ordering of interceptors.
      * </p>
      *
      * @return A list of ServerInterceptor classes that should be used.
@@ -59,12 +64,20 @@ public @interface GrpcService {
      * A list of {@link ServerInterceptor} beans that should be applied to only this service.
      *
      * <p>
-     * <b>Note:</b> These interceptors will be applied after the global interceptors and the interceptor classes. But
-     * the interceptors that were applied last, will be called first.
+     * <b>Note:</b> Please read the javadocs regarding the ordering of interceptors.
      * </p>
      *
      * @return A list of ServerInterceptor beans that should be used.
      */
     String[] interceptorNames() default {};
+
+    /**
+     * Whether the custom interceptors should be mixed with the global interceptors and sorted afterwards. Use this
+     * option if you want to add a custom interceptor between global interceptors.
+     *
+     * @return True, if the custom interceptors should be merged with the global ones and sorted afterwards. False
+     *         otherwise.
+     */
+    boolean sortInterceptors() default false;
 
 }

@@ -32,6 +32,7 @@ import io.grpc.CallCredentials;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
+import io.grpc.ClientInterceptors;
 import io.grpc.stub.AbstractStub;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
@@ -51,6 +52,11 @@ import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
  * {@link StubTransformer}s in the application context. These can be used, for example, to configure {@link CallOptions}
  * such as {@link CallCredentials}. Please note that these transformations aren't applied if you inject a
  * {@link Channel} only.
+ * </p>
+ *
+ * <p>
+ * <b>Note:</b> These annotation allows the specification of custom interceptors. These will be appended to the global
+ * interceptors and applied using {@link ClientInterceptors#interceptForward(Channel, ClientInterceptor...)}.
  * </p>
  *
  * @author Michael (yidongnan@gmail.com)
@@ -86,8 +92,7 @@ public @interface GrpcClient {
      * created via no-args constructor.
      *
      * <p>
-     * <b>Note:</b> These interceptors will be applied after the global interceptors. But the interceptors that were
-     * applied last, will be called first.
+     * <b>Note:</b> Please read the javadocs regarding the ordering of interceptors.
      * </p>
      *
      * @return A list of ClientInterceptor classes that should be used.
@@ -99,12 +104,20 @@ public @interface GrpcClient {
      * defined ones.
      *
      * <p>
-     * <b>Note:</b> These interceptors will be applied after the global interceptors and the interceptor classes. But
-     * the interceptors that were applied last, will be called first.
+     * <b>Note:</b> Please read the javadocs regarding the ordering of interceptors.
      * </p>
      *
      * @return A list of ClientInterceptor beans that should be used.
      */
     String[] interceptorNames() default {};
+
+    /**
+     * Whether the custom interceptors should be mixed with the global interceptors and sorted afterwards. Use this
+     * option if you want to add a custom interceptor between global interceptors.
+     *
+     * @return True, if the custom interceptors should be merged with the global ones and sorted afterwards. False
+     *         otherwise.
+     */
+    boolean sortInterceptors() default false;
 
 }

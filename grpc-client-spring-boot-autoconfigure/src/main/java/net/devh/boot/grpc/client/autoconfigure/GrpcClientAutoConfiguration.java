@@ -76,6 +76,7 @@ public class GrpcClientAutoConfiguration {
         return new GrpcChannelsProperties();
     }
 
+    @ConditionalOnMissingBean
     @Bean
     public GlobalClientInterceptorRegistry globalClientInterceptorRegistry() {
         return new GlobalClientInterceptorRegistry();

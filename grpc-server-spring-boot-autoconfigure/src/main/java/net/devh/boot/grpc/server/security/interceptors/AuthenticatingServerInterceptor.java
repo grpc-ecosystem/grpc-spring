@@ -20,6 +20,7 @@ package net.devh.boot.grpc.server.security.interceptors;
 import static java.util.Objects.requireNonNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -37,6 +38,7 @@ import io.grpc.ServerCall.Listener;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.common.util.InterceptorOrder;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
 
@@ -53,6 +55,7 @@ import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReade
  */
 @Slf4j
 @GrpcGlobalServerInterceptor
+@Order(InterceptorOrder.ORDER_SECURITY_AUTHENTICATION)
 public class AuthenticatingServerInterceptor implements ServerInterceptor {
 
     /**

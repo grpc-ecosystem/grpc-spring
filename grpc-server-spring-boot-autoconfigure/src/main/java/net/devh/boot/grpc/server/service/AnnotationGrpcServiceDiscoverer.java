@@ -57,12 +57,12 @@ public class AnnotationGrpcServiceDiscoverer implements ApplicationContextAware,
         List<GrpcServiceDefinition> definitions = Lists.newArrayListWithCapacity(beanNames.size());
         GlobalServerInterceptorRegistry globalServerInterceptorRegistry =
                 applicationContext.getBean(GlobalServerInterceptorRegistry.class);
-        List<ServerInterceptor> globalInterceptorList = globalServerInterceptorRegistry.getServerInterceptors();
         for (String beanName : beanNames) {
             BindableService bindableService = this.applicationContext.getBean(beanName, BindableService.class);
             ServerServiceDefinition serviceDefinition = bindableService.bindService();
             GrpcService grpcServiceAnnotation = applicationContext.findAnnotationOnBean(beanName, GrpcService.class);
-            serviceDefinition = bindInterceptors(serviceDefinition, grpcServiceAnnotation, globalInterceptorList);
+            serviceDefinition =
+                    bindInterceptors(serviceDefinition, grpcServiceAnnotation, globalServerInterceptorRegistry);
             definitions.add(new GrpcServiceDefinition(beanName, bindableService.getClass(), serviceDefinition));
             log.debug("Found gRPC service: " + serviceDefinition.getServiceDescriptor().getName() + ", bean: "
                     + beanName + ", class: " + bindableService.getClass().getName());
@@ -71,9 +71,10 @@ public class AnnotationGrpcServiceDiscoverer implements ApplicationContextAware,
     }
 
     private ServerServiceDefinition bindInterceptors(final ServerServiceDefinition serviceDefinition,
-            final GrpcService grpcServiceAnnotation, final List<ServerInterceptor> globalInterceptors) {
+            final GrpcService grpcServiceAnnotation,
+            final GlobalServerInterceptorRegistry globalServerInterceptorRegistry) {
         final List<ServerInterceptor> interceptors = Lists.newArrayList();
-        interceptors.addAll(globalInterceptors);
+        interceptors.addAll(globalServerInterceptorRegistry.getServerInterceptors());
         for (final Class<? extends ServerInterceptor> interceptorClass : grpcServiceAnnotation.interceptors()) {
             final ServerInterceptor serverInterceptor;
             if (this.applicationContext.getBeanNamesForType(interceptorClass).length > 0) {
@@ -90,7 +91,10 @@ public class AnnotationGrpcServiceDiscoverer implements ApplicationContextAware,
         for (final String interceptorName : grpcServiceAnnotation.interceptorNames()) {
             interceptors.add(this.applicationContext.getBean(interceptorName, ServerInterceptor.class));
         }
-        return ServerInterceptors.intercept(serviceDefinition, interceptors);
+        if (grpcServiceAnnotation.sortInterceptors()) {
+            globalServerInterceptorRegistry.sortInterceptors(interceptors);
+        }
+        return ServerInterceptors.interceptForward(serviceDefinition, interceptors);
     }
 
 }

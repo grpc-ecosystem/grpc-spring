@@ -24,19 +24,22 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
-import lombok.Getter;
+import io.grpc.ClientInterceptors;
 
 /**
  * The global client interceptor registry keeps references to all {@link ClientInterceptor}s that should be registered
- * globally. The interceptors will be applied in the same order they are added to this registry.
+ * globally. The interceptors will be applied in the same order they as specified by the {@link #sortInterceptors(List)}
+ * method.
  *
  * <p>
- * <b>Note:</b> The ClientInterceptors that were applied last to a {@link Channel} will be called first.
+ * <b>Note:</b> Custom interceptors will be appended to the global interceptors and applied using
+ * {@link ClientInterceptors#interceptForward(io.grpc.Channel, ClientInterceptor...)}.
  * </p>
  *
  * @author Michael (yidongnan@gmail.com)
@@ -44,8 +47,8 @@ import lombok.Getter;
  */
 public class GlobalClientInterceptorRegistry implements ApplicationContextAware {
 
-    @Getter
     private final List<ClientInterceptor> clientInterceptors = Lists.newArrayList();
+    private ImmutableList<ClientInterceptor> sortedClientInterceptors;
     private ApplicationContext applicationContext;
 
     @Override
@@ -69,8 +72,33 @@ public class GlobalClientInterceptorRegistry implements ApplicationContextAware 
      * @return This instance for chaining.
      */
     public GlobalClientInterceptorRegistry addClientInterceptors(final ClientInterceptor interceptor) {
+        this.sortedClientInterceptors = null;
         this.clientInterceptors.add(interceptor);
         return this;
+    }
+
+    /**
+     * Gets the immutable and sorted list of global server interceptors.
+     *
+     * @return The list of globally registered server interceptors.
+     */
+    public ImmutableList<ClientInterceptor> getClientInterceptors() {
+        if (this.sortedClientInterceptors == null) {
+            List<ClientInterceptor> temp = Lists.newArrayList(this.clientInterceptors);
+            sortInterceptors(temp);
+            this.sortedClientInterceptors = ImmutableList.copyOf(temp);
+        }
+        return this.sortedClientInterceptors;
+    }
+
+    /**
+     * Sorts the given list of interceptors. Use this method if you want to sort custom interceptors. The default
+     * implementation will sort them by using then {@link AnnotationAwareOrderComparator}.
+     *
+     * @param interceptors The interceptors to sort.
+     */
+    public void sortInterceptors(List<? extends ClientInterceptor> interceptors) {
+        interceptors.sort(AnnotationAwareOrderComparator.INSTANCE);
     }
 
 }

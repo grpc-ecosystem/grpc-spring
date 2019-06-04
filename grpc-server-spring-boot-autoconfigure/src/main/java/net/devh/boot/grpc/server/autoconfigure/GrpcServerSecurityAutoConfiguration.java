@@ -24,7 +24,9 @@ import org.springframework.boot.autoconfigure.security.servlet.WebSecurityEnable
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.AuthenticationException;
 
 import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
 import net.devh.boot.grpc.server.security.check.GrpcSecurityMetadataSource;
@@ -49,9 +51,9 @@ import net.devh.boot.grpc.server.security.interceptors.ExceptionTranslatingServe
  * </ul>
  *
  * <p>
- * <b>Note:</b> The order of the beans is important! First the authorization checking interceptor, then the
- * authenticating interceptor and finally the exception translating interceptor. That is necessary because they are
- * executed in the reverse order of being declared.
+ * <b>Note:</b> The order of the beans is important! First the exception translating interceptor, then the
+ * authenticating interceptor and finally the authorization checking interceptor. That is necessary because they are
+ * executed in the same order as their order.
  * </p>
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
@@ -61,15 +63,25 @@ import net.devh.boot.grpc.server.security.interceptors.ExceptionTranslatingServe
 @AutoConfigureAfter(WebSecurityEnablerConfiguration.class)
 public class GrpcServerSecurityAutoConfiguration {
 
+    /**
+     * The interceptor for handling security related exceptions such as {@link AuthenticationException} and
+     * {@link AccessDeniedException}.
+     *
+     * @return The exceptionTranslatingServerInterceptor bean.
+     */
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnBean({AccessDecisionManager.class, GrpcSecurityMetadataSource.class})
-    public AuthorizationCheckingServerInterceptor authorizationCheckingServerInterceptor(
-            final AccessDecisionManager accessDecisionManager,
-            final GrpcSecurityMetadataSource securityMetadataSource) {
-        return new AuthorizationCheckingServerInterceptor(accessDecisionManager, securityMetadataSource);
+    public ExceptionTranslatingServerInterceptor exceptionTranslatingServerInterceptor() {
+        return new ExceptionTranslatingServerInterceptor();
     }
 
+    /**
+     * The security interceptor that handles the authentication of requests.
+     *
+     * @param authenticationManager The authentication manager used to verify the credentials.
+     * @param authenticationReader The authentication reader used to extract the credentials from the call.
+     * @return The authenticatingServerInterceptor bean.
+     */
     @Bean
     @ConditionalOnMissingBean
     public AuthenticatingServerInterceptor authenticatingServerInterceptor(
@@ -78,10 +90,20 @@ public class GrpcServerSecurityAutoConfiguration {
         return new AuthenticatingServerInterceptor(authenticationManager, authenticationReader);
     }
 
+    /**
+     * The security interceptor that handles the authorization of requests.
+     *
+     * @param accessDecisionManager The access decision manager used to check the requesting user.
+     * @param securityMetadataSource The source for the security metadata (access constraints).
+     * @return The authorizationCheckingServerInterceptor bean.
+     */
     @Bean
     @ConditionalOnMissingBean
-    public ExceptionTranslatingServerInterceptor exceptionTranslatingServerInterceptor() {
-        return new ExceptionTranslatingServerInterceptor();
+    @ConditionalOnBean({AccessDecisionManager.class, GrpcSecurityMetadataSource.class})
+    public AuthorizationCheckingServerInterceptor authorizationCheckingServerInterceptor(
+            final AccessDecisionManager accessDecisionManager,
+            final GrpcSecurityMetadataSource securityMetadataSource) {
+        return new AuthorizationCheckingServerInterceptor(accessDecisionManager, securityMetadataSource);
     }
 
 }

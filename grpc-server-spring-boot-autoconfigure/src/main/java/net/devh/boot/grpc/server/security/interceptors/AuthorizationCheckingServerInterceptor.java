@@ -19,6 +19,7 @@ package net.devh.boot.grpc.server.security.interceptors;
 
 import static java.util.Objects.requireNonNull;
 
+import org.springframework.core.annotation.Order;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.SecurityMetadataSource;
@@ -33,6 +34,7 @@ import io.grpc.ServerCall.Listener;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.common.util.InterceptorOrder;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 import net.devh.boot.grpc.server.security.check.GrpcSecurityMetadataSource;
 
@@ -52,6 +54,7 @@ import net.devh.boot.grpc.server.security.check.GrpcSecurityMetadataSource;
  */
 @Slf4j
 @GrpcGlobalServerInterceptor
+@Order(InterceptorOrder.ORDER_SECURITY_AUTHORISATION)
 public class AuthorizationCheckingServerInterceptor extends AbstractSecurityInterceptor implements ServerInterceptor {
 
     private final GrpcSecurityMetadataSource securityMetadataSource;

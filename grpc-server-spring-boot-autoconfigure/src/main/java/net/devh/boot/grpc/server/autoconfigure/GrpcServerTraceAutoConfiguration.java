@@ -25,18 +25,33 @@ import org.springframework.context.annotation.Configuration;
 
 import brave.grpc.GrpcTracing;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonTraceAutoConfiguration;
+import net.devh.boot.grpc.common.util.InterceptorOrder;
 import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorConfigurer;
+import net.devh.boot.grpc.server.interceptor.OrderedServerInterceptor;
 
+/**
+ * The configuration used to configure brave's tracing for grpc.
+ *
+ * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ */
 @Configuration
 @ConditionalOnProperty(value = "spring.sleuth.grpc.enabled", matchIfMissing = true)
 @AutoConfigureAfter(GrpcCommonTraceAutoConfiguration.class)
 @ConditionalOnBean(GrpcTracing.class)
 public class GrpcServerTraceAutoConfiguration {
 
+    /**
+     * Configures a global server interceptor that applies brave's tracing logic to the requests.
+     *
+     * @param grpcTracing The grpc tracing bean.
+     * @return The globalTraceServerInterceptorConfigurer bean.
+     */
     @Bean
-    public GlobalServerInterceptorConfigurer globalTraceServerInterceptorConfigurerAdapter(
-            final GrpcTracing grpcTracing) {
-        return registry -> registry.addServerInterceptors(grpcTracing.newServerInterceptor());
+    public GlobalServerInterceptorConfigurer globalTraceServerInterceptorConfigurer(final GrpcTracing grpcTracing) {
+        return registry -> registry.addServerInterceptors(
+                new OrderedServerInterceptor(
+                        grpcTracing.newServerInterceptor(),
+                        InterceptorOrder.ORDER_TRACING_METRICS + 1));
     }
 
 }

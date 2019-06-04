@@ -29,9 +29,8 @@ import io.grpc.Metadata;
 import io.grpc.ServerCall;
 
 /**
- * Combines multiple {@link GrpcAuthenticationReader} into a single one. The interceptors will be executed in the same
- * order the are passed to the constructor. The authentication is aborted if a grpc authentication reader throws an
- * exception.
+ * Combines multiple {@link GrpcAuthenticationReader} into a single one. The readers will be executed in the same order
+ * the are passed to the constructor. The authentication is aborted if a grpc authentication reader throws an exception.
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */

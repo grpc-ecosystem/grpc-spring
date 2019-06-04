@@ -17,6 +17,7 @@
 
 package net.devh.boot.grpc.server.security.interceptors;
 
+import org.springframework.core.annotation.Order;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 
@@ -27,6 +28,7 @@ import io.grpc.ServerCall.Listener;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
+import net.devh.boot.grpc.common.util.InterceptorOrder;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 
 /**
@@ -36,9 +38,16 @@ import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @GrpcGlobalServerInterceptor
+@Order(InterceptorOrder.ORDER_SECURITY_EXCEPTION_HANDLING)
 public class ExceptionTranslatingServerInterceptor implements ServerInterceptor {
 
+    /**
+     * A constant that contains the response message for unauthenticated calls.
+     */
     public static final String UNAUTHENTICATED_DESCRIPTION = "Authentication failed";
+    /**
+     * A constant that contains the response message for calls with insufficient permissions.
+     */
     public static final String ACCESS_DENIED_DESCRIPTION = "Access denied";
 
     @Override

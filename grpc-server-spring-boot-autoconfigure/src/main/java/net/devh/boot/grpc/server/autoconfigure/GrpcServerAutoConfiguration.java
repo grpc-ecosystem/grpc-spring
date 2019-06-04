@@ -60,6 +60,7 @@ public class GrpcServerAutoConfiguration {
         return new GrpcServerProperties();
     }
 
+    @ConditionalOnMissingBean
     @Bean
     public GlobalServerInterceptorRegistry globalServerInterceptorRegistry() {
         return new GlobalServerInterceptorRegistry();
