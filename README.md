@@ -26,7 +26,7 @@ To add a dependency using Maven, use the following:
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-server-spring-boot-starter</artifactId>
-  <version>1.4.1.RELEASE</version>
+  <version>1.4.2.RELEASE</version>
 </dependency>
 ````
 
@@ -34,7 +34,7 @@ To add a dependency using Gradle:
 
 ````
 dependencies {
-  compile 'net.devh:grpc-server-spring-boot-starter:1.4.1.RELEASE'
+  compile 'net.devh:grpc-server-spring-boot-starter:1.4.2.RELEASE'
 }
 ````
 
@@ -59,7 +59,7 @@ To add a dependency using Maven, use the following:
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-client-spring-boot-starter</artifactId>
-  <version>1.4.1.RELEASE</version>
+  <version>1.4.2.RELEASE</version>
 </dependency>
 ````
 
@@ -67,7 +67,7 @@ To add a dependency using Gradle:
 
 ````
 dependencies {
-  compile 'net.devh:grpc-client-spring-boot-starter:1.4.1.RELEASE'
+  compile 'net.devh:grpc-client-spring-boot-starter:1.4.2.RELEASE'
 }
 ````
 
@@ -105,7 +105,7 @@ grpc.client.(gRPC server name).port[0]=
 
 | Project Version  | gRPC-java Version  |
 | ---------------- | ------------------ |
-| 1.4.1.RELEASE    | 1.12.0            |
+| 1.4.2.RELEASE    | 1.12.0            |
 | 1.4.0.RELEASE    | 1.10.0            |
 | 1.3.0.RELEASE    | 1.6.1              |
 | 1.2.0.RELEASE    | 1.3.0              |
