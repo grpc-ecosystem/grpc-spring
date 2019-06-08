@@ -33,7 +33,6 @@ import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
 import org.springframework.context.event.EventListener;
 
 import io.grpc.NameResolver;
-import io.grpc.NameResolver.Helper;
 import io.grpc.internal.GrpcUtil;
 
 /**
@@ -70,7 +69,9 @@ public class DiscoveryClientResolverFactory extends NameResolver.Factory {
 
     @Nullable
     @Override
-    public NameResolver newNameResolver(final URI targetUri, final Helper helper) {
+    @Deprecated
+    // TODO: Update this to grpc-java 1.21 in v2.6.0
+    public NameResolver newNameResolver(final URI targetUri, final io.grpc.NameResolver.Helper helper) {
         if (DISCOVERY_SCHEME.equals(targetUri.getScheme())) {
             final String serviceName = targetUri.getPath();
             if (serviceName == null || serviceName.length() <= 1 || !serviceName.startsWith("/")) {

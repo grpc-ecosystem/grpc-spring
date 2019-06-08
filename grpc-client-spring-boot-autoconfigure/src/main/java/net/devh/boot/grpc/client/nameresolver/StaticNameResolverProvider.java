@@ -30,7 +30,6 @@ import javax.annotation.Nullable;
 
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
-import io.grpc.NameResolver.Helper;
 import io.grpc.NameResolverProvider;
 
 /**
@@ -58,9 +57,11 @@ public class StaticNameResolverProvider extends NameResolverProvider {
 
     @Nullable
     @Override
-    public NameResolver newNameResolver(final URI targetUri, final Helper params) {
+    @Deprecated
+    // TODO: Update this to grpc-java 1.21 in v2.6.0
+    public NameResolver newNameResolver(final URI targetUri, final io.grpc.NameResolver.Helper args) {
         if (STATIC_SCHEME.equals(targetUri.getScheme())) {
-            return of(targetUri.getAuthority(), params);
+            return of(targetUri.getAuthority(), args.getDefaultPort());
         }
         return null;
     }
@@ -69,10 +70,10 @@ public class StaticNameResolverProvider extends NameResolverProvider {
      * Creates a new {@link NameResolver} for the given authority and attributes.
      *
      * @param targetAuthority The authority to connect to.
-     * @param helper Optional parameters that customize the resolve process.
+     * @param defaultPort The default port to use, if none is specified.
      * @return The newly created name resolver for the given target.
      */
-    private NameResolver of(final String targetAuthority, final Helper helper) {
+    private NameResolver of(final String targetAuthority, int defaultPort) {
         requireNonNull(targetAuthority, "targetAuthority");
         // Determine target ips
         final String[] hosts = PATTERN_COMMA.split(targetAuthority);
@@ -81,7 +82,7 @@ public class StaticNameResolverProvider extends NameResolverProvider {
             final URI uri = URI.create("//" + host);
             int port = uri.getPort();
             if (port == -1) {
-                port = helper.getDefaultPort();
+                port = defaultPort;
             }
             targets.add(new EquivalentAddressGroup(new InetSocketAddress(uri.getHost(), port)));
         }
@@ -103,7 +104,7 @@ public class StaticNameResolverProvider extends NameResolverProvider {
 
     @Override
     protected int priority() {
-        return 5; // Default priority
+        return 4; // Less important than DNS
     }
 
     @Override

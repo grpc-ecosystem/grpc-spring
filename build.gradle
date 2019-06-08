@@ -13,8 +13,8 @@ buildscript {
     ext {
         projectVersion = '2.5.0-SNAPSHOT'
 
-        grpcVersion = '1.20.0'
-        protobufVersion = '3.7.1'
+        grpcVersion = '1.21.0'
+        protobufVersion = '3.8.0'
         protobufGradlePluginVersion = '0.8.8'
 
         springBootVersion = '2.1.5.RELEASE'
@@ -24,21 +24,22 @@ buildscript {
         springCloudEurekaVersion = '2.1.1.RELEASE'
         springCloudAlibabaNacosVersion = '0.9.0.RELEASE'
         braveInstrumentationGrpc = '5.6.3'
-        jUnitVersion = '5.3.2'
+        jUnitVersion = '5.4.2'
 
         lombokVersion = '1.18.8'
     }
     dependencies {
-        classpath "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE"
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.7.RELEASE"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
-        classpath "com.diffplug.spotless:spotless-plugin-gradle:3.17.0"
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:3.23.0"
     }
 }
 
 plugins {
     id "net.nemerosa.versioning" version "2.8.2"
-    id "io.franzbecker.gradle-lombok" version "2.0" apply false
+    id "io.franzbecker.gradle-lombok" version "3.1.0" apply false
     id "com.gradle.build-scan" version "2.2.1"
+    id "com.github.ben-manes.versions" version "0.21.0" // gradle dependencyUpdates (Takes quite some time)
 }
 
 buildScan {
@@ -73,7 +74,7 @@ allprojects {
     }
 
     compileJava.options*.compilerArgs = [
-            "-Xlint:all", "-Xlint:-cast", "-Xlint:-processing"
+            "-Xlint:all", "-Xlint:-processing"
     ]
 
     spotless {
@@ -152,6 +153,7 @@ allprojects { project ->
         dependencyManagement {
             imports {
                 mavenBom "io.grpc:grpc-bom:${grpcVersion}"
+                mavenBom "com.google.protobuf:protobuf-bom:${protobufVersion}"
             }
         }
     }

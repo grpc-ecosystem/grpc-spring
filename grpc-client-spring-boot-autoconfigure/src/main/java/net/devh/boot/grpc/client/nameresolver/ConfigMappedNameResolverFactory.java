@@ -25,7 +25,7 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 
 import io.grpc.NameResolver;
-import io.grpc.NameResolver.Helper;
+import io.grpc.NameResolverProvider;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
@@ -41,6 +41,21 @@ public class ConfigMappedNameResolverFactory extends NameResolver.Factory {
     private final GrpcChannelsProperties config;
     private final NameResolver.Factory delegate;
     private final Function<String, URI> defaultUriMapper;
+
+    /**
+     * Creates a new ConfigMappedNameResolverFactory with the given config that resolves the remapped target uri using
+     * the grpc's registered name resolvers.
+     *
+     * @param config The config used to remap the target uri.
+     * @param defaultUriMapper The function to use when no uri is configured for a certain endpoint. This can be useful
+     *        if the address can be derived from the client name.
+     */
+    @SuppressWarnings("deprecation")
+    // TODO: Update this to grpc-java 1.21 in v2.6.0
+    public ConfigMappedNameResolverFactory(final GrpcChannelsProperties config,
+            Function<String, URI> defaultUriMapper) {
+        this(config, NameResolverProvider.asFactory(), defaultUriMapper);
+    }
 
     /**
      * Creates a new ConfigMappedNameResolverFactory with the given config that resolves the remapped target uri using
@@ -60,7 +75,9 @@ public class ConfigMappedNameResolverFactory extends NameResolver.Factory {
 
     @Nullable
     @Override
-    public NameResolver newNameResolver(final URI targetUri, final Helper helper) {
+    @Deprecated
+    // TODO: Update this to grpc-java 1.21 in v2.6.0
+    public NameResolver newNameResolver(final URI targetUri, final io.grpc.NameResolver.Helper helper) {
         final String clientName = targetUri.toString();
         final GrpcChannelProperties clientConfig = this.config.getChannel(clientName);
         URI remappedUri = clientConfig.getAddress();
@@ -77,6 +94,7 @@ public class ConfigMappedNameResolverFactory extends NameResolver.Factory {
 
     @Override
     public String getDefaultScheme() {
+        // The config does not use schemes at all
         return "";
     }
 
