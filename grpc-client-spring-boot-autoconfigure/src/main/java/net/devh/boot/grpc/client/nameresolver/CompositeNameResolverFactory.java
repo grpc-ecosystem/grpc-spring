@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 
 import io.grpc.NameResolver;
-import io.grpc.NameResolver.Helper;
+import io.grpc.NameResolverRegistry;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -36,8 +36,12 @@ import lombok.extern.slf4j.Slf4j;
  * be returned.
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @deprecated Use the NameResolverRegistry instead, this class will be removed in the future.
+ * @see NameResolverRegistry
  */
 @Slf4j
+@Deprecated
+// TODO: Remove this in 2.6.0
 public class CompositeNameResolverFactory extends NameResolver.Factory {
 
     private final List<NameResolver.Factory> factories;
@@ -56,7 +60,7 @@ public class CompositeNameResolverFactory extends NameResolver.Factory {
 
     @Nullable
     @Override
-    public NameResolver newNameResolver(final URI targetUri, final Helper helper) {
+    public NameResolver newNameResolver(final URI targetUri, final io.grpc.NameResolver.Helper helper) {
         log.debug("Trying to create new name resolver for: {}", targetUri);
         for (final NameResolver.Factory factory : this.factories) {
             log.debug("- Attempting with: {}", factory);

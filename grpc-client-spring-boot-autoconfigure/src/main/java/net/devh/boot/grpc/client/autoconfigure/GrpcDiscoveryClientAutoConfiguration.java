@@ -40,12 +40,14 @@ import net.devh.boot.grpc.client.nameresolver.DiscoveryClientResolverFactory;
 @Configuration
 @ConditionalOnBean(DiscoveryClient.class)
 @AutoConfigureBefore(GrpcClientAutoConfiguration.class)
+@SuppressWarnings("deprecation")
 public class GrpcDiscoveryClientAutoConfiguration {
 
     @ConditionalOnMissingBean
     @Lazy // Not needed for InProcessChannelFactories
     @Bean
     @Primary
+    // TODO: Remove the deprecated NameResolverProvider.asFactory() and CompositeNameResolverFactory in v2.6.0
     NameResolver.Factory grpcNameResolverProviderWithDiscovery(final GrpcChannelsProperties channelProperties,
             final DiscoveryClientResolverFactory discoveryClientResolverFactory) {
         final List<NameResolver.Factory> factories = ImmutableList.<NameResolver.Factory>builder()
