@@ -33,7 +33,6 @@ import com.google.common.collect.ImmutableList;
 import io.grpc.NameResolver;
 import io.grpc.NameResolverProvider;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
-import net.devh.boot.grpc.client.nameresolver.CompositeNameResolverFactory;
 import net.devh.boot.grpc.client.nameresolver.ConfigMappedNameResolverFactory;
 import net.devh.boot.grpc.client.nameresolver.DiscoveryClientResolverFactory;
 
@@ -55,7 +54,8 @@ public class GrpcDiscoveryClientAutoConfiguration {
                 .add(NameResolverProvider.asFactory())
                 .build();
         return new ConfigMappedNameResolverFactory(channelProperties,
-                new CompositeNameResolverFactory(DiscoveryClientResolverFactory.DISCOVERY_SCHEME, factories),
+                new net.devh.boot.grpc.client.nameresolver.CompositeNameResolverFactory(
+                        DiscoveryClientResolverFactory.DISCOVERY_SCHEME, factories),
                 DiscoveryClientResolverFactory.DISCOVERY_DEFAULT_URI_MAPPER);
     }
 
