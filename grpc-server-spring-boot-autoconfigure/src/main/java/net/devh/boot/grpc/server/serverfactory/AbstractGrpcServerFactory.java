@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.unit.DataSize;
 
 import com.google.common.collect.Lists;
 
@@ -170,9 +171,9 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
      * @param builder The server builder to configure.
      */
     protected void configureLimits(final T builder) {
-        final Integer maxInboundMessageSize = this.properties.getMaxInboundMessageSize();
+        final DataSize maxInboundMessageSize = this.properties.getMaxInboundMessageSize();
         if (maxInboundMessageSize != null) {
-            builder.maxInboundMessageSize(maxInboundMessageSize);
+            builder.maxInboundMessageSize((int) maxInboundMessageSize.toBytes());
         }
     }
 

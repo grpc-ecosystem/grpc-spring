@@ -26,12 +26,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.unit.DataSize;
 
 /**
  * Tests whether the property resolution using suffixes works.
  */
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(properties = "grpc.server.keepAliveTime=42m")
+@SpringBootTest(properties = {
+        "grpc.server.keepAliveTime=42m",
+        "grpc.server.maxInboundMessageSize=5MB"
+})
 class GrpcServerPropertiesGivenUnitTest {
 
     @Autowired
@@ -40,6 +44,7 @@ class GrpcServerPropertiesGivenUnitTest {
     @Test
     void test() {
         assertEquals(Duration.ofMinutes(42), this.grpcServerProperties.getKeepAliveTime());
+        assertEquals(DataSize.ofMegabytes(5), this.grpcServerProperties.getMaxInboundMessageSize());
     }
 
 }

@@ -25,9 +25,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.convert.DataSizeUnit;
 import org.springframework.boot.convert.DurationUnit;
 import org.springframework.util.SocketUtils;
+import org.springframework.util.unit.DataSize;
+import org.springframework.util.unit.DataUnit;
 
+import io.grpc.ServerBuilder;
 import io.grpc.internal.GrpcUtil;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
@@ -146,14 +150,13 @@ public class GrpcServerProperties {
     private boolean permitKeepAliveWithoutCalls = false;
 
     /**
-     * The maximum message size in bytes allowed to be received by the server. If not set ({@code null}) then it will
-     * default to {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE gRPC's default}. If set to {@code -1} then it will use the
-     * highest possible limit (not recommended).
+     * The maximum message size allowed to be received by the server. If not set ({@code null}) then
+     * {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE gRPC's default} should be used.
      *
-     * @param maxInboundMessageSize The maximum message size.
      * @return The maximum message size allowed.
      */
-    private Integer maxInboundMessageSize = null;
+    @DataSizeUnit(DataUnit.BYTES)
+    private DataSize maxInboundMessageSize = null;
 
     /**
      * Whether gRPC health service is enabled or not. Defaults to {@code true}.
@@ -260,6 +263,7 @@ public class GrpcServerProperties {
         public void setProtocols(String protocols) {
             this.protocols = protocols.split("[ :,]");
         }
+
     }
 
     /**
@@ -267,6 +271,8 @@ public class GrpcServerProperties {
      * will be selected and used.
      *
      * @return The server port to listen to.
+     *
+     * @see #setPort(int)
      */
     public int getPort() {
         if (this.port == 0) {
@@ -276,17 +282,23 @@ public class GrpcServerProperties {
     }
 
     /**
-     * Gets the maximum message size in bytes allowed to be received by the server. If not set ({@code null}) then it
-     * will default to {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE gRPC's default}. If set to {@code -1} then it will use
-     * the highest possible limit (not recommended).
+     * Sets the maximum message size allowed to be received by the server. If not set ({@code null}) then it will
+     * default to {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE gRPC's default}. If set to {@code -1} then it will use the
+     * highest possible limit (not recommended).
      *
-     * @return The maximum message size allowed or null if the default should be used.
+     * @param maxInboundMessageSize The new maximum size allowed for incoming messages. {@code -1} for max possible.
+     *        Null to use the gRPC's default.
+     *
+     * @see ServerBuilder#maxInboundMessageSize(int)
      */
-    public Integer getMaxInboundMessageSize() {
-        if (this.maxInboundMessageSize != null && this.maxInboundMessageSize == -1) {
-            this.maxInboundMessageSize = Integer.MAX_VALUE;
+    public void setMaxInboundMessageSize(final DataSize maxInboundMessageSize) {
+        if (maxInboundMessageSize == null || maxInboundMessageSize.toBytes() >= 0) {
+            this.maxInboundMessageSize = maxInboundMessageSize;
+        } else if (maxInboundMessageSize.toBytes() == -1) {
+            this.maxInboundMessageSize = DataSize.ofBytes(Integer.MAX_VALUE);
+        } else {
+            throw new IllegalArgumentException("Unsupported maxInboundMessageSize: " + maxInboundMessageSize);
         }
-        return this.maxInboundMessageSize;
     }
 
 }

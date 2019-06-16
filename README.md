@@ -31,9 +31,11 @@ application
 
 ## Versions
 
-2.x.x.RELEASE support Spring Boot 2 & Spring Cloud Finchley, Greenwich.
+2.x.x.RELEASE supports Spring Boot 2.1+ & Spring Cloud Greenwich.
 
 The latest version: ``2.4.0.RELEASE``
+
+(Use `2.4.0.RELEASE` for Spring Boot 2.0.X & Spring Cloud Finchley).
 
 1.x.x.RELEASE support Spring Boot 1 & Spring Cloud Edgware, Dalston, Camden.
 
