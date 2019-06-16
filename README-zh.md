@@ -34,9 +34,11 @@ Java技术交流群：294712648 <a target="_blank" href="http://shang.qq.com/wpa
 
 ## 版本
 
-2.x.x.RELEASE 支持 Spring Boot 2 & Spring Cloud Finchley, Greenwich。
+2.x.x.RELEASE 支持 Spring Boot 2.1+ & Spring Cloud Greenwich。
 
 最新的版本：``2.4.0.RELEASE``
+
+(使用 `2.4.0.RELEASE` 版本可以支持 Spring Boot 2.0.X & Spring Cloud Finchley).
 
 1.x.x.RELEASE 支持 Spring Boot 1 & Spring Cloud Edgware 、Dalston、Camden。
 
