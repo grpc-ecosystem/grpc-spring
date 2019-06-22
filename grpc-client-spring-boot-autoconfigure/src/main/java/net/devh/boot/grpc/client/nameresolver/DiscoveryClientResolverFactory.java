@@ -81,7 +81,7 @@ public class DiscoveryClientResolverFactory extends NameResolver.Factory {
             }
             final DiscoveryClientNameResolver discoveryClientNameResolver =
                     new DiscoveryClientNameResolver(serviceName.substring(1), this.client,
-                            GrpcUtil.TIMER_SERVICE, GrpcUtil.SHARED_CHANNEL_EXECUTOR);
+                            GrpcUtil.SHARED_CHANNEL_EXECUTOR);
             this.discoveryClientNameResolvers.add(discoveryClientNameResolver);
             return discoveryClientNameResolver;
         }
