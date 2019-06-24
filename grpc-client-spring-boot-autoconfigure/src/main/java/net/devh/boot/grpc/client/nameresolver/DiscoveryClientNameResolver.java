@@ -41,6 +41,7 @@ import io.grpc.NameResolver;
 import io.grpc.Status;
 import io.grpc.internal.SharedResourceHolder;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.common.util.GrpcUtils;
 
 /**
  * The DiscoveryClientNameResolver resolves the service hosts and their associated gRPC port using the channel's name
@@ -218,7 +219,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
             if (metadata == null) {
                 return null;
             }
-            final String portString = metadata.get("gRPC.port");
+            final String portString = metadata.get(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT);
             if (portString == null) {
                 return null;
             }

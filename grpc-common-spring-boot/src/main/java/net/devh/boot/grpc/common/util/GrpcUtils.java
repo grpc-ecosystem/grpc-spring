@@ -27,6 +27,11 @@ import io.grpc.MethodDescriptor;
 public final class GrpcUtils {
 
     /**
+     * The cloud discovery metadata key used to identify the grpc port.
+     */
+    public static final String CLOUD_DISCOVERY_METADATA_PORT = "gRPC.port";
+
+    /**
      * Extracts the service name from the given method.
      *
      * @param method The method to get the service name from.
