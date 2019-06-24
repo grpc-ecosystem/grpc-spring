@@ -189,7 +189,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
             }
             log.info("Ready to update server list for {}", DiscoveryClientNameResolver.this.name);
             final List<EquivalentAddressGroup> targets = Lists.newArrayList();
-            for (final ServiceInstance instance : this.savedInstanceList) {
+            for (final ServiceInstance instance : newInstanceList) {
                 final Integer port = getGRPCPort(instance);
                 if (port != null) {
                     log.info("Found gRPC server {} {}:{}", DiscoveryClientNameResolver.this.name, instance.getHost(),
