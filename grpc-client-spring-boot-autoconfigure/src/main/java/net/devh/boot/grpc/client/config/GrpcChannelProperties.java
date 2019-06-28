@@ -282,7 +282,7 @@ public class GrpcChannelProperties {
      * the highest possible limit (not recommended).
      *
      * @return The maximum message size allowed or null if the default should be used.
-     * 
+     *
      * @see #setMaxInboundMessageSize(DataSize)
      */
     public DataSize getMaxInboundMessageSize() {
@@ -468,7 +468,7 @@ public class GrpcChannelProperties {
          *
          * @param certificateChainPath The path to the certificate chain.
          *
-         * @see SslContextBuilder#keyManager(File, File)
+         * @see SslContextBuilder#keyManager(File, File, String)
          */
         public void setCertificateChainPath(final String certificateChainPath) {
             this.certificateChainPath = certificateChainPath;
@@ -494,10 +494,36 @@ public class GrpcChannelProperties {
          *
          * @param privateKeyPath The path to the private key.
          *
-         * @see SslContextBuilder#keyManager(File, File)
+         * @see SslContextBuilder#keyManager(File, File, String)
          */
         public void setPrivateKeyPath(final String privateKeyPath) {
             this.privateKeyPath = privateKeyPath;
+        }
+
+        // --------------------------------------------------
+
+        private String privateKeyPassword = null;
+
+        /**
+         * Gets the password for the private key.
+         *
+         * @return The password for the private key or null, if the private key is not set or not encrypted.
+         *
+         * @see #setPrivateKeyPassword(String)
+         */
+        public String getPrivateKeyPassword() {
+            return this.privateKeyPassword;
+        }
+
+        /**
+         * Sets the password for the private key.
+         *
+         * @param privateKeyPassword The password for the private key.
+         *
+         * @see SslContextBuilder#keyManager(File, File, String)
+         */
+        public void setPrivateKeyPassword(final String privateKeyPassword) {
+            this.privateKeyPassword = privateKeyPassword;
         }
 
         // --------------------------------------------------
@@ -611,6 +637,9 @@ public class GrpcChannelProperties {
             }
             if (this.privateKeyPath == null) {
                 this.privateKeyPath = config.privateKeyPath;
+            }
+            if (this.privateKeyPassword == null) {
+                this.privateKeyPassword = config.privateKeyPassword;
             }
             if (this.trustCertCollectionPath == null) {
                 this.trustCertCollectionPath = config.trustCertCollectionPath;
