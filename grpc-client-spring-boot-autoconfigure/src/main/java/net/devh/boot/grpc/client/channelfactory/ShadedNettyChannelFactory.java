@@ -91,7 +91,7 @@ public class ShadedNettyChannelFactory extends AbstractChannelFactory<NettyChann
             if (security.isClientAuthEnabled()) {
                 final File keyCertChainFile = toCheckedFile("keyCertChain", security.getCertificateChainPath());
                 final File privateKeyFile = toCheckedFile("privateKey", security.getPrivateKeyPath());
-                sslContextBuilder.keyManager(keyCertChainFile, privateKeyFile);
+                sslContextBuilder.keyManager(keyCertChainFile, privateKeyFile, security.getPrivateKeyPassword());
             }
 
             final String trustCertCollectionPath = security.getTrustCertCollectionPath();

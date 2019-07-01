@@ -81,7 +81,8 @@ public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServe
         if (security.isEnabled()) {
             final File certificateChainFile = toCheckedFile("certificateChain", security.getCertificateChainPath());
             final File privateKeyFile = toCheckedFile("privateKey", security.getPrivateKeyPath());
-            final SslContextBuilder sslContextBuilder = GrpcSslContexts.forServer(certificateChainFile, privateKeyFile);
+            final SslContextBuilder sslContextBuilder =
+                    GrpcSslContexts.forServer(certificateChainFile, privateKeyFile, security.getPrivateKeyPassword());
 
             if (security.getClientAuth() != ClientAuth.NONE) {
                 sslContextBuilder.clientAuth(of(security.getClientAuth()));

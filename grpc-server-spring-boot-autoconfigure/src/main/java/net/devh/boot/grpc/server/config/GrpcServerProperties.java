@@ -196,9 +196,9 @@ public class GrpcServerProperties {
         private boolean enabled = false;
 
         /**
-         * Path to SSL certificate chain. Required if {@link #isEnabled()} is true.
+         * Path to the SSL certificate chain. Required if {@link #isEnabled()} is true.
          *
-         * @see GrpcSslContexts#forServer(File, File)
+         * @see GrpcSslContexts#forServer(File, File, String)
          *
          * @param certificateChainPath The path to the certificate chain.
          * @return The path to the certificate chain or null, if security is not enabled.
@@ -206,14 +206,24 @@ public class GrpcServerProperties {
         private String certificateChainPath = null;
 
         /**
-         * Path to private key. Required if {@link #enabled} is true.
+         * Path to the private key. Required if {@link #enabled} is true.
          *
-         * @see GrpcSslContexts#forServer(File, File)
+         * @see GrpcSslContexts#forServer(File, File, String)
          *
          * @param privateKeyPath The path to the private key.
          * @return The path to the private key or null, if security is not enabled.
          */
         private String privateKeyPath = null;
+
+        /**
+         * Password for the private key.
+         *
+         * @see GrpcSslContexts#forServer(File, File, String)
+         *
+         * @param privateKeyPassword The password for the private key.
+         * @return The password for the private key or null, if the private key is not set or not encrypted.
+         */
+        private String privateKeyPassword = null;
 
         /**
          * Whether the client has to authenticate himself via certificates. Can be either of {@link ClientAuth#NONE
