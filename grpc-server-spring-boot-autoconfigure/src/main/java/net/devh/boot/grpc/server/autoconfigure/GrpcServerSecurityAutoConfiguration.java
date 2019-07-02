@@ -32,6 +32,7 @@ import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReade
 import net.devh.boot.grpc.server.security.check.GrpcSecurityMetadataSource;
 import net.devh.boot.grpc.server.security.interceptors.AuthenticatingServerInterceptor;
 import net.devh.boot.grpc.server.security.interceptors.AuthorizationCheckingServerInterceptor;
+import net.devh.boot.grpc.server.security.interceptors.DefaultAuthenticatingServerInterceptor;
 import net.devh.boot.grpc.server.security.interceptors.ExceptionTranslatingServerInterceptor;
 
 /**
@@ -87,7 +88,7 @@ public class GrpcServerSecurityAutoConfiguration {
     public AuthenticatingServerInterceptor authenticatingServerInterceptor(
             final AuthenticationManager authenticationManager,
             final GrpcAuthenticationReader authenticationReader) {
-        return new AuthenticatingServerInterceptor(authenticationManager, authenticationReader);
+        return new DefaultAuthenticatingServerInterceptor(authenticationManager, authenticationReader);
     }
 
     /**
