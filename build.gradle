@@ -146,7 +146,7 @@ if (JavaVersion.current().isJava9Compatible()) {
 }
 
 allprojects { project ->
-   buildscript {
+    buildscript {
         dependencyManagement {
             imports {
                 mavenBom "io.grpc:grpc-bom:${grpcVersion}"
@@ -172,6 +172,12 @@ allprojects { project ->
             sourceSets.main.java.srcDirs.each {
                 inputs.dir(it)
                 args(it, "-d", outputDir)
+            }
+        }
+
+        java {
+            registerFeature('optionalSupport') {
+                usingSourceSet(sourceSets.main)
             }
         }
 

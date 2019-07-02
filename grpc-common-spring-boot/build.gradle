@@ -9,9 +9,9 @@ dependencies {
     annotationProcessor("org.springframework.boot:spring-boot-autoconfigure-processor")
 
     compile("org.springframework.boot:spring-boot-starter")
-    compileOnly("org.springframework.boot:spring-boot-starter-actuator")
+    optionalSupportImplementation("org.springframework.boot:spring-boot-starter-actuator")
     compile("io.grpc:grpc-core")
 
-    compileOnly("org.springframework.cloud:spring-cloud-starter-sleuth")
-    compileOnly("io.zipkin.brave:brave-instrumentation-grpc:${braveInstrumentationGrpc}")
+    optionalSupportImplementation("org.springframework.cloud:spring-cloud-starter-sleuth")
+    optionalSupportImplementation("io.zipkin.brave:brave-instrumentation-grpc:${braveInstrumentationGrpc}")
 }
