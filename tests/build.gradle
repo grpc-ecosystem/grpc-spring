@@ -77,10 +77,10 @@ dependencies {
         "org.springframework.boot:spring-boot-starter-test",
         "org.springframework.boot:spring-boot-starter-actuator",
         "org.springframework.security:spring-security-config",
-        "org.junit.jupiter:junit-jupiter-api:${jUnitVersion}"
+        "org.junit.jupiter:junit-jupiter-api"
     )
     testRuntimeOnly(
-        "org.junit.jupiter:junit-jupiter-engine:${jUnitVersion}"
+        "org.junit.jupiter:junit-jupiter-engine"
     )
 }
 

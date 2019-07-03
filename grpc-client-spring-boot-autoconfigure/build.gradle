@@ -23,12 +23,12 @@ dependencies {
     compile("io.grpc:grpc-stub")
 
     testImplementation(
-            "io.grpc:grpc-testing",
-            "org.springframework.boot:spring-boot-starter-test",
-            "org.junit.jupiter:junit-jupiter-api:${jUnitVersion}"
+        "io.grpc:grpc-testing",
+        "org.springframework.boot:spring-boot-starter-test",
+        "org.junit.jupiter:junit-jupiter-api"
     )
     testRuntimeOnly(
-            "org.junit.jupiter:junit-jupiter-engine:${jUnitVersion}"
+        "org.junit.jupiter:junit-jupiter-engine"
     )
 }
 
