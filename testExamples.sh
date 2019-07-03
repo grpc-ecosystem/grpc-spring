@@ -1,6 +1,6 @@
 #!/bin/bash
-./gradlew clean
-./gradlew build
+./gradlew clean --console=plain
+./gradlew build --console=plain
 sleep 2s
 
 ## Local
@@ -8,10 +8,10 @@ localTest() {
 	echo "Starting Local test"
 
 	# Run environment
-	./gradlew :example:local-grpc-server:bootRun -x jar -x classes &
+	./gradlew :example:local-grpc-server:bootRun -x jar -x classes --console=plain &
 	LOCAL_SERVER=$!
 	sleep 10s
-	./gradlew :example:local-grpc-client:bootRun -x jar -x classes &
+	./gradlew :example:local-grpc-client:bootRun -x jar -x classes --console=plain &
 	LOCAL_CLIENT=$!
 	sleep 30s
 
@@ -49,7 +49,7 @@ cloudTest() {
 	echo "Starting Cloud test"
 
 	# Run environment
-	./gradlew :example:cloud-eureka-server:bootRun -x jar -x classes &
+	./gradlew :example:cloud-eureka-server:bootRun -x jar -x classes --console=plain &
 	EUREKA=$!
 	sleep 10s
 
@@ -64,11 +64,11 @@ cloudTest() {
 	sleep 10s
 	cd ..
 
-	./gradlew :example:cloud-grpc-server:bootRun -x jar -x classes &
+	./gradlew :example:cloud-grpc-server:bootRun -x jar -x classes --console=plain &
 	CLOUD_SERVER=$!
 	sleep 30s
 
-	./gradlew :example:cloud-grpc-client:bootRun -x jar -x classes &
+	./gradlew :example:cloud-grpc-client:bootRun -x jar -x classes --console=plain &
 	CLOUD_CLIENT=$!
 	sleep 30s
 
@@ -87,14 +87,14 @@ cloudTest() {
 	sleep 10s
 
 	# and restart server
-	./gradlew :example:cloud-grpc-server:bootRun -x jar -x classes &
+	./gradlew :example:cloud-grpc-server:bootRun -x jar -x classes --console=plain &
 	CLOUD_SERVER=$!
 	sleep 60s
 	
 	# Test again
 	RESPONSE2=$(curl -s localhost:8080/)
 	echo "Response:"
-	echo "$RESPONSE"
+	echo "$RESPONSE2"
 	EXPECTED=$(echo -e "Hello ==> Michael")
 	echo "Expected:"
 	echo "$EXPECTED"
@@ -138,10 +138,10 @@ securityBasicAuthTest() {
 	echo "Starting Security Basic Auth test"
 
 	# Run environment
-	./gradlew :example:security-grpc-server:bootRun -x jar -x classes &
+	./gradlew :example:security-grpc-server:bootRun -x jar -x classes --console=plain &
 	LOCAL_SERVER=$!
 	sleep 10s
-	./gradlew :example:security-grpc-client:bootRun -x jar -x classes &
+	./gradlew :example:security-grpc-client:bootRun -x jar -x classes --console=plain &
 	LOCAL_CLIENT=$!
 	sleep 30s
 
@@ -178,10 +178,10 @@ securityBearerAuthTest() {
 	echo "Starting Security Bearer Auth test"
 
 	# Run environment
-	./gradlew :example:security-grpc-bearerAuth-server:bootRun -x jar -x classes &
+	./gradlew :example:security-grpc-bearerAuth-server:bootRun -x jar -x classes --console=plain &
 	LOCAL_SERVER=$!
 	sleep 10s
-	./gradlew :example:security-grpc-bearerAuth-client:bootRun -x jar -x classes &
+	./gradlew :example:security-grpc-bearerAuth-client:bootRun -x jar -x classes --console=plain &
 	LOCAL_CLIENT=$!
 	sleep 30s
 
