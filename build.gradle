@@ -17,14 +17,10 @@ buildscript {
         protobufVersion = '3.8.0'
         protobufGradlePluginVersion = '0.8.8'
 
-        springBootVersion = '2.1.5.RELEASE'
-        springCloudVersion = 'Greenwich.SR1' // Only used in examples
-        springCloudSleuthVersion = '2.1.1.RELEASE'
-        springCloudConsulVersion = '2.1.1.RELEASE'
-        springCloudEurekaVersion = '2.1.1.RELEASE'
+        springBootVersion = '2.1.6.RELEASE'
+        springCloudVersion = 'Greenwich.SR2'
         springCloudAlibabaNacosVersion = '0.9.0.RELEASE'
         braveInstrumentationGrpc = '5.6.3'
-        jUnitVersion = '5.4.2'
 
         lombokVersion = '1.18.8'
     }
@@ -154,23 +150,16 @@ allprojects { project ->
             imports {
                 mavenBom "io.grpc:grpc-bom:${grpcVersion}"
                 mavenBom "com.google.protobuf:protobuf-bom:${protobufVersion}"
+                mavenBom "org.springframework.boot:spring-boot-starter-parent:${springBootVersion}"
+                mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
             }
         }
-    }
-    if (project.parent?.name != "examples") {
 
-        buildscript {
-            dependencyManagement {
-                imports {
-                    mavenBom "org.springframework.boot:spring-boot-starter-parent:${springBootVersion}"
-                }
-            }
-
-            ext {
-                micrometerVersion = dependencyManagement.importedProperties['micrometer.version']
-                springFrameworkVersion = dependencyManagement.importedProperties['spring.version']
-                springSecurityVersion = dependencyManagement.importedProperties['spring-security.version']
-            }
+        ext {
+            micrometerVersion = dependencyManagement.importedProperties['micrometer.version']
+            springFrameworkVersion = dependencyManagement.importedProperties['spring-framework.version']
+            springSecurityVersion = dependencyManagement.importedProperties['spring-security.version']
+            springCloudCommonsVersion = dependencyManagement.importedProperties['spring-cloud-commons.version']
         }
     }
     if (project.name == 'grpc-common-spring-boot' || project.name == 'grpc-client-spring-boot-autoconfigure' || project.name == 'grpc-server-spring-boot-autoconfigure') {
@@ -182,6 +171,12 @@ allprojects { project ->
             sourceSets.main.java.srcDirs.each {
                 inputs.dir(it)
                 args(it, "-d", outputDir)
+            }
+        }
+
+        java {
+            registerFeature('optionalSupport') {
+                usingSourceSet(sourceSets.main)
             }
         }
 
@@ -199,7 +194,12 @@ allprojects { project ->
                     'https://grpc.io/grpc-java/javadoc/',
                     'https://static.javadoc.io/io.micrometer/micrometer-core/' + micrometerVersion + '/',
                     'https://docs.spring.io/spring-framework/docs/' + springFrameworkVersion + '/javadoc-api/',
-                    'https://docs.spring.io/spring-security/site/docs/' + springSecurityVersion + '/api/'
+                    'https://docs.spring.io/spring-security/site/docs/' + springSecurityVersion + '/api/',
+                    'https://docs.spring.io/spring-boot/docs/' + springBootVersion + '/api/',
+                    'https://static.javadoc.io/org.springframework.cloud/spring-cloud-commons/' + springCloudCommonsVersion + '/',
+                    // 'https://static.javadoc.io/io.zipkin.brave/brave/' + braveInstrumentationGrpc + '/', // Requires javadoc 11
+                    // 'https://static.javadoc.io/io.zipkin.brave/brave-instrumentation-grpc/' + braveInstrumentationGrpc + '/', // Requires javadoc 11
+                    'https://google.github.io/guava/releases/26.0-android/api/docs/'
             ]
         }
     }

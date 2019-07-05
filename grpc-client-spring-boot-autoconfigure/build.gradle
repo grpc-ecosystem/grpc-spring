@@ -11,13 +11,13 @@ dependencies {
 
     compile project(':grpc-common-spring-boot')
     compile("org.springframework.boot:spring-boot-starter")
-    compileOnly("org.springframework.boot:spring-boot-starter-actuator")
-    compileOnly("org.springframework.cloud:spring-cloud-starter-sleuth:${springCloudSleuthVersion}")
-    compileOnly("org.springframework.cloud:spring-cloud-starter-consul-discovery:${springCloudConsulVersion}")
-    compileOnly("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:${springCloudEurekaVersion}")
-    compileOnly("io.zipkin.brave:brave-instrumentation-grpc:${braveInstrumentationGrpc}")
-    compileOnly("javax.inject:javax.inject:1")
-    compileOnly("io.grpc:grpc-netty")
+    optionalSupportImplementation("org.springframework.boot:spring-boot-starter-actuator")
+    optionalSupportImplementation("org.springframework.cloud:spring-cloud-starter-sleuth")
+    optionalSupportImplementation("org.springframework.cloud:spring-cloud-starter-consul-discovery")
+    optionalSupportImplementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
+    optionalSupportImplementation("io.zipkin.brave:brave-instrumentation-grpc:${braveInstrumentationGrpc}")
+    optionalSupportImplementation("javax.inject:javax.inject:1")
+    optionalSupportImplementation("io.grpc:grpc-netty")
     compile("io.grpc:grpc-netty-shaded")
     compile("io.grpc:grpc-protobuf")
     compile("io.grpc:grpc-stub")
@@ -25,10 +25,10 @@ dependencies {
     testImplementation(
         "io.grpc:grpc-testing",
         "org.springframework.boot:spring-boot-starter-test",
-        "org.junit.jupiter:junit-jupiter-api:${jUnitVersion}"
+        "org.junit.jupiter:junit-jupiter-api"
     )
     testRuntimeOnly(
-        "org.junit.jupiter:junit-jupiter-engine:${jUnitVersion}"
+        "org.junit.jupiter:junit-jupiter-engine"
     )
 }
 
