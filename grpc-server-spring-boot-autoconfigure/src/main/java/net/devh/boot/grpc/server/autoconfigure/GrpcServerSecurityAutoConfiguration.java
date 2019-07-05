@@ -84,8 +84,8 @@ public class GrpcServerSecurityAutoConfiguration {
      * @return The authenticatingServerInterceptor bean.
      */
     @Bean
-    @ConditionalOnMissingBean
-    public AuthenticatingServerInterceptor authenticatingServerInterceptor(
+    @ConditionalOnMissingBean(AuthenticatingServerInterceptor.class)
+    public DefaultAuthenticatingServerInterceptor authenticatingServerInterceptor(
             final AuthenticationManager authenticationManager,
             final GrpcAuthenticationReader authenticationReader) {
         return new DefaultAuthenticatingServerInterceptor(authenticationManager, authenticationReader);
