@@ -125,7 +125,7 @@ public class GrpcServerFactoryAutoConfiguration {
      * @param serviceDiscoverer The discoverer used to identify the services that should be served.
      * @return The shadedNettyGrpcServerFactory bean.
      */
-    @ConditionalOnProperty(prefix = "grpc.server", name = "inProcessName")
+    @ConditionalOnProperty(prefix = "grpc.server", name = "in-process-name")
     @Bean
     public InProcessGrpcServerFactory inProcessGrpcServerFactory(final GrpcServerProperties properties,
             final GrpcServiceDiscoverer serviceDiscoverer) {
