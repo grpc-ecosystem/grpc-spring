@@ -106,6 +106,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
 
     @GuardedBy("this")
     private void resolve() {
+        log.debug("Scheduled resolve for {}", this.name);
         if (this.resolving || this.shutdown) {
             return;
         }
@@ -176,35 +177,41 @@ public class DiscoveryClientNameResolver extends NameResolver {
          *         should be used.
          */
         private List<ServiceInstance> resolveInternal() {
+            final String name = DiscoveryClientNameResolver.this.name;
             final List<ServiceInstance> newInstanceList =
-                    DiscoveryClientNameResolver.this.client.getInstances(DiscoveryClientNameResolver.this.name);
+                    DiscoveryClientNameResolver.this.client.getInstances(name);
+            log.debug("Got {} candidate servers for {}", newInstanceList.size(), name);
             if (CollectionUtils.isEmpty(newInstanceList)) {
-                this.savedListener.onError(Status.UNAVAILABLE
-                        .withDescription("No servers found for " + DiscoveryClientNameResolver.this.name));
+                log.error("No servers found for {}", name);
+                this.savedListener.onError(Status.UNAVAILABLE.withDescription("No servers found for " + name));
                 return Lists.newArrayList();
             }
             if (!needsToUpdateConnections(newInstanceList)) {
-                log.debug("Nothing has changed... skipping update for {}", DiscoveryClientNameResolver.this.name);
+                log.debug("Nothing has changed... skipping update for {}", name);
                 return null;
             }
-            log.info("Ready to update server list for {}", DiscoveryClientNameResolver.this.name);
+            log.debug("Ready to update server list for {}", name);
             final List<EquivalentAddressGroup> targets = Lists.newArrayList();
             for (final ServiceInstance instance : newInstanceList) {
                 final Integer port = getGRPCPort(instance);
                 if (port != null) {
-                    log.info("Found gRPC server {} {}:{}", DiscoveryClientNameResolver.this.name, instance.getHost(),
-                            port);
-                    final EquivalentAddressGroup target = new EquivalentAddressGroup(
-                            new InetSocketAddress(instance.getHost(), port), Attributes.EMPTY);
-                    targets.add(target);
+                    log.debug("Found gRPC server {}:{} for {}", instance.getHost(), port, name);
+                    targets.add(new EquivalentAddressGroup(
+                            new InetSocketAddress(instance.getHost(), port), Attributes.EMPTY));
                 } else {
-                    log.error("Cannot find gRPC server port for {} in {} - Skipping",
-                            DiscoveryClientNameResolver.this.name, instance);
+                    log.warn("Cannot find gRPC server port for {} in {} - Skipping", name, instance);
                 }
             }
-            this.savedListener.onAddresses(targets, Attributes.EMPTY);
-            log.info("Done updating server list for {}", DiscoveryClientNameResolver.this.name);
-            return newInstanceList;
+            if (targets.isEmpty()) {
+                log.error("None of the servers for {} specified a gRPC port", name);
+                this.savedListener.onError(Status.UNAVAILABLE
+                        .withDescription("None of the servers for " + name + " specified a gRPC port"));
+                return Lists.newArrayList();
+            } else {
+                this.savedListener.onAddresses(targets, Attributes.EMPTY);
+                log.info("Done updating server list for {}", name);
+                return newInstanceList;
+            }
         }
 
         /**
