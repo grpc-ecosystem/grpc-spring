@@ -28,6 +28,7 @@ import org.springframework.context.annotation.Configuration;
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.discovery.EurekaClient;
 
+import net.devh.boot.grpc.common.util.GrpcUtils;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 
 /**
@@ -54,7 +55,7 @@ public class GrpcMetadataEurekaConfiguration {
         }
         final int port = this.grpcProperties.getPort();
         if (port != -1) {
-            this.instance.getMetadataMap().put("gRPC.port", Integer.toString(port));
+            this.instance.getMetadataMap().put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT, Integer.toString(port));
         }
     }
 
