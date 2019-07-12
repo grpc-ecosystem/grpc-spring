@@ -28,6 +28,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.alibaba.nacos.client.naming.NacosNamingService;
 
+import net.devh.boot.grpc.common.util.GrpcUtils;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 
 /**
@@ -53,7 +54,7 @@ public class GrpcMetadataNacosConfiguration {
         }
         final int port = this.grpcProperties.getPort();
         if (port != -1) {
-            this.nacosRegistration.getMetadata().put("gRPC.port", Integer.toString(port));
+            this.nacosRegistration.getMetadata().put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT, Integer.toString(port));
         }
     }
 

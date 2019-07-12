@@ -23,6 +23,7 @@ import java.util.List;
 import org.springframework.cloud.consul.serviceregistry.ConsulRegistration;
 import org.springframework.cloud.consul.serviceregistry.ConsulRegistrationCustomizer;
 
+import net.devh.boot.grpc.common.util.GrpcUtils;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 
 /**
@@ -53,7 +54,7 @@ public class ConsulGrpcRegistrationCustomizer implements ConsulRegistrationCusto
         }
         final int port = this.grpcServerProperties.getPort();
         if (port != -1) {
-            tags.add("gRPC.port=" + port);
+            tags.add(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT + "=" + port);
             registration.getService().setTags(tags);
         }
     }
