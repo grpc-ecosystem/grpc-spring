@@ -171,7 +171,7 @@ public class GrpcRequestScope implements Scope, BeanFactoryPostProcessor, Server
         }
 
         /**
-         * Destroys the all beans in the scope and executes their destruction callbacks.
+         * Destroys all beans in the scope and executes their destruction callbacks.
          */
         public void destroy() {
             final List<RuntimeException> errors = new ArrayList<>();
@@ -214,6 +214,11 @@ public class GrpcRequestScope implements Scope, BeanFactoryPostProcessor, Server
             this.objectFactory = objectFactory;
         }
 
+        /**
+         * Gets or creates the bean managed by this instance.
+         *
+         * @return The existing or newly created bean instance.
+         */
         public synchronized Object getBean() {
             if (this.bean == null) {
                 this.bean = this.objectFactory.getObject();
@@ -221,14 +226,27 @@ public class GrpcRequestScope implements Scope, BeanFactoryPostProcessor, Server
             return this.bean;
         }
 
+        /**
+         * Gets the bean managed by this instance, if it exists.
+         *
+         * @return The existing bean or null.
+         */
         public Object getBeanIfExists() {
             return this.bean;
         }
 
+        /**
+         * Sets the given callback used to destroy the managed bean.
+         *
+         * @param destructionCallback The destruction callback to use.
+         */
         public void setDestructionCallback(final Runnable destructionCallback) {
             this.destructionCallback = destructionCallback;
         }
 
+        /**
+         * Executes the destruction callback if set and clears the internal bean references.
+         */
         public synchronized void destroy() {
             Runnable callback = this.destructionCallback;
             if (callback != null) {

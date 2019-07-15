@@ -89,6 +89,10 @@ public class GrpcRequestScopeTest {
         log.debug("A: {} - B: {}", scope1.getText(), scope2.getText());
     }
 
+    /**
+     * Helper class used to check that the scoped responses are different per request, but the same for different
+     * messages in the same request.
+     */
     private static class ScopedStreamObserverChecker implements StreamObserver<SomeType> {
 
         private String text;

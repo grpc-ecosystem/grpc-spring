@@ -37,7 +37,8 @@ public class ScopedTestServiceImpl extends TestServiceImpl {
 
             @Override
             public void onNext(final SomeType input) {
-                final SomeType version = input.toBuilder().setVersion(requestId.getId()).build();
+                final SomeType version =
+                        input.toBuilder().setVersion(ScopedTestServiceImpl.this.requestId.getId()).build();
                 responseObserver.onNext(version);
             }
 
@@ -54,6 +55,9 @@ public class ScopedTestServiceImpl extends TestServiceImpl {
         };
     }
 
+    /**
+     * Fake scoped bean used to simulate variable contents. May not be a final class.
+     */
     public static class RequestId {
 
         private final String id = UUID.randomUUID().toString();
