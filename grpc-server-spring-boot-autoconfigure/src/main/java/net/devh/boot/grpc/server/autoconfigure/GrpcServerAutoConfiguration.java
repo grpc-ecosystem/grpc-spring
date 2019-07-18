@@ -36,6 +36,7 @@ import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import net.devh.boot.grpc.server.interceptor.AnnotationGlobalServerInterceptorConfigurer;
 import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorRegistry;
+import net.devh.boot.grpc.server.scope.GrpcRequestScope;
 import net.devh.boot.grpc.server.serverfactory.GrpcServerConfigurer;
 import net.devh.boot.grpc.server.serverfactory.GrpcServerFactory;
 import net.devh.boot.grpc.server.serverfactory.GrpcServerLifecycle;
@@ -53,6 +54,16 @@ import net.devh.boot.grpc.server.service.GrpcServiceDiscoverer;
 @ConditionalOnClass(Server.class)
 @AutoConfigureAfter(GrpcCommonCodecAutoConfiguration.class)
 public class GrpcServerAutoConfiguration {
+
+    /**
+     * A scope that is valid for the duration of a grpc request.
+     *
+     * @return The grpc request scope bean.
+     */
+    @Bean
+    public static GrpcRequestScope grpcRequestScope() {
+        return new GrpcRequestScope();
+    }
 
     @ConditionalOnMissingBean
     @Bean
