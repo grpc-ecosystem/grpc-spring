@@ -92,7 +92,7 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
 
     @Override
     public Channel createChannel(final String name, final List<ClientInterceptor> customInterceptors,
-            boolean sortInterceptors) {
+            final boolean sortInterceptors) {
         final Channel channel;
         synchronized (this) {
             if (this.shutdown) {
@@ -187,9 +187,9 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
 
         if (properties.getNegotiationType() != NegotiationType.TLS // non-default
                 || isNonNullAndNonBlank(security.getAuthorityOverride())
-                || isNonNullAndNonBlank(security.getCertificateChainPath())
-                || isNonNullAndNonBlank(security.getPrivateKeyPath())
-                || isNonNullAndNonBlank(security.getTrustCertCollectionPath())) {
+                || security.getCertificateChain() != null
+                || security.getPrivateKey() != null
+                || security.getTrustCertCollection() != null) {
             throw new IllegalStateException(
                     "Security is configured but this implementation does not support security!");
         }

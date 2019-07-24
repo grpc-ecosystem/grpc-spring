@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.util.unit.DataSize;
 
 import com.google.common.collect.Lists;
@@ -148,7 +149,10 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
      * @param context The context for what the file is used. This value will be used in case of exceptions.
      * @param path The path of the file to use.
      * @return The file instance created with the given path.
+     * @deprecated Will be removed in a future version. Prefer spring's {@link Resource}s instead of plain files.
      */
+    @Deprecated
+    // TODO: Remove in 2.7.0
     protected File toCheckedFile(final String context, final String path) {
         if (path == null || path.trim().isEmpty()) {
             throw new IllegalArgumentException(context + " path cannot be null or blank");

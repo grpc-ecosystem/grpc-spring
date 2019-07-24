@@ -18,6 +18,7 @@
 package net.devh.boot.grpc.client.config;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URI;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -27,6 +28,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.boot.convert.DataSizeUnit;
 import org.springframework.boot.convert.DurationUnit;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.util.unit.DataSize;
 import org.springframework.util.unit.DataUnit;
 
@@ -40,6 +43,7 @@ import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The channel properties for a single named gRPC channel or service reference.
@@ -49,6 +53,7 @@ import lombok.ToString;
  * @since 5/17/16
  */
 @ToString
+@Slf4j
 @EqualsAndHashCode
 public class GrpcChannelProperties {
 
@@ -450,16 +455,28 @@ public class GrpcChannelProperties {
 
         // --------------------------------------------------
 
-        private String certificateChainPath = null;
+        private Resource certificateChain = null;
 
         /**
-         * Gets the path to SSL certificate chain.
+         * Gets the resource containing the SSL certificate chain.
          *
-         * @return The path to the certificate chain or null, if security is not enabled.
-         * @see #setCertificateChainPath(String)
+         * @return The certificate chain resource or null, if security is not enabled.
+         * @see #setCertificateChain(Resource)
          */
-        public String getCertificateChainPath() {
-            return this.certificateChainPath;
+        public Resource getCertificateChain() {
+            return this.certificateChain;
+        }
+
+        /**
+         * Sets the resource containing the SSL certificate chain. Required if {@link #isClientAuthEnabled()} is true.
+         * The linked certificate will be used to authenticate the client.
+         *
+         * @param certificateChain The certificate chain.
+         *
+         * @see SslContextBuilder#keyManager(InputStream, InputStream, String)
+         */
+        public void setCertificateChain(final Resource certificateChain) {
+            this.certificateChain = certificateChain;
         }
 
         /**
@@ -469,24 +486,38 @@ public class GrpcChannelProperties {
          * @param certificateChainPath The path to the certificate chain.
          *
          * @see SslContextBuilder#keyManager(File, File, String)
+         * @deprecated Use {@link #setCertificateChain(Resource)} instead!
          */
+        @Deprecated
         public void setCertificateChainPath(final String certificateChainPath) {
-            this.certificateChainPath = certificateChainPath;
+            log.warn("The certificateChainPath is deprecated. Please use certificateChain instead");
+            this.certificateChain = new FileSystemResource(certificateChainPath);
         }
 
         // --------------------------------------------------
 
-        private String privateKeyPath = null;
+        private Resource privateKey = null;
 
         /**
-         * Gets the path to the private key.
+         * Gets resource containing the private key.
          *
-         * @return The path to the private key or null, if security is not enabled.
+         * @return The private key resource or null, if security is not enabled.
          *
-         * @see #setPrivateKeyPath(String)
+         * @see #setPrivateKey(Resource)
          */
-        public String getPrivateKeyPath() {
-            return this.privateKeyPath;
+        public Resource getPrivateKey() {
+            return this.privateKey;
+        }
+
+        /**
+         * Sets the resource containing the private key. Required if {@link #isClientAuthEnabled} is true.
+         *
+         * @param privateKey The private key resource.
+         *
+         * @see SslContextBuilder#keyManager(InputStream, InputStream, String)
+         */
+        public void setPrivateKey(final Resource privateKey) {
+            this.privateKey = privateKey;
         }
 
         /**
@@ -494,10 +525,13 @@ public class GrpcChannelProperties {
          *
          * @param privateKeyPath The path to the private key.
          *
-         * @see SslContextBuilder#keyManager(File, File, String)
+         * @see SslContextBuilder#keyManager(InputStream, InputStream, String)
+         * @deprecated Use {@link #setPrivateKey(Resource)} instead!
          */
+        @Deprecated
         public void setPrivateKeyPath(final String privateKeyPath) {
-            this.privateKeyPath = privateKeyPath;
+            log.warn("The privateKeyPath is deprecated. Please use privateKey instead");
+            this.privateKey = new FileSystemResource(privateKeyPath);
         }
 
         // --------------------------------------------------
@@ -528,18 +562,30 @@ public class GrpcChannelProperties {
 
         // --------------------------------------------------
 
-        private String trustCertCollectionPath = null;
+        private Resource trustCertCollection = null;
 
         /**
-         * Gets the path to the trusted certificate collection. If {@code null} or empty the use the system's default
-         * collection should be used.
+         * Gets the resource containing the the trusted certificate collection. If {@code null} or empty the use the
+         * system's default collection should be used.
          *
-         * @return The path to the trusted certificate collection or null.
+         * @return The trusted certificate collection resource or null.
          *
-         * @see #setTrustCertCollectionPath(String)
+         * @see #setTrustCertCollection(Resource)
          */
-        public String getTrustCertCollectionPath() {
-            return this.trustCertCollectionPath;
+        public Resource getTrustCertCollection() {
+            return this.trustCertCollection;
+        }
+
+        /**
+         * Sets the resource containing the trusted certificate collection. If not set ({@code null}) it will use the
+         * system's default collection (Default). This collection will be used to verify server certificates.
+         *
+         * @param trustCertCollection The path to the trusted certificate collection.
+         *
+         * @see SslContextBuilder#trustManager(InputStream)
+         */
+        public void setTrustCertCollection(final Resource trustCertCollection) {
+            this.trustCertCollection = trustCertCollection;
         }
 
         /**
@@ -548,10 +594,13 @@ public class GrpcChannelProperties {
          *
          * @param trustCertCollectionPath The path to the trusted certificate collection.
          *
-         * @see SslContextBuilder#trustManager(File)
+         * @see SslContextBuilder#trustManager(InputStream)
+         * @deprecated Use {@link #setTrustCertCollection(Resource)} instead!
          */
+        @Deprecated
         public void setTrustCertCollectionPath(final String trustCertCollectionPath) {
-            this.trustCertCollectionPath = trustCertCollectionPath;
+            log.warn("The trustCertCollectionPath is deprecated. Please use trustCertCollection instead");
+            this.trustCertCollection = new FileSystemResource(trustCertCollectionPath);
         }
 
         // --------------------------------------------------
@@ -595,7 +644,7 @@ public class GrpcChannelProperties {
         /**
          * @param ciphers Cipher suite consisting of one or more cipher strings separated by colons, commas or spaces
          */
-        public void setCiphers(String ciphers) {
+        public void setCiphers(final String ciphers) {
             this.ciphers = Arrays.asList(ciphers.split("[ :,]"));
         }
 
@@ -613,7 +662,7 @@ public class GrpcChannelProperties {
         /**
          * @param protocols Protocol list consisting of one or more protocols separated by colons, commas or spaces.
          */
-        public void setProtocols(String protocols) {
+        public void setProtocols(final String protocols) {
             this.protocols = protocols.split("[ :,]");
         }
 
@@ -632,17 +681,17 @@ public class GrpcChannelProperties {
             if (this.clientAuthEnabled == null) {
                 this.clientAuthEnabled = config.clientAuthEnabled;
             }
-            if (this.certificateChainPath == null) {
-                this.certificateChainPath = config.certificateChainPath;
+            if (this.certificateChain == null) {
+                this.certificateChain = config.certificateChain;
             }
-            if (this.privateKeyPath == null) {
-                this.privateKeyPath = config.privateKeyPath;
+            if (this.privateKey == null) {
+                this.privateKey = config.privateKey;
             }
             if (this.privateKeyPassword == null) {
                 this.privateKeyPassword = config.privateKeyPassword;
             }
-            if (this.trustCertCollectionPath == null) {
-                this.trustCertCollectionPath = config.trustCertCollectionPath;
+            if (this.trustCertCollection == null) {
+                this.trustCertCollection = config.trustCertCollection;
             }
             if (this.authorityOverride == null) {
                 this.authorityOverride = config.authorityOverride;
