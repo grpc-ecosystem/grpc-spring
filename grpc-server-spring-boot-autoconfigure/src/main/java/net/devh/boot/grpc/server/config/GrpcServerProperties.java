@@ -220,7 +220,8 @@ public class GrpcServerProperties {
          */
         @Deprecated
         public void setCertificateChainPath(final String certificateChainPath) {
-            log.warn("The certificateChainPath is deprecated. Please use certificateChain instead");
+            log.warn("The certificateChainPath is deprecated. Please use certificateChain instead.\n"
+                    + "grpc.server.security.certificateChain=file:{}", certificateChainPath);
             this.certificateChain = new FileSystemResource(certificateChainPath);
         }
 
@@ -244,7 +245,8 @@ public class GrpcServerProperties {
          */
         @Deprecated
         public void setPrivateKeyPath(final String privateKeyPath) {
-            log.warn("The privateKeyPath is deprecated. Please use privateKey instead");
+            log.warn("The privateKeyPath is deprecated. Please use privateKey instead.\n"
+                    + "grpc.server.security.privateKey=file:{}", privateKeyPath);
             this.privateKey = new FileSystemResource(privateKeyPath);
         }
 
@@ -289,12 +291,12 @@ public class GrpcServerProperties {
          * @see SslContextBuilder#trustManager(InputStream)
          *
          * @param trustCertCollectionPath The path to the trusted certificate collection.
-         * @return The path to the trusted certificate collection or null.
          * @deprecated Use {@link #setTrustCertCollection(Resource)} instead!
          */
         @Deprecated
         public void setTrustCertCollectionPath(final String trustCertCollectionPath) {
-            log.warn("The trustCertCollectionPath is deprecated. Please use trustCertCollection instead");
+            log.warn("The trustCertCollectionPath is deprecated. Please use trustCertCollection instead.\n"
+                    + "grpc.server.security.trustCertCollection=file:{}", trustCertCollectionPath);
             this.trustCertCollection = new FileSystemResource(trustCertCollectionPath);
         }
 

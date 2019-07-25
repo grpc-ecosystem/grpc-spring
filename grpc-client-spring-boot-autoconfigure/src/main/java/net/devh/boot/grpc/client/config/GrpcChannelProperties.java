@@ -490,7 +490,8 @@ public class GrpcChannelProperties {
          */
         @Deprecated
         public void setCertificateChainPath(final String certificateChainPath) {
-            log.warn("The certificateChainPath is deprecated. Please use certificateChain instead");
+            log.warn("The certificateChainPath is deprecated. Please use certificateChain instead.\n"
+                    + "grpc.client.<name>.security.certificateChain=file:{}", certificateChainPath);
             this.certificateChain = new FileSystemResource(certificateChainPath);
         }
 
@@ -530,7 +531,8 @@ public class GrpcChannelProperties {
          */
         @Deprecated
         public void setPrivateKeyPath(final String privateKeyPath) {
-            log.warn("The privateKeyPath is deprecated. Please use privateKey instead");
+            log.warn("The privateKeyPath is deprecated. Please use privateKey instead.\n"
+                    + "grpc.client.<name>.security.privateKey=file:{}", privateKeyPath);
             this.privateKey = new FileSystemResource(privateKeyPath);
         }
 
@@ -599,7 +601,8 @@ public class GrpcChannelProperties {
          */
         @Deprecated
         public void setTrustCertCollectionPath(final String trustCertCollectionPath) {
-            log.warn("The trustCertCollectionPath is deprecated. Please use trustCertCollection instead");
+            log.warn("The trustCertCollectionPath is deprecated. Please use trustCertCollection instead.\n"
+                    + "grpc.client.<name>.security.trustCertCollection=file:{}", trustCertCollectionPath);
             this.trustCertCollection = new FileSystemResource(trustCertCollectionPath);
         }
 
