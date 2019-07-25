@@ -33,15 +33,15 @@ import net.devh.boot.grpc.test.config.ServiceConfiguration;
 @Slf4j
 @SpringBootTest(properties = {
         "grpc.server.security.enabled=true",
-        "grpc.server.security.certificateChainPath=src/test/resources/certificates/server.crt",
-        "grpc.server.security.privateKeyPath=src/test/resources/certificates/server.key",
-        "grpc.server.security.trustCertCollectionPath=src/test/resources/certificates/trusted-clients-collection",
+        "grpc.server.security.certificateChain=file:src/test/resources/certificates/server.crt",
+        "grpc.server.security.privateKey=file:src/test/resources/certificates/server.key",
+        "grpc.server.security.trustCertCollection=file:src/test/resources/certificates/trusted-clients-collection",
         "grpc.server.security.clientAuth=REQUIRE",
         "grpc.client.test.security.authorityOverride=localhost",
-        "grpc.client.test.security.trustCertCollectionPath=src/test/resources/certificates/trusted-servers-collection",
+        "grpc.client.test.security.trustCertCollection=file:src/test/resources/certificates/trusted-servers-collection",
         "grpc.client.test.security.clientAuthEnabled=false", // <-- client auth not enabled
-        "grpc.client.test.security.certificateChainPath=src/test/resources/certificates/client1.crt",
-        "grpc.client.test.security.privateKeyPath=src/test/resources/certificates/client1.key"})
+        "grpc.client.test.security.certificateChain=file:src/test/resources/certificates/client1.crt",
+        "grpc.client.test.security.privateKey=file:src/test/resources/certificates/client1.key"})
 @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
 @DirtiesContext
 public class BrokenClientSelfSignedMutualSetupTest extends AbstractBrokenServerClientTest {

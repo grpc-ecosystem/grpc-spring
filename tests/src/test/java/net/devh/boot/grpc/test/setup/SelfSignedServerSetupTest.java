@@ -33,10 +33,10 @@ import net.devh.boot.grpc.test.config.ServiceConfiguration;
 @Slf4j
 @SpringBootTest(properties = {
         "grpc.server.security.enabled=true",
-        "grpc.server.security.certificateChainPath=src/test/resources/certificates/server.crt",
-        "grpc.server.security.privateKeyPath=src/test/resources/certificates/server.key",
+        "grpc.server.security.certificateChain=file:src/test/resources/certificates/server.crt",
+        "grpc.server.security.privateKey=file:src/test/resources/certificates/server.key",
         "grpc.client.test.security.authorityOverride=localhost",
-        "grpc.client.test.security.trustCertCollectionPath=src/test/resources/certificates/trusted-servers-collection"
+        "grpc.client.test.security.trustCertCollection=file:src/test/resources/certificates/trusted-servers-collection"
 })
 @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
 @DirtiesContext

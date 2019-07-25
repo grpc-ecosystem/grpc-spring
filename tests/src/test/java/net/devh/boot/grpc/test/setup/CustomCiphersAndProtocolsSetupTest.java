@@ -36,13 +36,13 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc;
 
 @SpringBootTest(properties = {
         "grpc.server.security.enabled=true",
-        "grpc.server.security.certificateChainPath=src/test/resources/certificates/server.crt",
-        "grpc.server.security.privateKeyPath=src/test/resources/certificates/server.key",
+        "grpc.server.security.certificateChain=file:src/test/resources/certificates/server.crt",
+        "grpc.server.security.privateKey=file:src/test/resources/certificates/server.key",
         "grpc.server.security.ciphers=TLS_AES_256_GCM_SHA384:ECDHE-RSA-AES256-GCM-SHA384",
         "grpc.server.security.protocols=TLSv1.3:TLSv1.2",
 
         "grpc.client.GLOBAL.security.authorityOverride=localhost",
-        "grpc.client.GLOBAL.security.trustCertCollectionPath=src/test/resources/certificates/trusted-servers-collection",
+        "grpc.client.GLOBAL.security.trustCertCollection=file:src/test/resources/certificates/trusted-servers-collection",
         "grpc.client.GLOBAL.negotiationType=TLS",
 
         "grpc.client.tls11.security.protocols=TLSv1.1",
