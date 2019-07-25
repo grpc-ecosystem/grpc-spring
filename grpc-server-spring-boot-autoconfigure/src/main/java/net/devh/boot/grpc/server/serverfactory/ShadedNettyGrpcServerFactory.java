@@ -85,8 +85,9 @@ public class ShadedNettyGrpcServerFactory
     protected void configureSecurity(final NettyServerBuilder builder) {
         final Security security = this.properties.getSecurity();
         if (security.isEnabled()) {
-            final Resource certificateChain = requireNonNull(security.getCertificateChain(), "certificateChain");
-            final Resource privateKey = requireNonNull(security.getPrivateKey(), "privateKey");
+            final Resource certificateChain =
+                    requireNonNull(security.getCertificateChain(), "certificateChain not configured");
+            final Resource privateKey = requireNonNull(security.getPrivateKey(), "privateKey not configured");
             SslContextBuilder sslContextBuilder;
             try (InputStream certificateChainStream = certificateChain.getInputStream();
                     InputStream privateKeyStream = privateKey.getInputStream()) {

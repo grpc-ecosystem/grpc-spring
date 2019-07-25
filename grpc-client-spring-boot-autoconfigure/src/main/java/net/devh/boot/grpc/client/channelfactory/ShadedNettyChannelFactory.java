@@ -92,8 +92,9 @@ public class ShadedNettyChannelFactory extends AbstractChannelFactory<NettyChann
             final SslContextBuilder sslContextBuilder = GrpcSslContexts.forClient();
 
             if (security.isClientAuthEnabled()) {
-                final Resource certificateChain = requireNonNull(security.getCertificateChain(), "certificateChain");
-                final Resource privateKey = requireNonNull(security.getPrivateKey(), "privateKey");
+                final Resource certificateChain =
+                        requireNonNull(security.getCertificateChain(), "certificateChain not configured");
+                final Resource privateKey = requireNonNull(security.getPrivateKey(), "privateKey not configured");
                 try (InputStream certificateChainStream = certificateChain.getInputStream();
                         InputStream privateKeyStream = privateKey.getInputStream()) {
                     sslContextBuilder.keyManager(certificateChainStream, privateKeyStream,
