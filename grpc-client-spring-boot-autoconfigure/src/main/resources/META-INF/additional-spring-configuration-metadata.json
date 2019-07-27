@@ -4,7 +4,7 @@
 			"name": "grpc",
 			"type": "net.devh.boot.grpc.client.config.GrpcChannelsProperties",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelsProperties",
-			"description": ""
+			"description": "The container for grpc related configuration options."
 		},
 		{
 			"name": "grpc.client",
@@ -29,16 +29,35 @@
 	],
 	"properties": [
 		{
+			"name": "grpc.client",
+			"type": "java.util.Map<java.lang.String,net.devh.boot.grpc.client.config.GrpcChannelProperties>",
+			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelsProperties"
+		},
+		{
 			"name": "grpc.client.GLOBAL.address",
 			"type": "java.net.URI",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties",
 			"description": "The target address uri for the channel.\nThe target uri must be in the format: schema:[\/\/[authority]][\/path].\nIf nothing is configured then the io.grpc.NameResolver.Factory will decide on the default.\nExamples:\n\t\"static:\/\/10.0.0.10:9090,10.11.12.11:9091\",\n\t\"dns:\/example.com:9090\",\n\t\"discovery:\/foo-service\""
 		},
 		{
+			"name": "grpc.client.GLOBAL.default-load-balancing-policy",
+			"type": "java.lang.String",
+			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties",
+			"description": "The default load balancing policy this channel should use.",
+			"defaultValue": "round_robin"
+		},
+		{
 			"name": "grpc.client.GLOBAL.enable-keep-alive",
 			"type": "java.lang.Boolean",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties",
 			"description": "Whether keepAlive should be enabled.",
+			"defaultValue": false
+		},
+		{
+			"name": "grpc.client.GLOBAL.full-stream-decompression",
+			"type": "java.lang.Boolean",
+			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties",
+			"description": "Whether full-stream decompression of inbound streams should be enabled.",
 			"defaultValue": false
 		},
 		{
@@ -64,16 +83,9 @@
 		},
 		{
 			"name": "grpc.client.GLOBAL.max-inbound-message-size",
-			"type": "java.lang.Integer",
+			"type": "org.springframework.util.unit.DataSize",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties",
-			"description": "The maximum message size in bytes allowed to be received by the channel.\nIf not set (null) then it will default to gRPC's default.\nIf set to -1 then it will use the highest possible limit (not recommended)."
-		},
-		{
-			"name": "grpc.client.GLOBAL.full-stream-decompression",
-			"type": "java.lang.Boolean",
-			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties",
-			"description": "Whether full-stream decompression of inbound streams should be enabled.",
-			"defaultValue": false
+			"description": "The maximum message size allowed to be received by the channel.\nIf not set (null) then it will default to gRPC's default.\nIf set to -1 then it will use the highest possible limit (not recommended)."
 		},
 		{
 			"name": "grpc.client.GLOBAL.negotiation-type",
@@ -83,6 +95,24 @@
 			"defaultValue": "TLS"
 		},
 		{
+			"name": "grpc.client.GLOBAL.security.authority-override",
+			"type": "java.lang.String",
+			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties$Security",
+			"description": "The authority to check for during server certificate verification. By default the clients will use the name of the client to check the server certificate's common + alternative names."
+		},
+		{
+			"name": "grpc.client.GLOBAL.security.certificate-chain",
+			"type": "org.springframework.core.io.Resource",
+			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties$Security",
+			"description": "The path to SSL certificate chain. Required if \"client-auth-enabled\" is enabled.\nThe linked certificate will be used to authenticate the client."
+		},
+		{
+			"name": "grpc.client.GLOBAL.security.ciphers",
+			"type": "java.lang.String",
+			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties$Security",
+			"description": "The cipher suite accepted for secure connections (in the order of preference). If not specified (null), then the default suites will be used."
+		},
+		{
 			"name": "grpc.client.GLOBAL.security.client-auth-enabled",
 			"type": "java.lang.Boolean",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties$Security",
@@ -90,28 +120,28 @@
 			"defaultValue": false
 		},
 		{
-			"name": "grpc.client.GLOBAL.security.certificate-chain-path",
-			"type": "java.lang.String",
-			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties$Security",
-			"description": "The path to SSL certificate chain. Required if \"client-auth-enabled\" is enabled.\nThe linked certificate will be used to authenticate the client."
-		},
-		{
-			"name": "grpc.client.GLOBAL.security.private-key-path",
-			"type": "java.lang.String",
+			"name": "grpc.client.GLOBAL.security.private-key",
+			"type": "org.springframework.core.io.Resource",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties$Security",
 			"description": "The path to the private key. Required if \"client-auth-enabled\" is enabled."
 		},
 		{
-			"name": "grpc.client.GLOBAL.security.trust-cert-collection-path",
+			"name": "grpc.client.GLOBAL.security.private-key-password",
 			"type": "java.lang.String",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties$Security",
-			"description": "The path to the trusted certificate collection.\nIf not set (null) it will use the system's default collection (Default).\nThis collection will be used to verify server certificates."
+			"description": "The password for the private key."
 		},
 		{
-			"name": "grpc.client.GLOBAL.security.authority-override",
+			"name": "grpc.client.GLOBAL.security.protocols",
 			"type": "java.lang.String",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties$Security",
-			"description": "The authority to check for during server certificate verification. By default the clients will use the name of the client to check the server certificate's common + alternative names."
+			"description": "The TLS protocols accepted for secure connections. If not specified (null), then the default ones will be used."
+		},
+		{
+			"name": "grpc.client.GLOBAL.security.trust-cert-collection",
+			"type": "org.springframework.core.io.Resource",
+			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties$Security",
+			"description": "The path to the trusted certificate collection.\nIf not set (null) it will use the system's default collection (Default).\nThis collection will be used to verify server certificates."
 		}
 	]
 }
