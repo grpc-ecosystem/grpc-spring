@@ -30,31 +30,32 @@ import net.devh.boot.grpc.test.config.WithCertificateSecurityConfiguration;
 @Slf4j
 @SpringBootTest(properties = {
         "grpc.server.security.enabled=true",
-        "grpc.server.security.certificateChain=file:src/test/resources/certificates/server.crt",
-        "grpc.server.security.privateKey=file:src/test/resources/certificates/server.key",
-        "grpc.server.security.trustCertCollection=file:src/test/resources/certificates/trusted-clients-collection",
+        "grpc.server.security.certificateChainPath=src/test/resources/certificates/server.crt",
+        "grpc.server.security.privateKeyPath=src/test/resources/certificates/server.key",
+        "grpc.server.security.trustCertCollectionPath=src/test/resources/certificates/trusted-clients-collection",
         "grpc.server.security.clientAuth=REQUIRE",
 
         "grpc.client.test.security.authorityOverride=localhost",
-        "grpc.client.test.security.trustCertCollection=file:src/test/resources/certificates/trusted-servers-collection",
+        "grpc.client.test.security.trustCertCollectionPath=src/test/resources/certificates/trusted-servers-collection",
         "grpc.client.test.security.clientAuthEnabled=true",
-        "grpc.client.test.security.certificateChain=file:src/test/resources/certificates/client1.crt",
-        "grpc.client.test.security.privateKey=file:src/test/resources/certificates/client1.key",
+        "grpc.client.test.security.certificateChainPath=src/test/resources/certificates/client1.crt",
+        "grpc.client.test.security.privateKeyPath=src/test/resources/certificates/client1.key",
 
         "grpc.client.noPerm.security.authorityOverride=localhost",
-        "grpc.client.noPerm.security.trustCertCollection=file:src/test/resources/certificates/trusted-servers-collection",
+        "grpc.client.noPerm.security.trustCertCollectionPath=src/test/resources/certificates/trusted-servers-collection",
         "grpc.client.noPerm.security.clientAuthEnabled=true",
-        "grpc.client.noPerm.security.certificateChain=file:src/test/resources/certificates/client2.crt",
-        "grpc.client.noPerm.security.privateKey=file:src/test/resources/certificates/client2.key"
+        "grpc.client.noPerm.security.certificateChainPath=src/test/resources/certificates/client2.crt",
+        "grpc.client.noPerm.security.privateKeyPath=src/test/resources/certificates/client2.key"
 })
 @SpringJUnitConfig(
         classes = {ServiceConfiguration.class, BaseAutoConfiguration.class, ManualSecurityConfiguration.class,
                 WithCertificateSecurityConfiguration.class})
 @DirtiesContext
-public class ManualSecurityWithCertificateTest extends AbstractSecurityTest {
+@Deprecated // remove in 2.7.0
+public class LegacyManualSecurityWithCertificateTest extends AbstractSecurityTest {
 
-    public ManualSecurityWithCertificateTest() {
-        log.info("--- ManualSecurityWithCertificateTest ---");
+    public LegacyManualSecurityWithCertificateTest() {
+        log.info("--- LegacyManualSecurityWithCertificateTest ---");
     }
 
 }

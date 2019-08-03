@@ -19,10 +19,13 @@ package net.devh.boot.grpc.client.channelfactory;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import javax.net.ssl.SSLException;
+
+import org.springframework.core.io.Resource;
 
 import io.grpc.NameResolver;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
@@ -89,15 +92,25 @@ public class ShadedNettyChannelFactory extends AbstractChannelFactory<NettyChann
             final SslContextBuilder sslContextBuilder = GrpcSslContexts.forClient();
 
             if (security.isClientAuthEnabled()) {
-                final File keyCertChainFile = toCheckedFile("keyCertChain", security.getCertificateChainPath());
-                final File privateKeyFile = toCheckedFile("privateKey", security.getPrivateKeyPath());
-                sslContextBuilder.keyManager(keyCertChainFile, privateKeyFile, security.getPrivateKeyPassword());
+                final Resource certificateChain =
+                        requireNonNull(security.getCertificateChain(), "certificateChain not configured");
+                final Resource privateKey = requireNonNull(security.getPrivateKey(), "privateKey not configured");
+                try (InputStream certificateChainStream = certificateChain.getInputStream();
+                        InputStream privateKeyStream = privateKey.getInputStream()) {
+                    sslContextBuilder.keyManager(certificateChainStream, privateKeyStream,
+                            security.getPrivateKeyPassword());
+                } catch (IOException | RuntimeException e) {
+                    throw new IllegalArgumentException("Failed to create SSLContext (PK/Cert)", e);
+                }
             }
 
-            final String trustCertCollectionPath = security.getTrustCertCollectionPath();
-            if (trustCertCollectionPath != null && !trustCertCollectionPath.isEmpty()) {
-                final File trustCertCollectionFile = toCheckedFile("trustCertCollection", trustCertCollectionPath);
-                sslContextBuilder.trustManager(trustCertCollectionFile);
+            final Resource trustCertCollection = security.getTrustCertCollection();
+            if (trustCertCollection != null) {
+                try (InputStream trustCertCollectionStream = trustCertCollection.getInputStream()) {
+                    sslContextBuilder.trustManager(trustCertCollectionStream);
+                } catch (IOException | RuntimeException e) {
+                    throw new IllegalArgumentException("Failed to create SSLContext (TrustStore)", e);
+                }
             }
 
             if (security.getCiphers() != null && !security.getCiphers().isEmpty()) {

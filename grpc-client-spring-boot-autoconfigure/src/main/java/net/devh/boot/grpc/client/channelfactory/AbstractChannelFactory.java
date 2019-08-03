@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
 import javax.annotation.concurrent.GuardedBy;
 
+import org.springframework.core.io.Resource;
 import org.springframework.util.unit.DataSize;
 
 import com.google.common.collect.Lists;
@@ -92,7 +93,7 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
 
     @Override
     public Channel createChannel(final String name, final List<ClientInterceptor> customInterceptors,
-            boolean sortInterceptors) {
+            final boolean sortInterceptors) {
         final Channel channel;
         synchronized (this) {
             if (this.shutdown) {
@@ -187,9 +188,9 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
 
         if (properties.getNegotiationType() != NegotiationType.TLS // non-default
                 || isNonNullAndNonBlank(security.getAuthorityOverride())
-                || isNonNullAndNonBlank(security.getCertificateChainPath())
-                || isNonNullAndNonBlank(security.getPrivateKeyPath())
-                || isNonNullAndNonBlank(security.getTrustCertCollectionPath())) {
+                || security.getCertificateChain() != null
+                || security.getPrivateKey() != null
+                || security.getTrustCertCollection() != null) {
             throw new IllegalStateException(
                     "Security is configured but this implementation does not support security!");
         }
@@ -201,7 +202,10 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
      * @param context The context for what the file is used. This value will be used in case of exceptions.
      * @param path The path of the file to use.
      * @return The file instance created with the given path.
+     * @deprecated Will be removed in a future version. Prefer spring's {@link Resource}s instead of plain files.
      */
+    @Deprecated
+    // TODO: Remove in 2.7.0
     protected File toCheckedFile(final String context, final String path) {
         if (!isNonNullAndNonBlank(path)) {
             throw new IllegalArgumentException(context + " path cannot be null or blank");
