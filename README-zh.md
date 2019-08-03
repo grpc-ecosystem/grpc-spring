@@ -408,10 +408,10 @@ public StubTransformer authenticationStubTransformer() {
 
   ````properties
   #grpc.client.test.security.authorityOverride=localhost
-  #grpc.client.test.security.trustCertCollection=certificates/trusted-servers-collection
+  #grpc.client.test.security.trustCertCollection=file:certificates/trusted-servers-collection
   grpc.client.test.security.clientAuthEnabled=true
-  grpc.client.test.security.certificateChain=certificates/client.crt
-  grpc.client.test.security.privateKey=certificates/client.key
+  grpc.client.test.security.certificateChain=file:certificates/client.crt
+  grpc.client.test.security.privateKey=file:certificates/client.key
 
 * **为每个 client 使用不同的认证**
 
