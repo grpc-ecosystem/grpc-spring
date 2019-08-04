@@ -41,6 +41,10 @@ public final class MetricConstants {
      */
     public static final String TAG_METHOD_NAME = "method";
     /**
+     * The metrics tag key that belongs to the called method type.
+     */
+    public static final String TAG_METHOD_TYPE = "methodType";
+    /**
      * The metrics tag key that belongs to the result status code.
      */
     public static final String TAG_STATUS_CODE = "statusCode";

@@ -18,6 +18,7 @@
 package net.devh.boot.grpc.common.metric;
 
 import static net.devh.boot.grpc.common.metric.MetricConstants.TAG_METHOD_NAME;
+import static net.devh.boot.grpc.common.metric.MetricConstants.TAG_METHOD_TYPE;
 import static net.devh.boot.grpc.common.metric.MetricConstants.TAG_SERVICE_NAME;
 import static net.devh.boot.grpc.common.util.GrpcUtils.extractMethodName;
 import static net.devh.boot.grpc.common.util.GrpcUtils.extractServiceName;
@@ -48,7 +49,8 @@ public final class MetricUtils {
                 .description(description)
                 .baseUnit("messages")
                 .tag(TAG_SERVICE_NAME, extractServiceName(method))
-                .tag(TAG_METHOD_NAME, extractMethodName(method));
+                .tag(TAG_METHOD_NAME, extractMethodName(method))
+                .tag(TAG_METHOD_TYPE, method.getType().name());
     }
 
     /**
@@ -64,7 +66,8 @@ public final class MetricUtils {
         return Timer.builder(name)
                 .description(description)
                 .tag(TAG_SERVICE_NAME, extractServiceName(method))
-                .tag(TAG_METHOD_NAME, extractMethodName(method));
+                .tag(TAG_METHOD_NAME, extractMethodName(method))
+                .tag(TAG_METHOD_TYPE, method.getType().name());
     }
 
     private MetricUtils() {}
