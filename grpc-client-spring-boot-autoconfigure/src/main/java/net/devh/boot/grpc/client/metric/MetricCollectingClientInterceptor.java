@@ -100,7 +100,7 @@ public class MetricCollectingClientInterceptor extends AbstractMetricCollectingI
         return asTimerFunction(() -> this.timerCustomizer.apply(
                 prepareTimerFor(method,
                         METRIC_NAME_CLIENT_PROCESSING_DURATION,
-                        "The total time taken for the server to process the requests including network delay as observed by the client")));
+                        "The total time taken for the client to complete the call, including network delay")));
     }
 
     @Override
