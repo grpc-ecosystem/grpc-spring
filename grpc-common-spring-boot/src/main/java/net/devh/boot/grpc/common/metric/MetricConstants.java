@@ -59,7 +59,7 @@ public final class MetricConstants {
      */
     public static final String TAG_METHOD_NAME = "method";
     /**
-     * The metrics tag key that belongs to the called method type.
+     * The metrics tag key that belongs to the type of the called method.
      */
     public static final String TAG_METHOD_TYPE = "methodType";
     /**
