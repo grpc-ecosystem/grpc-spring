@@ -24,7 +24,6 @@ import static java.util.Objects.requireNonNull;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -193,14 +192,10 @@ public class DiscoveryClientNameResolver extends NameResolver {
             log.debug("Ready to update server list for {}", name);
             final List<EquivalentAddressGroup> targets = Lists.newArrayList();
             for (final ServiceInstance instance : newInstanceList) {
-                final Integer port = getGRPCPort(instance);
-                if (port != null) {
-                    log.debug("Found gRPC server {}:{} for {}", instance.getHost(), port, name);
-                    targets.add(new EquivalentAddressGroup(
-                            new InetSocketAddress(instance.getHost(), port), Attributes.EMPTY));
-                } else {
-                    log.warn("Cannot find gRPC server port for {} in {} - Skipping", name, instance);
-                }
+                final int port = getGRPCPort(instance);
+                log.debug("Found gRPC server {}:{} for {}", instance.getHost(), port, name);
+                targets.add(new EquivalentAddressGroup(
+                        new InetSocketAddress(instance.getHost(), port), Attributes.EMPTY));
             }
             if (targets.isEmpty()) {
                 log.error("None of the servers for {} specified a gRPC port", name);
@@ -218,17 +213,17 @@ public class DiscoveryClientNameResolver extends NameResolver {
          * Extracts the gRPC server port from the given service instance.
          *
          * @param instance The instance to extract the port from.
-         * @return The gRPC server port or null if not specified.
+         * @return The gRPC server port.
          * @throws IllegalArgumentException If the specified port definition couldn't be parsed.
          */
-        private Integer getGRPCPort(final ServiceInstance instance) {
+        private int getGRPCPort(final ServiceInstance instance) {
             final Map<String, String> metadata = instance.getMetadata();
             if (metadata == null) {
-                return null;
+                return instance.getPort();
             }
             final String portString = metadata.get(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT);
             if (portString == null) {
-                return null;
+                return instance.getPort();
             }
             try {
                 return Integer.parseInt(portString);
@@ -249,12 +244,12 @@ public class DiscoveryClientNameResolver extends NameResolver {
                 return true;
             }
             for (final ServiceInstance instance : this.savedInstanceList) {
-                final Integer port = getGRPCPort(instance);
+                final int port = getGRPCPort(instance);
                 boolean isSame = false;
                 for (final ServiceInstance newInstance : newInstanceList) {
-                    final Integer newPort = getGRPCPort(newInstance);
+                    final int newPort = getGRPCPort(newInstance);
                     if (newInstance.getHost().equals(instance.getHost())
-                            && Objects.equals(port, newPort)) {
+                            && port == newPort) {
                         isSame = true;
                         break;
                     }
