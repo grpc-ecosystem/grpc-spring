@@ -123,7 +123,7 @@ public class MetricCollectingServerInterceptor extends AbstractMetricCollectingI
         return asTimerFunction(() -> this.timerCustomizer.apply(
                 prepareTimerFor(method,
                         METRIC_NAME_SERVER_PROCESSING_DURATION,
-                        "The total time taken for the server to process requests as observed by the server")));
+                        "The total time taken for the server to complete the call")));
     }
 
     @Override

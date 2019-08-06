@@ -24,13 +24,31 @@ package net.devh.boot.grpc.common.metric;
  */
 public final class MetricConstants {
 
-    public static final String METRIC_NAME_SERVER_PROCESSING_DURATION = "grpc.server.processing.duration";
-    public static final String METRIC_NAME_SERVER_RESPONSES_SENT = "grpc.server.responses.sent";
+    /**
+     * The total number of requests received
+     */
     public static final String METRIC_NAME_SERVER_REQUESTS_RECEIVED = "grpc.server.requests.received";
+    /**
+     * The total number of responses sent
+     */
+    public static final String METRIC_NAME_SERVER_RESPONSES_SENT = "grpc.server.responses.sent";
+    /**
+     * The total time taken for the server to complete the call.
+     */
+    public static final String METRIC_NAME_SERVER_PROCESSING_DURATION = "grpc.server.processing.duration";
 
-    public static final String METRIC_NAME_CLIENT_PROCESSING_DURATION = "grpc.client.processing.duration";
-    public static final String METRIC_NAME_CLIENT_RESPONSES_RECEIVED = "grpc.client.responses.received";
+    /**
+     * The total number of requests sent
+     */
     public static final String METRIC_NAME_CLIENT_REQUESTS_SENT = "grpc.client.requests.sent";
+    /**
+     * The total number of responses received
+     */
+    public static final String METRIC_NAME_CLIENT_RESPONSES_RECEIVED = "grpc.client.responses.received";
+    /**
+     * The total time taken for the client to complete the call, including network delay
+     */
+    public static final String METRIC_NAME_CLIENT_PROCESSING_DURATION = "grpc.client.processing.duration";
 
     /**
      * The metrics tag key that belongs to the called service name.
@@ -40,6 +58,10 @@ public final class MetricConstants {
      * The metrics tag key that belongs to the called method name.
      */
     public static final String TAG_METHOD_NAME = "method";
+    /**
+     * The metrics tag key that belongs to the type of the called method.
+     */
+    public static final String TAG_METHOD_TYPE = "methodType";
     /**
      * The metrics tag key that belongs to the result status code.
      */
