@@ -57,11 +57,17 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
 
     private final ApplicationContext applicationContext;
 
-    // Lazy initialized when needed to avoid overly eager creation of that factory,
-    // which might break proper bean setup
+    // Is only retrieved when needed to avoid too early initialization of these components,
+    // which could lead to problems with the correct bean setup.
     private GrpcChannelFactory channelFactory = null;
     private List<StubTransformer> stubTransformers = null;
 
+    /**
+     * Creates a new GrpcClientBeanPostProcessor with the given ApplicationContext.
+     *
+     * @param applicationContext The application context that will be used to get lazy access to the
+     *        {@link GrpcChannelFactory} and {@link StubTransformer}s.
+     */
     public GrpcClientBeanPostProcessor(final ApplicationContext applicationContext) {
         this.applicationContext = requireNonNull(applicationContext, "applicationContext");
     }

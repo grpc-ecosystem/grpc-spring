@@ -638,6 +638,8 @@ public class GrpcChannelProperties {
         private List<String> ciphers = null;
 
         /**
+         * Gets the cipher suite accepted for secure connections (in the order of preference).
+         *
          * @return The cipher suite accepted for secure connections or null.
          */
         public List<String> getCiphers() {
@@ -645,10 +647,19 @@ public class GrpcChannelProperties {
         }
 
         /**
+         * Sets the cipher suite accepted for secure connections (in the order of preference). If not specified (null),
+         * then the default suites should be used.
+         *
          * @param ciphers Cipher suite consisting of one or more cipher strings separated by colons, commas or spaces
+         *
+         * @see SslContextBuilder#ciphers(Iterable)
          */
         public void setCiphers(final String ciphers) {
-            this.ciphers = Arrays.asList(ciphers.split("[ :,]"));
+            if (ciphers == null) {
+                this.ciphers = null;
+            } else {
+                this.ciphers = Arrays.asList(ciphers.split("[ :,]"));
+            }
         }
 
         // --------------------------------------------------
@@ -656,6 +667,8 @@ public class GrpcChannelProperties {
         private String[] protocols = null;
 
         /**
+         * Gets the TLS protocols accepted for secure connections
+         *
          * @return The protocols accepted for secure connections or null.
          */
         public String[] getProtocols() {
@@ -663,10 +676,19 @@ public class GrpcChannelProperties {
         }
 
         /**
+         * Sets the TLS protocols accepted for secure connections. If not specified (null), then the default ones will
+         * be used.
+         *
          * @param protocols Protocol list consisting of one or more protocols separated by colons, commas or spaces.
+         *
+         * @see SslContextBuilder#protocols(String...)
          */
         public void setProtocols(final String protocols) {
-            this.protocols = protocols.split("[ :,]");
+            if (protocols == null) {
+                this.protocols = null;
+            } else {
+                this.protocols = protocols.split("[ :,]");
+            }
         }
 
         // --------------------------------------------------
