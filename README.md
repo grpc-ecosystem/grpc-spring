@@ -33,7 +33,7 @@ application
 
 2.x.x.RELEASE supports Spring Boot 2.1+ & Spring Cloud Greenwich.
 
-The latest version: ``2.5.0.RELEASE``
+The latest version: ``2.5.1.RELEASE``
 
 (Use `2.4.0.RELEASE` for Spring Boot 2.0.X & Spring Cloud Finchley).
 
@@ -53,7 +53,7 @@ To add a dependency using Maven, use the following:
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-spring-boot-starter</artifactId>
-  <version>2.5.0.RELEASE</version>
+  <version>2.5.1.RELEASE</version>
 </dependency>
 ````
 
@@ -61,7 +61,7 @@ To add a dependency using Gradle:
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-spring-boot-starter:2.5.0.RELEASE'
+  compile 'net.devh:grpc-spring-boot-starter:2.5.1.RELEASE'
 }
 ````
 
@@ -73,7 +73,7 @@ To add a dependency using Maven, use the following:
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-server-spring-boot-starter</artifactId>
-  <version>2.5.0.RELEASE</version>
+  <version>2.5.1.RELEASE</version>
 </dependency>
 ````
 
@@ -81,7 +81,7 @@ To add a dependency using Gradle:
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-server-spring-boot-starter:2.5.0.RELEASE'
+  compile 'net.devh:grpc-server-spring-boot-starter:2.5.1.RELEASE'
 }
 ````
 
@@ -252,7 +252,7 @@ To add a dependency using Maven, use the following:
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-client-spring-boot-starter</artifactId>
-  <version>2.5.0.RELEASE</version>
+  <version>2.5.1.RELEASE</version>
 </dependency>
 ````
 
@@ -260,7 +260,7 @@ To add a dependency using Gradle:
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-client-spring-boot-starter:2.5.0.RELEASE'
+  compile 'net.devh:grpc-client-spring-boot-starter:2.5.1.RELEASE'
 }
 ````
 
