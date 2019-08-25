@@ -1,0 +1,60 @@
+digraph serversetup {
+
+	rankdir=LR;
+
+	compond=true;
+
+	subgraph cluster_interface {
+
+		label="Interface-Project";
+
+		protofile [label="protobuf-file", shape=box, URL="https://developers.google.com/protocol-buffers/docs/proto3#simple", target="_blank"];
+
+		protofile2 [label="protobuf-file2", shape=box, color="gray50", fontcolor="gray50", fillcolor="white", URL="https://developers.google.com/protocol-buffers/docs/proto3#services", target="_blank"];
+		protofileN [label="protobuf-fileN", shape=box, color="gray75", fontcolor="gray75", fillcolor="white", URL="https://developers.google.com/protocol-buffers/docs/javatutorial", target="_blank"];
+
+		{
+			rank=same;
+			protoc [label="protobuf-compiler", URL="https://mvnrepository.com/artifact/com.google.protobuf/protoc", target="_blank"];
+			grpcc [label="protoc-gen-grpc-java", URL="https://mvnrepository.com/artifact/io.grpc/protoc-gen-grpc-java", target="_blank"];
+		}
+
+		servicemodel [label="service and model defintions", shape=box, URL="https://github.com/grpc/grpc-java/blob/master/README.md#generated-code", target="_blank"];
+
+		protofile -> protoc:w;
+		protofile2 -> protoc:w [color="gray50"];
+		protofileN -> protoc:w [color="gray75"];
+
+		protoc -> grpcc;
+		grpcc -> protoc;
+
+		protoc -> servicemodel;
+
+	}
+
+	subgraph cluster_server {
+
+		label="Server-Project"
+		color="gray50";
+		fillColor="white";
+		fontcolor="gray50";
+
+		serviceimpl [label="Service implementations", color="gray50", fontcolor="gray50",fillcolor="white",width="3", URL="https://github.com/yidongnan/grpc-spring-boot-starter/blob/master/grpc-server-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/server/service/GrpcService.java#L49", target="_blank"];
+
+		servicemodel -> serviceimpl [style=dashed, color="gray50", dir=back];
+
+	}
+
+	subgraph cluster_clients {
+
+		label="Client-Projects";
+
+		clientfield [label="Client/Stub usage", width="3", URL="https://github.com/yidongnan/grpc-spring-boot-starter/blob/master/grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/inject/GrpcClient.java#L69", target="_blank"];
+
+		servicemodel:se -> clientfield[style=dashed, dir=back];
+		servicemodel:se -> clientfield[style=dashed, dir=back, weight=0];
+		servicemodel:se -> clientfield[style=dashed, dir=back, weight=0];
+
+	}
+
+}
