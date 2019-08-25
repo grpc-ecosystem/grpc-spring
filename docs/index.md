@@ -2,4 +2,4 @@
 
 Please select a language:
 
-* [English](en)
+- [English](en)
