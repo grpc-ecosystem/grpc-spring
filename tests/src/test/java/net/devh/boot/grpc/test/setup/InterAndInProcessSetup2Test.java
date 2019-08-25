@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -41,7 +40,6 @@ import io.grpc.Channel;
 import io.grpc.internal.testing.StreamRecorder;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
-import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
 import net.devh.boot.grpc.test.proto.SomeType;
@@ -61,7 +59,6 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceStub;
         "grpc.client.GLOBAL.negotiationType=PLAINTEXT",
         "grpc.client.inProcess.address=in-process:test",
         "grpc.client.interProcess.address=static://localhost:9191"})
-@EnableConfigurationProperties(GrpcServerProperties.class)
 @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
 @DirtiesContext
 public class InterAndInProcessSetup2Test {
