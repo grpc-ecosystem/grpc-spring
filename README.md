@@ -10,6 +10,8 @@
 
 README: [English](README.md) | [中文](README-zh.md)
 
+**Documentation:** [English](https://yidongnan.github.io/grpc-spring-boot-starter/en/)
+
 ## Features
 
 * Auto configures and runs the embedded gRPC server with `@GrpcService`-enabled beans as part of your spring-boot
@@ -105,7 +107,7 @@ By default, the grpc server will listen to port `9090`. These and other
 [settings](grpc-server-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/server/config/GrpcServerProperties.java)
 can be changed via Spring's property mechanism. The server uses the `grpc.server.` prefix.
 
-Refer to our documentation for more details.
+Refer to our [documentation](https://yidongnan.github.io/grpc-spring-boot-starter/) for more details.
 
 ### gRPC Client
 
@@ -156,7 +158,7 @@ These and other
 [settings](grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/config/GrpcChannelProperties.java)
 can be changed via Spring's property mechanism. The clients use the `grpc.client.(serverName).` prefix.
 
-Refer to our documentation for more details.
+Refer to our [documentation](https://yidongnan.github.io/grpc-spring-boot-starter/) for more details.
 
 ## Running with (non-shaded) grpc-netty
 
@@ -228,7 +230,7 @@ Read more about our example projects [here](examples).
 
 ## Troubleshooting
 
-Refer to our documentation for help.
+Refer to our [documentation](https://yidongnan.github.io/grpc-spring-boot-starter/en/trouble-shooting) for help.
 
 ## Contributing
 
