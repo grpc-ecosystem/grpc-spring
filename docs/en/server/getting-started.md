@@ -26,7 +26,7 @@ This section describes the steps necessary to convert your application into a gr
 
 Before we start adding the dependencies lets start with some of our recommendation for your project setup.
 
-![project setup](/assets/images/server-project-setup.svg)
+![project setup](/grpc-spring-boot-starter/assets/images/server-project-setup.svg)
 
 We recommend splitting your project into 2-3 separate modules.
 

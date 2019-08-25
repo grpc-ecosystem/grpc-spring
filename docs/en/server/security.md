@@ -103,7 +103,7 @@ Especially in the later case, it is important to configure the authentication ap
 `grpc-spring-boot-starter` supports `spring-security` natively, so you can just use the well-known annotations to secure
 your application.
 
-![server-request-security](/assets/images/security.svg)
+![server-request-security](/grpc-spring-boot-starter/assets/images/security.svg)
 
 ### Configure Authentication
 
