@@ -26,8 +26,11 @@ import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 
 /**
- * This abstract channel factory contains some shared code for other netty based {@link GrpcChannelFactory}s. This class
- * utilizes connection pooling and thus needs to be {@link #close() closed} after usage.
+ * This channel factory creates and manages in-process {@link GrpcChannelFactory}s.
+ *
+ * <p>
+ * This class utilizes connection pooling and thus needs to be {@link #close() closed} after usage.
+ * </p>
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
