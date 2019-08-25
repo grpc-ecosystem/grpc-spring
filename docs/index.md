@@ -1,4 +1,4 @@
-# grpc-spring-boot-starter Documentation
+# gRPC-Spring-Boot-Starter Documentation
 
 Please select a language:
 
