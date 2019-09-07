@@ -37,6 +37,8 @@ import net.devh.boot.grpc.test.config.ServiceConfiguration;
         "grpc.server.security.privateKey=file:src/test/resources/certificates/server.key",
         "grpc.server.security.trustCertCollection=file:src/test/resources/certificates/trusted-clients-collection",
         "grpc.server.security.clientAuth=REQUIRE",
+
+        "grpc.client.test.address=localhost:9090",
         "grpc.client.test.security.authorityOverride=localhost",
         "grpc.client.test.security.trustCertCollection=file:src/test/resources/certificates/trusted-servers-collection",
         "grpc.client.test.security.clientAuthEnabled=true",

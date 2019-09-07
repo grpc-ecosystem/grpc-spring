@@ -63,7 +63,10 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceBlockingStub;
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @Slf4j
-@SpringBootTest(properties = "grpc.client.test.negotiationType=PLAINTEXT")
+@SpringBootTest(properties = {
+        "grpc.client.GLOBAL.address=localhost:9090",
+        "grpc.client.GLOBAL.negotiationType=PLAINTEXT"
+})
 @SpringJUnitConfig(classes = {MetricConfiguration.class, ServiceConfiguration.class, BaseAutoConfiguration.class})
 @ImportAutoConfiguration({GrpcClientMetricAutoConfiguration.class, GrpcServerMetricAutoConfiguration.class})
 @DirtiesContext

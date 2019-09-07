@@ -40,29 +40,27 @@ name channel take precedence over global once.
 
 ### Choosing the Target
 
-Based on your environment the default target is different:
-
-- For applications that use a cloud `DiscoveryService`, the client will try to lookup a service with the same name.
-- For normal applications, the channel will default to `localhost:9090`
-
 You can change the target server using the following property:
 
 ````properties
 grpc.client.__name__.address=static://localhost:9090`
 ````
 
-There are a number of supported schemes, that you can use to determine the target server.
+There are a number of supported schemes, that you can use to determine the target server (Priorities 0 (low) - 10
+(high)):
 
-- `static`:
+- `static` (Prio 4):
   A simple static list of IPs (both v4 and v6), that can be use connect to the server (Supports `localhost`).
   Example: ``static://192.168.1.1:8080,10.0.0.1:1337`
-- [`dns`](https://github.com/grpc/grpc-java/blob/master/core/src/main/java/io/grpc/internal/DnsNameResolver.java#L66):
+- [`dns`](https://github.com/grpc/grpc-java/blob/master/core/src/main/java/io/grpc/internal/DnsNameResolver.java#L66) (Prio 5):
   Resolves all addresses that are bound to the given DNS name. The addresses will be cached and will only be refreshed
   if an existing connection is shutdown/fails. More options such as `SVC` lookups (useful for kubernetes) can be enabled
   via system properties.
   Example: `dns:///example.my.company`
-- `discovery`:
-  Uses spring-cloud's `DiscoveryClient` to lookup appropriate targets. The connections will be refreshed automatically during `HeartbeatEvent`s. Requires the presence of the `gRPC.port` metadata with a target port.
+- `discovery` (Prio 6):
+  (Optional) Uses spring-cloud's `DiscoveryClient` to lookup appropriate targets. The connections will be refreshed
+  automatically during `HeartbeatEvent`s. Uses the `gRPC.port` metadata to determine the port, otherwise uses the
+  service port.
   Example: `discovery:///service-name`
 - `in-process`:
   This is a special scheme that will bypass the normal channel factory and will use the `InProcessChannelFactory`
@@ -70,10 +68,15 @@ There are a number of supported schemes, that you can use to determine the targe
   Example: `in-process:foobar`
 - *custom*:
   You can define custom
-  [`NameResolverProvider`s](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/NameResolverProvider.html) that will
-  be made available automatically. Future versions will support any
-  [`NameResolver.Factory`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/NameResolver.Factory.html) that is registered in the default
-  [`NameResolverRegistry`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/NameResolverRegistry.html).
+  [`NameResolverProvider`s](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/NameResolverProvider.html) those
+  will be picked up, by either via Java's `ServiceLoader` or from spring's application context and registered in
+  the ´NameResolverRegistry`.
+
+If you don't define an address it will be guessed:
+
+- First it will try it with just it's name (`<name>`)
+- If you have configured a default scheme it will try that next (`<scheme>:/<name>`)
+- Then it will use the default scheme of the `NameResolver.Factory` delegate (See the priorities above)
 
 > **Note:** The number of slashes is important! Also make sure that you don't try to connect to a normal
 > web/REST/non-grpc server (port).

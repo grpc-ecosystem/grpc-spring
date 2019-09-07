@@ -33,14 +33,11 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceBlockingStub;
 import net.devh.boot.grpc.test.util.EnableOnIPv6;
 
 @SpringBootTest(properties = {
-        "grpc.client.default.negotiationType=PLAINTEXT",
-        "grpc.client.dns.negotiationType=PLAINTEXT",
+        "grpc.client.GLOBAL.negotiationType=PLAINTEXT",
+        "grpc.client.GLOBAL.address=localhost:9090",
         "grpc.client.dns.address=dns:///localhost:9090",
-        "grpc.client.localhost.negotiationType=PLAINTEXT",
         "grpc.client.localhost.address=static://localhost:9090",
-        "grpc.client.ipv4.negotiationType=PLAINTEXT",
         "grpc.client.ipv4.address=static://127.0.0.1:9090",
-        "grpc.client.ipv6.negotiationType=PLAINTEXT",
         "grpc.client.ipv6.address=static://[::1]:9090",
 })
 @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})

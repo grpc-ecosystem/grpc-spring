@@ -41,17 +41,13 @@ import io.grpc.internal.GrpcUtil;
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
-public class DiscoveryClientResolverFactory extends NameResolver.Factory {
+// Do not add this to the NameResolverProvider service loader list
+public class DiscoveryClientResolverFactory extends NameResolverProvider {
 
     /**
      * The constant containing the scheme that will be used by this factory.
      */
     public static final String DISCOVERY_SCHEME = "discovery";
-    /**
-     * The function that should be used as uri mapper, if discovery-client should be used as default.
-     */
-    public static final Function<String, URI> DISCOVERY_DEFAULT_URI_MAPPER =
-            clientName -> URI.create(DISCOVERY_SCHEME + ":///" + clientName);
 
     private final Collection<DiscoveryClientNameResolver> discoveryClientNameResolvers = new ArrayList<>();
     private final HeartbeatMonitor monitor = new HeartbeatMonitor();
@@ -89,6 +85,16 @@ public class DiscoveryClientResolverFactory extends NameResolver.Factory {
     @Override
     public String getDefaultScheme() {
         return DISCOVERY_SCHEME;
+    }
+
+    @Override
+    protected boolean isAvailable() {
+        return true;
+    }
+
+    @Override
+    protected int priority() {
+        return 6; // More important than DNS
     }
 
     /**

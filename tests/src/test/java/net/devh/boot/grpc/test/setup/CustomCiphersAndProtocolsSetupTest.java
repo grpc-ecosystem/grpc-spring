@@ -41,6 +41,7 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc;
         "grpc.server.security.ciphers=TLS_AES_256_GCM_SHA384:ECDHE-RSA-AES256-GCM-SHA384",
         "grpc.server.security.protocols=TLSv1.3:TLSv1.2",
 
+        "grpc.client.GLOBAL.address=localhost:9090",
         "grpc.client.GLOBAL.security.authorityOverride=localhost",
         "grpc.client.GLOBAL.security.trustCertCollection=file:src/test/resources/certificates/trusted-servers-collection",
         "grpc.client.GLOBAL.negotiationType=TLS",

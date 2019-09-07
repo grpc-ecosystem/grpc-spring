@@ -20,6 +20,7 @@ package net.devh.boot.grpc.client.autoconfigure;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -29,11 +30,14 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 
 import io.grpc.CompressorRegistry;
 import io.grpc.DecompressorRegistry;
 import io.grpc.NameResolver;
+import io.grpc.NameResolverProvider;
 import io.grpc.NameResolverRegistry;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.InProcessChannelFactory;
@@ -45,7 +49,6 @@ import net.devh.boot.grpc.client.inject.GrpcClientBeanPostProcessor;
 import net.devh.boot.grpc.client.interceptor.AnnotationGlobalClientInterceptorConfigurer;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 import net.devh.boot.grpc.client.nameresolver.ConfigMappedNameResolverFactory;
-import net.devh.boot.grpc.client.nameresolver.StaticNameResolverProvider;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 
 /**
@@ -58,6 +61,7 @@ import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 @EnableConfigurationProperties
 @AutoConfigureAfter(name = "org.springframework.cloud.client.CommonsClientAutoConfiguration",
         value = GrpcCommonCodecAutoConfiguration.class)
+@Slf4j
 public class GrpcClientAutoConfiguration {
 
     @Bean
@@ -82,6 +86,25 @@ public class GrpcClientAutoConfiguration {
         return new AnnotationGlobalClientInterceptorConfigurer();
     }
 
+    @ConditionalOnMissingBean
+    @Lazy // Not needed for InProcessChannelFactories
+    @Bean
+    public NameResolverRegistry grpcNameResolverRegistry(
+            @Autowired(required = false) List<NameResolverProvider> nameResolverProviders) {
+        NameResolverRegistry registry = NameResolverRegistry.getDefaultRegistry();
+        if (nameResolverProviders != null) {
+            for (NameResolverProvider provider : nameResolverProviders) {
+                try {
+                    registry.register(provider);
+                    log.info("{} is available -> Added to the NameResolverRegistry", provider);
+                } catch (IllegalArgumentException e) {
+                    log.info("{} is not available -> Not added to the NameResolverRegistry", provider);
+                }
+            }
+        }
+        return registry;
+    }
+
     /**
      * Creates a new name resolver factory with the given channel properties. The properties are used to map the client
      * name to the actual service addresses. If you want to add more name resolver schemes or modify existing ones, you
@@ -98,12 +121,13 @@ public class GrpcClientAutoConfiguration {
      * @param channelProperties The properties for the channels.
      * @return The default config mapped name resolver factory.
      */
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(name = "grpcNameResolverFactory")
     @Lazy // Not needed for InProcessChannelFactories
     @Bean
-    public NameResolver.Factory grpcNameResolverFactory(final GrpcChannelsProperties channelProperties) {
-        return new ConfigMappedNameResolverFactory(channelProperties,
-                StaticNameResolverProvider.STATIC_DEFAULT_URI_MAPPER);
+    @Primary
+    public NameResolver.Factory grpcNameResolverFactory(final GrpcChannelsProperties channelProperties,
+            NameResolverRegistry registry) {
+        return new ConfigMappedNameResolverFactory(channelProperties, registry);
     }
 
     @ConditionalOnBean(CompressorRegistry.class)

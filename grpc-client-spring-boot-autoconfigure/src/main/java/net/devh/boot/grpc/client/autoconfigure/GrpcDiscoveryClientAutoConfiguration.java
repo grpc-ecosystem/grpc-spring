@@ -17,8 +17,6 @@
 
 package net.devh.boot.grpc.client.autoconfigure;
 
-import java.util.List;
-
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -26,38 +24,13 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Primary;
 
-import com.google.common.collect.ImmutableList;
-
-import io.grpc.NameResolver;
-import io.grpc.NameResolverProvider;
-import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
-import net.devh.boot.grpc.client.nameresolver.ConfigMappedNameResolverFactory;
 import net.devh.boot.grpc.client.nameresolver.DiscoveryClientResolverFactory;
 
 @Configuration
 @ConditionalOnBean(DiscoveryClient.class)
 @AutoConfigureBefore(GrpcClientAutoConfiguration.class)
-@SuppressWarnings("deprecation")
 public class GrpcDiscoveryClientAutoConfiguration {
-
-    @ConditionalOnMissingBean
-    @Lazy // Not needed for InProcessChannelFactories
-    @Bean
-    @Primary
-    // TODO: Remove the deprecated NameResolverProvider.asFactory() and CompositeNameResolverFactory in v2.6.0
-    NameResolver.Factory grpcNameResolverProviderWithDiscovery(final GrpcChannelsProperties channelProperties,
-            final DiscoveryClientResolverFactory discoveryClientResolverFactory) {
-        final List<NameResolver.Factory> factories = ImmutableList.<NameResolver.Factory>builder()
-                .add(discoveryClientResolverFactory)
-                .add(NameResolverProvider.asFactory())
-                .build();
-        return new ConfigMappedNameResolverFactory(channelProperties,
-                new net.devh.boot.grpc.client.nameresolver.CompositeNameResolverFactory(
-                        DiscoveryClientResolverFactory.DISCOVERY_SCHEME, factories),
-                DiscoveryClientResolverFactory.DISCOVERY_DEFAULT_URI_MAPPER);
-    }
 
     @ConditionalOnMissingBean
     @Lazy // Not needed for InProcessChannelFactories

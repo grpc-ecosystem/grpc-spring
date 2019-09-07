@@ -149,10 +149,7 @@ HelloReply response = stub.sayHello(HelloRequest.newBuilder().setName(name).buil
 It is possible to configure the target address for each client individually.
 However in some cases, you can just rely on the default configuration.
 You can customize the default url mapping via `NameResolver.Factory` beans. If you don't configure that bean,
-then the default uri will be resolved as followed:
-
-* If a `DiscoveryClient` bean is present, then the client name will be used to search inside the discovery client.
-* Otherwise the client assumes that the server runs on `localhost` with port `9090`.
+then the default uri will be guessed using the default scheme and the name (e.g.: `dns:/<name>`):
 
 These and other
 [settings](grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/config/GrpcChannelProperties.java)

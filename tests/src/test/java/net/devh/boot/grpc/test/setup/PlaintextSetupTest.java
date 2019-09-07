@@ -31,7 +31,10 @@ import net.devh.boot.grpc.test.config.ServiceConfiguration;
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @Slf4j
-@SpringBootTest(properties = "grpc.client.test.negotiationType=PLAINTEXT")
+@SpringBootTest(properties = {
+        "grpc.client.GLOBAL.address=localhost:9090",
+        "grpc.client.GLOBAL.negotiationType=PLAINTEXT"
+})
 @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
 @DirtiesContext
 public class PlaintextSetupTest extends AbstractSimpleServerClientTest {
