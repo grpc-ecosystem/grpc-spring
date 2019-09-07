@@ -15,7 +15,7 @@ buildscript {
 
         grpcVersion = '1.23.0'
         protobufVersion = '3.9.1'
-        protobufGradlePluginVersion = '0.8.8'
+        protobufGradlePluginVersion = '0.8.10'
 
         springBootVersion = '2.1.8.RELEASE'
         springCloudVersion = 'Greenwich.SR2'
@@ -25,17 +25,17 @@ buildscript {
         lombokVersion = '1.18.8'
     }
     dependencies {
-        classpath "io.spring.gradle:dependency-management-plugin:1.0.7.RELEASE"
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.8.RELEASE"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
-        classpath "com.diffplug.spotless:spotless-plugin-gradle:3.23.0"
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:3.24.2"
     }
 }
 
 plugins {
     id "net.nemerosa.versioning" version "2.8.2"
     id "io.franzbecker.gradle-lombok" version "3.1.0" apply false
-    id "com.gradle.build-scan" version "2.2.1"
-    id "com.github.ben-manes.versions" version "0.21.0" // gradle dependencyUpdates (Takes quite some time)
+    id "com.gradle.build-scan" version "2.4.1"
+    id "com.github.ben-manes.versions" version "0.24.0" // gradle dependencyUpdates (Takes quite some time)
 }
 
 buildScan {
