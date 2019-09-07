@@ -75,9 +75,7 @@ public class ConfigMappedNameResolverFactory extends NameResolver.Factory {
 
     @Nullable
     @Override
-    @Deprecated
-    // TODO: Update this to grpc-java 1.21 in v2.6.0
-    public NameResolver newNameResolver(final URI targetUri, final io.grpc.NameResolver.Helper helper) {
+    public NameResolver newNameResolver(final URI targetUri, final NameResolver.Args args) {
         final String clientName = targetUri.toString();
         final GrpcChannelProperties clientConfig = this.config.getChannel(clientName);
         URI remappedUri = clientConfig.getAddress();
@@ -89,7 +87,7 @@ public class ConfigMappedNameResolverFactory extends NameResolver.Factory {
             }
         }
         log.debug("Remapping target URI for {} to {} via {}", clientName, remappedUri, this.delegate);
-        return this.delegate.newNameResolver(remappedUri, helper);
+        return this.delegate.newNameResolver(remappedUri, args);
     }
 
     @Override

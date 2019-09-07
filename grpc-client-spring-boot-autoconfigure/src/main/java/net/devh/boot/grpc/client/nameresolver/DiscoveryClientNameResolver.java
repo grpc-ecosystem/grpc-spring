@@ -25,6 +25,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -38,6 +39,7 @@ import io.grpc.Attributes;
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
 import io.grpc.Status;
+import io.grpc.SynchronizationContext;
 import io.grpc.internal.SharedResourceHolder;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.common.util.GrpcUtils;
@@ -52,10 +54,12 @@ import net.devh.boot.grpc.common.util.GrpcUtils;
 @Slf4j
 public class DiscoveryClientNameResolver extends NameResolver {
 
+    private static final List<ServiceInstance> KEEP_PREVIOUS = null;
+
     private final String name;
     private final DiscoveryClient client;
     private final SharedResourceHolder.Resource<Executor> executorResource;
-    // private final SynchronizationContext syncContext;
+    private final SynchronizationContext syncContext;
 
     @GuardedBy("this")
     private Listener listener;
@@ -68,16 +72,12 @@ public class DiscoveryClientNameResolver extends NameResolver {
     @GuardedBy("this")
     private List<ServiceInstance> instanceList = Lists.newArrayList();
 
-    // TODO: Update this to grpc-java 1.21 in v2.6.0
-    // Replace synchronized with syncContext
-    public DiscoveryClientNameResolver(final String name, final DiscoveryClient client,
-            // final Args args,
+    public DiscoveryClientNameResolver(final String name, final DiscoveryClient client, final Args args,
             final SharedResourceHolder.Resource<Executor> executorResource) {
         this.name = name;
         this.client = client;
         this.executorResource = executorResource;
-        // this.syncContext =
-        // requireNonNull(args.getSynchronizationContext(), "syncContext");
+        this.syncContext = requireNonNull(args.getSynchronizationContext(), "syncContext");
     }
 
     @Override
@@ -151,21 +151,21 @@ public class DiscoveryClientNameResolver extends NameResolver {
 
         @Override
         public void run() {
-            List<ServiceInstance> newInstanceList = null;
+            AtomicReference<List<ServiceInstance>> resultContainer = new AtomicReference<>();
             try {
-                newInstanceList = resolveInternal();
+                resultContainer.set(resolveInternal());
             } catch (final Exception e) {
                 this.savedListener.onError(Status.UNAVAILABLE.withCause(e)
                         .withDescription("Failed to update server list for " + DiscoveryClientNameResolver.this.name));
-                newInstanceList = Lists.newArrayList();
+                resultContainer.set(Lists.newArrayList());
             } finally {
-                // syncContext.execute(() -> { work });
-                synchronized (DiscoveryClientNameResolver.this) {
+                DiscoveryClientNameResolver.this.syncContext.execute(() -> {
                     DiscoveryClientNameResolver.this.resolving = false;
-                    if (newInstanceList != null && !DiscoveryClientNameResolver.this.shutdown) {
-                        DiscoveryClientNameResolver.this.instanceList = newInstanceList;
+                    List<ServiceInstance> result = resultContainer.get();
+                    if (result != KEEP_PREVIOUS && !DiscoveryClientNameResolver.this.shutdown) {
+                        DiscoveryClientNameResolver.this.instanceList = result;
                     }
-                }
+                });
             }
         }
 
@@ -187,7 +187,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
             }
             if (!needsToUpdateConnections(newInstanceList)) {
                 log.debug("Nothing has changed... skipping update for {}", name);
-                return null;
+                return KEEP_PREVIOUS;
             }
             log.debug("Ready to update server list for {}", name);
             final List<EquivalentAddressGroup> targets = Lists.newArrayList();

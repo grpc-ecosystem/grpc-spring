@@ -22,7 +22,6 @@ import static java.util.Objects.requireNonNull;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.function.Function;
 
 import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
@@ -33,6 +32,7 @@ import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
 import org.springframework.context.event.EventListener;
 
 import io.grpc.NameResolver;
+import io.grpc.NameResolverProvider;
 import io.grpc.internal.GrpcUtil;
 
 /**
@@ -69,9 +69,7 @@ public class DiscoveryClientResolverFactory extends NameResolver.Factory {
 
     @Nullable
     @Override
-    @Deprecated
-    // TODO: Update this to grpc-java 1.21 in v2.6.0
-    public NameResolver newNameResolver(final URI targetUri, final io.grpc.NameResolver.Helper helper) {
+    public NameResolver newNameResolver(final URI targetUri, final NameResolver.Args args) {
         if (DISCOVERY_SCHEME.equals(targetUri.getScheme())) {
             final String serviceName = targetUri.getPath();
             if (serviceName == null || serviceName.length() <= 1 || !serviceName.startsWith("/")) {
@@ -80,7 +78,7 @@ public class DiscoveryClientResolverFactory extends NameResolver.Factory {
                         + "but was '" + targetUri.toString() + "'");
             }
             final DiscoveryClientNameResolver discoveryClientNameResolver =
-                    new DiscoveryClientNameResolver(serviceName.substring(1), this.client,
+                    new DiscoveryClientNameResolver(serviceName.substring(1), this.client, args,
                             GrpcUtil.SHARED_CHANNEL_EXECUTOR);
             this.discoveryClientNameResolvers.add(discoveryClientNameResolver);
             return discoveryClientNameResolver;

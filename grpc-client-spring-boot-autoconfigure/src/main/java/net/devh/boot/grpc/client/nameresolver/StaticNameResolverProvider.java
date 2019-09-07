@@ -57,9 +57,7 @@ public class StaticNameResolverProvider extends NameResolverProvider {
 
     @Nullable
     @Override
-    @Deprecated
-    // TODO: Update this to grpc-java 1.21 in v2.6.0
-    public NameResolver newNameResolver(final URI targetUri, final io.grpc.NameResolver.Helper args) {
+    public NameResolver newNameResolver(final URI targetUri, final NameResolver.Args args) {
         if (STATIC_SCHEME.equals(targetUri.getScheme())) {
             return of(targetUri.getAuthority(), args.getDefaultPort());
         }
