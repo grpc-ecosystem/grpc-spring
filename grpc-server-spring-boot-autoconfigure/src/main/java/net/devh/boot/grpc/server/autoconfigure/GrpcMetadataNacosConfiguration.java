@@ -22,10 +22,10 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.alibaba.nacos.NacosDiscoveryProperties;
-import org.springframework.cloud.alibaba.nacos.registry.NacosRegistration;
 import org.springframework.context.annotation.Configuration;
 
+import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
+import com.alibaba.cloud.nacos.registry.NacosRegistration;
 import com.alibaba.nacos.client.naming.NacosNamingService;
 
 import net.devh.boot.grpc.common.util.GrpcUtils;

@@ -13,14 +13,14 @@ buildscript {
     ext {
         projectVersion = '2.6.0-SNAPSHOT'
 
-        grpcVersion = '1.22.2'
-        protobufVersion = '3.8.0'
+        grpcVersion = '1.23.0'
+        protobufVersion = '3.9.1'
         protobufGradlePluginVersion = '0.8.8'
 
-        springBootVersion = '2.1.6.RELEASE'
+        springBootVersion = '2.1.8.RELEASE'
         springCloudVersion = 'Greenwich.SR2'
-        springCloudAlibabaNacosVersion = '0.9.0.RELEASE'
-        braveInstrumentationGrpc = '5.6.3'
+        springCloudAlibabaNacosVersion = '2.1.0.RELEASE'
+        braveInstrumentationGrpc = '5.6.11'
 
         lombokVersion = '1.18.8'
     }
