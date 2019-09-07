@@ -9,15 +9,15 @@ repositories {
 dependencies {
     compile('org.springframework.boot:spring-boot-starter')
     compile('org.springframework.security:spring-security-config')
-    compile('org.springframework.security:spring-security-oauth2-client:5.0.4.RELEASE')
+    compile('org.springframework.security:spring-security-oauth2-client:5.1.6.RELEASE')
     compile project(':grpc-server-spring-boot-starter') // replace to compile("net.devh:grpc-server-spring-boot-starter:${springBootGrpcVersion}")
     compile project(':examples:grpc-lib')
-    compile('com.nimbusds:nimbus-jose-jwt:6.4.2')
-    compile('org.springframework.security.oauth:spring-security-oauth2:2.3.4.RELEASE')
+    compile('com.nimbusds:nimbus-jose-jwt:7.8')
+    compile('org.springframework.security.oauth:spring-security-oauth2:2.3.6.RELEASE')
     compile('org.springframework.security:spring-security-web')
-    compile('org.springframework.security:spring-security-oauth2-resource-server:5.2.0.M1')
-    compile('org.springframework.security:spring-security-oauth2-jose:5.2.0.M1')
-    compile('org.springframework.security:spring-security-oauth2-core:5.2.0.M1')
+    compile('org.springframework.security:spring-security-oauth2-resource-server:5.2.0.RC1')
+    compile('org.springframework.security:spring-security-oauth2-jose:5.2.0.RC1')
+    compile('org.springframework.security:spring-security-oauth2-core:5.2.0.RC1')
 }
 
 buildscript {
