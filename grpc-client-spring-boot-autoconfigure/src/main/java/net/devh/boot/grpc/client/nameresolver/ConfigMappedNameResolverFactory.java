@@ -20,12 +20,11 @@ package net.devh.boot.grpc.client.nameresolver;
 import static java.util.Objects.requireNonNull;
 
 import java.net.URI;
-import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
 import io.grpc.NameResolver;
-import io.grpc.NameResolverProvider;
+import io.grpc.NameResolverRegistry;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
@@ -40,21 +39,26 @@ public class ConfigMappedNameResolverFactory extends NameResolver.Factory {
 
     private final GrpcChannelsProperties config;
     private final NameResolver.Factory delegate;
-    private final Function<String, URI> defaultUriMapper;
 
     /**
      * Creates a new ConfigMappedNameResolverFactory with the given config that resolves the remapped target uri using
      * the grpc's registered name resolvers.
      *
      * @param config The config used to remap the target uri.
-     * @param defaultUriMapper The function to use when no uri is configured for a certain endpoint. This can be useful
-     *        if the address can be derived from the client name.
      */
-    @SuppressWarnings("deprecation")
-    // TODO: Update this to grpc-java 1.21 in v2.6.0
-    public ConfigMappedNameResolverFactory(final GrpcChannelsProperties config,
-            Function<String, URI> defaultUriMapper) {
-        this(config, NameResolverProvider.asFactory(), defaultUriMapper);
+    public ConfigMappedNameResolverFactory(final GrpcChannelsProperties config) {
+        this(config, NameResolverRegistry.getDefaultRegistry());
+    }
+
+    /**
+     * Creates a new ConfigMappedNameResolverFactory with the given config that resolves the remapped target uri using
+     * the grpc's registered name resolvers.
+     *
+     * @param config The config used to remap the target uri.
+     * @param registry The registry to use as {@link io.grpc.NameResolver.Factory NameResolver.Factory} delegate.
+     */
+    public ConfigMappedNameResolverFactory(final GrpcChannelsProperties config, NameResolverRegistry registry) {
+        this(config, registry.asFactory());
     }
 
     /**
@@ -63,39 +67,44 @@ public class ConfigMappedNameResolverFactory extends NameResolver.Factory {
      *
      * @param config The config used to remap the target uri.
      * @param delegate The delegate used to resolve the remapped target uri.
-     * @param defaultUriMapper The function to use when no uri is configured for a certain endpoint. This can be useful
-     *        if the address can be derived from the client name.
      */
-    public ConfigMappedNameResolverFactory(final GrpcChannelsProperties config, final NameResolver.Factory delegate,
-            Function<String, URI> defaultUriMapper) {
+    public ConfigMappedNameResolverFactory(final GrpcChannelsProperties config, final NameResolver.Factory delegate) {
         this.config = requireNonNull(config, "config");
         this.delegate = requireNonNull(delegate, "delegate");
-        this.defaultUriMapper = requireNonNull(defaultUriMapper, "defaultUriMapper");
     }
 
     @Nullable
     @Override
-    @Deprecated
-    // TODO: Update this to grpc-java 1.21 in v2.6.0
-    public NameResolver newNameResolver(final URI targetUri, final io.grpc.NameResolver.Helper helper) {
+    public NameResolver newNameResolver(final URI targetUri, final NameResolver.Args args) {
         final String clientName = targetUri.toString();
         final GrpcChannelProperties clientConfig = this.config.getChannel(clientName);
         URI remappedUri = clientConfig.getAddress();
         if (remappedUri == null) {
-            remappedUri = this.defaultUriMapper.apply(clientName);
-            if (remappedUri == null) {
-                throw new IllegalStateException("No targetUri provided for '" + clientName + "'"
-                        + " and defaultUri mapper returned null.");
-            }
+            remappedUri = URI.create(clientName);
         }
         log.debug("Remapping target URI for {} to {} via {}", clientName, remappedUri, this.delegate);
-        return this.delegate.newNameResolver(remappedUri, helper);
+        NameResolver resolver = this.delegate.newNameResolver(remappedUri, args);
+        if (resolver != null) {
+            return resolver;
+        }
+        remappedUri = URI.create(getDefaultSchemeInternal() + ":/" + remappedUri.toString());
+        log.debug("Remapping target URI (with default scheme) for {} to {} via {}",
+                clientName, remappedUri, this.delegate);
+        return this.delegate.newNameResolver(remappedUri, args);
     }
 
     @Override
     public String getDefaultScheme() {
         // The config does not use schemes at all
         return "";
+    }
+
+    private String getDefaultSchemeInternal() {
+        String configured = this.config.getDefaultScheme();
+        if (configured != null) {
+            return configured;
+        }
+        return this.delegate.getDefaultScheme();
     }
 
     @Override

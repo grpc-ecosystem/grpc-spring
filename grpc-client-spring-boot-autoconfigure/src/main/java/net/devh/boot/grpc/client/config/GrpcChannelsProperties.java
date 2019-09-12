@@ -92,4 +92,26 @@ public class GrpcChannelsProperties {
         return this.client.computeIfAbsent(name, key -> new GrpcChannelProperties());
     }
 
+    private String defaultScheme;
+
+    /**
+     * Get the default scheme that should be used, if the client doesn't specify a scheme/address.
+     *
+     * @return The default scheme to use or null.
+     * @see #setDefaultScheme(String)
+     */
+    public String getDefaultScheme() {
+        return this.defaultScheme;
+    }
+
+    /**
+     * Sets the default scheme to use, if the client doesn't specify a scheme/address. If not specified it will default
+     * to the default scheme of the {@link io.grpc.NameResolver.Factory}. Examples: {@code dns}, {@code discovery}.
+     *
+     * @param defaultScheme The default scheme to use or null.
+     */
+    public void setDefaultScheme(String defaultScheme) {
+        this.defaultScheme = defaultScheme;
+    }
+
 }

@@ -22,7 +22,6 @@ import static java.util.Objects.requireNonNull;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.function.Function;
 
 import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
@@ -33,6 +32,7 @@ import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
 import org.springframework.context.event.EventListener;
 
 import io.grpc.NameResolver;
+import io.grpc.NameResolverProvider;
 import io.grpc.internal.GrpcUtil;
 
 /**
@@ -41,17 +41,13 @@ import io.grpc.internal.GrpcUtil;
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
-public class DiscoveryClientResolverFactory extends NameResolver.Factory {
+// Do not add this to the NameResolverProvider service loader list
+public class DiscoveryClientResolverFactory extends NameResolverProvider {
 
     /**
      * The constant containing the scheme that will be used by this factory.
      */
     public static final String DISCOVERY_SCHEME = "discovery";
-    /**
-     * The function that should be used as uri mapper, if discovery-client should be used as default.
-     */
-    public static final Function<String, URI> DISCOVERY_DEFAULT_URI_MAPPER =
-            clientName -> URI.create(DISCOVERY_SCHEME + ":///" + clientName);
 
     private final Collection<DiscoveryClientNameResolver> discoveryClientNameResolvers = new ArrayList<>();
     private final HeartbeatMonitor monitor = new HeartbeatMonitor();
@@ -69,9 +65,7 @@ public class DiscoveryClientResolverFactory extends NameResolver.Factory {
 
     @Nullable
     @Override
-    @Deprecated
-    // TODO: Update this to grpc-java 1.21 in v2.6.0
-    public NameResolver newNameResolver(final URI targetUri, final io.grpc.NameResolver.Helper helper) {
+    public NameResolver newNameResolver(final URI targetUri, final NameResolver.Args args) {
         if (DISCOVERY_SCHEME.equals(targetUri.getScheme())) {
             final String serviceName = targetUri.getPath();
             if (serviceName == null || serviceName.length() <= 1 || !serviceName.startsWith("/")) {
@@ -80,7 +74,7 @@ public class DiscoveryClientResolverFactory extends NameResolver.Factory {
                         + "but was '" + targetUri.toString() + "'");
             }
             final DiscoveryClientNameResolver discoveryClientNameResolver =
-                    new DiscoveryClientNameResolver(serviceName.substring(1), this.client,
+                    new DiscoveryClientNameResolver(serviceName.substring(1), this.client, args,
                             GrpcUtil.SHARED_CHANNEL_EXECUTOR);
             this.discoveryClientNameResolvers.add(discoveryClientNameResolver);
             return discoveryClientNameResolver;
@@ -91,6 +85,16 @@ public class DiscoveryClientResolverFactory extends NameResolver.Factory {
     @Override
     public String getDefaultScheme() {
         return DISCOVERY_SCHEME;
+    }
+
+    @Override
+    protected boolean isAvailable() {
+        return true;
+    }
+
+    @Override
+    protected int priority() {
+        return 6; // More important than DNS
     }
 
     /**

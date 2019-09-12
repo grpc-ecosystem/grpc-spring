@@ -39,7 +39,10 @@ import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorConfigurer;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
 
-@SpringBootTest(properties = "grpc.client.test.negotiationType=PLAINTEXT")
+@SpringBootTest(properties = {
+        "grpc.client.GLOBAL.address=localhost:9090",
+        "grpc.client.GLOBAL.negotiationType=PLAINTEXT"
+})
 @SpringJUnitConfig(
         classes = {CustomCodecTest.CustomConfiguration.class, ServiceConfiguration.class, BaseAutoConfiguration.class})
 @DirtiesContext

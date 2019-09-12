@@ -35,15 +35,14 @@ import net.devh.boot.grpc.test.config.WithCertificateSecurityConfiguration;
         "grpc.server.security.trustCertCollection=file:src/test/resources/certificates/trusted-clients-collection",
         "grpc.server.security.clientAuth=REQUIRE",
 
-        "grpc.client.test.security.authorityOverride=localhost",
-        "grpc.client.test.security.trustCertCollection=file:src/test/resources/certificates/trusted-servers-collection",
-        "grpc.client.test.security.clientAuthEnabled=true",
+        "grpc.client.GLOBAL.address=localhost:9090",
+        "grpc.client.GLOBAL.security.authorityOverride=localhost",
+        "grpc.client.GLOBAL.security.trustCertCollection=file:src/test/resources/certificates/trusted-servers-collection",
+        "grpc.client.GLOBAL.security.clientAuthEnabled=true",
+
         "grpc.client.test.security.certificateChain=file:src/test/resources/certificates/client1.crt",
         "grpc.client.test.security.privateKey=file:src/test/resources/certificates/client1.key",
 
-        "grpc.client.noPerm.security.authorityOverride=localhost",
-        "grpc.client.noPerm.security.trustCertCollection=file:src/test/resources/certificates/trusted-servers-collection",
-        "grpc.client.noPerm.security.clientAuthEnabled=true",
         "grpc.client.noPerm.security.certificateChain=file:src/test/resources/certificates/client2.crt",
         "grpc.client.noPerm.security.privateKey=file:src/test/resources/certificates/client2.key"
 })

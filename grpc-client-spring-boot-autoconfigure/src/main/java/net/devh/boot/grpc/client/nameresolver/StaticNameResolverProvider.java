@@ -23,7 +23,6 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
@@ -44,22 +43,12 @@ public class StaticNameResolverProvider extends NameResolverProvider {
      * The constant containing the scheme that will be used by this factory.
      */
     public static final String STATIC_SCHEME = "static";
-    /**
-     * The default URI to use if target address is configured.
-     */
-    public static final URI STATIC_DEFAULT_URI = URI.create("static://localhost:9090");
-    /**
-     * The function that should be used as default uri mapper, if no name based default can be computed.
-     */
-    public static final Function<String, URI> STATIC_DEFAULT_URI_MAPPER = clientName -> STATIC_DEFAULT_URI;
 
     private static final Pattern PATTERN_COMMA = Pattern.compile(",");
 
     @Nullable
     @Override
-    @Deprecated
-    // TODO: Update this to grpc-java 1.21 in v2.6.0
-    public NameResolver newNameResolver(final URI targetUri, final io.grpc.NameResolver.Helper args) {
+    public NameResolver newNameResolver(final URI targetUri, final NameResolver.Args args) {
         if (STATIC_SCHEME.equals(targetUri.getScheme())) {
             return of(targetUri.getAuthority(), args.getDefaultPort());
         }
