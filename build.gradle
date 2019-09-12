@@ -145,7 +145,7 @@ if (JavaVersion.current().isJava9Compatible()) {
 }
 
 allprojects { project ->
-   buildscript {
+    buildscript {
         dependencyManagement {
             imports {
                 mavenBom "io.grpc:grpc-bom:${grpcVersion}"
@@ -185,6 +185,8 @@ allprojects { project ->
             dependsOn delombok
             source = delombok.outputDir
             failOnError = false
+            options.locale = 'en_US'
+            options.encoding = 'UTF-8'
             options.jFlags('-Dhttp.agent=gradle-javadoc') // Required for javadoc.io
             if (project.name != 'grpc-common-spring-boot') {
                 options.linksOffline('https://static.javadoc.io/net.devh/grpc-common-spring-boot/' + projectVersion, commonProject.buildDir.getPath() + '/docs/javadoc')
