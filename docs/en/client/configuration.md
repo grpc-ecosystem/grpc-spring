@@ -28,7 +28,7 @@ You can find all build-in configuration properties here:
 
 - [`GrpcChannelsProperties`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/config/GrpcChannelsProperties.html)
 - [`GrpcChannelProperties`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/config/GrpcChannelProperties.html)
-- [`GrpcServerProperties.Security`](https://static.javadoc.io/net.devh/grpc-client-spring-boot-autoconfigure/2.4.0.RELEASE/net/devh/boot/grpc/client/config/GrpcChannelProperties.Security.html)
+- [`GrpcServerProperties.Security`](https://static.javadoc.io/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/config/GrpcChannelProperties.Security.html)
 
 If you prefer to read the sources instead, you can do so
 [here](https://github.com/yidongnan/grpc-spring-boot-starter/blob/master/grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/config/GrpcChannelProperties.java#L58).
@@ -62,6 +62,11 @@ There are a number of supported schemes, that you can use to determine the targe
   automatically during `HeartbeatEvent`s. Uses the `gRPC.port` metadata to determine the port, otherwise uses the
   service port.
   Example: `discovery:///service-name`
+- `self` (Prio 0):
+  The self address or scheme is a keyword that is available, if you also use `grpc-server-spring-boot-starter` and
+  allows you to connect to the server without specifying the own address/port. This is especially useful for tests
+  where you might want to use random server ports to avoid conflicts.
+  Example: `self` or `self:self`
 - `in-process`:
   This is a special scheme that will bypass the normal channel factory and will use the `InProcessChannelFactory`
   instead. Use it to connect to the [`InProcessServer`](../server/configuration#enabling-the-inprocessserver).

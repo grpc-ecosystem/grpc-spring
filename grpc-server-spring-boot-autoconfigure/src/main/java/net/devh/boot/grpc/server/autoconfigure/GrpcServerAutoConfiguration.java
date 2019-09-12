@@ -27,6 +27,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 import io.grpc.CompressorRegistry;
 import io.grpc.DecompressorRegistry;
@@ -36,6 +37,7 @@ import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import net.devh.boot.grpc.server.interceptor.AnnotationGlobalServerInterceptorConfigurer;
 import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorRegistry;
+import net.devh.boot.grpc.server.nameresolver.SelfNameResolverFactory;
 import net.devh.boot.grpc.server.scope.GrpcRequestScope;
 import net.devh.boot.grpc.server.serverfactory.GrpcServerConfigurer;
 import net.devh.boot.grpc.server.serverfactory.GrpcServerFactory;
@@ -69,6 +71,20 @@ public class GrpcServerAutoConfiguration {
     @Bean
     public GrpcServerProperties defaultGrpcServerProperties() {
         return new GrpcServerProperties();
+    }
+
+    /**
+     * Lazily creates a {@link SelfNameResolverFactory} bean, that can be used by the client to connect to the server
+     * itself.
+     *
+     * @param properties The properties to derive the address from.
+     * @return The newly created {@link SelfNameResolverFactory} bean.
+     */
+    @ConditionalOnMissingBean
+    @Bean
+    @Lazy
+    public SelfNameResolverFactory selfNameResolverFactory(GrpcServerProperties properties) {
+        return new SelfNameResolverFactory(properties);
     }
 
     @ConditionalOnMissingBean
