@@ -37,7 +37,6 @@ import io.grpc.DecompressorRegistry;
 import io.grpc.NameResolver;
 import io.grpc.NameResolverProvider;
 import io.grpc.NameResolverRegistry;
-import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.InProcessChannelFactory;
@@ -49,6 +48,7 @@ import net.devh.boot.grpc.client.inject.GrpcClientBeanPostProcessor;
 import net.devh.boot.grpc.client.interceptor.AnnotationGlobalClientInterceptorConfigurer;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 import net.devh.boot.grpc.client.nameresolver.ConfigMappedNameResolverFactory;
+import net.devh.boot.grpc.client.nameresolver.NameResolverRegistration;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 
 /**
@@ -61,7 +61,6 @@ import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 @EnableConfigurationProperties
 @AutoConfigureAfter(name = "org.springframework.cloud.client.CommonsClientAutoConfiguration",
         value = GrpcCommonCodecAutoConfiguration.class)
-@Slf4j
 public class GrpcClientAutoConfiguration {
 
     @Bean
@@ -86,22 +85,39 @@ public class GrpcClientAutoConfiguration {
         return new AnnotationGlobalClientInterceptorConfigurer();
     }
 
+    /**
+     * Creates a new NameResolverRegistration. This ensures that the NameResolverProvider's get unregistered when spring
+     * shuts down. This is mostly required for tests/when using the grpc's static default registry.
+     *
+     * @param nameResolverProviders The spring managed providers to manage.
+     * @return The newly created NameResolverRegistration bean.
+     */
+    @ConditionalOnMissingBean
+    @Lazy
+    @Bean
+    public NameResolverRegistration grpcNameResolverRegistration(
+            @Autowired(required = false) List<NameResolverProvider> nameResolverProviders) {
+        return new NameResolverRegistration(nameResolverProviders);
+    }
+
+    /**
+     * Adds grpc's default registry to spring's application context.
+     *
+     * <p>
+     * <b>Note:</b> If multiple spring applications run in the same JVM, then you should consider creating separate
+     * registries.
+     * </p>
+     *
+     * @param registration The name resolver registration that contains all name resolver providers that should be
+     *        registered.
+     * @return grpc's default name resolver bean.
+     */
     @ConditionalOnMissingBean
     @Lazy // Not needed for InProcessChannelFactories
     @Bean
-    public NameResolverRegistry grpcNameResolverRegistry(
-            @Autowired(required = false) List<NameResolverProvider> nameResolverProviders) {
+    public NameResolverRegistry grpcNameResolverRegistry(NameResolverRegistration registration) {
         NameResolverRegistry registry = NameResolverRegistry.getDefaultRegistry();
-        if (nameResolverProviders != null) {
-            for (NameResolverProvider provider : nameResolverProviders) {
-                try {
-                    registry.register(provider);
-                    log.info("{} is available -> Added to the NameResolverRegistry", provider);
-                } catch (IllegalArgumentException e) {
-                    log.info("{} is not available -> Not added to the NameResolverRegistry", provider);
-                }
-            }
-        }
+        registration.register(registry);
         return registry;
     }
 
