@@ -15,33 +15,25 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.examples.cloud.client;
+package net.devh.boot.grpc.examples.local.server;
 
-import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import io.grpc.StatusRuntimeException;
-import net.devh.boot.grpc.client.inject.GrpcClient;
-import net.devh.boot.grpc.examples.lib.HelloReply;
-import net.devh.boot.grpc.examples.lib.HelloRequest;
-import net.devh.boot.grpc.examples.lib.SimpleGrpc.SimpleBlockingStub;
+import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorConfigurer;
+import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorRegistry;
 
-/**
- * @author Michael (yidongnan@gmail.com)
- * @since 2016/11/8
- */
-@Service
-public class GrpcClientService {
+@Configuration
+public class GlobalInterceptorConfiguration {
 
-    @GrpcClient("local-grpc-server")
-    private SimpleBlockingStub simpleStub;
-
-    public String sendMessage(final String name) {
-        try {
-            final HelloReply response = this.simpleStub.sayHello(HelloRequest.newBuilder().setName(name).build());
-            return response.getMessage();
-        } catch (final StatusRuntimeException e) {
-            return "FAILED with " + e.getStatus().getCode().name();
-        }
+    @Bean
+    public GlobalServerInterceptorConfigurer globalInterceptorConfigurerAdapter() {
+        return new GlobalServerInterceptorConfigurer() {
+            @Override
+            public void addServerInterceptors(GlobalServerInterceptorRegistry registry) {
+                registry.addServerInterceptors(new LogGrpcInterceptor());
+            }
+        };
     }
 
 }

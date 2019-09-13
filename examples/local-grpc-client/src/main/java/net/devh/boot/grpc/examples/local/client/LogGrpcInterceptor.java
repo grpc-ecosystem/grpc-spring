@@ -15,26 +15,30 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.examples.cloud.client;
+package net.devh.boot.grpc.examples.local.client;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.grpc.CallOptions;
+import io.grpc.Channel;
+import io.grpc.ClientCall;
+import io.grpc.ClientInterceptor;
+import io.grpc.MethodDescriptor;
 
 /**
  * @author Michael (yidongnan@gmail.com)
- * @since 2016/12/4
+ * @since 2016/12/8
  */
-@RestController
-public class GrpcClientController {
+public class LogGrpcInterceptor implements ClientInterceptor {
 
-    @Autowired
-    private GrpcClientService grpcClientService;
+    private static final Logger log = LoggerFactory.getLogger(LogGrpcInterceptor.class);
 
-    @RequestMapping("/")
-    public String printMessage(@RequestParam(defaultValue = "Michael") String name) {
-        return grpcClientService.sendMessage(name);
+    @Override
+    public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method,
+            CallOptions callOptions, Channel next) {
+        log.info(method.getFullMethodName());
+        return next.newCall(method, callOptions);
     }
 
 }

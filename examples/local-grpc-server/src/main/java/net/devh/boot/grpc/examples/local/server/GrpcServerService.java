@@ -15,30 +15,27 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.examples.cloud.client;
+package net.devh.boot.grpc.examples.local.server;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.grpc.CallOptions;
-import io.grpc.Channel;
-import io.grpc.ClientCall;
-import io.grpc.ClientInterceptor;
-import io.grpc.MethodDescriptor;
+import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.examples.lib.HelloReply;
+import net.devh.boot.grpc.examples.lib.HelloRequest;
+import net.devh.boot.grpc.examples.lib.SimpleGrpc;
+import net.devh.boot.grpc.server.service.GrpcService;
 
 /**
  * @author Michael (yidongnan@gmail.com)
- * @since 2016/12/8
+ * @since 2016/11/8
  */
-public class LogGrpcInterceptor implements ClientInterceptor {
 
-    private static final Logger log = LoggerFactory.getLogger(LogGrpcInterceptor.class);
+@GrpcService
+public class GrpcServerService extends SimpleGrpc.SimpleImplBase {
 
     @Override
-    public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method,
-            CallOptions callOptions, Channel next) {
-        log.info(method.getFullMethodName());
-        return next.newCall(method, callOptions);
+    public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
+        HelloReply reply = HelloReply.newBuilder().setMessage("Hello ==> " + req.getName()).build();
+        responseObserver.onNext(reply);
+        responseObserver.onCompleted();
     }
 
 }

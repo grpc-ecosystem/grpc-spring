@@ -15,29 +15,33 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.examples.cloud.server;
+package net.devh.boot.grpc.examples.local.client;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
-import io.grpc.Metadata;
-import io.grpc.ServerCall;
-import io.grpc.ServerCallHandler;
-import io.grpc.ServerInterceptor;
+import io.grpc.StatusRuntimeException;
+import net.devh.boot.grpc.client.inject.GrpcClient;
+import net.devh.boot.grpc.examples.lib.HelloReply;
+import net.devh.boot.grpc.examples.lib.HelloRequest;
+import net.devh.boot.grpc.examples.lib.SimpleGrpc.SimpleBlockingStub;
 
 /**
  * @author Michael (yidongnan@gmail.com)
- * @since 2016/12/6
+ * @since 2016/11/8
  */
-public class LogGrpcInterceptor implements ServerInterceptor {
+@Service
+public class GrpcClientService {
 
-    private static final Logger log = LoggerFactory.getLogger(LogGrpcInterceptor.class);
+    @GrpcClient("local-grpc-server")
+    private SimpleBlockingStub simpleStub;
 
-    @Override
-    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> serverCall, Metadata metadata,
-            ServerCallHandler<ReqT, RespT> serverCallHandler) {
-        log.info(serverCall.getMethodDescriptor().getFullMethodName());
-        return serverCallHandler.startCall(serverCall, metadata);
+    public String sendMessage(final String name) {
+        try {
+            final HelloReply response = this.simpleStub.sayHello(HelloRequest.newBuilder().setName(name).build());
+            return response.getMessage();
+        } catch (final StatusRuntimeException e) {
+            return "FAILED with " + e.getStatus().getCode().name();
+        }
     }
 
 }
