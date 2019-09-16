@@ -15,27 +15,26 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.examples.cloud.server;
+package net.devh.boot.grpc.examples.local.client;
 
-import io.grpc.stub.StreamObserver;
-import net.devh.boot.grpc.examples.lib.HelloReply;
-import net.devh.boot.grpc.examples.lib.HelloRequest;
-import net.devh.boot.grpc.examples.lib.SimpleGrpc;
-import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author Michael (yidongnan@gmail.com)
- * @since 2016/11/8
+ * @since 2016/12/4
  */
+@RestController
+public class GrpcClientController {
 
-@GrpcService
-public class GrpcServerService extends SimpleGrpc.SimpleImplBase {
+    @Autowired
+    private GrpcClientService grpcClientService;
 
-    @Override
-    public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
-        HelloReply reply = HelloReply.newBuilder().setMessage("Hello ==> " + req.getName()).build();
-        responseObserver.onNext(reply);
-        responseObserver.onCompleted();
+    @RequestMapping("/")
+    public String printMessage(@RequestParam(defaultValue = "Michael") String name) {
+        return grpcClientService.sendMessage(name);
     }
 
 }

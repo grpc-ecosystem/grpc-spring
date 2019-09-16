@@ -15,25 +15,29 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.examples.cloud.server;
+package net.devh.boot.grpc.examples.local.server;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorConfigurer;
-import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorRegistry;
+import io.grpc.Metadata;
+import io.grpc.ServerCall;
+import io.grpc.ServerCallHandler;
+import io.grpc.ServerInterceptor;
 
-@Configuration
-public class GlobalInterceptorConfiguration {
+/**
+ * @author Michael (yidongnan@gmail.com)
+ * @since 2016/12/6
+ */
+public class LogGrpcInterceptor implements ServerInterceptor {
 
-    @Bean
-    public GlobalServerInterceptorConfigurer globalInterceptorConfigurerAdapter() {
-        return new GlobalServerInterceptorConfigurer() {
-            @Override
-            public void addServerInterceptors(GlobalServerInterceptorRegistry registry) {
-                registry.addServerInterceptors(new LogGrpcInterceptor());
-            }
-        };
+    private static final Logger log = LoggerFactory.getLogger(LogGrpcInterceptor.class);
+
+    @Override
+    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> serverCall, Metadata metadata,
+            ServerCallHandler<ReqT, RespT> serverCallHandler) {
+        log.info(serverCall.getMethodDescriptor().getFullMethodName());
+        return serverCallHandler.startCall(serverCall, metadata);
     }
 
 }
