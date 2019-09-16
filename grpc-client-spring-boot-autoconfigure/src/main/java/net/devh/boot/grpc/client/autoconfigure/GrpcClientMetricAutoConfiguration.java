@@ -18,14 +18,22 @@
 package net.devh.boot.grpc.client.autoconfigure;
 
 import org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegistryAutoConfiguration;
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
+import com.google.common.collect.ImmutableMap;
+
+import io.grpc.ClientInterceptor;
+import io.grpc.ConnectivityState;
 import io.micrometer.core.instrument.MeterRegistry;
+import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import net.devh.boot.grpc.client.metric.MetricCollectingClientInterceptor;
 
 /**
@@ -39,10 +47,40 @@ import net.devh.boot.grpc.client.metric.MetricCollectingClientInterceptor;
 @ConditionalOnBean(MeterRegistry.class)
 public class GrpcClientMetricAutoConfiguration {
 
+    /**
+     * Creates a {@link ClientInterceptor} that collects metrics about incoming and outgoing requests and responses.
+     *
+     * @param registry The registry used to create the metrics.
+     * @return The newly created MetricCollectingClientInterceptor bean.
+     */
     @Bean
     @ConditionalOnMissingBean
     public MetricCollectingClientInterceptor metricCollectingClientInterceptor(final MeterRegistry registry) {
         return new MetricCollectingClientInterceptor(registry);
+    }
+
+    /**
+     * Creates a HealthIndicator based on the channels' {@link ConnectivityState}s from the underlying
+     * {@link GrpcChannelFactory}.
+     *
+     * @param factory The factory to derive the connectivity states from.
+     * @return A health indicator bean, that uses the following assumption
+     *         <code>DOWN == states.contains(TRANSIENT_FAILURE)</code>.
+     */
+    @Bean
+    @Lazy
+    public HealthIndicator grpcChannelHealthIndicator(final GrpcChannelFactory factory) {
+        return () -> {
+            final ImmutableMap<String, ConnectivityState> states = ImmutableMap.copyOf(factory.getConnectivityState());
+            final Health.Builder health;
+            if (states.containsValue(ConnectivityState.TRANSIENT_FAILURE)) {
+                health = Health.down();
+            } else {
+                health = Health.up();
+            }
+            return health.withDetails(states)
+                    .build();
+        };
     }
 
 }

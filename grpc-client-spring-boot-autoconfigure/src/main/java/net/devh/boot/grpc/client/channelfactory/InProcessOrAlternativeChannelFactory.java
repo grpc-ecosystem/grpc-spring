@@ -21,9 +21,13 @@ import static java.util.Objects.requireNonNull;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.ImmutableMap;
 
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
+import io.grpc.ConnectivityState;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 
 /**
@@ -77,6 +81,14 @@ public class InProcessOrAlternativeChannelFactory implements GrpcChannelFactory 
                     sortInterceptors);
         }
         return this.alternativeChannelFactory.createChannel(name, interceptors, sortInterceptors);
+    }
+
+    @Override
+    public Map<String, ConnectivityState> getConnectivityState() {
+        return ImmutableMap.<String, ConnectivityState>builder()
+                .putAll(inProcessChannelFactory.getConnectivityState())
+                .putAll(alternativeChannelFactory.getConnectivityState())
+                .build();
     }
 
     @Override
