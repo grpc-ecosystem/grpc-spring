@@ -25,6 +25,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import io.grpc.ClientInterceptor;
 import io.micrometer.core.instrument.MeterRegistry;
 import net.devh.boot.grpc.client.metric.MetricCollectingClientInterceptor;
 
@@ -39,6 +40,12 @@ import net.devh.boot.grpc.client.metric.MetricCollectingClientInterceptor;
 @ConditionalOnBean(MeterRegistry.class)
 public class GrpcClientMetricAutoConfiguration {
 
+    /**
+     * Creates a {@link ClientInterceptor} that collects metrics about incoming and outgoing requests and responses.
+     *
+     * @param registry The registry used to create the metrics.
+     * @return The newly created MetricCollectingClientInterceptor bean.
+     */
     @Bean
     @ConditionalOnMissingBean
     public MetricCollectingClientInterceptor metricCollectingClientInterceptor(final MeterRegistry registry) {

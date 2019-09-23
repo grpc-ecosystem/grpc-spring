@@ -19,10 +19,12 @@ package net.devh.boot.grpc.client.channelfactory;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
 import io.grpc.ClientInterceptors;
+import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 
 /**
@@ -66,7 +68,7 @@ public interface GrpcChannelFactory extends AutoCloseable {
      * @param interceptors A list of additional client interceptors that should be added to the channel.
      * @return The newly created channel for the given service.
      */
-    default Channel createChannel(String name, List<ClientInterceptor> interceptors) {
+    default Channel createChannel(final String name, final List<ClientInterceptor> interceptors) {
         return createChannel(name, interceptors, false);
     }
 
@@ -89,6 +91,16 @@ public interface GrpcChannelFactory extends AutoCloseable {
      * @return The newly created channel for the given service.
      */
     Channel createChannel(String name, List<ClientInterceptor> interceptors, boolean sortInterceptors);
+
+    /**
+     * Gets an unmodifiable map that contains the names of the created channel with their current
+     * {@link ConnectivityState}. This method will return an empty map, if the feature is not supported.
+     *
+     * @return A map with the channel names and their connectivity state.
+     */
+    default Map<String, ConnectivityState> getConnectivityState() {
+        return Collections.emptyMap();
+    }
 
     @Override
     void close();

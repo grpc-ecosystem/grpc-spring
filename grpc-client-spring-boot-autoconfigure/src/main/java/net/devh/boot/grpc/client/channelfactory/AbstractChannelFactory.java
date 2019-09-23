@@ -37,6 +37,7 @@ import com.google.common.collect.Lists;
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
 import io.grpc.ClientInterceptors;
+import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -68,6 +69,7 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
      */
     @GuardedBy("this")
     private final Map<String, ManagedChannel> channels = new ConcurrentHashMap<>();
+    private final Map<String, ConnectivityState> channelStates = new ConcurrentHashMap<>();
     private boolean shutdown = false;
 
     /**
@@ -131,7 +133,9 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
     protected ManagedChannel newManagedChannel(final String name) {
         final T builder = newChannelBuilder(name);
         configure(builder, name);
-        return builder.build();
+        final ManagedChannel channel = builder.build();
+        watchConnectivityState(name, channel);
+        return channel;
     }
 
     /**
@@ -222,6 +226,12 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         return file;
     }
 
+    /**
+     * Checks whether the given value is non null and non blank.
+     *
+     * @param value The value to check.
+     * @return True, if the given value was neither null nor blank. False otherwise.
+     */
     protected boolean isNonNullAndNonBlank(final String value) {
         return value != null && !value.trim().isEmpty();
     }
@@ -250,6 +260,25 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         final GrpcChannelProperties properties = getPropertiesFor(name);
         if (properties.isFullStreamDecompression()) {
             builder.enableFullStreamDecompression();
+        }
+    }
+
+    @Override
+    public Map<String, ConnectivityState> getConnectivityState() {
+        return Collections.unmodifiableMap(this.channelStates);
+    }
+
+    /**
+     * Watch the given channel for connectivity changes.
+     *
+     * @param name The name of the channel in the state overview.
+     * @param channel The channel to watch the state of.
+     */
+    protected void watchConnectivityState(final String name, final ManagedChannel channel) {
+        final ConnectivityState state = channel.getState(false);
+        this.channelStates.put(name, state);
+        if (state != ConnectivityState.SHUTDOWN) {
+            channel.notifyWhenStateChanged(state, () -> watchConnectivityState(name, channel));
         }
     }
 
@@ -289,6 +318,7 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         }
         final int channelCount = this.channels.size();
         this.channels.clear();
+        this.channelStates.clear();
         log.debug("GrpcCannelFactory closed (including {} channels)", channelCount);
     }
 
