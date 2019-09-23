@@ -89,8 +89,8 @@ For Maven add the following dependencies:
 </dependency>
 <!-- Spring-Test-Support (Optional) -->
 <dependency>
-    <groupId>io.grpc</groupId>
-    <artifactId>grpc-testing</artifactId>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
     <scope>test</scope>
 </dependency>
 ````
