@@ -51,7 +51,7 @@ There are a number of supported schemes, that you can use to determine the targe
 
 - `static` (Prio 4):
   A simple static list of IPs (both v4 and v6), that can be use connect to the server (Supports `localhost`).
-  Example: ``static://192.168.1.1:8080,10.0.0.1:1337`
+  Example: `static://192.168.1.1:8080,10.0.0.1:1337`
 - [`dns`](https://github.com/grpc/grpc-java/blob/master/core/src/main/java/io/grpc/internal/DnsNameResolver.java#L66) (Prio 5):
   Resolves all addresses that are bound to the given DNS name. The addresses will be cached and will only be refreshed
   if an existing connection is shutdown/fails. More options such as `SVC` lookups (useful for kubernetes) can be enabled
@@ -75,7 +75,7 @@ There are a number of supported schemes, that you can use to determine the targe
   You can define custom
   [`NameResolverProvider`s](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/NameResolverProvider.html) those
   will be picked up, by either via Java's `ServiceLoader` or from spring's application context and registered in
-  the ´NameResolverRegistry`.
+  the `NameResolverRegistry`.
 
 If you don't define an address it will be guessed:
 
