@@ -43,7 +43,7 @@ name channel take precedence over global once.
 You can change the target server using the following property:
 
 ````properties
-grpc.client.__name__.address=static://localhost:9090`
+grpc.client.__name__.address=static://localhost:9090
 ````
 
 There are a number of supported schemes, that you can use to determine the target server (Priorities 0 (low) - 10
