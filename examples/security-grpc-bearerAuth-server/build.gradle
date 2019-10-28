@@ -1,11 +1,5 @@
 apply plugin: 'org.springframework.boot'
 
-repositories {
-    maven {
-        url 'https://repo.spring.io/list/snapshot'
-    }
-}
-
 dependencies {
     compile('org.springframework.boot:spring-boot-starter')
     compile('org.springframework.security:spring-security-config')
