@@ -37,6 +37,7 @@ import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
+@Slf4j
 @GrpcGlobalServerInterceptor
 @Order(InterceptorOrder.ORDER_SECURITY_EXCEPTION_HANDLING)
 public class ExceptionTranslatingServerInterceptor implements ServerInterceptor {
@@ -58,9 +59,11 @@ public class ExceptionTranslatingServerInterceptor implements ServerInterceptor 
             // Streaming calls error out here
             return new ExceptionTranslatorServerCallListener<>(next.startCall(call, headers), call);
         } catch (final AuthenticationException aex) {
+            log.debug(UNAUTHENTICATED_DESCRIPTION, aex);
             closeCallUnauthenticated(call, aex);
             return noOpCallListener();
         } catch (final AccessDeniedException aex) {
+            log.debug(ACCESS_DENIED_DESCRIPTION, aex);
             closeCallAccessDenied(call, aex);
             return noOpCallListener();
         }
@@ -103,6 +106,7 @@ public class ExceptionTranslatingServerInterceptor implements ServerInterceptor 
      * @param <ReqT> The type of the request.
      * @param <RespT> The type of the response.
      */
+    @Slf4j
     private class ExceptionTranslatorServerCallListener<ReqT, RespT> extends SimpleForwardingServerCallListener<ReqT> {
 
         private final ServerCall<ReqT, RespT> call;
@@ -119,8 +123,10 @@ public class ExceptionTranslatingServerInterceptor implements ServerInterceptor 
             try {
                 super.onHalfClose();
             } catch (final AuthenticationException aex) {
+                log.debug(UNAUTHENTICATED_DESCRIPTION, aex);
                 closeCallUnauthenticated(this.call, aex);
             } catch (final AccessDeniedException aex) {
+                log.debug(ACCESS_DENIED_DESCRIPTION, aex);
                 closeCallAccessDenied(this.call, aex);
             }
         }
