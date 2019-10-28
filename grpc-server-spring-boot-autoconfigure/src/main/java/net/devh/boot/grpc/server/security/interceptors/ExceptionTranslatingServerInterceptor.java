@@ -107,7 +107,6 @@ public class ExceptionTranslatingServerInterceptor implements ServerInterceptor 
      * @param <ReqT> The type of the request.
      * @param <RespT> The type of the response.
      */
-    @Slf4j
     private class ExceptionTranslatorServerCallListener<ReqT, RespT> extends SimpleForwardingServerCallListener<ReqT> {
 
         private final ServerCall<ReqT, RespT> call;
