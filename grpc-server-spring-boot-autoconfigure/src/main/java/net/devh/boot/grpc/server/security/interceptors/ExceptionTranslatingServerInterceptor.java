@@ -60,11 +60,9 @@ public class ExceptionTranslatingServerInterceptor implements ServerInterceptor 
             // Streaming calls error out here
             return new ExceptionTranslatorServerCallListener<>(next.startCall(call, headers), call);
         } catch (final AuthenticationException aex) {
-            log.debug(UNAUTHENTICATED_DESCRIPTION, aex);
             closeCallUnauthenticated(call, aex);
             return noOpCallListener();
         } catch (final AccessDeniedException aex) {
-            log.debug(ACCESS_DENIED_DESCRIPTION, aex);
             closeCallAccessDenied(call, aex);
             return noOpCallListener();
         }
@@ -88,6 +86,7 @@ public class ExceptionTranslatingServerInterceptor implements ServerInterceptor 
      * @param aex The exception that was the cause.
      */
     protected void closeCallUnauthenticated(final ServerCall<?, ?> call, final AuthenticationException aex) {
+        log.debug(UNAUTHENTICATED_DESCRIPTION, aex);
         call.close(Status.UNAUTHENTICATED.withCause(aex).withDescription(UNAUTHENTICATED_DESCRIPTION), new Metadata());
     }
 
@@ -98,6 +97,7 @@ public class ExceptionTranslatingServerInterceptor implements ServerInterceptor 
      * @param aex The exception that was the cause.
      */
     protected void closeCallAccessDenied(final ServerCall<?, ?> call, final AccessDeniedException aex) {
+        log.debug(ACCESS_DENIED_DESCRIPTION, aex);
         call.close(Status.PERMISSION_DENIED.withCause(aex).withDescription(ACCESS_DENIED_DESCRIPTION), new Metadata());
     }
 
@@ -123,10 +123,8 @@ public class ExceptionTranslatingServerInterceptor implements ServerInterceptor 
             try {
                 super.onHalfClose();
             } catch (final AuthenticationException aex) {
-                log.debug(UNAUTHENTICATED_DESCRIPTION, aex);
                 closeCallUnauthenticated(this.call, aex);
             } catch (final AccessDeniedException aex) {
-                log.debug(ACCESS_DENIED_DESCRIPTION, aex);
                 closeCallAccessDenied(this.call, aex);
             }
         }

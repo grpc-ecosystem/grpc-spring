@@ -27,6 +27,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import io.grpc.Context;
@@ -76,7 +77,13 @@ public class DefaultAuthenticatingServerInterceptor implements AuthenticatingSer
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(final ServerCall<ReqT, RespT> call,
             final Metadata headers, final ServerCallHandler<ReqT, RespT> next) {
-        Authentication authentication = this.grpcAuthenticationReader.readAuthentication(call, headers);
+        Authentication authentication;
+        try {
+            authentication = this.grpcAuthenticationReader.readAuthentication(call, headers);
+        } catch (final AuthenticationException e) {
+            log.debug("Failed to read authentication: {}", e.getMessage());
+            throw e;
+        }
         if (authentication == null) {
             log.debug("No credentials found: Continuing unauthenticated");
             try {
@@ -91,8 +98,13 @@ public class DefaultAuthenticatingServerInterceptor implements AuthenticatingSer
             // It can then decide whether it wants to use its own user details or the attributes.
             ((AbstractAuthenticationToken) authentication).setDetails(call.getAttributes());
         }
-        log.debug("Credentials found: Authenticating...");
-        authentication = this.authenticationManager.authenticate(authentication);
+        log.debug("Credentials found: Authenticating '{}'", authentication.getName());
+        try {
+            authentication = this.authenticationManager.authenticate(authentication);
+        } catch (final AuthenticationException e) {
+            log.debug("Authentication request failed: {}", e.getMessage());
+            throw e;
+        }
 
         final Context context = Context.current().withValue(AUTHENTICATION_CONTEXT_KEY, authentication);
         final Context previousContext = context.attach();
