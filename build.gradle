@@ -14,7 +14,7 @@ buildscript {
         projectVersion = '2.6.0-SNAPSHOT'
 
         grpcVersion = '1.24.1'
-        protobufVersion = '3.9.2'
+        protobufVersion = '3.10.0'
         protobufGradlePluginVersion = '0.8.10'
 
         springBootVersion = '2.2.0.RELEASE'
