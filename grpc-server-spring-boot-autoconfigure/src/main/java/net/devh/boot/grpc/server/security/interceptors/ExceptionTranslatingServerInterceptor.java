@@ -28,6 +28,7 @@ import io.grpc.ServerCall.Listener;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.common.util.InterceptorOrder;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 
@@ -37,6 +38,7 @@ import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
+@Slf4j
 @GrpcGlobalServerInterceptor
 @Order(InterceptorOrder.ORDER_SECURITY_EXCEPTION_HANDLING)
 public class ExceptionTranslatingServerInterceptor implements ServerInterceptor {
@@ -84,6 +86,7 @@ public class ExceptionTranslatingServerInterceptor implements ServerInterceptor 
      * @param aex The exception that was the cause.
      */
     protected void closeCallUnauthenticated(final ServerCall<?, ?> call, final AuthenticationException aex) {
+        log.debug(UNAUTHENTICATED_DESCRIPTION, aex);
         call.close(Status.UNAUTHENTICATED.withCause(aex).withDescription(UNAUTHENTICATED_DESCRIPTION), new Metadata());
     }
 
@@ -94,6 +97,7 @@ public class ExceptionTranslatingServerInterceptor implements ServerInterceptor 
      * @param aex The exception that was the cause.
      */
     protected void closeCallAccessDenied(final ServerCall<?, ?> call, final AccessDeniedException aex) {
+        log.debug(ACCESS_DENIED_DESCRIPTION, aex);
         call.close(Status.PERMISSION_DENIED.withCause(aex).withDescription(ACCESS_DENIED_DESCRIPTION), new Metadata());
     }
 
