@@ -13,14 +13,14 @@ buildscript {
     ext {
         projectVersion = '2.6.0-SNAPSHOT'
 
-        grpcVersion = '1.24.1'
+        grpcVersion = '1.24.2'
         protobufVersion = '3.10.0'
         protobufGradlePluginVersion = '0.8.10'
 
-        springBootVersion = '2.2.0.RELEASE'
+        springBootVersion = '2.2.1.RELEASE'
         springCloudVersion = 'Hoxton.RC1'
         springCloudAlibabaNacosVersion = '2.1.0.RELEASE'
-        braveInstrumentationGrpc = '5.8.0'
+        braveInstrumentationGrpc = '5.9.0'
 
         lombokVersion = '1.18.10'
     }
@@ -32,7 +32,7 @@ buildscript {
 }
 
 plugins {
-    id "net.nemerosa.versioning" version "2.8.2"
+    id "net.nemerosa.versioning" version "2.9.0"
     id "io.franzbecker.gradle-lombok" version "3.2.0" apply false
     id "com.gradle.build-scan" version "3.0"
     id "com.github.ben-manes.versions" version "0.27.0" // gradle dependencyUpdates (Takes quite some time)

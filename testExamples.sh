@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e # Fail on error
 ./gradlew clean --console=plain
 ./gradlew build --console=plain
 sleep 2s
