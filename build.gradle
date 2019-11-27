@@ -4,37 +4,35 @@ import io.franzbecker.gradle.lombok.task.DelombokTask
 
 buildscript {
     repositories {
-        mavenLocal()
-        mavenCentral()
-        jcenter()
-        maven { url 'http://repo.spring.io/plugins-release' }
-        maven { url "https://plugins.gradle.org/m2/" }
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     ext {
         projectVersion = '2.6.0.RELEASE'
 
-        grpcVersion = '1.24.2'
-        protobufVersion = '3.10.0'
+        grpcVersion = '1.25.0'
+        protobufVersion = '3.11.0'
         protobufGradlePluginVersion = '0.8.10'
 
         springBootVersion = '2.2.1.RELEASE'
-        springCloudVersion = 'Hoxton.RC1'
-        springCloudAlibabaNacosVersion = '2.1.0.RELEASE'
-        braveInstrumentationGrpc = '5.9.0'
+        springCloudVersion = 'Hoxton.RELEASE'
+        springCloudAlibabaNacosVersion = '2.1.1.RELEASE'
+        braveInstrumentationGrpc = '5.9.1'
 
         lombokVersion = '1.18.10'
     }
     dependencies {
         classpath "io.spring.gradle:dependency-management-plugin:1.0.8.RELEASE"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
-        classpath "com.diffplug.spotless:spotless-plugin-gradle:3.25.0"
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:3.26.0"
     }
 }
 
 plugins {
-    id "net.nemerosa.versioning" version "2.9.0"
+    id "net.nemerosa.versioning" version "2.10.0"
     id "io.franzbecker.gradle-lombok" version "3.2.0" apply false
-    id "com.gradle.build-scan" version "3.0"
+    id "com.gradle.build-scan" version "3.1"
     id "com.github.ben-manes.versions" version "0.27.0" // gradle dependencyUpdates (Takes quite some time)
 }
 
@@ -116,20 +114,12 @@ allprojects {
     }
 
     repositories {
-        mavenLocal()
         mavenCentral()
         jcenter()
-        maven { url 'http://repo.spring.io/plugins-release' }
-        maven { url "https://plugins.gradle.org/m2/" }
-        maven { url 'https://repo.spring.io/libs-milestone' }
     }
 
     buildscript {
         repositories {
-            mavenLocal()
-            mavenCentral()
-            jcenter()
-            maven { url 'http://repo.spring.io/plugins-release' }
             maven { url "https://plugins.gradle.org/m2/" }
         }
     }

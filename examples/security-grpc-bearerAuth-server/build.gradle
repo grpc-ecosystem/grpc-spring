@@ -7,7 +7,7 @@ dependencies {
     compile project(':grpc-server-spring-boot-starter') // replace to compile("net.devh:grpc-server-spring-boot-starter:${springBootGrpcVersion}")
     compile project(':examples:grpc-lib')
     compile('com.nimbusds:nimbus-jose-jwt:8.2.1')
-    compile('org.springframework.security.oauth:spring-security-oauth2:2.3.7.RELEASE')
+    compile('org.springframework.security.oauth:spring-security-oauth2:2.4.0.RELEASE')
     compile('org.springframework.security:spring-security-web')
     compile('org.springframework.security:spring-security-oauth2-resource-server:5.2.1.RELEASE')
     compile('org.springframework.security:spring-security-oauth2-jose:5.2.1.RELEASE')
