@@ -15,6 +15,7 @@ are also affected. If there is no such topic, feel free to open a new one as des
 - [Dismatching certificates](#dismatching-certificates)
 - [Untrusted certificates](#untrusted-certificates)
 - [Server port already in use](#server-port-already-in-use)
+- [Client fails to resolve domain name](#client-fails-to-resolve-domain-name)
 - [Creating issues / asking questions](#creating-issues)
 
 ## Transport failed
@@ -244,6 +245,36 @@ There are four common cases where this error might occur.
 4. Adding `@DirtiesContext` to your test classes and methods
   Please note that the error will only occur from the second test onwards,
   so you have to annotate the first one as well!
+
+## Client fails to resolve domain name
+
+### Client-side
+
+````txt
+WARN  io.grpc.internal.ManagedChannelImpl - [Failed to resolve name. status=Status{code=UNAVAILABLE, description=No servers found for `discovery-server:443`}
+ERROR n.d.b.g.c.n.DiscoveryClientNameResolver - No servers found for `discovery-server:443`
+````
+
+### The problem
+
+The discovery service library or it's configuration failed to specify the scheme how `discovery-server:443` should be
+resolved. If you don't have a service discovery, then the default is `dns`, but if you use a discovery service, then
+that will be the default and thus failing to resolve that address.
+
+The same applies to other libraries, such as tracing or reporting libraries, which report their results via grpc to an
+external server.
+
+### The solution
+
+- Configure the (discovery service) library to specify the `dns` scheme:
+  e.g. `dns:///discovery-server:443`
+- Search for invocations of `ManagedChannelBuilder#forTarget(String)` or `NettyChannelBuilder#forTarget(String)`
+  (or similar methods) and make sure they use the `dns` scheme.
+- Disable the service discovery for grpc services:
+  `spring.autoconfigure.exclude=net.devh.boot.grpc.client.autoconfigure.GrpcDiscoveryClientAutoConfiguration`
+- or create a custom `NameResolverRegistry` bean
+
+See also [client target configuration](client/configuration#choosing-the-target).
 
 ## Creating issues
 
