@@ -20,8 +20,9 @@ package net.devh.boot.grpc.client.nameresolver;
 import static java.util.Objects.requireNonNull;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.WeakHashMap;
 
 import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
@@ -39,6 +40,7 @@ import io.grpc.internal.GrpcUtil;
  * A name resolver factory that will create a {@link DiscoveryClientNameResolver} based on the target uri.
  *
  * @author Michael (yidongnan@gmail.com)
+ * @author Daniel Theuke (daniel.theuke@heuboe.de)
  * @since 5/17/16
  */
 // Do not add this to the NameResolverProvider service loader list
@@ -49,7 +51,8 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
      */
     public static final String DISCOVERY_SCHEME = "discovery";
 
-    private final Collection<DiscoveryClientNameResolver> discoveryClientNameResolvers = new ArrayList<>();
+    private final Collection<DiscoveryClientNameResolver> discoveryClientNameResolvers =
+            Collections.newSetFromMap(new WeakHashMap<>());
     private final HeartbeatMonitor monitor = new HeartbeatMonitor();
 
     private final DiscoveryClient client;

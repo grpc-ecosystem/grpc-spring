@@ -33,6 +33,7 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.util.CollectionUtils;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import io.grpc.Attributes;
@@ -55,6 +56,7 @@ import net.devh.boot.grpc.common.util.GrpcUtils;
 public class DiscoveryClientNameResolver extends NameResolver {
 
     private static final List<ServiceInstance> KEEP_PREVIOUS = null;
+    private static final List<ServiceInstance> NO_SERVERS_AVAILABLE = ImmutableList.of();
 
     private final String name;
     private final DiscoveryClient client;
@@ -70,7 +72,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
     @GuardedBy("this")
     private boolean shutdown;
     @GuardedBy("this")
-    private List<ServiceInstance> instanceList = Lists.newArrayList();
+    private List<ServiceInstance> instanceList = NO_SERVERS_AVAILABLE;
 
     public DiscoveryClientNameResolver(final String name, final DiscoveryClient client, final Args args,
             final SharedResourceHolder.Resource<Executor> executorResource) {
@@ -122,7 +124,8 @@ public class DiscoveryClientNameResolver extends NameResolver {
         if (this.executor != null) {
             this.executor = SharedResourceHolder.release(this.executorResource, this.executor);
         }
-        this.instanceList = Lists.newArrayList();
+        this.listener = null;
+        this.instanceList = NO_SERVERS_AVAILABLE;
     }
 
     @Override
@@ -151,17 +154,17 @@ public class DiscoveryClientNameResolver extends NameResolver {
 
         @Override
         public void run() {
-            AtomicReference<List<ServiceInstance>> resultContainer = new AtomicReference<>();
+            final AtomicReference<List<ServiceInstance>> resultContainer = new AtomicReference<>();
             try {
                 resultContainer.set(resolveInternal());
             } catch (final Exception e) {
                 this.savedListener.onError(Status.UNAVAILABLE.withCause(e)
                         .withDescription("Failed to update server list for " + DiscoveryClientNameResolver.this.name));
-                resultContainer.set(Lists.newArrayList());
+                resultContainer.set(NO_SERVERS_AVAILABLE);
             } finally {
                 DiscoveryClientNameResolver.this.syncContext.execute(() -> {
                     DiscoveryClientNameResolver.this.resolving = false;
-                    List<ServiceInstance> result = resultContainer.get();
+                    final List<ServiceInstance> result = resultContainer.get();
                     if (result != KEEP_PREVIOUS && !DiscoveryClientNameResolver.this.shutdown) {
                         DiscoveryClientNameResolver.this.instanceList = result;
                     }
@@ -183,7 +186,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
             if (CollectionUtils.isEmpty(newInstanceList)) {
                 log.error("No servers found for {}", name);
                 this.savedListener.onError(Status.UNAVAILABLE.withDescription("No servers found for " + name));
-                return Lists.newArrayList();
+                return NO_SERVERS_AVAILABLE;
             }
             if (!needsToUpdateConnections(newInstanceList)) {
                 log.debug("Nothing has changed... skipping update for {}", name);
@@ -201,7 +204,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
                 log.error("None of the servers for {} specified a gRPC port", name);
                 this.savedListener.onError(Status.UNAVAILABLE
                         .withDescription("None of the servers for " + name + " specified a gRPC port"));
-                return Lists.newArrayList();
+                return NO_SERVERS_AVAILABLE;
             } else {
                 this.savedListener.onAddresses(targets, Attributes.EMPTY);
                 log.info("Done updating server list for {}", name);
