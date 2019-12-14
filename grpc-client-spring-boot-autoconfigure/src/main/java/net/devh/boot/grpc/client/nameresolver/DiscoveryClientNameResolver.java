@@ -19,30 +19,13 @@ package net.devh.boot.grpc.client.nameresolver;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static java.util.Objects.requireNonNull;
-
-import java.net.InetSocketAddress;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.concurrent.GuardedBy;
 
-import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.util.CollectionUtils;
 
-import com.google.common.collect.Lists;
-
-import io.grpc.Attributes;
-import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
-import io.grpc.Status;
-import io.grpc.SynchronizationContext;
-import io.grpc.internal.SharedResourceHolder;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.common.util.GrpcUtils;
 
 /**
  * The DiscoveryClientNameResolver resolves the service hosts and their associated gRPC port using the channel's name
@@ -53,31 +36,19 @@ import net.devh.boot.grpc.common.util.GrpcUtils;
  */
 @Slf4j
 public class DiscoveryClientNameResolver extends NameResolver {
-
-    private static final List<ServiceInstance> KEEP_PREVIOUS = null;
-
     private final String name;
-    private final DiscoveryClient client;
-    private final SharedResourceHolder.Resource<Executor> executorResource;
-    private final SynchronizationContext syncContext;
+
+    private DiscoveryClientResolverFactory factory;
 
     @GuardedBy("this")
     private Listener listener;
     @GuardedBy("this")
-    private Executor executor;
-    @GuardedBy("this")
-    private boolean resolving;
-    @GuardedBy("this")
     private boolean shutdown;
-    @GuardedBy("this")
-    private List<ServiceInstance> instanceList = Lists.newArrayList();
 
-    public DiscoveryClientNameResolver(final String name, final DiscoveryClient client, final Args args,
-            final SharedResourceHolder.Resource<Executor> executorResource) {
+    public DiscoveryClientNameResolver(final String name,
+            final DiscoveryClientResolverFactory factory) {
         this.name = name;
-        this.client = client;
-        this.executorResource = executorResource;
-        this.syncContext = requireNonNull(args.getSynchronizationContext(), "syncContext");
+        this.factory = factory;
     }
 
     @Override
@@ -88,9 +59,8 @@ public class DiscoveryClientNameResolver extends NameResolver {
     @Override
     public final synchronized void start(final Listener listener) {
         checkState(this.listener == null, "already started");
-        this.executor = SharedResourceHolder.get(this.executorResource);
         this.listener = checkNotNull(listener, "listener");
-        resolve();
+        factory.registerListener(name, listener);
     }
 
     @Override
@@ -98,19 +68,9 @@ public class DiscoveryClientNameResolver extends NameResolver {
         // Heartbeats might happen before the resolver is even started
         // We just ignore that case silently
         // checkState(listener != null, "not started");
-        if (this.listener != null) {
-            resolve();
+        if (this.listener != null && !shutdown) {
+            factory.refresh(name);
         }
-    }
-
-    @GuardedBy("this")
-    private void resolve() {
-        log.debug("Scheduled resolve for {}", this.name);
-        if (this.resolving || this.shutdown) {
-            return;
-        }
-        this.resolving = true;
-        this.executor.execute(new Resolve(this.listener, this.instanceList));
     }
 
     @Override
@@ -119,148 +79,16 @@ public class DiscoveryClientNameResolver extends NameResolver {
             return;
         }
         this.shutdown = true;
-        if (this.executor != null) {
-            this.executor = SharedResourceHolder.release(this.executorResource, this.executor);
+
+        if (this.listener != null) {
+            factory.unregisterListener(name, listener);
         }
-        this.instanceList = Lists.newArrayList();
+
+        this.listener = null;
     }
 
     @Override
     public String toString() {
-        return "DiscoveryClientNameResolver [name=" + this.name + ", discoveryClient=" + this.client + "]";
+        return "DiscoveryClientNameResolver [name=" + this.name + "]";
     }
-
-    /**
-     * The logic for updating the gRPC server list using a discovery client.
-     */
-    private final class Resolve implements Runnable {
-
-        private final Listener savedListener;
-        private final List<ServiceInstance> savedInstanceList;
-
-        /**
-         * Creates a new Resolve that stores a snapshot of the relevant states of the resolver.
-         *
-         * @param listener The listener to send the results to.
-         * @param instanceList The current server instance list.
-         */
-        Resolve(final Listener listener, final List<ServiceInstance> instanceList) {
-            this.savedListener = requireNonNull(listener, "listener");
-            this.savedInstanceList = requireNonNull(instanceList, "instanceList");
-        }
-
-        @Override
-        public void run() {
-            AtomicReference<List<ServiceInstance>> resultContainer = new AtomicReference<>();
-            try {
-                resultContainer.set(resolveInternal());
-            } catch (final Exception e) {
-                this.savedListener.onError(Status.UNAVAILABLE.withCause(e)
-                        .withDescription("Failed to update server list for " + DiscoveryClientNameResolver.this.name));
-                resultContainer.set(Lists.newArrayList());
-            } finally {
-                DiscoveryClientNameResolver.this.syncContext.execute(() -> {
-                    DiscoveryClientNameResolver.this.resolving = false;
-                    List<ServiceInstance> result = resultContainer.get();
-                    if (result != KEEP_PREVIOUS && !DiscoveryClientNameResolver.this.shutdown) {
-                        DiscoveryClientNameResolver.this.instanceList = result;
-                    }
-                });
-            }
-        }
-
-        /**
-         * Do the actual update checks and resolving logic.
-         *
-         * @return The new service instance list that is used to connect to the gRPC server or null if the old ones
-         *         should be used.
-         */
-        private List<ServiceInstance> resolveInternal() {
-            final String name = DiscoveryClientNameResolver.this.name;
-            final List<ServiceInstance> newInstanceList =
-                    DiscoveryClientNameResolver.this.client.getInstances(name);
-            log.debug("Got {} candidate servers for {}", newInstanceList.size(), name);
-            if (CollectionUtils.isEmpty(newInstanceList)) {
-                log.error("No servers found for {}", name);
-                this.savedListener.onError(Status.UNAVAILABLE.withDescription("No servers found for " + name));
-                return Lists.newArrayList();
-            }
-            if (!needsToUpdateConnections(newInstanceList)) {
-                log.debug("Nothing has changed... skipping update for {}", name);
-                return KEEP_PREVIOUS;
-            }
-            log.debug("Ready to update server list for {}", name);
-            final List<EquivalentAddressGroup> targets = Lists.newArrayList();
-            for (final ServiceInstance instance : newInstanceList) {
-                final int port = getGRPCPort(instance);
-                log.debug("Found gRPC server {}:{} for {}", instance.getHost(), port, name);
-                targets.add(new EquivalentAddressGroup(
-                        new InetSocketAddress(instance.getHost(), port), Attributes.EMPTY));
-            }
-            if (targets.isEmpty()) {
-                log.error("None of the servers for {} specified a gRPC port", name);
-                this.savedListener.onError(Status.UNAVAILABLE
-                        .withDescription("None of the servers for " + name + " specified a gRPC port"));
-                return Lists.newArrayList();
-            } else {
-                this.savedListener.onAddresses(targets, Attributes.EMPTY);
-                log.info("Done updating server list for {}", name);
-                return newInstanceList;
-            }
-        }
-
-        /**
-         * Extracts the gRPC server port from the given service instance.
-         *
-         * @param instance The instance to extract the port from.
-         * @return The gRPC server port.
-         * @throws IllegalArgumentException If the specified port definition couldn't be parsed.
-         */
-        private int getGRPCPort(final ServiceInstance instance) {
-            final Map<String, String> metadata = instance.getMetadata();
-            if (metadata == null) {
-                return instance.getPort();
-            }
-            final String portString = metadata.get(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT);
-            if (portString == null) {
-                return instance.getPort();
-            }
-            try {
-                return Integer.parseInt(portString);
-            } catch (final NumberFormatException e) {
-                // TODO: How to handle this case?
-                throw new IllegalArgumentException("Failed to parse gRPC port information from: " + instance, e);
-            }
-        }
-
-        /**
-         * Checks whether this instance should update its connections.
-         *
-         * @param newInstanceList The new instances that should be compared to the stored ones.
-         * @return True, if the given instance list contains different entries than the stored ones.
-         */
-        private boolean needsToUpdateConnections(final List<ServiceInstance> newInstanceList) {
-            if (this.savedInstanceList.size() != newInstanceList.size()) {
-                return true;
-            }
-            for (final ServiceInstance instance : this.savedInstanceList) {
-                final int port = getGRPCPort(instance);
-                boolean isSame = false;
-                for (final ServiceInstance newInstance : newInstanceList) {
-                    final int newPort = getGRPCPort(newInstance);
-                    if (newInstance.getHost().equals(instance.getHost())
-                            && port == newPort) {
-                        isSame = true;
-                        break;
-                    }
-                }
-                if (!isSame) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-    }
-
 }
