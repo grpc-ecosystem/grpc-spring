@@ -1,6 +1,6 @@
 # 上下文数据 / Bean 的作用域
 
-[<- 返回索引](../index)
+[<- index返回索引](../index)
 
 本节描述您如何保存请求上下文数据 / 每个请求的数据。
 
@@ -61,4 +61,4 @@ public void grpcMethod(Request request, StreamObserver<Response> responseObserve
 
 ----------
 
-[<- 返回索引](../index)
+[<- index返回索引](../index)
