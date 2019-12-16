@@ -1,6 +1,6 @@
 # 配置
 
-[<- 返回索引](../index)
+[<- index返回索引](../index)
 
 本节描述您如何配置您的 grpc-spring-boot-starter 应用程序。
 
@@ -105,4 +105,4 @@ public GrpcServerConfigurer keepAliveServerConfigurer() {
 
 ----------
 
-[<- 返回索引](../index)
+[<- index返回索引](../index)
