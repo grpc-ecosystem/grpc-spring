@@ -1,6 +1,6 @@
 # 入门指南
 
-[<- 返回索引](../index)
+[<- index返回索引](../index)
 
 本节讨论如何让 Spring 连接到 gRPC 服务端并管理您的连接。
 
@@ -141,4 +141,4 @@ public class FoobarService {
 
 ----------
 
-[<- 返回索引](../index)
+[<- index返回索引](../index)
