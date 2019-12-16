@@ -1,6 +1,6 @@
 # 入门指南
 
-[<- 返回索引](../index)
+[<- index返回索引](../index)
 
 本节描述了将您的应用程序接入 grpc-spring-boot-starter 项目的必要步骤。
 
@@ -26,7 +26,7 @@
 
 在我们开始添加依赖关系之前，让我们项目的一些设置建议开始。
 
-![project setup](/grpc-spring-boot-starter/assets/images/server-project-setup.svg)
+![项目创建](/grpc-spring-boot-starter/assets/images/server-project-setup.svg)
 
 我们建议将您的项目分为2至3个不同的模块。
 
@@ -299,4 +299,4 @@ grpcurl --plaintext -d '{"name": "test"}' localhost:9090 net.devh.boot.grpc.exam
 
 ----------
 
-[<- 返回索引](../index)
+[<- index返回索引](../index)
