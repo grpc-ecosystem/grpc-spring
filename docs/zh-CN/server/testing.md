@@ -1,6 +1,6 @@
 # 测试服务
 
-[<- 返回索引](../index)
+[<- index返回索引](../index)
 
 本节介绍如何为您的 grpc-service 编写测试用例。
 
@@ -280,4 +280,4 @@ public class MyServiceIntegrationTestConfiguration {
 
 ----------
 
-[<- 返回索引](../index)
+[<- index返回索引](../index)
