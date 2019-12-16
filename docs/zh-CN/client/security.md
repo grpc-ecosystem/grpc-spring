@@ -1,6 +1,6 @@
 # 客户端安全
 
-[<- 返回索引](../index)
+[<- index返回索引](../index)
 
 此页面描述了您如何连接到 gRPC 服务器并进行身份验证。
 
@@ -112,4 +112,4 @@ return myServiceForUser.send(request);
 
 ----------
 
-[<- 返回索引](../index)
+[<- index返回索引](../index)
