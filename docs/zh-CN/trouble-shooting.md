@@ -1,6 +1,6 @@
 # 疑难解答
 
-[<- 返回索引](index)
+[<- index返回索引](index)
 
 本节描述这个项目的一些常见错误，以及如何解决这些错误。 请注意，这个页面永远不能覆盖所有案件，还请搜索现有的 issures/PRs（打开和关闭状态的）。 如果对应的主题已经存在，请给我们留下评论/信息，以便我们知道你也会受到影响。 如果没有这样的主题，请随时打开本页底部描述创建一个的新主题。
 
@@ -12,7 +12,8 @@
 - [证书不匹配](#dismatching-certificates)
 - [不受信任的证书](#untrusted-certificates)
 - [服务端端口被占用](#server-port-already-in-use)
-- [创建 issues / 提问题](#creating-issues)
+- [Client fails to resolve domain name](#client-fails-to-resolve-domain-name)
+- [Creating issues / asking questions](#creating-issues)
 
 ## 传输失败
 
@@ -236,15 +237,39 @@ grpc 服务端尝试使用的端口被占用。
 3. 检查/更改您的配置。 此库默认使用端口 `9090`
 4. 添加`@DirtiesContext`到您的测试类和方法中，请注意，这个错误只会从第二次测试开始发生，因此你必须在你的第一个测试类上也加上这个注解！
 
-## 创建 issue
+## Client fails to resolve domain name
 
-在 GitHub 上创建问题/提问并不难，但你可以稍微努力帮助我们更快地解决您的 个问题。
+### Client-side
 
-如果您的问题/疑问一般都是关于 grpc 的问题，请考虑在 [grpc-java](https://github.com/grpc/grpc-java) 上提问。
+````txt
+WARN  io.grpc.internal.ManagedChannelImpl - [Failed to resolve name. status=Status{code=UNAVAILABLE, description=No servers found for `discovery-server:443`}
+ERROR n.d.b.g.c.n.DiscoveryClientNameResolver - No servers found for `discovery-server:443`
+````
 
-使用提供的模板来创建新问题，其中包含我们需要的必需/有用信息的部分。
+### The problem
 
-通常来说，你应该在你的问题上包括以下信息：
+The discovery service library or it's configuration failed to specify the scheme how `discovery-server:443` should be resolved. If you don't have a service discovery, then the default is `dns`, but if you use a discovery service, then that will be the default and thus failing to resolve that address.
+
+The same applies to other libraries, such as tracing or reporting libraries, which report their results via grpc to an external server.
+
+### The solution
+
+- Configure the (discovery service) library to specify the `dns` scheme: e.g. `dns:///discovery-server:443`
+- Search for invocations of `ManagedChannelBuilder#forTarget(String)` or `NettyChannelBuilder#forTarget(String)` (or similar methods) and make sure they use the `dns` scheme.
+- Disable the service discovery for grpc services: `spring.autoconfigure.exclude=net.devh.boot.grpc.client.autoconfigure.GrpcDiscoveryClientAutoConfiguration`
+- or create a custom `NameResolverRegistry` bean
+
+See also [client target configuration](client/configuration#choosing-the-target).
+
+## Creating issues
+
+Creating issues/asking questions on GitHub isn't hard, but with a little bit of your effort you can help us solving your issues faster.
+
+If your issue/question is about grpc in general consider asking it over at [grpc-java](https://github.com/grpc/grpc-java).
+
+Use the provided templates to create new issues, these contain sections for the required/helpful information we need.
+
+In general, you should include the following information in your issue:
 
 1. 您有什么类型的诉求？
    - 问题
@@ -265,4 +290,4 @@ grpc 服务端尝试使用的端口被占用。
 
 ----------
 
-[<- 返回索引](index)
+[<- indexto index](index)
