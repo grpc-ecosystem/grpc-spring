@@ -1,6 +1,6 @@
 # 支持 Spring Boot Actuator
 
-[<- 返回索引](index)
+[<- index返回索引](index)
 
 此页面重点介绍与 [Spring-Boot-Actator](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html) 的集成。 这是一个可选的功能。 支持的特性
 
@@ -73,11 +73,11 @@ compile("org.springframework.boot:spring-boot-starter-actuator")
 您可以在 `/actorator/metrics` (需要一个web-server) 或通过 JMX 查看 grpc 的指标以及其他指标。
 
 > **注意:** 你可能需要先启用指标。
->
+> 
 > ````properties management.endpoints.web.exposure.include=metrics
->
+> 
 > # management.endpoints.jmx.exposure.include=metrics
->
+> 
 > management.endpoint.metrics.enabled=true ````
 
 阅读官方文档以了解更多关于[Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html) 的信息。
@@ -115,11 +115,11 @@ MetricCollectingClientInterceptor metricCollectingClientInterceptor(MeterRegistr
 您可以在 `/actorator/info` (需要一个web-server) 或通过 JMX 查看 grpc 的信息以及其他信息。
 
 > **注意:** 你可能需要先启用信息。
->
+> 
 > ````properties management.endpoints.web.exposure.include=info
->
+> 
 > # management.endpoints.jmx.exposure.include=info
->
+> 
 > management.endpoint.info.enabled=true ````
 
 您可以使用 `grpc.server.reflectionServiceEnabled=false` 来打开服务列表(对于 actuator 和 grpc)。
@@ -142,4 +142,4 @@ net.devh.boot.grpc.server.autoconfigure.GrpcServerMetricAutoConfiguration
 
 ----------
 
-[<- 返回索引](index)
+[<- index返回索引](index)
