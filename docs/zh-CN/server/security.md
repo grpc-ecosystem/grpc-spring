@@ -1,6 +1,6 @@
 # 服务端安全
 
-[<- 返回索引](../index)
+[<- index返回索引](../index)
 
 本节描述如何使用传输层安全和身份验证来保护您的应用程序。 我们强烈建议至少启用运输层安全。
 
@@ -92,7 +92,7 @@ cat client*.crt > trusted-clients.crt.collection
 
 `grpc-spring-boot-starter` 原生支持 `spring-security` , 因此您可以使用众所周知的一些注解来保护您的应用程序。
 
-![server-request-security](/grpc-spring-boot-starter/assets/images/server-security.svg)
+![服务端请求安全](/grpc-spring-boot-starter/assets/images/server-security.svg)
 
 ### 配置身份验证
 
@@ -252,4 +252,4 @@ public void methodX(Request request, StreamObserver<Response> responseObserver) 
 
 ----------
 
-[<- 返回索引](../index)
+[<- index返回索引](../index)
