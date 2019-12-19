@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.convert.DataSizeUnit;
 import org.springframework.boot.convert.DurationUnit;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.SocketUtils;
 import org.springframework.util.unit.DataSize;
@@ -40,7 +39,6 @@ import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * The properties for the gRPC server that will be started as part of the application.
@@ -48,7 +46,6 @@ import lombok.extern.slf4j.Slf4j;
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
-@Slf4j
 @Data
 @ConfigurationProperties("grpc.server")
 @SuppressWarnings("javadoc")
@@ -211,21 +208,6 @@ public class GrpcServerProperties {
         private Resource certificateChain = null;
 
         /**
-         * Sets the path of the SSL certificate chain. Required if {@link #isEnabled()} is true.
-         *
-         * @see GrpcSslContexts#forServer(InputStream, InputStream, String)
-         *
-         * @param certificateChainPath The path to the certificate chain.
-         * @deprecated Use {@link #setCertificateChain(Resource)} instead!
-         */
-        @Deprecated
-        public void setCertificateChainPath(final String certificateChainPath) {
-            log.warn("The certificateChainPath is deprecated. Please use certificateChain instead.\n"
-                    + "grpc.server.security.certificateChain=file:{}", certificateChainPath);
-            this.certificateChain = new FileSystemResource(certificateChainPath);
-        }
-
-        /**
          * The resource containing the private key. Required if {@link #enabled} is true.
          *
          * @see GrpcSslContexts#forServer(InputStream, InputStream, String)
@@ -234,21 +216,6 @@ public class GrpcServerProperties {
          * @return The private key resource or null, if security is not enabled.
          */
         private Resource privateKey = null;
-
-        /**
-         * Sets the path to the private key. Required if {@link #enabled} is true.
-         *
-         * @see GrpcSslContexts#forServer(InputStream, InputStream, String)
-         *
-         * @param privateKeyPath The path to the private key.
-         * @deprecated Use {@link #setPrivateKey(Resource)} instead!
-         */
-        @Deprecated
-        public void setPrivateKeyPath(final String privateKeyPath) {
-            log.warn("The privateKeyPath is deprecated. Please use privateKey instead.\n"
-                    + "grpc.server.security.privateKey=file:{}", privateKeyPath);
-            this.privateKey = new FileSystemResource(privateKeyPath);
-        }
 
         /**
          * Password for the private key.
@@ -283,22 +250,6 @@ public class GrpcServerProperties {
          * @return The trusted certificate collection resource or null.
          */
         private Resource trustCertCollection = null;
-
-        /**
-         * Sets the path to the trusted certificate collection. If {@code null} or empty it will use the system's
-         * default collection (Default). This collection will be used to verify client certificates.
-         *
-         * @see SslContextBuilder#trustManager(InputStream)
-         *
-         * @param trustCertCollectionPath The path to the trusted certificate collection.
-         * @deprecated Use {@link #setTrustCertCollection(Resource)} instead!
-         */
-        @Deprecated
-        public void setTrustCertCollectionPath(final String trustCertCollectionPath) {
-            log.warn("The trustCertCollectionPath is deprecated. Please use trustCertCollection instead.\n"
-                    + "grpc.server.security.trustCertCollection=file:{}", trustCertCollectionPath);
-            this.trustCertCollection = new FileSystemResource(trustCertCollectionPath);
-        }
 
         /**
          * Specifies the cipher suite. If {@code null} or empty it will use the system's default cipher suite.

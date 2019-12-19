@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.boot.convert.DataSizeUnit;
 import org.springframework.boot.convert.DurationUnit;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.unit.DataSize;
 import org.springframework.util.unit.DataUnit;
@@ -43,7 +42,6 @@ import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * The channel properties for a single named gRPC channel or service reference.
@@ -53,7 +51,6 @@ import lombok.extern.slf4j.Slf4j;
  * @since 5/17/16
  */
 @ToString
-@Slf4j
 @EqualsAndHashCode
 public class GrpcChannelProperties {
 
@@ -479,22 +476,6 @@ public class GrpcChannelProperties {
             this.certificateChain = certificateChain;
         }
 
-        /**
-         * Sets the path to SSL certificate chain. Required if {@link #isClientAuthEnabled()} is true. The linked
-         * certificate will be used to authenticate the client.
-         *
-         * @param certificateChainPath The path to the certificate chain.
-         *
-         * @see SslContextBuilder#keyManager(File, File, String)
-         * @deprecated Use {@link #setCertificateChain(Resource)} instead!
-         */
-        @Deprecated
-        public void setCertificateChainPath(final String certificateChainPath) {
-            log.warn("The certificateChainPath is deprecated. Please use certificateChain instead.\n"
-                    + "grpc.client.<name>.security.certificateChain=file:{}", certificateChainPath);
-            this.certificateChain = new FileSystemResource(certificateChainPath);
-        }
-
         // --------------------------------------------------
 
         private Resource privateKey = null;
@@ -519,21 +500,6 @@ public class GrpcChannelProperties {
          */
         public void setPrivateKey(final Resource privateKey) {
             this.privateKey = privateKey;
-        }
-
-        /**
-         * Sets the path to the private key. Required if {@link #isClientAuthEnabled} is true.
-         *
-         * @param privateKeyPath The path to the private key.
-         *
-         * @see SslContextBuilder#keyManager(InputStream, InputStream, String)
-         * @deprecated Use {@link #setPrivateKey(Resource)} instead!
-         */
-        @Deprecated
-        public void setPrivateKeyPath(final String privateKeyPath) {
-            log.warn("The privateKeyPath is deprecated. Please use privateKey instead.\n"
-                    + "grpc.client.<name>.security.privateKey=file:{}", privateKeyPath);
-            this.privateKey = new FileSystemResource(privateKeyPath);
         }
 
         // --------------------------------------------------
@@ -588,22 +554,6 @@ public class GrpcChannelProperties {
          */
         public void setTrustCertCollection(final Resource trustCertCollection) {
             this.trustCertCollection = trustCertCollection;
-        }
-
-        /**
-         * Sets the path to the trusted certificate collection. If not set ({@code null}) it will use the system's
-         * default collection (Default). This collection will be used to verify server certificates.
-         *
-         * @param trustCertCollectionPath The path to the trusted certificate collection.
-         *
-         * @see SslContextBuilder#trustManager(InputStream)
-         * @deprecated Use {@link #setTrustCertCollection(Resource)} instead!
-         */
-        @Deprecated
-        public void setTrustCertCollectionPath(final String trustCertCollectionPath) {
-            log.warn("The trustCertCollectionPath is deprecated. Please use trustCertCollection instead.\n"
-                    + "grpc.client.<name>.security.trustCertCollection=file:{}", trustCertCollectionPath);
-            this.trustCertCollection = new FileSystemResource(trustCertCollectionPath);
         }
 
         // --------------------------------------------------
