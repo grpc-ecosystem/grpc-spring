@@ -91,18 +91,14 @@ public class GrpcServerLifecycle implements SmartLifecycle {
             log.info("gRPC Server started, listening on address: " + this.factory.getAddress() + ", port: "
                     + this.factory.getPort());
 
-            final Thread awaitThread = new Thread("container-" + (serverCounter.incrementAndGet())) {
-
-                @Override
-                public void run() {
-                    try {
-                        GrpcServerLifecycle.this.server.awaitTermination();
-                    } catch (final InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
+            // Prevent the JVM from shutting down while the server is running
+            final Thread awaitThread = new Thread(() -> {
+                try {
+                    this.server.awaitTermination();
+                } catch (final InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
-
-            };
+            }, "grpc-server-container-" + (serverCounter.incrementAndGet()));
             awaitThread.setDaemon(false);
             awaitThread.start();
         }
@@ -113,8 +109,8 @@ public class GrpcServerLifecycle implements SmartLifecycle {
      * wait for the server to be completely shut down.
      */
     protected void stopAndReleaseGrpcServer() {
-        factory.destroy();
-        Server localServer = this.server;
+        this.factory.destroy();
+        final Server localServer = this.server;
         if (localServer != null) {
             localServer.shutdown();
             this.server = null;
