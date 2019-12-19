@@ -59,7 +59,7 @@ public class GrpcServerLifecycle implements SmartLifecycle {
 
     @Override
     public void stop(final Runnable callback) {
-        this.stop();
+        stop();
         callback.run();
     }
 
@@ -109,7 +109,6 @@ public class GrpcServerLifecycle implements SmartLifecycle {
      * wait for the server to be completely shut down.
      */
     protected void stopAndReleaseGrpcServer() {
-        this.factory.destroy();
         final Server localServer = this.server;
         if (localServer != null) {
             localServer.shutdown();
