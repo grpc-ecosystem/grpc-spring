@@ -60,11 +60,14 @@ public class DiscoveryClientNameResolver extends NameResolver {
     private final DiscoveryClient client;
     private final SharedResourceHolder.Resource<Executor> executorResource;
     private final SynchronizationContext syncContext;
+    private final Runnable externalCleaner;
 
     @GuardedBy("this")
     private Listener listener;
     @GuardedBy("this")
     private Executor executor;
+    @GuardedBy("this")
+    private boolean usingExecutorResource;
     @GuardedBy("this")
     private boolean resolving;
     @GuardedBy("this")
@@ -73,11 +76,13 @@ public class DiscoveryClientNameResolver extends NameResolver {
     private List<ServiceInstance> instanceList = Lists.newArrayList();
 
     public DiscoveryClientNameResolver(final String name, final DiscoveryClient client, final Args args,
-            final SharedResourceHolder.Resource<Executor> executorResource) {
+            final SharedResourceHolder.Resource<Executor> executorResource, final Runnable externalCleaner) {
         this.name = name;
         this.client = client;
+        this.executor = args.getOffloadExecutor();
         this.executorResource = executorResource;
         this.syncContext = requireNonNull(args.getSynchronizationContext(), "syncContext");
+        this.externalCleaner = externalCleaner;
     }
 
     @Override
@@ -88,7 +93,10 @@ public class DiscoveryClientNameResolver extends NameResolver {
     @Override
     public final synchronized void start(final Listener listener) {
         checkState(this.listener == null, "already started");
-        this.executor = SharedResourceHolder.get(this.executorResource);
+        if (this.executor == null) {
+            this.executor = SharedResourceHolder.get(this.executorResource);
+            this.usingExecutorResource = true;
+        }
         this.listener = checkNotNull(listener, "listener");
         resolve();
     }
@@ -119,10 +127,13 @@ public class DiscoveryClientNameResolver extends NameResolver {
             return;
         }
         this.shutdown = true;
-        if (this.executor != null) {
+        if (this.executor != null && this.usingExecutorResource) {
             this.executor = SharedResourceHolder.release(this.executorResource, this.executor);
         }
         this.instanceList = Lists.newArrayList();
+        if (this.externalCleaner != null) {
+            this.externalCleaner.run();
+        }
     }
 
     @Override

@@ -20,8 +20,10 @@ package net.devh.boot.grpc.client.nameresolver;
 import static java.util.Objects.requireNonNull;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
@@ -49,7 +51,8 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
      */
     public static final String DISCOVERY_SCHEME = "discovery";
 
-    private final Collection<DiscoveryClientNameResolver> discoveryClientNameResolvers = new ArrayList<>();
+    private final Set<DiscoveryClientNameResolver> discoveryClientNameResolvers =
+            Collections.synchronizedSet(Collections.newSetFromMap(new IdentityHashMap<>()));
     private final HeartbeatMonitor monitor = new HeartbeatMonitor();
 
     private final DiscoveryClient client;
@@ -73,9 +76,12 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
                         + "expected: '" + DISCOVERY_SCHEME + ":[//]/<service-name>'; "
                         + "but was '" + targetUri.toString() + "'");
             }
+            final AtomicReference<DiscoveryClientNameResolver> reference = new AtomicReference<>();
             final DiscoveryClientNameResolver discoveryClientNameResolver =
                     new DiscoveryClientNameResolver(serviceName.substring(1), this.client, args,
-                            GrpcUtil.SHARED_CHANNEL_EXECUTOR);
+                            GrpcUtil.SHARED_CHANNEL_EXECUTOR,
+                            () -> this.discoveryClientNameResolvers.remove(reference.get()));
+            reference.set(discoveryClientNameResolver);
             this.discoveryClientNameResolvers.add(discoveryClientNameResolver);
             return discoveryClientNameResolver;
         }
@@ -105,8 +111,9 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
     @EventListener(HeartbeatEvent.class)
     public void heartbeat(final HeartbeatEvent event) {
         if (this.monitor.update(event.getValue())) {
-            for (final DiscoveryClientNameResolver discoveryClientNameResolver : this.discoveryClientNameResolvers) {
-                discoveryClientNameResolver.refresh();
+            final Object[] array = this.discoveryClientNameResolvers.toArray();
+            for (final Object discoveryClientNameResolver : array) {
+                ((DiscoveryClientNameResolver) discoveryClientNameResolver).refresh();
             }
         }
     }
