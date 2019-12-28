@@ -20,12 +20,9 @@ package net.devh.boot.grpc.client.nameresolver;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import javax.annotation.concurrent.GuardedBy;
-
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import io.grpc.NameResolver;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * The DiscoveryClientNameResolver resolves the service hosts and their associated gRPC port using the channel's name
@@ -34,16 +31,13 @@ import lombok.extern.slf4j.Slf4j;
  * @author Michael (yidongnan@gmail.com)
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-@Slf4j
-public class DiscoveryClientNameResolver extends NameResolver {
+final class DiscoveryClientNameResolver extends NameResolver {
+
     private final String name;
+    private final DiscoveryClientResolverFactory factory;
 
-    private DiscoveryClientResolverFactory factory;
-
-    @GuardedBy("this")
-    private Listener listener;
-    @GuardedBy("this")
-    private boolean shutdown;
+    // Following fields must be accessed from syncContext
+    private Listener2 listener;
 
     public DiscoveryClientNameResolver(final String name,
             final DiscoveryClientResolverFactory factory) {
@@ -52,38 +46,28 @@ public class DiscoveryClientNameResolver extends NameResolver {
     }
 
     @Override
-    public final String getServiceAuthority() {
+    public String getServiceAuthority() {
         return this.name;
     }
 
     @Override
-    public final synchronized void start(final Listener listener) {
+    public void start(final Listener2 listener) {
         checkState(this.listener == null, "already started");
         this.listener = checkNotNull(listener, "listener");
-        factory.registerListener(name, listener);
+        this.factory.registerListener(this.name, listener);
     }
 
     @Override
-    public final synchronized void refresh() {
-        // Heartbeats might happen before the resolver is even started
-        // We just ignore that case silently
-        // checkState(listener != null, "not started");
-        if (this.listener != null && !shutdown) {
-            factory.refresh(name);
-        }
+    public void refresh() {
+        checkState(this.listener != null, "not started");
+        this.factory.refresh(this.name, false);
     }
 
     @Override
     public void shutdown() {
-        if (this.shutdown) {
-            return;
-        }
-        this.shutdown = true;
-
         if (this.listener != null) {
-            factory.unregisterListener(name, listener);
+            this.factory.unregisterListener(this.name, this.listener);
         }
-
         this.listener = null;
     }
 

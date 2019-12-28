@@ -25,7 +25,8 @@ dependencies {
     testImplementation(
         "io.grpc:grpc-testing",
         "org.springframework.boot:spring-boot-starter-test",
-        "org.junit.jupiter:junit-jupiter-api"
+        "org.junit.jupiter:junit-jupiter-api",
+        "org.springframework.cloud:spring-cloud-commons"
     )
     testRuntimeOnly(
         "org.junit.jupiter:junit-jupiter-engine"

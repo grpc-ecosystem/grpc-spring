@@ -21,11 +21,16 @@ import static java.util.Objects.requireNonNull;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
@@ -35,30 +40,37 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
 import org.springframework.context.event.EventListener;
-import org.springframework.util.CollectionUtils;
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 
 import io.grpc.Attributes;
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
 import io.grpc.NameResolver.Listener;
+import io.grpc.NameResolver.Listener2;
+import io.grpc.NameResolver.ResolutionResult;
 import io.grpc.NameResolverProvider;
 import io.grpc.Status;
+import io.grpc.StatusException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * A name resolver factory that will create a {@link DiscoveryClientNameResolver} based on the target uri.
  *
  * @author Michael (yidongnan@gmail.com)
- * @since 5/17/16
  */
 // Do not add this to the NameResolverProvider service loader list
 @Slf4j
 public class DiscoveryClientResolverFactory extends NameResolverProvider {
-    private static final List<ServiceInstance> KEEP_PREVIOUS = null;
+
+    private static final ImmutableList<ServiceInstance> KEEP_PREVIOUS = null;
+    private static final ImmutableList<ServiceInstance> NO_SERVERS_FOUND = ImmutableList.of();
+    private static final ImmutableList<ServiceInstance> NOT_INITIALIZED = ImmutableList.of();
 
     /**
      * The constant containing the scheme that will be used by this factory.
@@ -68,18 +80,42 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
     private final HeartbeatMonitor monitor = new HeartbeatMonitor();
 
     private final DiscoveryClient client;
-    private final ExecutorService executor = Executors.newCachedThreadPool();
-    private final Map<String, Set<Listener>> listenerMap = new HashMap<>();
-    private final Map<String, List<ServiceInstance>> serviceInstanceMap = new HashMap<>();
-    private final Map<String, Future<List<ServiceInstance>>> discoverClientTasks = new HashMap<>();
+    private final ExecutorService executor;
+
+    // Listeners by service name
+    @GuardedBy("this")
+    private final Multimap<String, Listener2> listenersByName = LinkedHashMultimap.create();
+    // The resolved service instances for a given name
+    @GuardedBy("this")
+    private final Map<String, ImmutableList<ServiceInstance>> serviceInstanceByName = new HashMap<>();
+    // The currently resolving service names
+    @GuardedBy("this")
+    private final Set<String> resolvingServices = new HashSet<>();
+
+    /**
+     * Creates a new discovery client based name resolver factory. This constructor uses a cached
+     * {@link ExecutorService} that creates demon threads with a {@code "grpc-discovery-resolver-"} prefix.
+     *
+     * @param client The client to use for the address discovery.
+     * @see #DiscoveryClientResolverFactory(DiscoveryClient, ExecutorService)
+     */
+    public DiscoveryClientResolverFactory(final DiscoveryClient client) {
+        this.client = requireNonNull(client, "client");
+        final CustomizableThreadFactory threadFactory = new CustomizableThreadFactory("grpc-discovery-resolver-");
+        threadFactory.setDaemon(true);
+        this.executor = Executors.newCachedThreadPool(threadFactory);
+    }
 
     /**
      * Creates a new discovery client based name resolver factory.
      *
      * @param client The client to use for the address discovery.
+     * @param executor The executor used to resolve the service names. Will be {@link ExecutorService#shutdownNow()
+     *        shutdown} when {@link #destroy()} is called.
      */
-    public DiscoveryClientResolverFactory(final DiscoveryClient client) {
+    public DiscoveryClientResolverFactory(final DiscoveryClient client, final ExecutorService executor) {
         this.client = requireNonNull(client, "client");
+        this.executor = requireNonNull(executor, "executor");
     }
 
     @Nullable
@@ -112,167 +148,225 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
         return 6; // More important than DNS
     }
 
-    public final synchronized void registerListener(String name, Listener listener) {
-        Preconditions.checkState(listener != null, "invalid listener");
+    /**
+     * Registers the given listener in this factory for automated updates.
+     *
+     * @param name The service name of the listener.
+     * @param listener The listener to register.
+     */
+    public final synchronized void registerListener(final String name, final Listener2 listener) {
+        requireNonNull(name, "name");
+        requireNonNull(listener, "listener");
 
-        listenerMap.computeIfAbsent(name, n -> Sets.newHashSet()).add(listener);
+        this.listenersByName.put(name, listener);
+        final List<ServiceInstance> instances = this.serviceInstanceByName.computeIfAbsent(name, n -> NOT_INITIALIZED);
 
-        List<ServiceInstance> instances = serviceInstanceMap.get(name);
+        boolean force = false;
 
-        // notify listener with cached instance first for latency, in most case it improves a lot.
-        if (instances != null) {
-            List<EquivalentAddressGroup> targets = convert(name, instances);
-
+        if (instances.isEmpty()) {
             // no instance has GRPC port, clean cached instances to force notifying all listeners.
-            if (targets.isEmpty()) {
-                serviceInstanceMap.remove(name);
-            } else {
-                listener.onAddresses(targets, Attributes.EMPTY);
-            }
+            force = instances != NOT_INITIALIZED;
+        } else {
+            // notify listener with cached instance first for latency, in most case it improves a lot.
+            listener.onResult(convert(name, instances));
         }
 
-        refresh(name);
+        refresh(name, force);
     }
 
-    public final synchronized void unregisterListener(String name, Listener listener) {
-        Set<Listener> listeners = listenerMap.get(name);
+    /**
+     * Unregisters the given listener from this factory, excluding it from further updates.
+     *
+     * @param name The service name of the listener.
+     * @param listener The listener to unregister.
+     */
+    public final synchronized void unregisterListener(final String name, final Listener2 listener) {
+        this.listenersByName.remove(name, listener);
+    }
 
-        if (listeners != null) {
-            listeners.remove(listener);
+    /**
+     * Triggers a refresh for all known service names.
+     *
+     * @param force Whether to force a new resolution even if one is already in progress.
+     */
+    public synchronized void refreshAll(final boolean force) {
+        for (final String name : this.listenersByName.keySet()) {
+            refresh(name, force);
         }
     }
 
-    private synchronized void refresh() {
-        for (String name : listenerMap.keySet()) {
-            refresh(name);
-        }
-    }
-
-    private boolean resolving(Future<List<ServiceInstance>> future) {
-        return future != null && !future.isDone();
-    }
-
-    private List<ServiceInstance> getResolveResult(Future<List<ServiceInstance>> future) {
-        try {
-            if (future != null && future.isDone()) {
-                return future.get();
-            }
-        } catch (ExecutionException | InterruptedException ignored) {
-        }
-
-        return KEEP_PREVIOUS;
-    }
-
-    private boolean forceRefresh(String name) {
-        return serviceInstanceMap.get(name) == null;
-    }
-
-    public final synchronized void refresh(String name) {
-        Future<List<ServiceInstance>> future = discoverClientTasks.get(name);
-
+    /**
+     * Triggers a refresh for the given service name.
+     *
+     * @param name The service name to trigger the refresh for.
+     * @param force Whether to force a new resolution even if one is already in progress.
+     */
+    public final synchronized void refresh(final String name, final boolean force) {
         // no resolver is running with this service name.
-        if (CollectionUtils.isEmpty(listenerMap.get(name))) {
+        if (!this.listenersByName.containsKey(name)) {
+            log.debug("No listener for {} -> Skipping", name);
             return;
         }
 
         // exit when resolving but not a force refresh
-        if (resolving(future) && !forceRefresh(name)) {
+        if (!this.resolvingServices.add(name) && !force) {
+            log.debug("Resolution already in progress for {} -> Skipping", name);
             return;
         }
 
-        // update cached instances when not a force refresh.
-        if (!forceRefresh(name)) {
-            List<ServiceInstance> instances = getResolveResult(future);
+        this.executor.submit(new Resolve(name, this.serviceInstanceByName.get(name)));
+    }
 
-            if (instances != KEEP_PREVIOUS) {
-                serviceInstanceMap.put(name, instances);
+    /**
+     * Triggers a refresh of the registered name resolvers.
+     *
+     * @param event The event that triggered the update.
+     */
+    @EventListener(HeartbeatEvent.class)
+    public void heartbeat(final HeartbeatEvent event) {
+        if (this.monitor.update(event.getValue())) {
+            refreshAll(false);
+        }
+    }
+
+    /**
+     * Cleans up the name resolvers.
+     */
+    @PreDestroy
+    public synchronized void destroy() {
+        this.executor.shutdownNow();
+        try {
+            this.executor.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        // safe to clean all
+        this.listenersByName.clear();
+        this.serviceInstanceByName.clear();
+        this.resolvingServices.clear();
+    }
+
+    @Override
+    public String toString() {
+        return "DiscoveryClientResolverFactory [scheme=" + getDefaultScheme() +
+                ", discoveryClient=" + this.client + "]";
+    }
+
+    // Utility methods
+
+    /**
+     * Converts the given server instances to grpc's {@link EquivalentAddressGroup}s.
+     *
+     * @param name The name of the service these addresses belong to.
+     * @param instanceList The list of service instance to convert.
+     * @return The converted list of instances.
+     */
+    private static ResolutionResult convert(
+            final String name,
+            final Collection<ServiceInstance> instanceList) {
+        final List<EquivalentAddressGroup> targets = new ArrayList<>();
+
+        for (final ServiceInstance instance : instanceList) {
+            try {
+                final int port = getGRPCPort(instance);
+                log.debug("Found gRPC server {}:{} for {}", instance.getHost(), port, name);
+                targets.add(new EquivalentAddressGroup(
+                        new InetSocketAddress(instance.getHost(), port), Attributes.EMPTY));
+            } catch (final IllegalArgumentException e) {
+                log.warn("Failed to parse server info from '{}' -> Skipping entry", instance, e);
             }
         }
 
-        discoverClientTasks.put(name,
-                executor.submit(new Resolve(name, Sets.newHashSet(listenerMap.get(name)),
-                        Lists.newArrayList(
-                                serviceInstanceMap.computeIfAbsent(name, n -> Lists.newArrayList())))));
+        return ResolutionResult.newBuilder()
+                .setAddresses(targets)
+                .build();
     }
 
-    private final class Resolve implements Callable<List<ServiceInstance>> {
+    /**
+     * Extracts the gRPC server port from the given service instance.
+     *
+     * @param instance The instance to extract the port from.
+     * @return The gRPC server port.
+     * @throws IllegalArgumentException If the specified port definition couldn't be parsed.
+     */
+    private static int getGRPCPort(final ServiceInstance instance) {
+        final Map<String, String> metadata = instance.getMetadata();
+        if (metadata == null) {
+            return instance.getPort();
+        }
+        final String portString = metadata.get("gRPC.port");
+        if (portString == null) {
+            return instance.getPort();
+        }
+        try {
+            return Integer.parseInt(portString);
+        } catch (final NumberFormatException e) {
+            throw new IllegalArgumentException("Failed to parse gRPC port information from: " + instance, e);
+        }
+    }
+
+    /**
+     * The logic for updating the gRPC server list using a discovery client.
+     */
+    private final class Resolve implements Runnable {
 
         private final String name;
-        private final Set<Listener> savedListenerList;
-        private final List<ServiceInstance> savedInstanceList;
+        private final ImmutableList<ServiceInstance> savedInstanceList;
 
         /**
          * Creates a new Resolve that stores a snapshot of the relevant states of the resolver.
          *
-         * @param listenerList The listener to send the results to.
-         * @param instanceList The current server instance list.
+         * @param name The service name to resolve.
+         * @param instanceList The current server instance list. Used to determine whether the server list needs to be
+         *        updated.
          */
-        Resolve(final String name, final Set<Listener> listenerList, final List<ServiceInstance> instanceList) {
+        Resolve(final String name, final ImmutableList<ServiceInstance> instanceList) {
             this.name = requireNonNull(name, "name");
-            this.savedListenerList = requireNonNull(listenerList, "listenerList");
             this.savedInstanceList = requireNonNull(instanceList, "instanceList");
         }
 
         @Override
-        public List<ServiceInstance> call() {
+        public void run() {
             try {
-                return resolveInternal();
+                resolveInternal();
+            } catch (final StatusException e) {
+                log.error("Could not update server list for {}", this.name, e);
+                onError(e.getStatus());
             } catch (final Exception e) {
-                notifyStatus(Status.UNAVAILABLE.withCause(e)
-                        .withDescription("Failed to update server list for " + name));
-            }
-
-            return KEEP_PREVIOUS;
-        }
-
-        private void notifyAddresses(List<EquivalentAddressGroup> targets, Attributes attributes) {
-            for (Listener listener : savedListenerList) {
-                try {
-                    listener.onAddresses(targets, attributes);
-                } catch (Exception ignored) {
-                }
-            }
-        }
-
-        private void notifyStatus(Status status) {
-            for (Listener listener : savedListenerList) {
-                try {
-                    listener.onError(status);
-                } catch (Exception ignored) {
-                }
+                log.error("Could not update server list for {}", this.name, e);
+                onError(Status.UNAVAILABLE.withCause(e)
+                        .withDescription("Failed to update server list for " + this.name));
             }
         }
 
         /**
          * Do the actual update checks and resolving logic.
          *
-         * @return The new service instance list that is used to connect to the gRPC server or null if the old ones
-         *         should be used.
+         * @throws StatusException If something went wrong during the resolution.
          */
-        private List<ServiceInstance> resolveInternal() {
-            final List<ServiceInstance> newInstanceList =
-                    DiscoveryClientResolverFactory.this.client.getInstances(name);
-            log.debug("Got {} candidate servers for {}", newInstanceList.size(), name);
-            if (CollectionUtils.isEmpty(newInstanceList)) {
-                log.error("No servers found for {}", name);
-                notifyStatus(Status.UNAVAILABLE.withDescription("No servers found for " + name));
-                return Lists.newArrayList();
+        private void resolveInternal() throws StatusException {
+            final List<ServiceInstance> newInstanceList = client.getInstances(this.name);
+            log.debug("Got {} candidate servers for {}", newInstanceList.size(), this.name);
+            if (newInstanceList.isEmpty()) {
+                throw Status.UNAVAILABLE
+                        .withDescription("No servers found for " + this.name)
+                        .asException();
             }
             if (!needsToUpdateConnections(newInstanceList)) {
-                log.debug("Nothing has changed... skipping update for {}", name);
-                return KEEP_PREVIOUS;
+                log.debug("Nothing has changed... skipping update for {}", this.name);
+                onAddresses(KEEP_PREVIOUS, null);
+                return;
             }
-            log.debug("Ready to update server list for {}", name);
-            final List<EquivalentAddressGroup> targets = convert(name, newInstanceList);
-            if (targets.isEmpty()) {
-                log.error("None of the servers for {} specified a gRPC port", name);
-                notifyStatus(Status.UNAVAILABLE
-                        .withDescription("None of the servers for " + name + " specified a gRPC port"));
-                return Lists.newArrayList();
+            log.debug("Ready to update server list for {}", this.name);
+            final ResolutionResult result = convert(this.name, newInstanceList);
+            if (result.getAddresses().isEmpty()) {
+                throw Status.UNAVAILABLE
+                        .withDescription("None of the servers for " + this.name + " specified a gRPC port")
+                        .asException();
             } else {
-                notifyAddresses(targets, Attributes.EMPTY);
-                log.info("Done updating server list for {}", name);
-                return newInstanceList;
+                onAddresses(newInstanceList, result);
+                log.info("Done updating server list for {}", this.name);
             }
         }
 
@@ -303,86 +397,58 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
             }
             return false;
         }
-    }
 
-    /**
-     * Extracts the gRPC server port from the given service instance.
-     *
-     * @param instance The instance to extract the port from.
-     * @return The gRPC server port.
-     * @throws IllegalArgumentException If the specified port definition couldn't be parsed.
-     */
-    private int getGRPCPort(final ServiceInstance instance) {
-        final Map<String, String> metadata = instance.getMetadata();
-        if (metadata == null) {
-            return instance.getPort();
-        }
-        final String portString = metadata.get("gRPC.port");
-        if (portString == null) {
-            return instance.getPort();
-        }
-        try {
-            return Integer.parseInt(portString);
-        } catch (final NumberFormatException e) {
-            throw new IllegalArgumentException("Failed to parse gRPC port information from: " + instance, e);
-        }
-    }
+        /**
+         * Updates all registered listeners with the given server addresses.
+         *
+         * @param serviceList The service list used to determine the targets.
+         * @param result The target addresses to connect to.
+         */
+        private void onAddresses(
+                final List<ServiceInstance> serviceList,
+                final ResolutionResult result) {
+            if (Thread.currentThread().isInterrupted()) {
+                return; // Cancelled
+            }
 
-    private List<EquivalentAddressGroup> convert(String name, List<ServiceInstance> newInstanceList) {
-        final List<EquivalentAddressGroup> targets = Lists.newArrayList();
+            Collection<Listener2> listeners = ImmutableSet.of();
 
-        for (final ServiceInstance instance : newInstanceList) {
-            try {
-                final int port = getGRPCPort(instance);
-                log.debug("Found gRPC server {}:{} for {}", instance.getHost(), port, name);
-                targets.add(new EquivalentAddressGroup(
-                        new InetSocketAddress(instance.getHost(), port), Attributes.EMPTY));
-            } catch (IllegalArgumentException e) {
-                log.error(e.getMessage(), e);
+            // 1. Make a copy of listeners, any listener registered before here will be notified here.
+            synchronized (DiscoveryClientResolverFactory.this) {
+                resolvingServices.remove(this.name);
+                if (serviceList != KEEP_PREVIOUS) {
+                    serviceInstanceByName.put(this.name, ImmutableList.copyOf(serviceList));
+                    listeners = ImmutableSet.copyOf(listenersByName.get(this.name));
+                }
+            }
+            // 2. Since serviceInstanceByName was updated, any new listener will be notified when registering.
+            for (final Listener2 listener : listeners) {
+                listener.onResult(result);
             }
         }
 
-        return targets;
-    }
+        /**
+         * Updates all registered listeners with the given error {@link Status}.
+         *
+         * @param status The error status to publish.
+         */
+        private void onError(final Status status) {
+            if (Thread.currentThread().isInterrupted()) {
+                return; // Cancelled
+            }
 
-    /**
-     * Triggers a refresh of the registered name resolvers.
-     *
-     * @param event The event that triggered the update.
-     */
-    @EventListener(HeartbeatEvent.class)
-    public void heartbeat(final HeartbeatEvent event) {
-        if (this.monitor.update(event.getValue())) {
-            refresh();
-        }
-    }
+            Collection<Listener2> listeners;
 
-    /**
-     * Cleans up the name resolvers.
-     */
-    @PreDestroy
-    public void destroy() {
-        // interrupt
-        for (Future<?> task : discoverClientTasks.values()) {
-            task.cancel(true);
-        }
+            synchronized (DiscoveryClientResolverFactory.this) {
+                resolvingServices.remove(this.name);
+                serviceInstanceByName.put(this.name, NO_SERVERS_FOUND);
+                listeners = ImmutableSet.copyOf(listenersByName.get(this.name));
+            }
 
-        // wait for complete
-        for (Future<?> task : discoverClientTasks.values()) {
-            try {
-                task.get();
-            } catch (InterruptedException | ExecutionException ignored) {
+            for (final Listener listener : listeners) {
+                listener.onError(status);
             }
         }
 
-        // safe to clean all
-        listenerMap.clear();
     }
-
-    @Override
-    public String toString() {
-        return "DiscoveryClientResolverFactory [scheme=" + getDefaultScheme() +
-                ", discoveryClient=" + this.client + "]";
-    }
-
 }
