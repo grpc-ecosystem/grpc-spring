@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -60,6 +60,8 @@ public class DiscoveryClientNameResolver extends NameResolver {
     private final DiscoveryClient client;
     private final SharedResourceHolder.Resource<Executor> executorResource;
     private final SynchronizationContext syncContext;
+    private final Runnable externalCleaner;
+    private final boolean usingExecutorResource;
 
     @GuardedBy("this")
     private Listener listener;
@@ -72,12 +74,24 @@ public class DiscoveryClientNameResolver extends NameResolver {
     @GuardedBy("this")
     private List<ServiceInstance> instanceList = Lists.newArrayList();
 
+    /**
+     * Creates a new DiscoveryClientNameResolver.
+     *
+     * @param name The name of the service to look up.
+     * @param client The client used to look up the service addresses.
+     * @param args The name resolver args.
+     * @param executorResource The executor resource.
+     * @param externalCleaner The optional cleaner used during {@link #shutdown()}
+     */
     public DiscoveryClientNameResolver(final String name, final DiscoveryClient client, final Args args,
-            final SharedResourceHolder.Resource<Executor> executorResource) {
+            final SharedResourceHolder.Resource<Executor> executorResource, final Runnable externalCleaner) {
         this.name = name;
         this.client = client;
+        this.executor = args.getOffloadExecutor();
+        this.usingExecutorResource = this.executor == null;
         this.executorResource = executorResource;
         this.syncContext = requireNonNull(args.getSynchronizationContext(), "syncContext");
+        this.externalCleaner = externalCleaner;
     }
 
     @Override
@@ -88,7 +102,9 @@ public class DiscoveryClientNameResolver extends NameResolver {
     @Override
     public final synchronized void start(final Listener listener) {
         checkState(this.listener == null, "already started");
-        this.executor = SharedResourceHolder.get(this.executorResource);
+        if (usingExecutorResource) {
+            this.executor = SharedResourceHolder.get(this.executorResource);
+        }
         this.listener = checkNotNull(listener, "listener");
         resolve();
     }
@@ -119,10 +135,13 @@ public class DiscoveryClientNameResolver extends NameResolver {
             return;
         }
         this.shutdown = true;
-        if (this.executor != null) {
+        if (this.executor != null && this.usingExecutorResource) {
             this.executor = SharedResourceHolder.release(this.executorResource, this.executor);
         }
         this.instanceList = Lists.newArrayList();
+        if (this.externalCleaner != null) {
+            this.externalCleaner.run();
+        }
     }
 
     @Override

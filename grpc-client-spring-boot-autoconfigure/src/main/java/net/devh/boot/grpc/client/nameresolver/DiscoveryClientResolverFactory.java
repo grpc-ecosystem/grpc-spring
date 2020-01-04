@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -20,8 +20,9 @@ package net.devh.boot.grpc.client.nameresolver;
 import static java.util.Objects.requireNonNull;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
@@ -39,7 +40,6 @@ import io.grpc.internal.GrpcUtil;
  * A name resolver factory that will create a {@link DiscoveryClientNameResolver} based on the target uri.
  *
  * @author Michael (yidongnan@gmail.com)
- * @since 5/17/16
  */
 // Do not add this to the NameResolverProvider service loader list
 public class DiscoveryClientResolverFactory extends NameResolverProvider {
@@ -49,7 +49,7 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
      */
     public static final String DISCOVERY_SCHEME = "discovery";
 
-    private final Collection<DiscoveryClientNameResolver> discoveryClientNameResolvers = new ArrayList<>();
+    private final Set<DiscoveryClientNameResolver> discoveryClientNameResolvers = ConcurrentHashMap.newKeySet();
     private final HeartbeatMonitor monitor = new HeartbeatMonitor();
 
     private final DiscoveryClient client;
@@ -73,9 +73,12 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
                         + "expected: '" + DISCOVERY_SCHEME + ":[//]/<service-name>'; "
                         + "but was '" + targetUri.toString() + "'");
             }
+            final AtomicReference<DiscoveryClientNameResolver> reference = new AtomicReference<>();
             final DiscoveryClientNameResolver discoveryClientNameResolver =
                     new DiscoveryClientNameResolver(serviceName.substring(1), this.client, args,
-                            GrpcUtil.SHARED_CHANNEL_EXECUTOR);
+                            GrpcUtil.SHARED_CHANNEL_EXECUTOR,
+                            () -> this.discoveryClientNameResolvers.remove(reference.get()));
+            reference.set(discoveryClientNameResolver);
             this.discoveryClientNameResolvers.add(discoveryClientNameResolver);
             return discoveryClientNameResolver;
         }
