@@ -20,9 +20,8 @@ package net.devh.boot.grpc.client.nameresolver;
 import static java.util.Objects.requireNonNull;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nullable;
@@ -41,7 +40,6 @@ import io.grpc.internal.GrpcUtil;
  * A name resolver factory that will create a {@link DiscoveryClientNameResolver} based on the target uri.
  *
  * @author Michael (yidongnan@gmail.com)
- * @since 5/17/16
  */
 // Do not add this to the NameResolverProvider service loader list
 public class DiscoveryClientResolverFactory extends NameResolverProvider {
@@ -51,8 +49,7 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
      */
     public static final String DISCOVERY_SCHEME = "discovery";
 
-    private final Set<DiscoveryClientNameResolver> discoveryClientNameResolvers =
-            Collections.synchronizedSet(Collections.newSetFromMap(new IdentityHashMap<>()));
+    private final Set<DiscoveryClientNameResolver> discoveryClientNameResolvers = ConcurrentHashMap.newKeySet();
     private final HeartbeatMonitor monitor = new HeartbeatMonitor();
 
     private final DiscoveryClient client;
@@ -111,9 +108,8 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
     @EventListener(HeartbeatEvent.class)
     public void heartbeat(final HeartbeatEvent event) {
         if (this.monitor.update(event.getValue())) {
-            final Object[] array = this.discoveryClientNameResolvers.toArray();
-            for (final Object discoveryClientNameResolver : array) {
-                ((DiscoveryClientNameResolver) discoveryClientNameResolver).refresh();
+            for (final DiscoveryClientNameResolver discoveryClientNameResolver : this.discoveryClientNameResolvers) {
+                discoveryClientNameResolver.refresh();
             }
         }
     }

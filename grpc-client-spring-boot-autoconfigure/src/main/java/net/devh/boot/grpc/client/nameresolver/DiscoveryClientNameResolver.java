@@ -61,13 +61,12 @@ public class DiscoveryClientNameResolver extends NameResolver {
     private final SharedResourceHolder.Resource<Executor> executorResource;
     private final SynchronizationContext syncContext;
     private final Runnable externalCleaner;
+    private final boolean usingExecutorResource;
 
     @GuardedBy("this")
     private Listener listener;
     @GuardedBy("this")
     private Executor executor;
-    @GuardedBy("this")
-    private boolean usingExecutorResource;
     @GuardedBy("this")
     private boolean resolving;
     @GuardedBy("this")
@@ -75,11 +74,21 @@ public class DiscoveryClientNameResolver extends NameResolver {
     @GuardedBy("this")
     private List<ServiceInstance> instanceList = Lists.newArrayList();
 
+    /**
+     * Creates a new DiscoveryClientNameResolver.
+     *
+     * @param name The name of the service to look up.
+     * @param client The client used to look up the service addresses.
+     * @param args The name resolver args.
+     * @param executorResource The executor resource.
+     * @param externalCleaner The optional cleaner used during {@link #shutdown()}
+     */
     public DiscoveryClientNameResolver(final String name, final DiscoveryClient client, final Args args,
             final SharedResourceHolder.Resource<Executor> executorResource, final Runnable externalCleaner) {
         this.name = name;
         this.client = client;
         this.executor = args.getOffloadExecutor();
+        this.usingExecutorResource = this.executor == null;
         this.executorResource = executorResource;
         this.syncContext = requireNonNull(args.getSynchronizationContext(), "syncContext");
         this.externalCleaner = externalCleaner;
@@ -93,9 +102,8 @@ public class DiscoveryClientNameResolver extends NameResolver {
     @Override
     public final synchronized void start(final Listener listener) {
         checkState(this.listener == null, "already started");
-        if (this.executor == null) {
+        if (usingExecutorResource) {
             this.executor = SharedResourceHolder.get(this.executorResource);
-            this.usingExecutorResource = true;
         }
         this.listener = checkNotNull(listener, "listener");
         resolve();
