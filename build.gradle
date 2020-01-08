@@ -9,7 +9,7 @@ buildscript {
         }
     }
     ext {
-        projectVersion = '2.6.2-SNAPSHOT'
+        projectVersion = '2.6.2.RELEASE'
 
         grpcVersion = '1.25.0'
         protobufVersion = '3.11.0'
