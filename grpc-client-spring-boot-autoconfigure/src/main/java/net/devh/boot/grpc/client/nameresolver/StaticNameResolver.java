@@ -20,11 +20,9 @@ package net.devh.boot.grpc.client.nameresolver;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
-import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-import io.grpc.Attributes;
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
 
@@ -34,7 +32,7 @@ import io.grpc.NameResolver;
 public class StaticNameResolver extends NameResolver {
 
     private final String authority;
-    private final List<EquivalentAddressGroup> targets;
+    private final ResolutionResult result;
 
     /**
      * Creates a static name resolver with only a single target server.
@@ -57,7 +55,20 @@ public class StaticNameResolver extends NameResolver {
         if (requireNonNull(targets, "targets").isEmpty()) {
             throw new IllegalArgumentException("Must have at least one target");
         }
-        this.targets = ImmutableList.copyOf(targets);
+        this.result = ResolutionResult.newBuilder()
+                .setAddresses(ImmutableList.copyOf(targets))
+                .build();
+    }
+
+    /**
+     * Creates a static name resolver with multiple target servers.
+     *
+     * @param authority The authority this name resolver was created for.
+     * @param result The resolution result to use..
+     */
+    public StaticNameResolver(final String authority, final ResolutionResult result) {
+        this.authority = requireNonNull(authority, "authority");
+        this.result = requireNonNull(result, "result");
     }
 
     @Override
@@ -66,8 +77,8 @@ public class StaticNameResolver extends NameResolver {
     }
 
     @Override
-    public void start(final Listener listener) {
-        listener.onAddresses(this.targets, Attributes.EMPTY);
+    public void start(final Listener2 listener) {
+        listener.onResult(this.result);
     }
 
     @Override
@@ -82,7 +93,7 @@ public class StaticNameResolver extends NameResolver {
 
     @Override
     public String toString() {
-        return "StaticNameResolver [authority=" + this.authority + ", targets=" + this.targets + "]";
+        return "StaticNameResolver [authority=" + this.authority + ", result=" + this.result + "]";
     }
 
 }

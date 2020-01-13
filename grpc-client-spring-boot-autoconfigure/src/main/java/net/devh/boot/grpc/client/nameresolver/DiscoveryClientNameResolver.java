@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.annotation.concurrent.GuardedBy;
-
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.util.CollectionUtils;
@@ -58,20 +56,17 @@ public class DiscoveryClientNameResolver extends NameResolver {
 
     private final String name;
     private final DiscoveryClient client;
-    private final SharedResourceHolder.Resource<Executor> executorResource;
     private final SynchronizationContext syncContext;
     private final Runnable externalCleaner;
+    private final SharedResourceHolder.Resource<Executor> executorResource;
     private final boolean usingExecutorResource;
 
-    @GuardedBy("this")
-    private Listener listener;
-    @GuardedBy("this")
+    // The field must be accessed from syncContext, although the methods on an Listener2 can be called
+    // from any thread.
+    private Listener2 listener;
+    // Following fields must be accessed from syncContext
     private Executor executor;
-    @GuardedBy("this")
     private boolean resolving;
-    @GuardedBy("this")
-    private boolean shutdown;
-    @GuardedBy("this")
     private List<ServiceInstance> instanceList = Lists.newArrayList();
 
     /**
@@ -87,11 +82,11 @@ public class DiscoveryClientNameResolver extends NameResolver {
             final SharedResourceHolder.Resource<Executor> executorResource, final Runnable externalCleaner) {
         this.name = name;
         this.client = client;
+        this.syncContext = requireNonNull(args.getSynchronizationContext(), "syncContext");
+        this.externalCleaner = externalCleaner;
         this.executor = args.getOffloadExecutor();
         this.usingExecutorResource = this.executor == null;
         this.executorResource = executorResource;
-        this.syncContext = requireNonNull(args.getSynchronizationContext(), "syncContext");
-        this.externalCleaner = externalCleaner;
     }
 
     @Override
@@ -100,9 +95,9 @@ public class DiscoveryClientNameResolver extends NameResolver {
     }
 
     @Override
-    public final synchronized void start(final Listener listener) {
+    public void start(final Listener2 listener) {
         checkState(this.listener == null, "already started");
-        if (usingExecutorResource) {
+        if (this.usingExecutorResource) {
             this.executor = SharedResourceHolder.get(this.executorResource);
         }
         this.listener = checkNotNull(listener, "listener");
@@ -110,19 +105,28 @@ public class DiscoveryClientNameResolver extends NameResolver {
     }
 
     @Override
-    public final synchronized void refresh() {
-        // Heartbeats might happen before the resolver is even started
-        // We just ignore that case silently
-        // checkState(listener != null, "not started");
-        if (this.listener != null) {
-            resolve();
-        }
+    public void refresh() {
+        checkState(this.listener != null, "not started");
+        resolve();
     }
 
-    @GuardedBy("this")
+    /**
+     * Triggers a refresh on the listener from non-grpc threads. This method can safely be called, even if the listener
+     * hasn't been started yet.
+     *
+     * @see #refresh()
+     */
+    public void refreshFromExternal() {
+        this.syncContext.execute(() -> {
+            if (this.listener != null) {
+                resolve();
+            }
+        });
+    }
+
     private void resolve() {
         log.debug("Scheduled resolve for {}", this.name);
-        if (this.resolving || this.shutdown) {
+        if (this.resolving) {
             return;
         }
         this.resolving = true;
@@ -131,10 +135,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
 
     @Override
     public void shutdown() {
-        if (this.shutdown) {
-            return;
-        }
-        this.shutdown = true;
+        this.listener = null;
         if (this.executor != null && this.usingExecutorResource) {
             this.executor = SharedResourceHolder.release(this.executorResource, this.executor);
         }
@@ -154,7 +155,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
      */
     private final class Resolve implements Runnable {
 
-        private final Listener savedListener;
+        private final Listener2 savedListener;
         private final List<ServiceInstance> savedInstanceList;
 
         /**
@@ -163,14 +164,14 @@ public class DiscoveryClientNameResolver extends NameResolver {
          * @param listener The listener to send the results to.
          * @param instanceList The current server instance list.
          */
-        Resolve(final Listener listener, final List<ServiceInstance> instanceList) {
+        Resolve(final Listener2 listener, final List<ServiceInstance> instanceList) {
             this.savedListener = requireNonNull(listener, "listener");
             this.savedInstanceList = requireNonNull(instanceList, "instanceList");
         }
 
         @Override
         public void run() {
-            AtomicReference<List<ServiceInstance>> resultContainer = new AtomicReference<>();
+            final AtomicReference<List<ServiceInstance>> resultContainer = new AtomicReference<>();
             try {
                 resultContainer.set(resolveInternal());
             } catch (final Exception e) {
@@ -180,8 +181,8 @@ public class DiscoveryClientNameResolver extends NameResolver {
             } finally {
                 DiscoveryClientNameResolver.this.syncContext.execute(() -> {
                     DiscoveryClientNameResolver.this.resolving = false;
-                    List<ServiceInstance> result = resultContainer.get();
-                    if (result != KEEP_PREVIOUS && !DiscoveryClientNameResolver.this.shutdown) {
+                    final List<ServiceInstance> result = resultContainer.get();
+                    if (result != KEEP_PREVIOUS && DiscoveryClientNameResolver.this.listener != null) {
                         DiscoveryClientNameResolver.this.instanceList = result;
                     }
                 });
@@ -222,7 +223,9 @@ public class DiscoveryClientNameResolver extends NameResolver {
                         .withDescription("None of the servers for " + name + " specified a gRPC port"));
                 return Lists.newArrayList();
             } else {
-                this.savedListener.onAddresses(targets, Attributes.EMPTY);
+                this.savedListener.onResult(ResolutionResult.newBuilder()
+                        .setAddresses(targets)
+                        .build());
                 log.info("Done updating server list for {}", name);
                 return newInstanceList;
             }
