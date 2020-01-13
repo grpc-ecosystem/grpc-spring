@@ -17,6 +17,8 @@
 
 package net.devh.boot.grpc.server.serverfactory;
 
+import org.springframework.beans.factory.DisposableBean;
+
 import io.grpc.Server;
 import net.devh.boot.grpc.server.service.GrpcServiceDefinition;
 
@@ -26,7 +28,7 @@ import net.devh.boot.grpc.server.service.GrpcServiceDefinition;
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
-public interface GrpcServerFactory {
+public interface GrpcServerFactory extends DisposableBean {
 
     /**
      * Creates a new grpc server with the stored options. The entire lifecycle management of the server should be
@@ -65,6 +67,7 @@ public interface GrpcServerFactory {
     /**
      * Destroys this factory. This does not destroy or shutdown any server that was created using this factory.
      */
+    @Override
     void destroy();
 
 }
