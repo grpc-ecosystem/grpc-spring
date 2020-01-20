@@ -24,16 +24,12 @@ import static java.util.Objects.requireNonNull;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.concurrent.Executor;
-
-import javax.annotation.concurrent.GuardedBy;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.InetAddresses;
 
-import io.grpc.Attributes;
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
 import io.grpc.Status;
@@ -50,15 +46,16 @@ import net.devh.boot.grpc.server.config.GrpcServerProperties;
 public class SelfNameResolver extends NameResolver {
 
     private final GrpcServerProperties properties;
-    private final SharedResourceHolder.Resource<Executor> executorResource;
     private final SynchronizationContext syncContext;
+    private final SharedResourceHolder.Resource<Executor> executorResource;
+    private final boolean usingExecutorResource;
 
-    @GuardedBy("this")
-    private Listener listener = null;
-    @GuardedBy("this")
+    // Following fields must be accessed from syncContext
     private Executor executor = null;
-    @GuardedBy("this")
     private boolean resolving = false;
+    // The field must be accessed from syncContext, although the methods on an Listener2 can be called
+    // from any thread.
+    private Listener2 listener = null;
 
     /**
      * Creates a self name resolver with the given properties.
@@ -66,7 +63,7 @@ public class SelfNameResolver extends NameResolver {
      * @param properties The properties to read the server address from.
      * @param args The arguments for the resolver.
      */
-    public SelfNameResolver(GrpcServerProperties properties, final Args args) {
+    public SelfNameResolver(final GrpcServerProperties properties, final Args args) {
         this(properties, args, GrpcUtil.SHARED_CHANNEL_EXECUTOR);
     }
 
@@ -77,37 +74,40 @@ public class SelfNameResolver extends NameResolver {
      * @param args The arguments for the resolver.
      * @param executorResource The shared executor resource for channels.
      */
-    public SelfNameResolver(GrpcServerProperties properties, final Args args,
+    public SelfNameResolver(final GrpcServerProperties properties, final Args args,
             final SharedResourceHolder.Resource<Executor> executorResource) {
         this.properties = requireNonNull(properties, "properties");
-        this.executorResource = requireNonNull(executorResource, "executorResource");
         this.syncContext = requireNonNull(args.getSynchronizationContext(), "syncContext");
+        this.executorResource = requireNonNull(executorResource, "executorResource");
+        this.executor = args.getOffloadExecutor();
+        this.usingExecutorResource = this.executor == null;
     }
 
     @Override
     public String getServiceAuthority() {
         try {
             return InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
+        } catch (final UnknownHostException e) {
             return getOwnAddressString("localhost");
         }
     }
 
     @Override
-    public final synchronized void start(final Listener listener) {
+    public final void start(final Listener2 listener) {
         checkState(this.listener == null, "already started");
-        this.executor = SharedResourceHolder.get(this.executorResource);
         this.listener = checkNotNull(listener, "listener");
+        if (this.usingExecutorResource) {
+            this.executor = SharedResourceHolder.get(this.executorResource);
+        }
         resolve();
     }
 
     @Override
-    public final synchronized void refresh() {
+    public final void refresh() {
         checkState(this.listener != null, "not started");
         resolve();
     }
 
-    @GuardedBy("this")
     private void resolve() {
         log.debug("Scheduled self resolve");
         if (this.resolving || this.executor == null) {
@@ -118,14 +118,14 @@ public class SelfNameResolver extends NameResolver {
     }
 
     @Override
-    public synchronized void shutdown() {
+    public void shutdown() {
         this.listener = null;
-        if (this.executor != null) {
+        if (this.executor != null && this.usingExecutorResource) {
             this.executor = SharedResourceHolder.release(this.executorResource, this.executor);
         }
     }
 
-    private SocketAddress getOwnAddress() throws SocketException {
+    private SocketAddress getOwnAddress() {
         final String address = this.properties.getAddress();
         final int port = this.properties.getPort();
         final SocketAddress target;
@@ -137,10 +137,10 @@ public class SelfNameResolver extends NameResolver {
         return target;
     }
 
-    private String getOwnAddressString(String fallback) {
+    private String getOwnAddressString(final String fallback) {
         try {
             return getOwnAddress().toString().substring(1);
-        } catch (SocketException e) {
+        } catch (final IllegalArgumentException e) {
             return fallback;
         }
     }
@@ -155,22 +155,24 @@ public class SelfNameResolver extends NameResolver {
      */
     private final class Resolve implements Runnable {
 
-        private final Listener savedListener;
+        private final Listener2 savedListener;
 
         /**
          * Creates a new Resolve that stores a snapshot of the relevant states of the resolver.
          *
          * @param listener The listener to send the results to.
          */
-        Resolve(final Listener listener) {
+        Resolve(final Listener2 listener) {
             this.savedListener = requireNonNull(listener, "listener");
         }
 
         @Override
         public void run() {
             try {
-                this.savedListener.onAddresses(ImmutableList.of(
-                        new EquivalentAddressGroup(getOwnAddress())), Attributes.EMPTY);
+                this.savedListener.onResult(ResolutionResult.newBuilder()
+                        .setAddresses(ImmutableList.of(
+                                new EquivalentAddressGroup(getOwnAddress())))
+                        .build());
             } catch (final Exception e) {
                 this.savedListener.onError(Status.UNAVAILABLE
                         .withDescription("Failed to resolve own address").withCause(e));

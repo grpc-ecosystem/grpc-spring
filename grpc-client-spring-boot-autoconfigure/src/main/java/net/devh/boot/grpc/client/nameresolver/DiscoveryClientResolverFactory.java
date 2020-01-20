@@ -109,7 +109,7 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
     public void heartbeat(final HeartbeatEvent event) {
         if (this.monitor.update(event.getValue())) {
             for (final DiscoveryClientNameResolver discoveryClientNameResolver : this.discoveryClientNameResolvers) {
-                discoveryClientNameResolver.refresh();
+                discoveryClientNameResolver.refreshFromExternal();
             }
         }
     }
