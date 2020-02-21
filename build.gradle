@@ -9,40 +9,48 @@ buildscript {
         }
     }
     ext {
-        projectVersion = '2.7.0.RELEASE'
+        projectVersion = '2.8.0-SNAPSHOT'
 
-        grpcVersion = '1.27.1'
+        grpcVersion = '1.27.2'
         protobufVersion = '3.11.4'
-        protobufGradlePluginVersion = '0.8.10' // 0.8.11 causes conflicts (requires gradle update?)
+        protobufGradlePluginVersion = '0.8.11'
 
         springBootVersion = '2.2.4.RELEASE'
         springCloudVersion = 'Hoxton.SR2'
+        springDependencyManagementVersion = '1.0.9.RELEASE'
         springCloudAlibabaNacosVersion = '2.2.0.RELEASE'
         braveInstrumentationGrpc = '5.9.5'
 
         lombokVersion = '1.18.12'
-    }
-    dependencies {
-        classpath "io.spring.gradle:dependency-management-plugin:1.0.9.RELEASE"
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
-        classpath "com.diffplug.spotless:spotless-plugin-gradle:3.27.1"
+        lombokPluginVersion = '3.2.0'
+        versioningPluginVersion = '2.10.0'
+        versionsPluginVersion = '0.27.0'
+
+        annotationApiVersion = '1.3.2'
     }
 }
 
 plugins {
+    id "java"
+    id "java-library"
+    id "org.springframework.boot" version "2.2.4.RELEASE" apply false
+    id "io.spring.dependency-management" version "1.0.9.RELEASE"
     id "net.nemerosa.versioning" version "2.11.0"
+    id "com.google.protobuf" version "0.8.11"
     id "io.franzbecker.gradle-lombok" version "3.3.0" apply false
-    id "com.gradle.build-scan" version "3.1.1"
     id "com.github.ben-manes.versions" version "0.28.0" // gradle dependencyUpdates (Takes quite some time)
+    id "com.diffplug.gradle.spotless" version "3.27.1"
 }
 
-buildScan {
-    termsOfServiceUrl = "https://gradle.com/terms-of-service"
-    termsOfServiceAgree = "yes"
+if (hasProperty('buildScan')) {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
+    }
 }
 
 wrapper {
-    gradleVersion = '5.0'
+    gradleVersion = '6.2'
 }
 
 def buildTimeAndDate = OffsetDateTime.now()
@@ -55,6 +63,7 @@ ext {
 
 allprojects {
     apply plugin: 'java'
+    apply plugin: 'java-library'
     apply plugin: 'idea'
     apply plugin: 'eclipse'
     apply plugin: 'io.spring.dependency-management'
@@ -125,13 +134,13 @@ allprojects {
     }
 }
 
-Project commonProject = project(':grpc-common-spring-boot');
+Project commonProject = project(':grpc-common-spring-boot')
 
-String javaAPIdoc;
+String javaAPIdoc
 if (JavaVersion.current().isJava9Compatible()) {
-    javaAPIdoc = 'https://docs.oracle.com/en/java/javase/11/docs/api';
+    javaAPIdoc = 'https://docs.oracle.com/en/java/javase/11/docs/api'
 } else {
-    javaAPIdoc = 'https://docs.oracle.com/javase/8/docs/api/';
+    javaAPIdoc = 'https://docs.oracle.com/javase/8/docs/api/'
 }
 
 allprojects { project ->
@@ -194,6 +203,13 @@ allprojects { project ->
                     'https://google.github.io/guava/releases/26.0-android/api/docs/'
             ]
         }
+
+        // include annotation API spec for JDK 9+, prevents issues with Spring annotations by the consumer of the library
+        if (JavaVersion.current().isJava9Compatible()) {
+            dependencies {
+                api "javax.annotation:javax.annotation-api:${annotationApiVersion}"
+            }
+        }
     }
 }
 
@@ -205,5 +221,6 @@ version = "${projectVersion}"
 dependencies {
     compile project(':grpc-server-spring-boot-starter')
     compile project(':grpc-client-spring-boot-starter')
+
     testCompile project(':tests')
 }

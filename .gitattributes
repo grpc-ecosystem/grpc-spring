@@ -11,6 +11,9 @@
 *.sh            text
 *.xml           text
 *.yml           text
+*.yaml          text
+*.kts           text
+*.kt            text
 
 *.key binary
 *.jar binary
@@ -18,3 +21,4 @@
 *.crt binary
 
 *.bat text eol=crlf
+*.cmd text eol=crlf
