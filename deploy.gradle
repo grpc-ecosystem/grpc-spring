@@ -20,12 +20,12 @@ ext {
 
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava
-    classifier = 'sources'
+    archiveClassifier.set('sources')
 }
 
 task javadocJar(type: Jar) {
     from javadoc
-    classifier = 'javadoc'
+    archiveClassifier.set('javadoc')
 }
 
 publishing {
@@ -59,6 +59,13 @@ publishing {
                         email = 'daniel.theuke@heuboe.de'
                         organization = 'Heusch/Boesefeldt GmbH'
                         organizationUrl = 'https://www.heuboe.de'
+                    }
+                    developer {
+                        id = 'mattdkerr'
+                        name = 'Matt Kerr'
+                        email = 'mkerr@ea.com'
+                        organization = 'Electronic Arts, Inc.'
+                        organizationUrl = 'https://www.ea.com'
                     }
                 }
                 scm {

@@ -9,40 +9,41 @@ buildscript {
         }
     }
     ext {
-        projectVersion = '2.7.0-SNAPSHOT'
+        projectVersion = '2.8.0-SNAPSHOT'
 
-        grpcVersion = '1.25.0'
-        protobufVersion = '3.11.0'
-        protobufGradlePluginVersion = '0.8.10'
+        grpcVersion = '1.27.1'
+        protobufVersion = '3.11.4'
+        protobufGradlePluginVersion = '0.8.11'
 
-        springBootVersion = '2.2.1.RELEASE'
-        springCloudVersion = 'Hoxton.RELEASE'
+        springBootVersion = '2.2.4.RELEASE'
+        springCloudVersion = 'Hoxton.SR1'
+        springDependencyManagementVersion = '1.0.9.RELEASE'
         springCloudAlibabaNacosVersion = '2.1.1.RELEASE'
         braveInstrumentationGrpc = '5.9.1'
 
         lombokVersion = '1.18.10'
+        lombokPluginVersion = '3.2.0'
+        versioningPluginVersion = '2.10.0'
+        buildScanPluginVersion = '3.1'
+        versionsPluginVersion = '0.27.0'
     }
     dependencies {
-        classpath "io.spring.gradle:dependency-management-plugin:1.0.8.RELEASE"
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
         classpath "com.diffplug.spotless:spotless-plugin-gradle:3.26.0"
     }
 }
 
 plugins {
-    id "net.nemerosa.versioning" version "2.10.0"
+    id "java"
+    id "org.springframework.boot" version "2.2.4.RELEASE" apply false
+    id "io.spring.dependency-management" version "1.0.9.RELEASE"
+    id "com.google.protobuf" version "0.8.11"
     id "io.franzbecker.gradle-lombok" version "3.2.0" apply false
-    id "com.gradle.build-scan" version "3.1"
+    id "net.nemerosa.versioning" version "2.10.0"
     id "com.github.ben-manes.versions" version "0.27.0" // gradle dependencyUpdates (Takes quite some time)
 }
 
-buildScan {
-    termsOfServiceUrl = "https://gradle.com/terms-of-service"
-    termsOfServiceAgree = "yes"
-}
-
 wrapper {
-    gradleVersion = '5.0'
+    gradleVersion = '6.2'
 }
 
 def buildTimeAndDate = OffsetDateTime.now()
@@ -125,13 +126,13 @@ allprojects {
     }
 }
 
-Project commonProject = project(':grpc-common-spring-boot');
+Project commonProject = project(':grpc-common-spring-boot')
 
-String javaAPIdoc;
+String javaAPIdoc
 if (JavaVersion.current().isJava9Compatible()) {
-    javaAPIdoc = 'https://docs.oracle.com/en/java/javase/11/docs/api';
+    javaAPIdoc = 'https://docs.oracle.com/en/java/javase/11/docs/api'
 } else {
-    javaAPIdoc = 'https://docs.oracle.com/javase/8/docs/api/';
+    javaAPIdoc = 'https://docs.oracle.com/javase/8/docs/api/'
 }
 
 allprojects { project ->
