@@ -4,6 +4,9 @@
 
 This section describes how you write tests for your grpc-service implementation.
 
+If you want to test a component that internally uses an `@GrpcClient` annotated field or one of grpc's stubs.
+Please refer to [Tests with Grpc-Stubs](../client/testing).
+
 ## Table of Contents <!-- omit in toc -->
 
 - [Introductory Words](#introductory-words)

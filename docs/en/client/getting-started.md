@@ -20,6 +20,7 @@ This section deals with how to get Spring to connect to a grpc server and manage
 - *Getting Started*
 - [Configuration](configuration)
 - [Security](security)
+- [Tests with Grpc-Stubs](testing)
 
 ## Project Setup
 
