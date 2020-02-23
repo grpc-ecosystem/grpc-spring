@@ -45,7 +45,6 @@ import io.grpc.stub.AbstractAsyncStub;
 import io.grpc.stub.AbstractBlockingStub;
 import io.grpc.stub.AbstractFutureStub;
 import io.grpc.stub.AbstractStub;
-import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 
 /**
@@ -55,7 +54,6 @@ import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
  * @author Michael (yidongnan@gmail.com)
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-@Slf4j
 public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
 
     private final ApplicationContext applicationContext;
