@@ -11,29 +11,29 @@ buildscript {
     ext {
         projectVersion = '2.7.0-SNAPSHOT'
 
-        grpcVersion = '1.25.0'
-        protobufVersion = '3.11.0'
-        protobufGradlePluginVersion = '0.8.10'
+        grpcVersion = '1.27.1'
+        protobufVersion = '3.11.4'
+        protobufGradlePluginVersion = '0.8.10' // 0.8.11 causes conflicts (requires gradle update?)
 
-        springBootVersion = '2.2.1.RELEASE'
-        springCloudVersion = 'Hoxton.RELEASE'
-        springCloudAlibabaNacosVersion = '2.1.1.RELEASE'
-        braveInstrumentationGrpc = '5.9.1'
+        springBootVersion = '2.2.4.RELEASE'
+        springCloudVersion = 'Hoxton.SR2'
+        springCloudAlibabaNacosVersion = '2.2.0.RELEASE'
+        braveInstrumentationGrpc = '5.9.5'
 
-        lombokVersion = '1.18.10'
+        lombokVersion = '1.18.12'
     }
     dependencies {
-        classpath "io.spring.gradle:dependency-management-plugin:1.0.8.RELEASE"
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.9.RELEASE"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
-        classpath "com.diffplug.spotless:spotless-plugin-gradle:3.26.0"
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:3.27.1"
     }
 }
 
 plugins {
-    id "net.nemerosa.versioning" version "2.10.0"
-    id "io.franzbecker.gradle-lombok" version "3.2.0" apply false
-    id "com.gradle.build-scan" version "3.1"
-    id "com.github.ben-manes.versions" version "0.27.0" // gradle dependencyUpdates (Takes quite some time)
+    id "net.nemerosa.versioning" version "2.11.0"
+    id "io.franzbecker.gradle-lombok" version "3.3.0" apply false
+    id "com.gradle.build-scan" version "3.1.1"
+    id "com.github.ben-manes.versions" version "0.28.0" // gradle dependencyUpdates (Takes quite some time)
 }
 
 buildScan {
