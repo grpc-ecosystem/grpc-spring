@@ -18,6 +18,7 @@ This page describes how you connect to a grpc server and authenticate yourself.
 - [Getting Started](getting-started)
 - [Configuration](configuration)
 - *Security*
+- [Tests with Grpc-Stubs](testing)
 
 ## Enable Transport Layer Security
 

@@ -19,6 +19,7 @@ customization you need for your project.
   - [Getting Started](client/getting-started)
   - [Configuration](client/configuration)
   - [Security](client/security)
+  - [Tests with Grpc-Stubs](client/testing)
 - Others setups
 - [Trouble-Shooting](trouble-shooting)
 - [Example Projects](examples)

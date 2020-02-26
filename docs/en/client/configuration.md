@@ -17,6 +17,7 @@ This section describes how you can configure your grpc-spring-boot-starter clien
 - [Getting Started](getting-started)
 - *Configuration*
 - [Security](security)
+- [Tests with Grpc-Stubs](testing)
 
 ## Configuration via Properties
 

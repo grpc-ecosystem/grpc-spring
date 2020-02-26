@@ -4,6 +4,9 @@
 
 This section describes how you write tests for your grpc-service implementation.
 
+If you want to test a component that internally uses an `@GrpcClient` annotated field or one of grpc's stubs.
+Please refer to [Tests with Grpc-Stubs](../client/testing).
+
 ## Table of Contents <!-- omit in toc -->
 
 - [Introductory Words](#introductory-words)
@@ -67,6 +70,8 @@ public class MyServiceImpl extends MyServiceGrpc.MyServiceImplBase {
 
 Before you start writing your own test framework, you might want to use the following libraries to make your work easier.
 
+> **Note:** Spring-Boot-Test already contains some of these dependencies, so make sure you exclude conflicting versions.
+
 For Maven add the following dependencies:
 
 ````xml
@@ -92,6 +97,13 @@ For Maven add the following dependencies:
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-test</artifactId>
     <scope>test</scope>
+    <!-- Exclude the test engine you don't need -->
+    <exclusions>
+        <exclusion>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+        </exclusion>
+    </exclusions>
 </dependency>
 ````
 
@@ -104,7 +116,10 @@ testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 // Grpc-Test-Support
 testImplementation("io.grpc:grpc-testing")
 // Spring-Test-Support (Optional)
-testImplementation("org.springframework.boot:spring-boot-starter-test")
+testImplementation("org.springframework.boot:spring-boot-starter-test") {
+    // Exclude the test engine you don't need
+    exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+}
 ````
 
 ## Unit Tests
