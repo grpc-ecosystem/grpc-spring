@@ -63,7 +63,6 @@ ext {
 
 allprojects {
     apply plugin: 'java'
-    apply plugin: 'java-library'
     apply plugin: 'idea'
     apply plugin: 'eclipse'
     apply plugin: 'io.spring.dependency-management'
@@ -113,10 +112,10 @@ allprojects {
                     'Built-OS': "${System.properties['os.name']}",
                     'Build-Revision': buildRevision,
                     'Specification-Title': project.name,
-                    'Specification-Version': "${projectVersion}",
+                    'Specification-Version': projectVersion,
                     'Specification-Vendor': 'Michael Zhang',
                     'Implementation-Title': project.name,
-                    'Implementation-Version': "${projectVersion}",
+                    'Implementation-Version': projectVersion,
                     'Implementation-Vendor': 'Michael Zhang'
             )
         }
@@ -161,6 +160,26 @@ allprojects { project ->
             springCloudCommonsVersion = dependencyManagement.importedProperties['spring-cloud-commons.version']
         }
     }
+
+    test {
+        useJUnitPlatform()
+        testLogging {
+            // failFast = true
+            // showStandardStreams = true
+            exceptionFormat = 'full'
+            showCauses = true
+            showExceptions = true
+            showStackTraces = true
+            // it.events("passed", "skipped", "failed", "standard_out")
+            it.events("passed", "skipped", "failed")
+
+            it.debug { dbg ->
+                // dbg.events("started", "failed", "passed", "skipped", "standard_error", "standard_out")
+                dbg.events("started", "failed", "passed", "skipped")
+            }
+        }
+    }
+
     if (project.name == 'grpc-common-spring-boot' || project.name == 'grpc-client-spring-boot-autoconfigure' || project.name == 'grpc-server-spring-boot-autoconfigure') {
         // Properly generate javadocs for the important projects
 
@@ -203,24 +222,17 @@ allprojects { project ->
                     'https://google.github.io/guava/releases/26.0-android/api/docs/'
             ]
         }
-
-        // include annotation API spec for JDK 9+, prevents issues with Spring annotations by the consumer of the library
-        if (JavaVersion.current().isJava9Compatible()) {
-            dependencies {
-                api "javax.annotation:javax.annotation-api:${annotationApiVersion}"
-            }
-        }
     }
 }
 
 apply from: './deploy.gradle'
 
 group = "net.devh"
-version = "${projectVersion}"
+version = projectVersion
 
 dependencies {
-    compile project(':grpc-server-spring-boot-starter')
-    compile project(':grpc-client-spring-boot-starter')
+    implementation project(':grpc-server-spring-boot-starter')
+    implementation project(':grpc-client-spring-boot-starter')
 
-    testCompile project(':tests')
+    testImplementation project(':tests')
 }

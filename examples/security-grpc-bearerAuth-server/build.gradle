@@ -1,21 +1,17 @@
-apply plugin: 'org.springframework.boot'
+ plugins {
+     id 'org.springframework.boot'
+ }
 
 dependencies {
-    compile('org.springframework.boot:spring-boot-starter')
-    compile('org.springframework.security:spring-security-config')
-    compile('org.springframework.security:spring-security-oauth2-client:5.2.1.RELEASE')
-    compile project(':grpc-server-spring-boot-starter') // replace to compile("net.devh:grpc-server-spring-boot-starter:${springBootGrpcVersion}")
-    compile project(':examples:grpc-lib')
-    compile('com.nimbusds:nimbus-jose-jwt:8.2.1')
-    compile('org.springframework.security.oauth:spring-security-oauth2:2.4.0.RELEASE')
-    compile('org.springframework.security:spring-security-web')
-    compile('org.springframework.security:spring-security-oauth2-resource-server:5.2.1.RELEASE')
-    compile('org.springframework.security:spring-security-oauth2-jose:5.2.1.RELEASE')
-    compile('org.springframework.security:spring-security-oauth2-core:5.2.1.RELEASE')
-}
-
-buildscript {
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-    }
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.security:spring-security-config'
+    implementation 'org.springframework.security:spring-security-oauth2-client'
+    implementation project(':grpc-server-spring-boot-starter') // replace to implementation("net.devh:grpc-server-spring-boot-starter:${springBootGrpcVersion}")
+    implementation project(':examples:grpc-lib')
+    implementation 'com.nimbusds:nimbus-jose-jwt:8.2.1'
+    implementation 'org.springframework.security.oauth:spring-security-oauth2'
+    implementation 'org.springframework.security:spring-security-web'
+    implementation 'org.springframework.security:spring-security-oauth2-resource-server'
+    implementation 'org.springframework.security:spring-security-oauth2-jose'
+    implementation 'org.springframework.security:spring-security-oauth2-core'
 }

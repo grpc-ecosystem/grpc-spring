@@ -1,9 +1,11 @@
+plugins {
+    id "eclipse"
+    id "com.google.protobuf"
+}
+
 group = "net.devh"
-version = "${projectVersion}"
+version = projectVersion
 
-apply plugin: 'com.google.protobuf'
-
-apply plugin: 'eclipse'
 eclipse {
     project {
         name = 'grpc-spring-boot-tests'
@@ -24,9 +26,9 @@ compileTestJava.dependsOn(processTestResources)
 
 dependencies {
     // compile "io.grpc:grpc-netty"
-    compile "io.grpc:grpc-netty-shaded"
-    compile "io.grpc:grpc-protobuf"
-    compile "io.grpc:grpc-stub"
+    implementation "io.grpc:grpc-netty-shaded"
+    implementation "io.grpc:grpc-protobuf"
+    implementation "io.grpc:grpc-stub"
 }
 
 protobuf {
@@ -58,37 +60,20 @@ idea {
     }
 }
 
-buildscript {
-    dependencies {
-        classpath "com.google.protobuf:protobuf-gradle-plugin:${protobufGradlePluginVersion}"
-    }
-}
-
 dependencies {
-    compile project(':grpc-server-spring-boot-starter') // exclude group: 'io.grpc', module: 'grpc-netty-shaded'
-    compile project(':grpc-client-spring-boot-starter') // exclude group: 'io.grpc', module: 'grpc-netty-shaded'
+    implementation project(':grpc-common-spring-boot')
+    implementation project(':grpc-server-spring-boot-starter') // exclude group: 'io.grpc', module: 'grpc-netty-shaded'
+    implementation project(':grpc-client-spring-boot-starter') // exclude group: 'io.grpc', module: 'grpc-netty-shaded'
     if (JavaVersion.current().isJava9Compatible()) {
         // Workaround for @javax.annotation.Generated
         // see: https://github.com/grpc/grpc-java/issues/3633
-        compile 'javax.annotation:javax.annotation-api:1.3.1'
+        implementation "javax.annotation:javax.annotation-api:${annotationApiVersion}"
     }
-    testImplementation(
-        "io.grpc:grpc-testing",
-        "org.springframework.boot:spring-boot-starter-test",
-        "org.springframework.boot:spring-boot-starter-actuator",
-        "org.springframework.security:spring-security-config",
-        "org.junit.jupiter:junit-jupiter-api"
-    )
-    testRuntimeOnly(
-        "org.junit.jupiter:junit-jupiter-engine"
-    )
-}
+    testImplementation "io.grpc:grpc-testing"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.springframework.boot:spring-boot-starter-actuator"
+    testImplementation "org.springframework.security:spring-security-config"
+    testImplementation "org.junit.jupiter:junit-jupiter-api"
 
-test {
-    useJUnitPlatform()
-    testLogging {
-        // failFast = true
-        // showStandardStreams = true
-        exceptionFormat = 'full'
-    }
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 }

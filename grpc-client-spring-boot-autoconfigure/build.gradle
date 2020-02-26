@@ -1,42 +1,34 @@
+plugins {
+    id 'java-library'
+}
+
 apply from: '../deploy.gradle'
 
 group = "net.devh"
-version = "${projectVersion}"
+version = projectVersion
 
 compileJava.dependsOn(processResources)
 
 dependencies {
-    annotationProcessor("org.springframework.boot:spring-boot-autoconfigure-processor")
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    annotationProcessor "org.springframework.boot:spring-boot-autoconfigure-processor"
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
-    compile project(':grpc-common-spring-boot')
-    compile("org.springframework.boot:spring-boot-starter")
-    optionalSupportImplementation("org.springframework.boot:spring-boot-starter-actuator")
-    optionalSupportImplementation("org.springframework.cloud:spring-cloud-starter-sleuth")
-    optionalSupportImplementation("org.springframework.cloud:spring-cloud-starter-consul-discovery")
-    optionalSupportImplementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
-    optionalSupportImplementation("io.zipkin.brave:brave-instrumentation-grpc:${braveInstrumentationGrpc}")
-    optionalSupportImplementation("javax.inject:javax.inject:1")
-    optionalSupportImplementation("io.grpc:grpc-netty")
-    compile("io.grpc:grpc-netty-shaded")
-    compile("io.grpc:grpc-protobuf")
-    compile("io.grpc:grpc-stub")
+    implementation project(':grpc-common-spring-boot')
+    implementation "org.springframework.boot:spring-boot-starter"
+    optionalSupportImplementation "org.springframework.boot:spring-boot-starter-actuator"
+    optionalSupportImplementation "org.springframework.cloud:spring-cloud-starter-sleuth"
+    optionalSupportImplementation "org.springframework.cloud:spring-cloud-starter-consul-discovery"
+    optionalSupportImplementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client"
+    optionalSupportImplementation "io.zipkin.brave:brave-instrumentation-grpc:${braveInstrumentationGrpc}"
+    optionalSupportImplementation "javax.inject:javax.inject:1"
+    optionalSupportApi "io.grpc:grpc-netty"
+    api "io.grpc:grpc-netty-shaded"
+    api "io.grpc:grpc-protobuf"
+    api "io.grpc:grpc-stub"
 
-    testImplementation(
-        "io.grpc:grpc-testing",
-        "org.springframework.boot:spring-boot-starter-test",
-        "org.junit.jupiter:junit-jupiter-api"
-    )
-    testRuntimeOnly(
-        "org.junit.jupiter:junit-jupiter-engine"
-    )
-}
+    testImplementation "io.grpc:grpc-testing"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.junit.jupiter:junit-jupiter-api"
 
-test {
-    useJUnitPlatform()
-    testLogging {
-        // failFast = true
-        // showStandardStreams = true
-        exceptionFormat = 'full'
-    }
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 }
