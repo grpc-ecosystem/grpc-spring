@@ -21,7 +21,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -42,6 +41,9 @@ import com.google.common.collect.Lists;
 
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
+import io.grpc.stub.AbstractAsyncStub;
+import io.grpc.stub.AbstractBlockingStub;
+import io.grpc.stub.AbstractFutureStub;
 import io.grpc.stub.AbstractStub;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 
@@ -51,7 +53,6 @@ import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
  *
  * @author Michael (yidongnan@gmail.com)
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
- * @since 5/17/16
  */
 public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
 
@@ -197,38 +198,80 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     /**
      * Creates the instance to be injected for the given member.
      *
-     * @param name The name that was used to create the channel.
      * @param <T> The type of the instance to be injected.
+     * @param name The name that was used to create the channel.
      * @param injectionTarget The target member for the injection.
      * @param injectionType The class that should injected.
      * @param channel The channel that should be used to create the instance.
      * @return The value that matches the type of the given field.
      * @throws BeansException If the value of the field could not be created or the type of the field is unsupported.
      */
-    protected <T> T valueForMember(final String name, final Member injectionTarget, final Class<T> injectionType,
+    protected <T> T valueForMember(final String name, final Member injectionTarget,
+            final Class<T> injectionType,
             final Channel channel) throws BeansException {
         if (Channel.class.equals(injectionType)) {
             return injectionType.cast(channel);
         } else if (AbstractStub.class.isAssignableFrom(injectionType)) {
-            try {
-                @SuppressWarnings("unchecked")
-                final Class<? extends AbstractStub<?>> stubClass =
-                        (Class<? extends AbstractStub<?>>) injectionType.asSubclass(AbstractStub.class);
-                final Constructor<? extends AbstractStub<?>> constructor =
-                        ReflectionUtils.accessibleConstructor(stubClass, Channel.class);
-                AbstractStub<?> stub = constructor.newInstance(channel);
-                for (final StubTransformer stubTransformer : getStubTransformers()) {
-                    stub = stubTransformer.transform(name, stub);
-                }
-                return injectionType.cast(stub);
-            } catch (final NoSuchMethodException | InstantiationException | IllegalAccessException
-                    | IllegalArgumentException | InvocationTargetException e) {
-                throw new BeanInstantiationException(injectionType,
-                        "Failed to create gRPC client for : " + injectionTarget, e);
+
+            @SuppressWarnings("unchecked") // Eclipse incorrectly marks this as not required
+            AbstractStub<?> stub = createStub(injectionType.asSubclass(AbstractStub.class), channel);
+            for (final StubTransformer stubTransformer : getStubTransformers()) {
+                stub = stubTransformer.transform(name, stub);
             }
+            return injectionType.cast(stub);
         } else {
             throw new InvalidPropertyException(injectionTarget.getDeclaringClass(), injectionTarget.getName(),
                     "Unsupported type " + injectionType.getName());
+        }
+    }
+
+    /**
+     * Creates a stub of the given type.
+     *
+     * @param <T> The type of the instance to be injected.
+     * @param stubType The type of the stub to create.
+     * @param channel The channel used to create the stub.
+     * @return The newly created stub.
+     *
+     * @throws BeanInstantiationException If the stub couldn't be created.
+     */
+    protected <T extends AbstractStub<T>> T createStub(final Class<T> stubType, final Channel channel) {
+        try {
+            // First try the public static factory method
+            final String methodName = deriveStubFactoryMethodName(stubType);
+            final Class<?> enclosingClass = stubType.getEnclosingClass();
+            final Method factoryMethod = enclosingClass.getMethod(methodName, Channel.class);
+            return stubType.cast(factoryMethod.invoke(null, channel));
+        } catch (final Exception e) {
+            try {
+                // Use the private constructor as backup
+                final Constructor<T> constructor = stubType.getDeclaredConstructor(Channel.class);
+                constructor.setAccessible(true);
+                return constructor.newInstance(channel);
+            } catch (final Exception e1) {
+                e.addSuppressed(e1);
+            }
+            throw new BeanInstantiationException(stubType, "Failed to create gRPC client", e);
+        }
+    }
+
+    /**
+     * Derives the name of the factory method from the given stub type.
+     *
+     * @param stubType The type of the stub to get it for.
+     * @return The name of the factory method.
+     * @throws IllegalArgumentException If the method was called with an unsupported stub type.
+     */
+    protected String deriveStubFactoryMethodName(final Class<? extends AbstractStub<?>> stubType) {
+        if (AbstractAsyncStub.class.isAssignableFrom(stubType)) {
+            return "newStub";
+        } else if (AbstractBlockingStub.class.isAssignableFrom(stubType)) {
+            return "newBlockingStub";
+        } else if (AbstractFutureStub.class.isAssignableFrom(stubType)) {
+            return "newFutureStub";
+        } else {
+            throw new IllegalArgumentException(
+                    "Unsupported stub type: " + stubType.getName() + " -> Please report this issue.");
         }
     }
 
