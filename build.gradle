@@ -2,6 +2,9 @@ import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import io.franzbecker.gradle.lombok.task.DelombokTask
 
+// Other notes on upgrading from Gradle 5.x to 6.x, including troubleshooting:
+// https://docs.gradle.org/current/userguide/upgrading_version_5.html
+
 buildscript {
     repositories {
         maven {
@@ -35,6 +38,7 @@ buildscript {
 plugins {
     id "java"
     id "java-library"
+    // future improvement would be to use the version declared above in the ext block instead of repeating it here
     id "org.springframework.boot" version "2.2.4.RELEASE" apply false
     id "io.spring.dependency-management" version "1.0.9.RELEASE"
     id "net.nemerosa.versioning" version "2.11.0"
@@ -44,6 +48,8 @@ plugins {
     id "com.diffplug.gradle.spotless" version "3.27.1"
 }
 
+// If you attempt to build without the `--scan` parameter in `gradle 6.0+` it will cause a build error that it can't find
+// a buildScan property to change. This avoids that problem.
 if (hasProperty('buildScan')) {
     buildScan {
         termsOfServiceUrl = 'https://gradle.com/terms-of-service'
@@ -51,6 +57,7 @@ if (hasProperty('buildScan')) {
     }
 }
 
+// you may use IntelliJ's project configuration to make it use the gradle version defined in the gradle script's wrapper section
 wrapper {
     gradleVersion = '6.2'
 }
@@ -78,7 +85,7 @@ allprojects {
     }
 
     compileJava.options*.compilerArgs = [
-            "-Xlint:all", "-Xlint:-processing"
+        "-Xlint:all", "-Xlint:-processing"
     ]
 
     spotless {
@@ -107,18 +114,18 @@ allprojects {
     jar {
         manifest {
             attributes(
-                    'Created-By': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})".toString(),
-                    'Built-By': "travis",
-                    'Build-Date': buildDate,
-                    'Build-Time': buildTime,
-                    'Built-OS': "${System.properties['os.name']}",
-                    'Build-Revision': buildRevision,
-                    'Specification-Title': project.name,
-                    'Specification-Version': projectVersion,
-                    'Specification-Vendor': 'Michael Zhang',
-                    'Implementation-Title': project.name,
-                    'Implementation-Version': projectVersion,
-                    'Implementation-Vendor': 'Michael Zhang'
+                'Created-By': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})".toString(),
+                'Built-By': "travis",
+                'Build-Date': buildDate,
+                'Build-Time': buildTime,
+                'Built-OS': "${System.properties['os.name']}",
+                'Build-Revision': buildRevision,
+                'Specification-Title': project.name,
+                'Specification-Version': projectVersion,
+                'Specification-Vendor': 'Michael Zhang',
+                'Implementation-Title': project.name,
+                'Implementation-Version': projectVersion,
+                'Implementation-Vendor': 'Michael Zhang'
             )
         }
     }
@@ -157,6 +164,7 @@ allprojects { project ->
 
         ext {
             micrometerVersion = dependencyManagement.importedProperties['micrometer.version']
+            // not explicitly needed in subprojects, as the BOM for Sprint Boot sets this version
             springFrameworkVersion = dependencyManagement.importedProperties['spring-framework.version']
             springSecurityVersion = dependencyManagement.importedProperties['spring-security.version']
             springCloudCommonsVersion = dependencyManagement.importedProperties['spring-cloud-commons.version']
@@ -172,10 +180,12 @@ allprojects { project ->
             showCauses = true
             showExceptions = true
             showStackTraces = true
+            // prints out individual test progress by hooking into junit engine events
             // it.events("passed", "skipped", "failed", "standard_out")
             it.events("passed", "skipped", "failed")
 
             it.debug { dbg ->
+                // prints out individual test progress when run under the debugger
                 // dbg.events("started", "failed", "passed", "skipped", "standard_error", "standard_out")
                 dbg.events("started", "failed", "passed", "skipped")
             }
