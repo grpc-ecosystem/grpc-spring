@@ -20,6 +20,7 @@ buildscript {
         springDependencyManagementVersion = '1.0.9.RELEASE'
         springCloudAlibabaNacosVersion = '2.2.0.RELEASE'
         braveInstrumentationGrpc = '5.9.5'
+        springSecurityOAuthVersion = '2.4.0.RELEASE'
 
         lombokVersion = '1.18.12'
         lombokPluginVersion = '3.2.0'
@@ -27,6 +28,7 @@ buildscript {
         versionsPluginVersion = '0.27.0'
 
         annotationApiVersion = '1.3.2'
+        nimbusJoseJwtVersion = '8.2.1'
     }
 }
 
