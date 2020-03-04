@@ -36,7 +36,7 @@ application
 
 2.x.x.RELEASE supports Spring Boot 2.1.x/2.2.x & Spring Cloud Greenwich/Hoxton.
 
-The latest version: ``2.7.0.RELEASE``
+The latest version: ``2.8.0.RELEASE``
 
 (Use `2.4.0.RELEASE` for Spring Boot 2.0.x & Spring Cloud Finchley).
 
