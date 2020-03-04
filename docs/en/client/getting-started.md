@@ -100,10 +100,16 @@ This section assumes that you have already defined and generated your [Protobuf 
 ### Explaining the client components
 
 - [`Channel`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/Channel.html):
-  The Channel is a connection pool for a single server. The target server might serve multiple grpc-services though.
+  The Channel is a connection pool for a single address. The target servers might serve multiple grpc-services though.
+  The address will be resolved using a `NameResolver` and might point to a fixed or dynamic number of servers.
 - [`ManagedChannel`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/ManagedChannel.html):
   The ManagedChannel is a special variant of a Channel as it allows management operations to the connection pool such as
   shuting it down.
+- [`NameResolver`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/NameResolver.html) respectively
+  [`NameResolver.Factory`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/NameResolver.Factory.html):
+  A class that will be used to resolve the address to a list of `SocketAddress`es, the address will usually be
+  re-resolved when a connection to a previously listed server fails or the channel was idle.
+  See also [Configuration -> Choosing the Target](configuration#choosing-the-target).
 - [`ClientInterceptor`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/ClientInterceptor.html):
   Intercepts every call before they are handed to the `Channel`. Can be used for logging, monitoring, metadata handling,
   and request/response rewriting.
@@ -111,6 +117,7 @@ This section assumes that you have already defined and generated your [Protobuf 
   [`@GrpcGlobalClientInterceptor`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/interceptor/GrpcGlobalClientInterceptor.html)
   or are manually registered to the
   [`GlobalClientInterceptorRegistry`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/interceptor/GlobalClientInterceptorRegistry.html).
+  See also [Configuration -> ClientInterceptor](configuration#clientinterceptor).
 - [`CallCredentials`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/CallCredentials.html):
   A potentially active component that manages the authentication for the calls. It can be used to store credentials or
   session tokens. It can also be used to authenticate at an authentication provider and then use returned tokens (such
@@ -121,6 +128,7 @@ This section assumes that you have already defined and generated your [Protobuf 
   utility class helps you to create commonly used `CallCredentials` types and related `StubTransformer`.
 - [`StubTransformer`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/StubTransformer.html):
   A transformer that will be applied to all client `Stub`s before they are injected.
+  See also [Configuration -> StubTransformer](configuration#stubtransformer).
 - [`@GrpcClient`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/GrpcClient.html):
   The annotation that marks fields and setters for auto injection of clients. Supports `Channel`s, and all kind of
   `Stub`s. Do not use `@GrpcClient` in conjunction with `@Autowired` or `@Inject`.
