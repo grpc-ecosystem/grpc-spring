@@ -29,7 +29,11 @@ dependencies {
     api "io.grpc:grpc-stub"
 
     testImplementation "io.grpc:grpc-testing"
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude module: "junit-vintage-engine"
+        exclude module: "junit"
+    }
+
     testImplementation "org.junit.jupiter:junit-jupiter-api"
 
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"

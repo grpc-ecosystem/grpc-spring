@@ -70,7 +70,11 @@ dependencies {
         implementation "javax.annotation:javax.annotation-api:${annotationApiVersion}"
     }
     testImplementation "io.grpc:grpc-testing"
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude module: "junit-vintage-engine"
+        exclude module: "junit"
+    }
+
     testImplementation "org.springframework.boot:spring-boot-starter-actuator"
     testImplementation "org.springframework.security:spring-security-config"
     testImplementation "org.junit.jupiter:junit-jupiter-api"
