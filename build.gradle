@@ -59,7 +59,7 @@ if (hasProperty("buildScan")) {
 
 // you may use IntelliJ"s project configuration to make it use the gradle version defined in the gradle script"s wrapper section
 wrapper {
-    gradleVersion = "6.2"
+    gradleVersion = "6.2.1"
 }
 
 def buildTimeAndDate = OffsetDateTime.now()
