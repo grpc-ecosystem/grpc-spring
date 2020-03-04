@@ -1,9 +1,9 @@
 plugins {
-    id 'org.springframework.boot'
+    id "org.springframework.boot"
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation project(':grpc-client-spring-boot-starter') // replace to implementation("net.devh:grpc-client-spring-boot-starter:${springBootGrpcVersion}")
-    implementation project(':examples:grpc-lib')
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation project(":grpc-client-spring-boot-starter") // replace to implementation("net.devh:grpc-client-spring-boot-starter:${springBootGrpcVersion}")
+    implementation project(":examples:grpc-lib")
 }

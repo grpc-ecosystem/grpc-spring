@@ -3,11 +3,11 @@ plugins {
     id "java-library"
 }
 
-apply from: '../deploy.gradle'
+apply from: "../deploy.gradle"
 
 group = "net.devh"
 version = projectVersion
 
 dependencies {
-    api project(':grpc-server-spring-boot-autoconfigure')
+    api project(":grpc-server-spring-boot-autoconfigure")
 }

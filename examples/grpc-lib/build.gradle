@@ -1,5 +1,5 @@
 plugins {
-    id 'com.google.protobuf'
+    id "com.google.protobuf"
 }
 
 dependencies {
@@ -36,11 +36,11 @@ protobuf {
 eclipse {
     classpath {
         file.beforeMerged { cp ->
-            def generatedGrpcFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder('src/generated/main/grpc', null);
-            generatedGrpcFolder.entryAttributes['ignore_optional_problems'] = 'true';
+            def generatedGrpcFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder("src/generated/main/grpc", null);
+            generatedGrpcFolder.entryAttributes["ignore_optional_problems"] = "true";
             cp.entries.add( generatedGrpcFolder );
-            def generatedJavaFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder('src/generated/main/java', null);
-            generatedJavaFolder.entryAttributes['ignore_optional_problems'] = 'true';
+            def generatedJavaFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder("src/generated/main/java", null);
+            generatedJavaFolder.entryAttributes["ignore_optional_problems"] = "true";
             cp.entries.add( generatedJavaFolder );
         }
     }

@@ -8,15 +8,15 @@ version = projectVersion
 
 eclipse {
     project {
-        name = 'grpc-spring-boot-tests'
+        name = "grpc-spring-boot-tests"
     }
     classpath {
         file.beforeMerged { cp ->
-            def generatedGrpcFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder('src/generated/test/grpc', null);
-            generatedGrpcFolder.entryAttributes['ignore_optional_problems'] = 'true';
+            def generatedGrpcFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder("src/generated/test/grpc", null);
+            generatedGrpcFolder.entryAttributes["ignore_optional_problems"] = "true";
             cp.entries.add( generatedGrpcFolder );
-            def generatedJavaFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder('src/generated/test/java', null);
-            generatedJavaFolder.entryAttributes['ignore_optional_problems'] = 'true';
+            def generatedJavaFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder("src/generated/test/java", null);
+            generatedJavaFolder.entryAttributes["ignore_optional_problems"] = "true";
             cp.entries.add( generatedJavaFolder );
         }
     }
@@ -61,9 +61,9 @@ idea {
 }
 
 dependencies {
-    implementation project(':grpc-common-spring-boot')
-    implementation project(':grpc-server-spring-boot-starter') // exclude group: 'io.grpc', module: 'grpc-netty-shaded'
-    implementation project(':grpc-client-spring-boot-starter') // exclude group: 'io.grpc', module: 'grpc-netty-shaded'
+    implementation project(":grpc-common-spring-boot")
+    implementation project(":grpc-server-spring-boot-starter") // exclude group: "io.grpc", module: "grpc-netty-shaded"
+    implementation project(":grpc-client-spring-boot-starter") // exclude group: "io.grpc", module: "grpc-netty-shaded"
     if (JavaVersion.current().isJava9Compatible()) {
         // Workaround for @javax.annotation.Generated
         // see: https://github.com/grpc/grpc-java/issues/3633

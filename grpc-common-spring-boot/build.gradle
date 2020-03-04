@@ -1,4 +1,4 @@
-apply from: '../deploy.gradle'
+apply from: "../deploy.gradle"
 
 group = "net.devh"
 version = projectVersion

@@ -1,9 +1,9 @@
 plugins {
-    id 'java'
-    id 'java-library'
+    id "java"
+    id "java-library"
 }
 
-apply from: '../deploy.gradle'
+apply from: "../deploy.gradle"
 
 group = "net.devh"
 version = projectVersion
@@ -14,7 +14,7 @@ dependencies {
     annotationProcessor "org.springframework.boot:spring-boot-autoconfigure-processor"
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
-    implementation project(':grpc-common-spring-boot')
+    implementation project(":grpc-common-spring-boot")
     implementation "org.springframework.boot:spring-boot-starter"
     optionalSupportImplementation "org.springframework.boot:spring-boot-starter-actuator"
     optionalSupportImplementation "org.springframework.security:spring-security-core"

@@ -12,26 +12,26 @@ buildscript {
         }
     }
     ext {
-        projectVersion = '2.8.0-SNAPSHOT'
+        projectVersion = "2.8.0-SNAPSHOT"
 
-        grpcVersion = '1.27.2'
-        protobufVersion = '3.11.4'
-        protobufGradlePluginVersion = '0.8.11'
+        grpcVersion = "1.27.2"
+        protobufVersion = "3.11.4"
+        protobufGradlePluginVersion = "0.8.11"
 
-        springBootVersion = '2.2.4.RELEASE'
-        springCloudVersion = 'Hoxton.SR2'
-        springDependencyManagementVersion = '1.0.9.RELEASE'
-        springCloudAlibabaNacosVersion = '2.2.0.RELEASE'
-        braveInstrumentationGrpc = '5.9.5'
-        springSecurityOAuthVersion = '2.4.0.RELEASE'
+        springBootVersion = "2.2.4.RELEASE"
+        springCloudVersion = "Hoxton.SR2"
+        springDependencyManagementVersion = "1.0.9.RELEASE"
+        springCloudAlibabaNacosVersion = "2.2.0.RELEASE"
+        braveInstrumentationGrpc = "5.9.5"
+        springSecurityOAuthVersion = "2.4.0.RELEASE"
 
-        lombokVersion = '1.18.12'
-        lombokPluginVersion = '3.2.0'
-        versioningPluginVersion = '2.10.0'
-        versionsPluginVersion = '0.27.0'
+        lombokVersion = "1.18.12"
+        lombokPluginVersion = "3.2.0"
+        versioningPluginVersion = "2.10.0"
+        versionsPluginVersion = "0.27.0"
 
-        annotationApiVersion = '1.3.2'
-        nimbusJoseJwtVersion = '8.2.1'
+        annotationApiVersion = "1.3.2"
+        nimbusJoseJwtVersion = "8.2.1"
     }
 }
 
@@ -48,40 +48,40 @@ plugins {
     id "com.diffplug.gradle.spotless" version "3.27.1"
 }
 
-// If you attempt to build without the `--scan` parameter in `gradle 6.0+` it will cause a build error that it can't find
+// If you attempt to build without the `--scan` parameter in `gradle 6.0+` it will cause a build error that it can"t find
 // a buildScan property to change. This avoids that problem.
-if (hasProperty('buildScan')) {
+if (hasProperty("buildScan")) {
     buildScan {
-        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
-        termsOfServiceAgree = 'yes'
+        termsOfServiceUrl = "https://gradle.com/terms-of-service"
+        termsOfServiceAgree = "yes"
     }
 }
 
-// you may use IntelliJ's project configuration to make it use the gradle version defined in the gradle script's wrapper section
+// you may use IntelliJ"s project configuration to make it use the gradle version defined in the gradle script"s wrapper section
 wrapper {
-    gradleVersion = '6.2'
+    gradleVersion = "6.2"
 }
 
 def buildTimeAndDate = OffsetDateTime.now()
 
 ext {
     buildDate = DateTimeFormatter.ISO_LOCAL_DATE.format(buildTimeAndDate)
-    buildTime = DateTimeFormatter.ofPattern('HH:mm:ss.SSSZ').format(buildTimeAndDate)
+    buildTime = DateTimeFormatter.ofPattern("HH:mm:ss.SSSZ").format(buildTimeAndDate)
     buildRevision = versioning.info.commit
 }
 
 allprojects {
-    apply plugin: 'java'
-    apply plugin: 'idea'
-    apply plugin: 'eclipse'
-    apply plugin: 'io.spring.dependency-management'
-    apply plugin: 'com.diffplug.gradle.spotless'
-    apply plugin: 'io.franzbecker.gradle-lombok'
+    apply plugin: "java"
+    apply plugin: "idea"
+    apply plugin: "eclipse"
+    apply plugin: "io.spring.dependency-management"
+    apply plugin: "com.diffplug.gradle.spotless"
+    apply plugin: "io.franzbecker.gradle-lombok"
 
     compileJava {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
-        options.encoding = 'UTF-8'
+        options.encoding = "UTF-8"
     }
 
     compileJava.options*.compilerArgs = [
@@ -90,10 +90,10 @@ allprojects {
 
     spotless {
         java {
-            licenseHeaderFile rootProject.file('extra/spotless/mit-license.java')
+            licenseHeaderFile rootProject.file("extra/spotless/mit-license.java")
             removeUnusedImports()
-            importOrderFile rootProject.file('extra/eclipse/eclipse.importorder')
-            eclipse().configFile rootProject.file('extra/eclipse/eclipse-formatter.xml')
+            importOrderFile rootProject.file("extra/eclipse/eclipse.importorder")
+            eclipse().configFile rootProject.file("extra/eclipse/eclipse-formatter.xml")
         }
         format("misc") {
             target("**/*.gradle", "**/*.md", "**/*.yml")
@@ -105,8 +105,8 @@ allprojects {
     // Copy LICENSE
     tasks.withType(Jar) {
         from(project.rootDir) {
-            include 'LICENSE'
-            into 'META-INF'
+            include "LICENSE"
+            into "META-INF"
         }
     }
 
@@ -114,18 +114,18 @@ allprojects {
     jar {
         manifest {
             attributes(
-                'Created-By': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})".toString(),
-                'Built-By': "travis",
-                'Build-Date': buildDate,
-                'Build-Time': buildTime,
-                'Built-OS': "${System.properties['os.name']}",
-                'Build-Revision': buildRevision,
-                'Specification-Title': project.name,
-                'Specification-Version': projectVersion,
-                'Specification-Vendor': 'Michael Zhang',
-                'Implementation-Title': project.name,
-                'Implementation-Version': projectVersion,
-                'Implementation-Vendor': 'Michael Zhang'
+                "Created-By": "${System.properties["java.version"]} (${System.properties["java.vendor"]} ${System.properties["java.vm.version"]})".toString(),
+                "Built-By": "travis",
+                "Build-Date": buildDate,
+                "Build-Time": buildTime,
+                "Built-OS": "${System.properties["os.name"]}",
+                "Build-Revision": buildRevision,
+                "Specification-Title": project.name,
+                "Specification-Version": projectVersion,
+                "Specification-Vendor": "Michael Zhang",
+                "Implementation-Title": project.name,
+                "Implementation-Version": projectVersion,
+                "Implementation-Vendor": "Michael Zhang"
             )
         }
     }
@@ -142,13 +142,13 @@ allprojects {
     }
 }
 
-Project commonProject = project(':grpc-common-spring-boot')
+Project commonProject = project(":grpc-common-spring-boot")
 
 String javaAPIdoc
 if (JavaVersion.current().isJava9Compatible()) {
-    javaAPIdoc = 'https://docs.oracle.com/en/java/javase/11/docs/api'
+    javaAPIdoc = "https://docs.oracle.com/en/java/javase/11/docs/api"
 } else {
-    javaAPIdoc = 'https://docs.oracle.com/javase/8/docs/api/'
+    javaAPIdoc = "https://docs.oracle.com/javase/8/docs/api/"
 }
 
 allprojects { project ->
@@ -163,11 +163,11 @@ allprojects { project ->
         }
 
         ext {
-            micrometerVersion = dependencyManagement.importedProperties['micrometer.version']
+            micrometerVersion = dependencyManagement.importedProperties["micrometer.version"]
             // not explicitly needed in subprojects, as the BOM for Sprint Boot sets this version
-            springFrameworkVersion = dependencyManagement.importedProperties['spring-framework.version']
-            springSecurityVersion = dependencyManagement.importedProperties['spring-security.version']
-            springCloudCommonsVersion = dependencyManagement.importedProperties['spring-cloud-commons.version']
+            springFrameworkVersion = dependencyManagement.importedProperties["spring-framework.version"]
+            springSecurityVersion = dependencyManagement.importedProperties["spring-security.version"]
+            springCloudCommonsVersion = dependencyManagement.importedProperties["spring-cloud-commons.version"]
         }
     }
 
@@ -176,7 +176,7 @@ allprojects { project ->
         testLogging {
             // failFast = true
             // showStandardStreams = true
-            exceptionFormat = 'full'
+            exceptionFormat = "full"
             showCauses = true
             showExceptions = true
             showStackTraces = true
@@ -192,7 +192,7 @@ allprojects { project ->
         }
     }
 
-    if (project.name == 'grpc-common-spring-boot' || project.name == 'grpc-client-spring-boot-autoconfigure' || project.name == 'grpc-server-spring-boot-autoconfigure') {
+    if (project.name == "grpc-common-spring-boot" || project.name == "grpc-client-spring-boot-autoconfigure" || project.name == "grpc-server-spring-boot-autoconfigure") {
         // Properly generate javadocs for the important projects
 
         task delombok(type: DelombokTask, dependsOn: compileJava) {
@@ -205,7 +205,7 @@ allprojects { project ->
         }
 
         java {
-            registerFeature('optionalSupport') {
+            registerFeature("optionalSupport") {
                 usingSourceSet(sourceSets.main)
             }
         }
@@ -215,36 +215,36 @@ allprojects { project ->
             dependsOn delombok
             source = delombok.outputDir
             failOnError = false
-            options.locale = 'en_US'
-            options.encoding = 'UTF-8'
-            options.jFlags('-Dhttp.agent=gradle-javadoc') // Required for javadoc.io
-            if (project.name != 'grpc-common-spring-boot') {
-                options.linksOffline('https://static.javadoc.io/net.devh/grpc-common-spring-boot/' + projectVersion, commonProject.buildDir.getPath() + '/docs/javadoc')
+            options.locale = "en_US"
+            options.encoding = "UTF-8"
+            options.jFlags("-Dhttp.agent=gradle-javadoc") // Required for javadoc.io
+            if (project.name != "grpc-common-spring-boot") {
+                options.linksOffline("https://static.javadoc.io/net.devh/grpc-common-spring-boot/" + projectVersion, commonProject.buildDir.getPath() + "/docs/javadoc")
             }
             options.links = [
                     javaAPIdoc,
-                    'https://grpc.io/grpc-java/javadoc/',
-                    'https://static.javadoc.io/io.micrometer/micrometer-core/' + micrometerVersion + '/',
-                    'https://docs.spring.io/spring-framework/docs/' + springFrameworkVersion + '/javadoc-api/',
-                    'https://docs.spring.io/spring-security/site/docs/' + springSecurityVersion + '/api/',
-                    'https://docs.spring.io/spring-boot/docs/' + springBootVersion + '/api/',
-                    'https://static.javadoc.io/org.springframework.cloud/spring-cloud-commons/' + springCloudCommonsVersion + '/',
-                    // 'https://static.javadoc.io/io.zipkin.brave/brave/' + braveInstrumentationGrpc + '/', // Requires javadoc 11
-                    // 'https://static.javadoc.io/io.zipkin.brave/brave-instrumentation-grpc/' + braveInstrumentationGrpc + '/', // Requires javadoc 11
-                    'https://google.github.io/guava/releases/26.0-android/api/docs/'
+                    "https://grpc.io/grpc-java/javadoc/",
+                    "https://static.javadoc.io/io.micrometer/micrometer-core/" + micrometerVersion + "/",
+                    "https://docs.spring.io/spring-framework/docs/" + springFrameworkVersion + "/javadoc-api/",
+                    "https://docs.spring.io/spring-security/site/docs/" + springSecurityVersion + "/api/",
+                    "https://docs.spring.io/spring-boot/docs/" + springBootVersion + "/api/",
+                    "https://static.javadoc.io/org.springframework.cloud/spring-cloud-commons/" + springCloudCommonsVersion + "/",
+                    // "https://static.javadoc.io/io.zipkin.brave/brave/" + braveInstrumentationGrpc + "/", // Requires javadoc 11
+                    // "https://static.javadoc.io/io.zipkin.brave/brave-instrumentation-grpc/" + braveInstrumentationGrpc + "/", // Requires javadoc 11
+                    "https://google.github.io/guava/releases/26.0-android/api/docs/"
             ]
         }
     }
 }
 
-apply from: './deploy.gradle'
+apply from: "./deploy.gradle"
 
 group = "net.devh"
 version = projectVersion
 
 dependencies {
-    implementation project(':grpc-server-spring-boot-starter')
-    implementation project(':grpc-client-spring-boot-starter')
+    implementation project(":grpc-server-spring-boot-starter")
+    implementation project(":grpc-client-spring-boot-starter")
 
-    testImplementation project(':tests')
+    testImplementation project(":tests")
 }
