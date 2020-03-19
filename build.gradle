@@ -2,9 +2,6 @@ import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import io.franzbecker.gradle.lombok.task.DelombokTask
 
-// Other notes on upgrading from Gradle 5.x to 6.x, including troubleshooting:
-// https://docs.gradle.org/current/userguide/upgrading_version_5.html
-
 buildscript {
     repositories {
         maven {
@@ -12,7 +9,7 @@ buildscript {
         }
     }
     ext {
-        projectVersion = "2.8.0-SNAPSHOT"
+        projectVersion = "2.7.0-SNAPSHOT"
 
         grpcVersion = "1.27.2"
         protobufVersion = "3.11.4"

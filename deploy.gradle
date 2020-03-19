@@ -60,13 +60,6 @@ publishing {
                         organization = 'Heusch/Boesefeldt GmbH'
                         organizationUrl = 'https://www.heuboe.de'
                     }
-                    developer {
-                        id = 'mattdkerr'
-                        name = 'Matt Kerr'
-                        email = 'mkerr@ea.com'
-                        organization = 'Electronic Arts, Inc.'
-                        organizationUrl = 'https://www.ea.com'
-                    }
                 }
                 scm {
                     connection = 'scm:git:git://github.com/yidongnan/grpc-spring-boot-starter.git'

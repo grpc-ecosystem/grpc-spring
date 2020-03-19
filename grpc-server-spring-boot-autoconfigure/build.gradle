@@ -1,5 +1,4 @@
 plugins {
-    id "java"
     id "java-library"
 }
 
@@ -14,8 +13,8 @@ dependencies {
     annotationProcessor "org.springframework.boot:spring-boot-autoconfigure-processor"
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
-    implementation project(":grpc-common-spring-boot")
-    implementation "org.springframework.boot:spring-boot-starter"
+    api project(":grpc-common-spring-boot")
+    api "org.springframework.boot:spring-boot-starter"
     optionalSupportImplementation "org.springframework.boot:spring-boot-starter-actuator"
     optionalSupportImplementation "org.springframework.security:spring-security-core"
     optionalSupportImplementation "org.springframework.cloud:spring-cloud-starter-sleuth"
@@ -37,5 +36,6 @@ dependencies {
         exclude module: "junit-vintage-engine"
         exclude module: "junit"
     }
+    
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 }
