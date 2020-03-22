@@ -72,6 +72,7 @@ cloudTest() {
 	./gradlew :example:cloud-grpc-client:bootRun -x jar -x classes --console=plain &
 	CLOUD_CLIENT=$!
 	sleep 30s # Wait for the client to start and the server to be ready
+	sleep 60s # Wait for the discovery service to refresh
 
 	# Test
 	RESPONSE=$(curl -s localhost:8080/)

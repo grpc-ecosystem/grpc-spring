@@ -1,13 +1,15 @@
-apply plugin: 'com.google.protobuf'
+plugins {
+    id 'com.google.protobuf'
+}
 
 dependencies {
-    compile "io.grpc:grpc-netty-shaded"
-    compile "io.grpc:grpc-protobuf"
-    compile "io.grpc:grpc-stub"
+    implementation 'io.grpc:grpc-netty-shaded'
+    implementation 'io.grpc:grpc-protobuf'
+    implementation 'io.grpc:grpc-stub'
     if (JavaVersion.current().isJava9Compatible()) {
         // Workaround for @javax.annotation.Generated
         // see: https://github.com/grpc/grpc-java/issues/3633
-        compile 'javax.annotation:javax.annotation-api:1.3.1'
+        implementation "javax.annotation:javax.annotation-api:${annotationApiVersion}"
     }
 }
 
@@ -21,7 +23,7 @@ protobuf {
     }
     plugins {
         grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java"
+            artifact = 'io.grpc:protoc-gen-grpc-java'
         }
     }
     generateProtoTasks {
@@ -46,15 +48,9 @@ eclipse {
 
 idea {
     module {
-        sourceDirs += file("src/generated/main/java")
-        sourceDirs += file("src/generated/main/grpc")
-        generatedSourceDirs += file("src/generated/main/java")
-        generatedSourceDirs += file("src/generated/main/grpc")
-    }
-}
-
-buildscript {
-    dependencies {
-        classpath "com.google.protobuf:protobuf-gradle-plugin:${protobufGradlePluginVersion}"
+        sourceDirs += file('src/generated/main/java')
+        sourceDirs += file('src/generated/main/grpc')
+        generatedSourceDirs += file('src/generated/main/java')
+        generatedSourceDirs += file('src/generated/main/grpc')
     }
 }

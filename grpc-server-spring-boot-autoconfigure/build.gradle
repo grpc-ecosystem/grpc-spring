@@ -1,45 +1,41 @@
+plugins {
+    id 'java-library'
+}
+
 apply from: '../deploy.gradle'
 
-group = "net.devh"
-version = "${projectVersion}"
+group = 'net.devh'
+version = projectVersion
 
 compileJava.dependsOn(processResources)
 
 dependencies {
-    annotationProcessor("org.springframework.boot:spring-boot-autoconfigure-processor")
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    annotationProcessor 'org.springframework.boot:spring-boot-autoconfigure-processor'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
-    compile project(':grpc-common-spring-boot')
-    compile("org.springframework.boot:spring-boot-starter")
-    optionalSupportImplementation("org.springframework.boot:spring-boot-starter-actuator")
-    optionalSupportImplementation("org.springframework.security:spring-security-core")
-    optionalSupportImplementation("org.springframework.cloud:spring-cloud-starter-sleuth")
-    optionalSupportImplementation("org.springframework.cloud:spring-cloud-starter-consul-discovery")
-    optionalSupportImplementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
-    optionalSupportImplementation("com.alibaba.cloud:spring-cloud-alibaba-nacos-discovery:${springCloudAlibabaNacosVersion}")
-    optionalSupportImplementation("com.google.inject:guice:4.2.2") // Only needed to avoid some warnings during compilation (for eureka)
-    optionalSupportImplementation("io.zipkin.brave:brave-instrumentation-grpc:${braveInstrumentationGrpc}")
-    optionalSupportImplementation("io.grpc:grpc-netty")
-    compile("io.grpc:grpc-netty-shaded")
-    compile("io.grpc:grpc-protobuf")
-    compile("io.grpc:grpc-stub")
-    compile("io.grpc:grpc-services")
+    api project(':grpc-common-spring-boot')
+    api 'org.springframework.boot:spring-boot-starter'
+    optionalSupportImplementation 'org.springframework.boot:spring-boot-starter-actuator'
+    optionalSupportImplementation 'org.springframework.security:spring-security-core'
+    optionalSupportImplementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
+    optionalSupportImplementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
+    optionalSupportImplementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    optionalSupportImplementation "com.alibaba.cloud:spring-cloud-alibaba-nacos-discovery:${springCloudAlibabaNacosVersion}"
+    optionalSupportImplementation 'com.google.inject:guice:4.2.2' // Only needed to avoid some warnings during compilation (for eureka)
+    optionalSupportImplementation "io.zipkin.brave:brave-instrumentation-grpc:${braveInstrumentationGrpc}"
+    optionalSupportApi 'io.grpc:grpc-netty'
+    api 'io.grpc:grpc-netty-shaded'
+    api 'io.grpc:grpc-protobuf'
+    api 'io.grpc:grpc-stub'
+    api 'io.grpc:grpc-services'
+    api 'io.grpc:grpc-api'
 
-    testImplementation(
-        "io.grpc:grpc-testing",
-        "org.springframework.boot:spring-boot-starter-test",
-        "org.junit.jupiter:junit-jupiter-api"
-    )
-    testRuntimeOnly(
-        "org.junit.jupiter:junit-jupiter-engine"
-    )
-}
-
-test {
-    useJUnitPlatform()
-    testLogging {
-        // failFast = true
-        // showStandardStreams = true
-        exceptionFormat = 'full'
+    testImplementation 'io.grpc:grpc-testing'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude module: 'junit-vintage-engine'
+        exclude module: 'junit'
     }
+
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }

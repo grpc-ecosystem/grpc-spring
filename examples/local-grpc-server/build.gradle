@@ -1,13 +1,9 @@
-apply plugin: 'org.springframework.boot'
-
-dependencies {
-    compile('org.springframework.boot:spring-boot-starter')
-    compile project(':grpc-server-spring-boot-starter') // replace to compile("net.devh:grpc-server-spring-boot-starter:${springBootGrpcVersion}")
-    compile project(':examples:grpc-lib')
+plugins {
+    id 'org.springframework.boot'
 }
 
-buildscript {
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-    }
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation project(':grpc-server-spring-boot-starter') // replace to implementation("net.devh:grpc-server-spring-boot-starter:${springBootGrpcVersion}")
+    implementation project(':examples:grpc-lib')
 }
