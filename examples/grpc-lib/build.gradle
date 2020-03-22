@@ -1,11 +1,11 @@
 plugins {
-    id "com.google.protobuf"
+    id 'com.google.protobuf'
 }
 
 dependencies {
-    implementation "io.grpc:grpc-netty-shaded"
-    implementation "io.grpc:grpc-protobuf"
-    implementation "io.grpc:grpc-stub"
+    implementation 'io.grpc:grpc-netty-shaded'
+    implementation 'io.grpc:grpc-protobuf'
+    implementation 'io.grpc:grpc-stub'
     if (JavaVersion.current().isJava9Compatible()) {
         // Workaround for @javax.annotation.Generated
         // see: https://github.com/grpc/grpc-java/issues/3633
@@ -23,7 +23,7 @@ protobuf {
     }
     plugins {
         grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java"
+            artifact = 'io.grpc:protoc-gen-grpc-java'
         }
     }
     generateProtoTasks {
@@ -36,11 +36,11 @@ protobuf {
 eclipse {
     classpath {
         file.beforeMerged { cp ->
-            def generatedGrpcFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder("src/generated/main/grpc", null);
-            generatedGrpcFolder.entryAttributes["ignore_optional_problems"] = "true";
+            def generatedGrpcFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder('src/generated/main/grpc', null);
+            generatedGrpcFolder.entryAttributes['ignore_optional_problems'] = 'true';
             cp.entries.add( generatedGrpcFolder );
-            def generatedJavaFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder("src/generated/main/java", null);
-            generatedJavaFolder.entryAttributes["ignore_optional_problems"] = "true";
+            def generatedJavaFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder('src/generated/main/java', null);
+            generatedJavaFolder.entryAttributes['ignore_optional_problems'] = 'true';
             cp.entries.add( generatedJavaFolder );
         }
     }
@@ -48,9 +48,9 @@ eclipse {
 
 idea {
     module {
-        sourceDirs += file("src/generated/main/java")
-        sourceDirs += file("src/generated/main/grpc")
-        generatedSourceDirs += file("src/generated/main/java")
-        generatedSourceDirs += file("src/generated/main/grpc")
+        sourceDirs += file('src/generated/main/java')
+        sourceDirs += file('src/generated/main/grpc')
+        generatedSourceDirs += file('src/generated/main/java')
+        generatedSourceDirs += file('src/generated/main/grpc')
     }
 }
