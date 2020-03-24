@@ -10,6 +10,7 @@ This section describes how you can configure your grpc-spring-boot-starter clien
   - [Choosing the Target](#choosing-the-target)
 - [Configuration via Beans](#configuration-via-beans)
   - [GrpcChannelConfigurer](#grpcchannelconfigurer)
+  - [ClientInterceptor](#clientinterceptor)
   - [StubTransformer](#stubtransformer)
 
 ## Additional Topics <!-- omit in toc -->
@@ -122,9 +123,19 @@ public GrpcChannelConfigurer keepAliveClientConfigurer() {
 > Be aware that depending on your configuration there might be different types of `ManagedChannelBuilder`s in the
 > application context (e.g. the `InProcessChannelFactory`).
 
+### ClientInterceptor
+
+There are three ways to add a `ClientInterceptor` to your channel.
+
+- Define the `ClientInterceptor` as a global interceptor using either the `@GrpcGlobalClientInterceptor` annotation or
+  the `GlobalClientInterceptorRegistry`
+- Explicitly list them in the `@GrpcClient#interceptors` or `@GrpcClient#interceptorNames` field
+- Use a `StubTransformer` and call `stub.withInterceptors(ClientInterceptor... interceptors)`
+
 ### StubTransformer
 
 The stub transformer allows you to modify `Stub`s right before they are injected to your beans.
+This is the recommended way to add `CallCredentials` to your stubs.
 
 ````java
 @Bean
@@ -138,6 +149,10 @@ public StubTransformer call() {
     };
 }
 ````
+
+You can also use `StubTransformer`s to add custom `ClientInterceptor`s to your stub.
+
+> **Note**: The `StubTransformer`s are applied after the  `@GrpcClient#interceptors(Names)` have been added.
 
 ## Additional Topics <!-- omit in toc -->
 
