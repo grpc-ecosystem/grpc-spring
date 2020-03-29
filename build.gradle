@@ -11,24 +11,22 @@ buildscript {
     ext {
         projectVersion = '2.8.0-SNAPSHOT'
 
-        grpcVersion = '1.27.2'
+        grpcVersion = '1.28.0'
         protobufVersion = '3.11.4'
         protobufGradlePluginVersion = '0.8.11'
 
-        springBootVersion = '2.2.4.RELEASE'
-        springCloudVersion = 'Hoxton.SR2'
+        springBootVersion = '2.2.6.RELEASE'
+        springCloudVersion = 'Hoxton.SR3'
         springDependencyManagementVersion = '1.0.9.RELEASE'
         springCloudAlibabaNacosVersion = '2.2.0.RELEASE'
-        braveInstrumentationGrpc = '5.9.5'
+        braveInstrumentationGrpc = '5.10.2'
         springSecurityOAuthVersion = '2.4.0.RELEASE'
 
-        lombokVersion = '1.18.12'
         lombokPluginVersion = '3.2.0'
         versioningPluginVersion = '2.10.0'
         versionsPluginVersion = '0.27.0'
 
-        annotationApiVersion = '1.3.2'
-        nimbusJoseJwtVersion = '8.2.1'
+        nimbusJoseJwtVersion = '8.11'
     }
 }
 
@@ -36,13 +34,13 @@ plugins {
     id 'java'
     id 'java-library'
     // future improvement would be to use the version declared above in the ext block instead of repeating it here
-    id 'org.springframework.boot' version '2.2.4.RELEASE' apply false
+    id 'org.springframework.boot' version '2.2.6.RELEASE' apply false
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
-    id 'net.nemerosa.versioning' version '2.11.0'
-    id 'com.google.protobuf' version '0.8.11'
+    id 'net.nemerosa.versioning' version '2.12.1'
+    id 'com.google.protobuf' version '0.8.12'
     id 'io.franzbecker.gradle-lombok' version '3.3.0' apply false
     id 'com.github.ben-manes.versions' version '0.28.0' // gradle dependencyUpdates (Takes quite some time)
-    id 'com.diffplug.gradle.spotless' version '3.27.1'
+    id 'com.diffplug.gradle.spotless' version '3.28.0'
 }
 
 // If you attempt to build without the `--scan` parameter in `gradle 6.0+` it will cause a build error that it can't find
