@@ -21,13 +21,13 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.List;
 
 import javax.net.ssl.SSLException;
 
 import org.springframework.core.io.Resource;
 
-import io.grpc.NameResolver;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
@@ -49,29 +49,28 @@ import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 // Keep this file in sync with NettyChannelFactory
 public class ShadedNettyChannelFactory extends AbstractChannelFactory<NettyChannelBuilder> {
 
-    private final NameResolver.Factory nameResolverFactory;
-
     /**
      * Creates a new GrpcChannelFactory for shaded netty with the given options.
      *
      * @param properties The properties for the channels to create.
-     * @param nameResolverFactory The name resolver factory to use.
      * @param globalClientInterceptorRegistry The interceptor registry to use.
      * @param channelConfigurers The channel configurers to use. Can be empty.
      */
     public ShadedNettyChannelFactory(final GrpcChannelsProperties properties,
-            final NameResolver.Factory nameResolverFactory,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
         super(properties, globalClientInterceptorRegistry, channelConfigurers);
-        this.nameResolverFactory = requireNonNull(nameResolverFactory, "nameResolverFactory");
     }
 
     @Override
     protected NettyChannelBuilder newChannelBuilder(final String name) {
-        return NettyChannelBuilder.forTarget(name)
-                .defaultLoadBalancingPolicy(getPropertiesFor(name).getDefaultLoadBalancingPolicy())
-                .nameResolverFactory(this.nameResolverFactory);
+        final GrpcChannelProperties properties = getPropertiesFor(name);
+        URI address = properties.getAddress();
+        if (address == null) {
+            address = URI.create(name);
+        }
+        return NettyChannelBuilder.forTarget(address.toString())
+                .defaultLoadBalancingPolicy(properties.getDefaultLoadBalancingPolicy());
     }
 
     @Override

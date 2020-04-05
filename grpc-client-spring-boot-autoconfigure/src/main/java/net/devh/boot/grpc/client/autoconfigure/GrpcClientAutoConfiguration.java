@@ -30,11 +30,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Primary;
 
 import io.grpc.CompressorRegistry;
 import io.grpc.DecompressorRegistry;
-import io.grpc.NameResolver;
 import io.grpc.NameResolverProvider;
 import io.grpc.NameResolverRegistry;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
@@ -47,7 +45,6 @@ import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 import net.devh.boot.grpc.client.inject.GrpcClientBeanPostProcessor;
 import net.devh.boot.grpc.client.interceptor.AnnotationGlobalClientInterceptorConfigurer;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
-import net.devh.boot.grpc.client.nameresolver.ConfigMappedNameResolverFactory;
 import net.devh.boot.grpc.client.nameresolver.NameResolverRegistration;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 
@@ -64,30 +61,30 @@ import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 public class GrpcClientAutoConfiguration {
 
     @Bean
-    public static GrpcClientBeanPostProcessor grpcClientBeanPostProcessor(final ApplicationContext applicationContext) {
+    static GrpcClientBeanPostProcessor grpcClientBeanPostProcessor(final ApplicationContext applicationContext) {
         return new GrpcClientBeanPostProcessor(applicationContext);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public GrpcChannelsProperties grpcChannelsProperties() {
+    GrpcChannelsProperties grpcChannelsProperties() {
         return new GrpcChannelsProperties();
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public GlobalClientInterceptorRegistry globalClientInterceptorRegistry() {
+    GlobalClientInterceptorRegistry globalClientInterceptorRegistry() {
         return new GlobalClientInterceptorRegistry();
     }
 
     @Bean
-    public AnnotationGlobalClientInterceptorConfigurer annotationGlobalClientInterceptorConfigurer() {
+    AnnotationGlobalClientInterceptorConfigurer annotationGlobalClientInterceptorConfigurer() {
         return new AnnotationGlobalClientInterceptorConfigurer();
     }
 
     /**
      * Creates a new NameResolverRegistration. This ensures that the NameResolverProvider's get unregistered when spring
-     * shuts down. This is mostly required for tests/when using the grpc's static default registry.
+     * shuts down. This is mostly required for tests/when running multiple application contexts within the same JVM.
      *
      * @param nameResolverProviders The spring managed providers to manage.
      * @return The newly created NameResolverRegistration bean.
@@ -95,72 +92,28 @@ public class GrpcClientAutoConfiguration {
     @ConditionalOnMissingBean
     @Lazy
     @Bean
-    public NameResolverRegistration grpcNameResolverRegistration(
-            @Autowired(required = false) List<NameResolverProvider> nameResolverProviders) {
-        return new NameResolverRegistration(nameResolverProviders);
-    }
-
-    /**
-     * Adds grpc's default registry to spring's application context.
-     *
-     * <p>
-     * <b>Note:</b> If multiple spring applications run in the same JVM, then you should consider creating separate
-     * registries.
-     * </p>
-     *
-     * @param registration The name resolver registration that contains all name resolver providers that should be
-     *        registered.
-     * @return grpc's default name resolver bean.
-     */
-    @ConditionalOnMissingBean
-    @Lazy // Not needed for InProcessChannelFactories
-    @Bean
-    public NameResolverRegistry grpcNameResolverRegistry(NameResolverRegistration registration) {
-        NameResolverRegistry registry = NameResolverRegistry.getDefaultRegistry();
-        registration.register(registry);
-        return registry;
-    }
-
-    /**
-     * Creates a new name resolver factory with the given channel properties. The properties are used to map the client
-     * name to the actual service addresses. If you want to add more name resolver schemes or modify existing ones, you
-     * can do that in the following ways:
-     *
-     * <ul>
-     * <li>If you only rely on the client properties or other static beans, then you can simply add an entry to java's
-     * service discovery for {@link io.grpc.NameResolverProvider}s.</li>
-     * <li>If you need access to other beans, then you have to manually register your NameResolverProvider in the
-     * {@link NameResolverRegistry}.</li>
-     * <li>If you want to change the behavior when no address is given, you have to overwrite this bean.</li>
-     * </ul>
-     *
-     * @param channelProperties The properties for the channels.
-     * @return The default config mapped name resolver factory.
-     */
-    @ConditionalOnMissingBean(name = "grpcNameResolverFactory")
-    @Lazy // Not needed for InProcessChannelFactories
-    @Bean
-    @Primary
-    public NameResolver.Factory grpcNameResolverFactory(final GrpcChannelsProperties channelProperties,
-            NameResolverRegistry registry) {
-        return new ConfigMappedNameResolverFactory(channelProperties, registry);
+    NameResolverRegistration grpcNameResolverRegistration(
+            @Autowired(required = false) final List<NameResolverProvider> nameResolverProviders) {
+        NameResolverRegistration nameResolverRegistration = new NameResolverRegistration(nameResolverProviders);
+        nameResolverRegistration.register(NameResolverRegistry.getDefaultRegistry());
+        return nameResolverRegistration;
     }
 
     @ConditionalOnBean(CompressorRegistry.class)
     @Bean
-    public GrpcChannelConfigurer compressionChannelConfigurer(final CompressorRegistry registry) {
+    GrpcChannelConfigurer compressionChannelConfigurer(final CompressorRegistry registry) {
         return (builder, name) -> builder.compressorRegistry(registry);
     }
 
     @ConditionalOnBean(DecompressorRegistry.class)
     @Bean
-    public GrpcChannelConfigurer decompressionChannelConfigurer(final DecompressorRegistry registry) {
+    GrpcChannelConfigurer decompressionChannelConfigurer(final DecompressorRegistry registry) {
         return (builder, name) -> builder.decompressorRegistry(registry);
     }
 
     @ConditionalOnMissingBean(GrpcChannelConfigurer.class)
     @Bean
-    public List<GrpcChannelConfigurer> defaultChannelConfigurers() {
+    List<GrpcChannelConfigurer> defaultChannelConfigurers() {
         return Collections.emptyList();
     }
 
@@ -169,13 +122,12 @@ public class GrpcClientAutoConfiguration {
     @ConditionalOnClass(name = {"io.grpc.netty.shaded.io.netty.channel.Channel",
             "io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder"})
     @Bean
-    public GrpcChannelFactory shadedNettyGrpcChannelFactory(final GrpcChannelsProperties properties,
-            final NameResolver.Factory nameResolverFactory,
+    @Lazy
+    GrpcChannelFactory shadedNettyGrpcChannelFactory(final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
         final ShadedNettyChannelFactory channelFactory =
-                new ShadedNettyChannelFactory(properties, nameResolverFactory,
-                        globalClientInterceptorRegistry, channelConfigurers);
+                new ShadedNettyChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
         final InProcessChannelFactory inProcessChannelFactory =
                 new InProcessChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
         return new InProcessOrAlternativeChannelFactory(properties, inProcessChannelFactory, channelFactory);
@@ -185,13 +137,12 @@ public class GrpcClientAutoConfiguration {
     @ConditionalOnMissingBean(GrpcChannelFactory.class)
     @ConditionalOnClass(name = {"io.netty.channel.Channel", "io.grpc.netty.NettyChannelBuilder"})
     @Bean
-    public GrpcChannelFactory nettyGrpcChannelFactory(final GrpcChannelsProperties properties,
-            final NameResolver.Factory nameResolverFactory,
+    @Lazy
+    GrpcChannelFactory nettyGrpcChannelFactory(final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
         final NettyChannelFactory channelFactory =
-                new NettyChannelFactory(properties, nameResolverFactory,
-                        globalClientInterceptorRegistry, channelConfigurers);
+                new NettyChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
         final InProcessChannelFactory inProcessChannelFactory =
                 new InProcessChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
         return new InProcessOrAlternativeChannelFactory(properties, inProcessChannelFactory, channelFactory);
@@ -200,7 +151,8 @@ public class GrpcClientAutoConfiguration {
     // Finally try the in process channel factory
     @ConditionalOnMissingBean(GrpcChannelFactory.class)
     @Bean
-    public GrpcChannelFactory inProcessGrpcChannelFactory(final GrpcChannelsProperties properties,
+    @Lazy
+    GrpcChannelFactory inProcessGrpcChannelFactory(final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
         return new InProcessChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);

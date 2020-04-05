@@ -17,7 +17,6 @@
 
 package net.devh.boot.grpc.client.autoconfigure;
 
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -29,7 +28,6 @@ import net.devh.boot.grpc.client.nameresolver.DiscoveryClientResolverFactory;
 
 @Configuration
 @ConditionalOnBean(DiscoveryClient.class)
-@AutoConfigureBefore(GrpcClientAutoConfiguration.class)
 public class GrpcDiscoveryClientAutoConfiguration {
 
     @ConditionalOnMissingBean

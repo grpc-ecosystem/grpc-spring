@@ -35,7 +35,6 @@ import org.springframework.util.unit.DataUnit;
 import io.grpc.LoadBalancerRegistry;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.NameResolverProvider;
-import io.grpc.internal.DnsNameResolverProvider;
 import io.grpc.internal.GrpcUtil;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
@@ -71,8 +70,9 @@ public class GrpcChannelProperties {
     }
 
     /**
-     * Set the address uri for the channel. If nothing is configured then the {@link io.grpc.NameResolver.Factory} will
-     * decide on the default.
+     * Set the address uri for the channel. If nothing is configured then the name of the client will be used along with
+     * the default scheme. We recommend explicitly configuring the scheme used for the address resolutions such as
+     * {@code dns:/}.
      *
      * @param address The address to use for the channel or null to default to the fallback.
      *
@@ -84,8 +84,9 @@ public class GrpcChannelProperties {
 
     /**
      * Sets the target address uri for the channel. The target uri must be in the format:
-     * {@code schema:[//[authority]][/path]}. If nothing is configured then the {@link io.grpc.NameResolver.Factory}
-     * will decide on the default.
+     * {@code schema:[//[authority]][/path]}. If nothing is configured then the name of the client will be used along
+     * with the default scheme. We recommend explicitly configuring the scheme used for the address resolutions such as
+     * {@code dns:/}.
      *
      * <p>
      * <b>Examples</b>
@@ -105,15 +106,6 @@ public class GrpcChannelProperties {
      * <li>{@code discovery:/foo-service}</li>
      * <li>{@code discovery:///foo-service}</li>
      * </ul>
-     *
-     * <p>
-     * <b>Note:</b> It is possible to use dns based service discovery. The address {@code dns:/example.com} will check
-     * the DNS for {@code SVC} entries with the key {@code _grpclb._tcp.example.com}. See also
-     * {@link DnsNameResolverProvider}. E.g. in Kubernetes, if you define a service with a port spec called
-     * {@code grpclb} and configure the channel address as {@code <service>.<namespace>.svc.cluster.local}, then the
-     * DNS-resolver will pickup all available endpoints (including the correct port). Must be enable with:
-     * {@code -Dio.grpc.internal.DnsNameResolverProvider.enable_grpclb=true}.
-     * </p>
      *
      * @param address The string representation of an uri to use as target address or null to use a fallback.
      *

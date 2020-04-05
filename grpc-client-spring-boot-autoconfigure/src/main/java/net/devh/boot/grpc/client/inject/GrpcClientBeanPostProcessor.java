@@ -46,6 +46,7 @@ import io.grpc.stub.AbstractBlockingStub;
 import io.grpc.stub.AbstractFutureStub;
 import io.grpc.stub.AbstractStub;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
+import net.devh.boot.grpc.client.nameresolver.NameResolverRegistration;
 
 /**
  * This {@link BeanPostProcessor} searches for fields and methods in beans that are annotated with {@link GrpcClient}
@@ -140,6 +141,8 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
      */
     private GrpcChannelFactory getChannelFactory() {
         if (this.channelFactory == null) {
+            // Ensure that the NameResolverProviders have been registered
+            this.applicationContext.getBean(NameResolverRegistration.class);
             final GrpcChannelFactory factory = this.applicationContext.getBean(GrpcChannelFactory.class);
             this.channelFactory = factory;
             return factory;
