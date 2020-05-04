@@ -1,6 +1,6 @@
 # 服务端安全
 
-[<- 返回索引](../index)
+[<- 返回索引](../index.md)
 
 本节描述如何使用传输层安全和身份验证来保护您的应用程序。 我们强烈建议至少启用运输层安全。
 
@@ -16,15 +16,15 @@
 
 ## 附加主题 <!-- omit in toc -->
 
-- [入门指南](getting-started)
-- [配置](configuration)
-- [上下文数据 / Bean 的作用域](contextual-data)
-- [测试服务](testing)
+- [入门指南](getting-started.md)
+- [配置](configuration.md)
+- [上下文数据 / Bean 的作用域](contextual-data.md)
+- [测试服务](testing.md)
 - *安全性*
 
 ## 启用传输图层安全
 
-您可以使用 Spring 的配置机制来配置传输层安全。 与之相关的非安全性配置选项参见 [配置](configuration) 页面。
+您可以使用 Spring 的配置机制来配置传输层安全。 与之相关的非安全性配置选项参见 [配置](configuration.md) 页面。
 
 如果你的服务在 TLS 的反向代理后面，你可能不需要设置 `TLS/`。 如果您不熟悉安全，请咨询安全专家。 请不要忘记检查是否存在安全问题。 ^^
 
@@ -60,7 +60,7 @@ grpc.server.security.privateKey=file:certificates/server.key
 
 如果您想知道这里支持哪些选项，请阅读 [Spring 的 Resource 文档](https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#resources-resourceloader)。
 
-对于客户端的配置，请参考 [客户端安全](../client/security) 页面。
+对于客户端的配置，请参考 [客户端安全](../client/security.md) 页面。
 
 ## 双向证书认证
 
@@ -244,12 +244,12 @@ public void methodX(Request request, StreamObserver<Response> responseObserver) 
 
 ## 附加主题 <!-- omit in toc -->
 
-- [入门指南](getting-started)
-- [配置](configuration)
-- [上下文数据 / Bean 的作用域](contextual-data)
-- [测试服务](testing)
+- [入门指南](getting-started.md)
+- [配置](configuration.md)
+- [上下文数据 / Bean 的作用域](contextual-data.md)
+- [测试服务](testing.md)
 - *安全性*
 
 ----------
 
-[<- 返回索引](../index)
+[<- 返回索引](../index.md)

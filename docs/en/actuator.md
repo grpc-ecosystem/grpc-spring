@@ -1,6 +1,6 @@
 # Spring Boot Actuator Support
 
-[<- Back to index](index)
+[<- Back to index](index.md)
 
 This page focuses on the integration with
 [Spring-Boot-Actuator](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html).
@@ -152,4 +152,4 @@ net.devh.boot.grpc.server.autoconfigure.GrpcServerMetricAutoConfiguration
 
 ----------
 
-[<- Back to index](index)
+[<- Back to index](index.md)

@@ -1,6 +1,6 @@
 # Trouble-Shooting
 
-[<- Back to index](index)
+[<- Back to index](index.md)
 
 This section describes some common errors with this library and grpc in general, and how to solve them.
 Please note that this page can never cover all cases, please also search the existing issues/PRs (both opened and closed
@@ -274,7 +274,7 @@ external server.
   `spring.autoconfigure.exclude=net.devh.boot.grpc.client.autoconfigure.GrpcDiscoveryClientAutoConfiguration`
 - or create a custom `NameResolverRegistry` bean
 
-See also [client target configuration](client/configuration#choosing-the-target).
+See also [client target configuration](client/configuration.md#choosing-the-target).
 
 ## Creating issues
 
@@ -307,4 +307,4 @@ In general, you should include the following information in your issue:
 
 ----------
 
-[<- Back to index](index)
+[<- Back to index](index.md)

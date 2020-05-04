@@ -1,6 +1,6 @@
 # 上下文数据 / Bean 的作用域
 
-[<- 返回索引](../index)
+[<- 返回索引](../index.md)
 
 本节描述您如何保存请求上下文数据 / 每个请求的数据。
 
@@ -11,11 +11,11 @@
 
 ## 附加主题 <!-- omit in toc -->
 
-- [入门指南](getting-started)
-- [配置](configuration)
+- [入门指南](getting-started.md)
+- [配置](configuration.md)
 - *上下文数据 / Bean 的作用域*
-- [测试服务](testing)
-- [安全性](security)
+- [测试服务](testing.md)
+- [安全性](security.md)
 
 ## 警告语
 
@@ -53,12 +53,12 @@ public void grpcMethod(Request request, StreamObserver<Response> responseObserve
 
 ## 附加主题 <!-- omit in toc -->
 
-- [入门指南](getting-started)
-- [配置](configuration)
+- [入门指南](getting-started.md)
+- [配置](configuration.md)
 - *上下文数据 / Bean 的作用域*
-- [测试服务](testing)
-- [安全性](security)
+- [测试服务](testing.md)
+- [安全性](security.md)
 
 ----------
 
-[<- 返回索引](../index)
+[<- 返回索引](../index.md)

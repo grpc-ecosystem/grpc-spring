@@ -1,6 +1,6 @@
 # Configuration
 
-[<- Back to index](../index)
+[<- Back to index](../index.md)
 
 This section describes how you can configure your grpc-spring-boot-starter application.
 
@@ -14,11 +14,11 @@ This section describes how you can configure your grpc-spring-boot-starter appli
 
 ## Additional topics <!-- omit in toc -->
 
-- [Getting Started](getting-started)
+- [Getting Started](getting-started.md)
 - *Configuration*
-- [Contextual data / Scoped beans](contextual-data)
-- [Testing the service](testing)
-- [Security](security)
+- [Contextual data / Scoped beans](contextual-data.md)
+- [Testing the service](testing.md)
+- [Security](security.md)
 
 ## Configuration via Properties
 
@@ -50,7 +50,7 @@ concurrent tests.
 
 > Please make sure that you won't run into conflicts with other applications or other endpoints such as `spring-web`.
 
-The `SSL`/`TLS` and other security relevant configuration is explained on the [Server Security](security) page.
+The `SSL`/`TLS` and other security relevant configuration is explained on the [Server Security](security.md) page.
 
 ### Enabling the InProcessServer
 
@@ -109,12 +109,12 @@ public GrpcServerConfigurer keepAliveServerConfigurer() {
 
 ## Additional Topics <!-- omit in toc -->
 
-- [Getting Started](getting-started)
+- [Getting Started](getting-started.md)
 - *Configuration*
-- [Contextual Data / Scoped Beans](contextual-data)
-- [Testing the Service](testing)
-- [Security](security)
+- [Contextual data / Scoped beans](contextual-data.md)
+- [Testing the service](testing.md)
+- [Security](security.md)
 
 ----------
 
-[<- Back to index](../index)
+[<- Back to index](../index.md)

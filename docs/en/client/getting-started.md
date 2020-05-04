@@ -1,6 +1,6 @@
 # Getting Started
 
-[<- Back to index](../index)
+[<- Back to index](../index.md)
 
 This section deals with how to get Spring to connect to a grpc server and manage the connection for you.
 
@@ -18,9 +18,9 @@ This section deals with how to get Spring to connect to a grpc server and manage
 ## Additional Topics <!-- omit in toc -->
 
 - *Getting Started*
-- [Configuration](configuration)
-- [Security](security)
-- [Tests with Grpc-Stubs](testing)
+- [Configuration](configuration.md)
+- [Security](security.md)
+- [Tests with Grpc-Stubs](testing.md)
 
 ## Project Setup
 
@@ -41,11 +41,11 @@ We recommend splitting your project into 2-3 separate modules.
 
 ### Interface-Project
 
-See the [server getting started page](../server/getting-started#interface-project)
+See the [server getting started page](../server/getting-started.md#interface-project)
 
 ### Server-Project
 
-See the [server getting started page](../server/getting-started#server-project)
+See the [server getting started page](../server/getting-started.md#server-project)
 
 ### Client-Project
 
@@ -95,7 +95,7 @@ buildscript {
 
 ## Using the Stubs to connect to the Server
 
-This section assumes that you have already defined and generated your [Protobuf service](../server/getting-started#creating-the-grpc-service-definitions).
+This section assumes that you have already defined and generated your [Protobuf service](../server/getting-started.md#creating-the-grpc-service-definitions).
 
 ### Explaining the client components
 
@@ -109,7 +109,7 @@ This section assumes that you have already defined and generated your [Protobuf 
   [`NameResolver.Factory`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/NameResolver.Factory.html):
   A class that will be used to resolve the address to a list of `SocketAddress`es, the address will usually be
   re-resolved when a connection to a previously listed server fails or the channel was idle.
-  See also [Configuration -> Choosing the Target](configuration#choosing-the-target).
+  See also [Configuration -> Choosing the Target](configuration.md#choosing-the-target).
 - [`ClientInterceptor`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/ClientInterceptor.html):
   Intercepts every call before they are handed to the `Channel`. Can be used for logging, monitoring, metadata handling,
   and request/response rewriting.
@@ -117,7 +117,7 @@ This section assumes that you have already defined and generated your [Protobuf 
   [`@GrpcGlobalClientInterceptor`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/interceptor/GrpcGlobalClientInterceptor.html)
   or are manually registered to the
   [`GlobalClientInterceptorRegistry`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/interceptor/GlobalClientInterceptorRegistry.html).
-  See also [Configuration -> ClientInterceptor](configuration#clientinterceptor).
+  See also [Configuration -> ClientInterceptor](configuration.md#clientinterceptor).
 - [`CallCredentials`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/CallCredentials.html):
   A potentially active component that manages the authentication for the calls. It can be used to store credentials or
   session tokens. It can also be used to authenticate at an authentication provider and then use returned tokens (such
@@ -128,7 +128,7 @@ This section assumes that you have already defined and generated your [Protobuf 
   utility class helps you to create commonly used `CallCredentials` types and related `StubTransformer`.
 - [`StubTransformer`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/StubTransformer.html):
   A transformer that will be applied to all client `Stub`s before they are injected.
-  See also [Configuration -> StubTransformer](configuration#stubtransformer).
+  See also [Configuration -> StubTransformer](configuration.md#stubtransformer).
 - [`@GrpcClient`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/GrpcClient.html):
   The annotation that marks fields and setters for auto injection of clients. Supports `Channel`s, and all kind of
   `Stub`s. Do not use `@GrpcClient` in conjunction with `@Autowired` or `@Inject`.
@@ -167,9 +167,9 @@ public class FoobarService {
 ## Additional Topics <!-- omit in toc -->
 
 - *Getting Started*
-- [Configuration](configuration)
-- [Security](security)
+- [Configuration](configuration.md)
+- [Security](security.md)
 
 ----------
 
-[<- Back to index](../index)
+[<- Back to index](../index.md)

@@ -1,6 +1,6 @@
 # Tests with Grpc-Stubs
 
-[<- Back to index](../index)
+[<- Back to index](../index.md)
 
 This section describes how you write tests for components that use the `@GrpcClient` annotation or grpc's stubs.
 
@@ -14,9 +14,9 @@ This section describes how you write tests for components that use the `@GrpcCli
 
 ## Additional Topics <!-- omit in toc -->
 
-- [Getting Started](getting-started)
-- [Configuration](configuration)
-- [Security](security)
+- [Getting Started](getting-started.md)
+- [Configuration](configuration.md)
+- [Security](security.md)
 - *Tests with Grpc-Stubs*
 
 ## Introductory Words
@@ -256,11 +256,11 @@ public class ChatServiceImplForMyComponentIntegrationTest extends ChatServiceGrp
 
 ## Additional Topics <!-- omit in toc -->
 
-- [Getting Started](getting-started)
-- [Configuration](configuration)
-- [Security](security)
+- [Getting Started](getting-started.md)
+- [Configuration](configuration.md)
+- [Security](security.md)
 - *Tests with Grpc-Stubs*
 
 ----------
 
-[<- Back to index](../index)
+[<- Back to index](../index.md)

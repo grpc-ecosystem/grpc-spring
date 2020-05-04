@@ -1,6 +1,6 @@
 # Configuration
 
-[<- Back to index](../index)
+[<- Back to index](../index.md)
 
 This section describes how you can configure your grpc-spring-boot-starter clients.
 
@@ -15,10 +15,10 @@ This section describes how you can configure your grpc-spring-boot-starter clien
 
 ## Additional Topics <!-- omit in toc -->
 
-- [Getting Started](getting-started)
+- [Getting Started](getting-started.md)
 - *Configuration*
-- [Security](security)
-- [Tests with Grpc-Stubs](testing)
+- [Security](security.md)
+- [Tests with Grpc-Stubs](testing.md)
 
 ## Configuration via Properties
 
@@ -71,7 +71,7 @@ There are a number of supported schemes, that you can use to determine the targe
   Example: `self` or `self:self`
 - `in-process`:
   This is a special scheme that will bypass the normal channel factory and will use the `InProcessChannelFactory`
-  instead. Use it to connect to the [`InProcessServer`](../server/configuration#enabling-the-inprocessserver).
+  instead. Use it to connect to the [`InProcessServer`](../server/configuration.md#enabling-the-inprocessserver).
   Example: `in-process:foobar`
 - *custom*:
   You can define custom
@@ -88,7 +88,7 @@ If you don't define an address it will be guessed:
 > **Note:** The number of slashes is important! Also make sure that you don't try to connect to a normal
 > web/REST/non-grpc server (port).
 
-The `SSL`/`TLS` and other security relevant configuration is explained on the [Client Security](security) page.
+The `SSL`/`TLS` and other security relevant configuration is explained on the [Client Security](security.md) page.
 
 ## Configuration via Beans
 
@@ -156,10 +156,10 @@ You can also use `StubTransformer`s to add custom `ClientInterceptor`s to your s
 
 ## Additional Topics <!-- omit in toc -->
 
-- [Getting Started](getting-started)
+- [Getting Started](getting-started.md)
 - *Configuration*
-- [Security](security)
+- [Security](security.md)
 
 ----------
 
-[<- Back to index](../index)
+[<- Back to index](../index.md)

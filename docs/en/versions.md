@@ -1,6 +1,6 @@
 # Versions
 
-[<- Back to index](index)
+[<- Back to index](index.md)
 
 This page shows the additional information about our versioning policy and lifecycles.
 
@@ -91,4 +91,4 @@ Refer to the release notes for more information on the changes for each version:
 
 ----------
 
-[<- Back to index](index)
+[<- Back to index](index.md)

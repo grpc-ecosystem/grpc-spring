@@ -1,6 +1,6 @@
 # Getting Started
 
-[<- Back to index](../index)
+[<- Back to index](../index.md)
 
 This section describes the steps necessary to convert your application into a grpc-spring-boot-starter one.
 
@@ -17,10 +17,10 @@ This section describes the steps necessary to convert your application into a gr
 ## Additional Topics <!-- omit in toc -->
 
 - *Getting started*
-- [Configuration](configuration)
-- [Contextual data / Scoped beans](contextual-data)
-- [Testing the service](testing)
-- [Security](security)
+- [Configuration](configuration.md)
+- [Contextual data / Scoped beans](contextual-data.md)
+- [Testing the service](testing.md)
+- [Security](security.md)
 
 ## Project Setup
 
@@ -199,7 +199,7 @@ buildscript {
 
 ### Client-Project
 
-See the [client getting started page](../client/getting-started#client-project)
+See the [client getting started page](../client/getting-started.md#client-project)
 
 ## Creating the gRPC-Service Definitions
 
@@ -246,7 +246,7 @@ to use instead. However, they can be used in a similar fashion.
 - The `ImplBase` classes contain the base logic that map the dummy implementation to the grpc service methods.
   More about this in the [Implementing the service](#implementing-the-service) topic.
 - The `Stub` classes are complete client implementations.
-  More about this on the [Getting the client started](../client/getting-started) page.
+  More about this on the [Getting the client started](../client/getting-started.md) page.
 
 ## Implementing the Service
 
@@ -308,11 +308,11 @@ grpcurl --plaintext -d '{"name": "test"}' localhost:9090 net.devh.boot.grpc.exam
 ## Additional Topics <!-- omit in toc -->
 
 - *Getting Started*
-- [Configuration](configuration)
-- [Contextual Data / Scoped Beans](contextual-data)
-- [Testing the Service](testing)
-- [Security](security)
+- [Configuration](configuration.md)
+- [Contextual data / Scoped beans](contextual-data.md)
+- [Testing the service](testing.md)
+- [Security](security.md)
 
 ----------
 
-[<- Back to index](../index)
+[<- Back to index](../index.md)

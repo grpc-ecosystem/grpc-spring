@@ -1,6 +1,6 @@
 # Benchmarking
 
-[<- Back to index](index)
+[<- Back to index](index.md)
 
 This library does not add any performance overhead to gRPC-java.
 
@@ -20,4 +20,4 @@ Here are the main benefits/differences from grpc over plain HTTP:
 
 ----------
 
-[<- Back to index](index)
+[<- Back to index](index.md)
