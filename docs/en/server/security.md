@@ -1,6 +1,6 @@
 # Server Security
 
-[<- Back to index](../index.md)
+[<- Back to Index](../index.md)
 
 This section describes how you secure your application using transport layer security and authentication.
 We strongly recommend enabling at least transport layer security.
@@ -19,8 +19,8 @@ We strongly recommend enabling at least transport layer security.
 
 - [Getting Started](getting-started.md)
 - [Configuration](configuration.md)
-- [Contextual data / Scoped beans](contextual-data.md)
-- [Testing the service](testing.md)
+- [Contextual Data / Scoped Beans](contextual-data.md)
+- [Testing the Service](testing.md)
 - *Security*
 
 ## Enable Transport Layer Security
@@ -279,10 +279,10 @@ public void methodX(Request request, StreamObserver<Response> responseObserver) 
 
 - [Getting Started](getting-started.md)
 - [Configuration](configuration.md)
-- [Contextual data / Scoped beans](contextual-data.md)
-- [Testing the service](testing.md)
+- [Contextual Data / Scoped Beans](contextual-data.md)
+- [Testing the Service](testing.md)
 - *Security*
 
 ----------
 
-[<- Back to index](../index.md)
+[<- Back to Index](../index.md)

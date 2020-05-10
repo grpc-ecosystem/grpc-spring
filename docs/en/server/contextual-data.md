@@ -1,6 +1,6 @@
 # Contextual Data / Scoped Beans
 
-[<- Back to index](../index.md)
+[<- Back to Index](../index.md)
 
 This section describes how you can store contextual / per request data.
 
@@ -14,7 +14,7 @@ This section describes how you can store contextual / per request data.
 - [Getting Started](getting-started.md)
 - [Configuration](configuration.md)
 - *Contextual Data / Scoped Beans*
-- [Testing the service](testing.md)
+- [Testing the Service](testing.md)
 - [Security](security.md)
 
 ## A Word of Warning
@@ -62,9 +62,9 @@ public void grpcMethod(Request request, StreamObserver<Response> responseObserve
 - [Getting Started](getting-started.md)
 - [Configuration](configuration.md)
 - *Contextual Data / Scoped Beans*
-- [Testing the service](testing.md)
+- [Testing the Service](testing.md)
 - [Security](security.md)
 
 ----------
 
-[<- Back to index](../index.md)
+[<- Back to Index](../index.md)

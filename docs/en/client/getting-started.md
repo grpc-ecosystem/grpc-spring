@@ -1,6 +1,6 @@
 # Getting Started
 
-[<- Back to index](../index.md)
+[<- Back to Index](../index.md)
 
 This section deals with how to get Spring to connect to a grpc server and manage the connection for you.
 
@@ -12,7 +12,7 @@ This section deals with how to get Spring to connect to a grpc server and manage
   - [Server-Project](#server-project)
   - [Client-Project](#client-project)
 - [Using the Stubs to connect to the Server](#using-the-stubs-to-connect-to-the-server)
-  - [Explaining the client components](#explaining-the-client-components)
+  - [Explaining the Client Components](#explaining-the-client-components)
   - [Accessing the Client](#accessing-the-client)
 
 ## Additional Topics <!-- omit in toc -->
@@ -97,7 +97,7 @@ buildscript {
 
 This section assumes that you have already defined and generated your [Protobuf service](../server/getting-started.md#creating-the-grpc-service-definitions).
 
-### Explaining the client components
+### Explaining the Client Components
 
 - [`Channel`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/Channel.html):
   The Channel is a connection pool for a single address. The target servers might serve multiple grpc-services though.
@@ -172,4 +172,4 @@ public class FoobarService {
 
 ----------
 
-[<- Back to index](../index.md)
+[<- Back to Index](../index.md)

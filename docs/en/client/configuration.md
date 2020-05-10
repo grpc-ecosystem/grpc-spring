@@ -1,6 +1,6 @@
 # Configuration
 
-[<- Back to index](../index.md)
+[<- Back to Index](../index.md)
 
 This section describes how you can configure your grpc-spring-boot-starter clients.
 
@@ -162,4 +162,4 @@ You can also use `StubTransformer`s to add custom `ClientInterceptor`s to your s
 
 ----------
 
-[<- Back to index](../index.md)
+[<- Back to Index](../index.md)

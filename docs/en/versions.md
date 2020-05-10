@@ -1,19 +1,19 @@
 # Versions
 
-[<- Back to index](index.md)
+[<- Back to Index](index.md)
 
-This page shows the additional information about our versioning policy and lifecycles.
+This page shows the additional information about our Versioning Policy and lifecycles.
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Versioning policy](#versioning-policy)
+- [Versioning Policy](#versioning-policy)
 - [Version Table](#version-table)
   - [Version 2.x](#version-2x)
   - [Version 1.x](#version-1x)
   - [Upgrading Dependencies](#upgrading-dependencies)
   - [Release Notes](#release-notes)
 
-## Versioning policy
+## Versioning Policy
 
 The major version of this project defines which spring-boot version we are compatible with.
 
@@ -91,4 +91,4 @@ Refer to the release notes for more information on the changes for each version:
 
 ----------
 
-[<- Back to index](index.md)
+[<- Back to Index](index.md)

@@ -1,6 +1,6 @@
 # Getting Started
 
-[<- Back to index](../index.md)
+[<- Back to Index](../index.md)
 
 This section describes the steps necessary to convert your application into a grpc-spring-boot-starter one.
 
@@ -18,8 +18,8 @@ This section describes the steps necessary to convert your application into a gr
 
 - *Getting started*
 - [Configuration](configuration.md)
-- [Contextual data / Scoped beans](contextual-data.md)
-- [Testing the service](testing.md)
+- [Contextual Data / Scoped Beans](contextual-data.md)
+- [Testing the Service](testing.md)
 - [Security](security.md)
 
 ## Project Setup
@@ -309,10 +309,10 @@ grpcurl --plaintext -d '{"name": "test"}' localhost:9090 net.devh.boot.grpc.exam
 
 - *Getting Started*
 - [Configuration](configuration.md)
-- [Contextual data / Scoped beans](contextual-data.md)
-- [Testing the service](testing.md)
+- [Contextual Data / Scoped Beans](contextual-data.md)
+- [Testing the Service](testing.md)
 - [Security](security.md)
 
 ----------
 
-[<- Back to index](../index.md)
+[<- Back to Index](../index.md)

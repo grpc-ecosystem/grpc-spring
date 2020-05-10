@@ -1,6 +1,6 @@
 # Spring Boot Actuator Support
 
-[<- Back to index](index.md)
+[<- Back to Index](index.md)
 
 This page focuses on the integration with
 [Spring-Boot-Actuator](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html).
@@ -9,7 +9,7 @@ This is an optional feature. Supported features:
 - Client + server metrics
 - Server `InfoContributor`
 
-## Table of contents <!-- omit in toc -->
+## Table of Contents <!-- omit in toc -->
 
 - [Dependencies](#dependencies)
 - [Metrics](#metrics)
@@ -152,4 +152,4 @@ net.devh.boot.grpc.server.autoconfigure.GrpcServerMetricAutoConfiguration
 
 ----------
 
-[<- Back to index](index.md)
+[<- Back to Index](index.md)

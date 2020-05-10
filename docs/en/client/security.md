@@ -1,6 +1,6 @@
 # Client Security
 
-[<- Back to index](../index.md)
+[<- Back to Index](../index.md)
 
 This page describes how you connect to a grpc server and authenticate yourself.
 
@@ -130,4 +130,4 @@ return myServiceForUser.send(request);
 
 ----------
 
-[<- Back to index](../index.md)
+[<- Back to Index](../index.md)

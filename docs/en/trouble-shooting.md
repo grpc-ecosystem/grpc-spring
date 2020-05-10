@@ -1,13 +1,13 @@
 # Trouble-Shooting
 
-[<- Back to index](index.md)
+[<- Back to Index](index.md)
 
 This section describes some common errors with this library and grpc in general, and how to solve them.
 Please note that this page can never cover all cases, please also search the existing issues/PRs (both opened and closed
 ones) for related topics. If a corresponding topic already exists, leave us a comment / info so that we know that you
 are also affected. If there is no such topic, feel free to open a new one as described at the bottom of this page.
 
-## Table of contents
+## Table of Contents
 
 - [Transport failed](#transport-failed)
 - [Network closed for unknown reason](#network-closed-for-unknown-reason)
@@ -47,7 +47,7 @@ Caused by: io.grpc.netty.shaded.io.netty.handler.ssl.NotSslRecordException: not 
     at io.grpc.netty.shaded.io.netty.handler.codec.ByteToMessageDecoder.decodeRemovalReentryProtection(ByteToMessageDecoder.java:502)
 ````
 
-### The problem
+### The Problem
 
 The server runs in `PLAINTEXT` mode, but the client tries to connect it in `TLS` (default) mode.
 
@@ -81,12 +81,12 @@ grpc.server.security.privateKey=file:certificates/server.key
 io.grpc.StatusRuntimeException: UNAVAILABLE: Network closed for unknown reason
 ````
 
-### The problem
+### The Problem
 
 You are either (1) trying to connect to an grpc-server in `TLS` mode using a `PLAINTEXT` client
 or (2) the target is not a grpc-server (e.g. a web-server).
 
-### The solution
+### The Solution
 
 1. Configure your client to use `TLS` mode.
 
@@ -133,11 +133,11 @@ Caused by: java.lang.IllegalStateException: Could not find TLS ALPN provider; no
 AbstractMethodError: io.netty.internal.tcnative.SSL.readFromSSL()
 ````
 
-### The problem
+### The Problem
 
 There is no (compatible) netty TLS implementation available on the classpath.
 
-### The solution
+### The Solution
 
 Either switch from [`grpc-netty`](https://mvnrepository.com/artifact/io.grpc/grpc-netty) to [`grpc-netty-shaded`](https://mvnrepository.com/artifact/io.grpc/grpc-netty-shaded)
 or add a dependency to [`netty-tcnative-boringssl-static`](https://mvnrepository.com/artifact/io.netty/netty-tcnative-boringssl-static)
@@ -167,11 +167,11 @@ Caused by: javax.net.ssl.SSLHandshakeException: General OpenSslEngine problem
 Caused by: java.security.cert.CertificateException: No name matching <name> found
 ````
 
-### The problem
+### The Problem
 
 The certificate does not match the target's address/name.
 
-### The solution
+### The Solution
 
 Configure an override for the name comparison by adding the following to your client config:
 
@@ -193,11 +193,11 @@ Caused by: sun.security.validator.ValidatorException: PKIX path building failed:
 Caused by: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
 ````
 
-### The problem
+### The Problem
 
 The certificate used by the server is not in the trust store of the client.
 
-### The solution
+### The Solution
 
 Either add the certificate to java's truststore by using java's `keytool`
 or configure the client to use a custom trusted certificate file:
@@ -226,7 +226,7 @@ Caused by: java.io.IOException: Failed to bind
 Caused by: java.net.BindException: Address already in use: bind
 ````
 
-### The problem
+### The Problem
 
 The port the grpc server is trying to use is already used.
 
@@ -237,7 +237,7 @@ There are four common cases where this error might occur.
 3. The grpc server uses a port that is already used for something else (e.g. spring-web)
 4. You are running tests and spring didn't shutdown the grpc-server after each test
 
-### The solution
+### The Solution
 
 1. Try searching for the application using the task manager or `jps`
 2. Try searching for the port using `netstat`
@@ -255,7 +255,7 @@ WARN  io.grpc.internal.ManagedChannelImpl - [Failed to resolve name. status=Stat
 ERROR n.d.b.g.c.n.DiscoveryClientNameResolver - No servers found for `discovery-server:443`
 ````
 
-### The problem
+### The Problem
 
 The discovery service library or it's configuration failed to specify the scheme how `discovery-server:443` should be
 resolved. If you don't have a service discovery, then the default is `dns`, but if you use a discovery service, then
@@ -264,7 +264,7 @@ that will be the default and thus failing to resolve that address.
 The same applies to other libraries, such as tracing or reporting libraries, which report their results via grpc to an
 external server.
 
-### The solution
+### The Solution
 
 - Configure the (discovery service) library to specify the `dns` scheme:
   e.g. `dns:///discovery-server:443`
@@ -293,7 +293,7 @@ In general, you should include the following information in your issue:
    - Bug-report
    - Feature-Request
 2. What do you wish to achieve?
-3. What's the problem? What's not working? What's missing and why do you need it?
+3. What's The Problem? What's not working? What's missing and why do you need it?
 4. Any relevant stacktraces/logs (very important)
 5. Which versions do you use?
    - Spring (boot)
@@ -307,4 +307,4 @@ In general, you should include the following information in your issue:
 
 ----------
 
-[<- Back to index](index.md)
+[<- Back to Index](index.md)

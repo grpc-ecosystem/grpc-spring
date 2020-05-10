@@ -1,11 +1,11 @@
 # Brave / Sleuth Support
 
-[<- Back to index](index.md)
+[<- Back to Index](index.md)
 
 This page focuses on the integration with [brave](https://github.com/openzipkin/brave) /
 [Spring Cloud Sleuth](https://spring.io/projects/spring-cloud-sleuth). This is an optional feature.
 
-## Table of contents <!-- omit in toc -->
+## Table of Contents <!-- omit in toc -->
 
 - [Dependencies](#dependencies)
   - [Brave](#brave)
@@ -79,4 +79,4 @@ and related classes. See also
 
 ----------
 
-[<- Back to index](index.md)
+[<- Back to Index](index.md)

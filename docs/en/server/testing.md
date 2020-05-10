@@ -1,6 +1,6 @@
 # Testing the Service
 
-[<- Back to index](../index.md)
+[<- Back to Index](../index.md)
 
 This section describes how you write tests for your grpc-service implementation.
 
@@ -21,7 +21,7 @@ Please refer to [Tests with Grpc-Stubs](../client/testing.md).
 
 - [Getting Started](getting-started.md)
 - [Configuration](configuration.md)
-- [Contextual data / Scoped beans](contextual-data.md)
+- [Contextual Data / Scoped Beans](contextual-data.md)
 - *Testing the Service*
 - [Security](security.md)
 
@@ -300,10 +300,10 @@ public class MyServiceIntegrationTestConfiguration {
 
 - [Getting Started](getting-started.md)
 - [Configuration](configuration.md)
-- [Contextual data / Scoped beans](contextual-data.md)
+- [Contextual Data / Scoped Beans](contextual-data.md)
 - *Testing the Service*
 - [Security](security.md)
 
 ----------
 
-[<- Back to index](../index.md)
+[<- Back to Index](../index.md)
