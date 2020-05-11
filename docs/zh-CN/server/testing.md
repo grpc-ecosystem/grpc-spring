@@ -1,6 +1,6 @@
 # 测试服务
 
-[<- 返回索引](../index)
+[<- 返回索引](../index.md)
 
 本节介绍如何为您的 grpc-service 编写测试用例。
 
@@ -16,11 +16,11 @@
 
 ## 附加主题 <!-- omit in toc -->
 
-- [入门指南](getting-started)
-- [配置](configuration)
-- [上下文数据 / Bean 的作用域](contextual-data)
+- [入门指南](getting-started.md)
+- [配置](configuration.md)
+- [上下文数据 / Bean 的作用域](contextual-data.md)
 - *测试服务*
-- [安全性](security)
+- [安全性](security.md)
 
 ## 前言
 
@@ -272,12 +272,12 @@ public class MyServiceIntegrationTestConfiguration {
 
 > 注意：这个代码看起来可能比单元测试更短/更简单，但执行时间要长一些。
 
-## 附加主题<!-- omit in toc -->- [入门指南](getting-started)
-- [配置](configuration)
-- [上下文数据 / Bean 的作用域](contextual-data)
+## 附加主题<!-- omit in toc -->- [入门指南](getting-started.md)
+- [配置](configuration.md)
+- [上下文数据 / Bean 的作用域](contextual-data.md)
 - *测试服务*
-- [安全性](security)
+- [安全性](security.md)
 
 ----------
 
-[<- 返回索引](../index)
+[<- 返回索引](../index.md)

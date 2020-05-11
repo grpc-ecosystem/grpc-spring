@@ -1,6 +1,6 @@
 # 配置
 
-[<- 返回索引](../index)
+[<- 返回索引](../index.md)
 
 本节描述您如何配置您的 grpc-spring-boot-starter 应用程序。
 
@@ -14,11 +14,11 @@
 
 ## 附加主题 <!-- omit in toc -->
 
-- [入门指南](getting-started)
+- [入门指南](getting-started.md)
 - *配置*
-- [上下文数据 / Bean 的作用域](contextual-data)
-- [测试服务](testing)
-- [安全性](security)
+- [上下文数据 / Bean 的作用域](contextual-data.md)
+- [测试服务](testing.md)
+- [安全性](security.md)
 
 ## 通过属性配置
 
@@ -45,7 +45,7 @@ grpc.server.port=80
 
 > 请确保您不会与其他应用程序或其他端点发生冲突，如`spring-web`。
 
-[服务端安全性](security) 页面上解释了 `SSL` / `TLS` 和其他与安全相关的配置。
+[服务端安全性](security.md) 页面上解释了 `SSL` / `TLS` 和其他与安全相关的配置。
 
 ### 启用 InProcessServer
 
@@ -97,12 +97,12 @@ public GrpcServerConfigurer keepAliveServerConfigurer() {
 
 ## 附加主题 <!-- omit in toc -->
 
-- [入门指南](getting-started)
+- [入门指南](getting-started.md)
 - *配置*
-- [上下文数据 / Bean 的作用域](contextual-data)
-- [测试服务](testing)
-- [安全性](security)
+- [上下文数据 / Bean 的作用域](contextual-data.md)
+- [测试服务](testing.md)
+- [安全性](security.md)
 
 ----------
 
-[<- 返回索引](../index)
+[<- 返回索引](../index.md)

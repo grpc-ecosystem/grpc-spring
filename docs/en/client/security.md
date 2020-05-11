@@ -1,6 +1,6 @@
 # Client Security
 
-[<- Back to index](../index)
+[<- Back to Index](../index.md)
 
 This page describes how you connect to a grpc server and authenticate yourself.
 
@@ -15,10 +15,10 @@ This page describes how you connect to a grpc server and authenticate yourself.
 
 ## Additional Topics <!-- omit in toc -->
 
-- [Getting Started](getting-started)
-- [Configuration](configuration)
+- [Getting Started](getting-started.md)
+- [Configuration](configuration.md)
 - *Security*
-- [Tests with Grpc-Stubs](testing)
+- [Tests with Grpc-Stubs](testing.md)
 
 ## Enable Transport Layer Security
 
@@ -31,7 +31,7 @@ is configured like this or is using its default:
 grpc.client.<SomeName>.negotiationType=TLS
 ````
 
-For the corresponding server configuration read the [Server Security](../server/security) page.
+For the corresponding server configuration read the [Server Security](../server/security.md) page.
 
 ### Prerequisites
 
@@ -124,10 +124,10 @@ return myServiceForUser.send(request);
 
 ## Additional Topics <!-- omit in toc -->
 
-- [Getting Started](getting-started)
-- [Configuration](configuration)
+- [Getting Started](getting-started.md)
+- [Configuration](configuration.md)
 - *Security*
 
 ----------
 
-[<- Back to index](../index)
+[<- Back to Index](../index.md)

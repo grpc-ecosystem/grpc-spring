@@ -1,6 +1,6 @@
 # 支持 Spring Boot Actuator
 
-[<- 返回索引](index)
+[<- 返回索引](index.md)
 
 此页面重点介绍与 [Spring-Boot-Actator](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html) 的集成。 这是一个可选的功能。 支持的特性
 
@@ -142,4 +142,4 @@ net.devh.boot.grpc.server.autoconfigure.GrpcServerMetricAutoConfiguration
 
 ----------
 
-[<- 返回索引](index)
+[<- 返回索引](index.md)

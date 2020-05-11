@@ -1,6 +1,6 @@
 # 支持 Brave / Sleuth
 
-[<- 返回索引](index)
+[<- 返回索引](index.md)
 
 此页面将着重介绍与 [Brave](https://github.com/openzipkin/brave) / [Sleuth](https://spring.io/projects/spring-cloud-sleuth) 的集成。 这是一个可选的功能。
 
@@ -69,4 +69,4 @@ Spring-Cloud-Sleuth 提供了一些类，例如[`SpringAwareManagedChannelBuilde
 
 ----------
 
-[<- 返回索引](index)
+[<- 返回索引](index.md)

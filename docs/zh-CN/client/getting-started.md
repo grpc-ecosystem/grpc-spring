@@ -1,6 +1,6 @@
 # 入门指南
 
-[<- 返回索引](../index)
+[<- 返回索引](../index.md)
 
 本节讨论如何让 Spring 连接到 gRPC 服务端并管理您的连接。
 
@@ -18,8 +18,8 @@
 ## 附加主题 <!-- omit in toc -->
 
 - *入门指南*
-- [配置](configuration)
-- [安全性](security)
+- [配置](configuration.md)
+- [安全性](security.md)
 
 ## 项目创建
 
@@ -37,11 +37,11 @@
 
 ### 接口项目
 
-请参阅 [服务端入门指引](../server/getting-started#interface-project) 页面
+请参阅 [服务端入门指引](../server/getting-started.md#interface-project) 页面
 
 ### 服务端项目
 
-请参阅 [服务端入门指引](../server/getting-started#server-project) 页面
+请参阅 [服务端入门指引](../server/getting-started.md#server-project) 页面
 
 ### 客户端项目
 
@@ -91,7 +91,7 @@ buildscript {
 
 ## 使用 Stubs 连接服务端
 
-本节假定您已经定义并生成了[Protobuf](../server/getting-started#creating-the-grpc-service-definitions)。
+本节假定您已经定义并生成了[Protobuf](../server/getting-started.md#creating-the-grpc-service-definitions)。
 
 ### 解释客户端组件
 
@@ -136,9 +136,9 @@ public class FoobarService {
 ## 附加主题 <!-- omit in toc -->
 
 - *入门指南*
-- [配置](configuration)
-- [安全性](security)
+- [配置](configuration.md)
+- [安全性](security.md)
 
 ----------
 
-[<- 返回索引](../index)
+[<- 返回索引](../index.md)

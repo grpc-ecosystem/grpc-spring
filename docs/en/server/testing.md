@@ -1,11 +1,11 @@
 # Testing the Service
 
-[<- Back to index](../index)
+[<- Back to Index](../index.md)
 
 This section describes how you write tests for your grpc-service implementation.
 
 If you want to test a component that internally uses an `@GrpcClient` annotated field or one of grpc's stubs.
-Please refer to [Tests with Grpc-Stubs](../client/testing).
+Please refer to [Tests with Grpc-Stubs](../client/testing.md).
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -19,11 +19,11 @@ Please refer to [Tests with Grpc-Stubs](../client/testing).
 
 ## Additional Topics <!-- omit in toc -->
 
-- [Getting Started](getting-started)
-- [Configuration](configuration)
-- [Contextual Data / Scoped Beans](contextual-data)
+- [Getting Started](getting-started.md)
+- [Configuration](configuration.md)
+- [Contextual Data / Scoped Beans](contextual-data.md)
 - *Testing the Service*
-- [Security](security)
+- [Security](security.md)
 
 ## Introductory Words
 
@@ -298,12 +298,12 @@ public class MyServiceIntegrationTestConfiguration {
 
 ## Additional Topics <!-- omit in toc -->
 
-- [Getting Started](getting-started)
-- [Configuration](configuration)
-- [Contextual Data / Scoped Beans](contextual-data)
+- [Getting Started](getting-started.md)
+- [Configuration](configuration.md)
+- [Contextual Data / Scoped Beans](contextual-data.md)
 - *Testing the Service*
-- [Security](security)
+- [Security](security.md)
 
 ----------
 
-[<- Back to index](../index)
+[<- Back to Index](../index.md)

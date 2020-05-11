@@ -1,6 +1,6 @@
 # 配置
 
-[<- 返回索引](../index)
+[<- 返回索引](../index.md)
 
 本节描述您如何配置您的 grpc-spring-boot-starter 客户端。
 
@@ -14,9 +14,9 @@
 
 ## 附加主题 <!-- omit in toc -->
 
-- [入门指南](getting-started)
+- [入门指南](getting-started.md)
 - *配置*
-- [安全性](security)
+- [安全性](security.md)
 
 ## 通过属性配置
 
@@ -46,7 +46,7 @@ grpc.client.__name__.address=static://localhost:9090
 - [`dns`](https://github.com/grpc/grpc-java/blob/master/core/src/main/java/io/grpc/internal/DnsNameResolver.java#L66)（优先级 5）：解析并绑定到给定 DNS 名称的所有地址。 地址将被缓存，只有当现有连接被关闭 / 失败时才会刷新。 更多选项，例如 `SVC` 查找（对 kubernetes 有用），可以通过系统属性启用。 例如：`dns:///example.my.company`
 - `discovery` (优先级 6)：(可选) 使用 Spring Cloud 的`DiscoveryClient` 去查找合适的目标。 在 `HeartbeatEvent` 的时候，连接将自动刷新。 使用 `gRPC.port` 元数据来确定端口，否则使用服务端口。 示例： `discovery:///service-name`
 - `self`（优先级 0）：如果您使用 `grpc-server-spring-boot-starter` 并且不想指定自己的地址 / 端口，则可以使用 self 关键词作为 scheme 或者 address 。 这对于需要使用随机服务器端口以避免冲突的测试特别有用。 例如：`self`或`self:self`
-- `in-process`：这是一个特殊的方案，将使用 `InProcessChannelFactory` 来替代原有正常的 ChannelFactory。 并使用它连接到 [`InProcessServer`](../server/configuration#enabling-the-inprocessserver)。 例如：`in-process:foobar`
+- `in-process`：这是一个特殊的方案，将使用 `InProcessChannelFactory` 来替代原有正常的 ChannelFactory。 并使用它连接到 [`InProcessServer`](../server/configuration.md#enabling-the-inprocessserver)。 例如：`in-process:foobar`
 - *custom*: 您可以通过 Java 的 `ServiceLoader` 或从 Spring 的应用上下文中选择要自定义的 [`NameResolverProvider`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/NameResolverProvider.html) ，并将其注册到 `NameResolverRegistry` 上.
 
 如果您没有定义地址，它将按照如下方式被猜测：
@@ -57,7 +57,7 @@ grpc.client.__name__.address=static://localhost:9090
 
 > **注意:** 斜杠的数量很重要！ 还要确保不要连接到普通的 web / REST / 非 grpc 服务器（端口）。
 
-[客户端安全性](security) 页面上解释了 `SSL` / `TLS` 和其他与安全相关的配置。
+[客户端安全性](security.md) 页面上解释了 `SSL` / `TLS` 和其他与安全相关的配置。
 
 ## 通过Beans 配置
 
@@ -105,10 +105,10 @@ public StubTransformer call() {
 
 ## 附加主题 <!-- omit in toc -->
 
-- [入门指南](getting-started)
+- [入门指南](getting-started.md)
 - *配置*
-- [安全性](security)
+- [安全性](security.md)
 
 ----------
 
-[<- 返回索引](../index)
+[<- 返回索引](../index.md)

@@ -1,6 +1,6 @@
 # Server Security
 
-[<- Back to index](../index)
+[<- Back to Index](../index.md)
 
 This section describes how you secure your application using transport layer security and authentication.
 We strongly recommend enabling at least transport layer security.
@@ -17,16 +17,16 @@ We strongly recommend enabling at least transport layer security.
 
 ## Additional Topics <!-- omit in toc -->
 
-- [Getting Started](getting-started)
-- [Configuration](configuration)
-- [Contextual Data / Scoped Beans](contextual-data)
-- [Testing the Service](testing)
+- [Getting Started](getting-started.md)
+- [Configuration](configuration.md)
+- [Contextual Data / Scoped Beans](contextual-data.md)
+- [Testing the Service](testing.md)
 - *Security*
 
 ## Enable Transport Layer Security
 
 You can configure transport level security using spring's configuration mechanisms. For non security related
-configuration options refer to the [Configuration](configuration) page.
+configuration options refer to the [Configuration](configuration.md) page.
 
 If you are behind a reverse proxy that handles TLS for you, you might not need to set up `TLS`. Please consult with
 security experts, if you are not familiar with security. Don't forget to check the setup for security issues. ^^
@@ -68,7 +68,7 @@ grpc.server.security.privateKey=file:certificates/server.key
 If you want to know what options are supported here, read
 [Spring's Resource docs](https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#resources-resourceloader).
 
-For the corresponding client configuration read the [Client Security](../client/security) page.
+For the corresponding client configuration read the [Client Security](../client/security.md) page.
 
 ## Mutual Certificate Authentication
 
@@ -277,12 +277,12 @@ public void methodX(Request request, StreamObserver<Response> responseObserver) 
 
 ## Additional Topics <!-- omit in toc -->
 
-- [Getting Started](getting-started)
-- [Configuration](configuration)
-- [Contextual Data / Scoped Beans](contextual-data)
-- [Testing the Service](testing)
+- [Getting Started](getting-started.md)
+- [Configuration](configuration.md)
+- [Contextual Data / Scoped Beans](contextual-data.md)
+- [Testing the Service](testing.md)
 - *Security*
 
 ----------
 
-[<- Back to index](../index)
+[<- Back to Index](../index.md)

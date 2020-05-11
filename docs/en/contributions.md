@@ -1,6 +1,6 @@
 # Contributing
 
-[<- Back to index](index)
+[<- Back to Index](index.md)
 
 Contributions are always welcome.
 
@@ -10,4 +10,4 @@ For more information refer to our [contribution guidelines](https://github.com/y
 
 ----------
 
-[<- Back to index](index)
+[<- Back to Index](index.md)

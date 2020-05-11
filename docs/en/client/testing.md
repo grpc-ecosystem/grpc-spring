@@ -1,35 +1,35 @@
 # Tests with Grpc-Stubs
 
-[<- Back to index](../index)
+[<- Back to Index](../index.md)
 
 This section describes how you write tests for components that use the `@GrpcClient` annotation or grpc's stubs.
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Introductory Words](#introductory-words)
-- [The component to test](#the-component-to-test)
+- [The Component to test](#the-component-to-test)
 - [Useful Dependencies](#useful-dependencies)
-- [Using a mocked stub](#using-a-mocked-stub)
-- [Running a dummy server](#running-a-dummy-server)
+- [Using a Mocked Stub](#using-a-mocked-stub)
+- [Running a Dummy Server](#running-a-dummy-server)
 
 ## Additional Topics <!-- omit in toc -->
 
-- [Getting Started](getting-started)
-- [Configuration](configuration)
-- [Security](security)
+- [Getting Started](getting-started.md)
+- [Configuration](configuration.md)
+- [Security](security.md)
 - *Tests with Grpc-Stubs*
 
 ## Introductory Words
 
 Generally there are two ways to test your component containing a grpc stub:
 
-- [Using a mocked stub](#using-a-mocked-stub)
-- [Running a dummy server](#running-a-dummy-server)
+- [Using a Mocked Stub](#using-a-mocked-stub)
+- [Running a Dummy Server](#running-a-dummy-server)
 
 > Note: There are very important differences in both variants that might affect you during the tests.
 > Please consider the pros and cons listed at each on the variants carefully.
 
-## The component to test
+## The Component to test
 
 Let's assume that we wish to test the following component:
 
@@ -119,7 +119,7 @@ testImplementation("org.springframework.boot:spring-boot-starter-test") {
 testImplementation("org.mockito:mockito-all")
 ````
 
-## Using a mocked stub
+## Using a Mocked Stub
 
 In order to test the method we mock the stub and inject it using a setter.
 
@@ -169,7 +169,7 @@ In order to test the method we mock the stub and inject it using a setter.
    }
    ````
 
-## Running a dummy server
+## Running a Dummy Server
 
 In order to test the method we start a grpc server ourselves and connect to it during our tests.
 
@@ -256,11 +256,11 @@ public class ChatServiceImplForMyComponentIntegrationTest extends ChatServiceGrp
 
 ## Additional Topics <!-- omit in toc -->
 
-- [Getting Started](getting-started)
-- [Configuration](configuration)
-- [Security](security)
+- [Getting Started](getting-started.md)
+- [Configuration](configuration.md)
+- [Security](security.md)
 - *Tests with Grpc-Stubs*
 
 ----------
 
-[<- Back to index](../index)
+[<- Back to Index](../index.md)

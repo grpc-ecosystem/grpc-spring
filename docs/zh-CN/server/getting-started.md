@@ -1,6 +1,6 @@
 # 入门指南
 
-[<- 返回索引](../index)
+[<- 返回索引](../index.md)
 
 本节描述了将您的应用程序接入 grpc-spring-boot-starter 项目的必要步骤。
 
@@ -17,10 +17,10 @@
 ## 附加主题 <!-- omit in toc -->
 
 - *入门指南*
-- [配置](configuration)
-- [上下文数据 / Bean 的作用域](contextual-data)
-- [测试服务](testing)
-- [安全性](security)
+- [配置](configuration.md)
+- [上下文数据 / Bean 的作用域](contextual-data.md)
+- [测试服务](testing.md)
+- [安全性](security.md)
 
 ## 项目创建
 
@@ -196,7 +196,7 @@ buildscript {
 
 ### 客户端项目
 
-请参阅 [客户端入门指引](../client/getting-started#client-project) 页面
+请参阅 [客户端入门指引](../client/getting-started.md#client-project) 页面
 
 ## 创建 gRPC 服务定义
 
@@ -234,7 +234,7 @@ message HelloReply {
 配置 maven/gradle protobuf 插件使其调用 [`protoc`](https://mvnrepository.com/artifact/com.google.protobuf/protoc) 编译器，并使用 [`protoc-gen-grpc-java`](https://mvnrepository.com/artifact/io.grpc/protoc-gen-grpc-java) 插件并生成数据类、grpc 服务类 `ImplicBase`s 和 `Stub`。 请注意，其他插件，如 [reactive-grpc](https://github.com/salesforce/reactive-grpc) 可能会生成其他额外 / 替代类。 然而，它们也可以同样的方式使用。
 
 - `ImplicBase`类包含基本逻辑，映射虚拟实现到grpc 服务方法。 在 [实现服务逻辑](#implementing-the-service) 章节中有更多关于这个问题的信息。
-- `Stub`类是完整的客户端实现。 更多信息可以参考 [客户端指引](../client/getting-started) 页面。
+- `Stub`类是完整的客户端实现。 更多信息可以参考 [客户端指引](../client/getting-started.md) 页面。
 
 ## 实现服务逻辑
 
@@ -292,11 +292,11 @@ grpcurl --plaintext -d '{"name": "test"}' localhost:9090 net.devh.boot.grpc.exam
 ## 附加主题 <!-- omit in toc -->
 
 - *入门指南*
-- [配置](configuration)
-- [上下文数据 / Bean 的作用域](contextual-data)
-- [测试服务](testing)
-- [安全性](security)
+- [配置](configuration.md)
+- [上下文数据 / Bean 的作用域](contextual-data.md)
+- [测试服务](testing.md)
+- [安全性](security.md)
 
 ----------
 
-[<- 返回索引](../index)
+[<- 返回索引](../index.md)

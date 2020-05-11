@@ -25,7 +25,7 @@ A setup for cloud environments using a eureka service discovery service.
 - [Client](https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/examples/cloud-grpc-client)
 - [Instructions](https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/examples#cloud-mode)
 
-## Basic auth example
+## Basic Auth Example
 
 A setup that demonstrates the usage of spring-security with grpc.
 This setup uses basic auth for simplicity reasons, but other authentication mechanism can be used for this as well.
