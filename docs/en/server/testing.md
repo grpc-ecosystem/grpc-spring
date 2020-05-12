@@ -149,17 +149,17 @@ public class MyServiceTest {
     }
 
     @Test
-    void testSayHellpo() {
+    void testSayHellpo() throws Exception {
         HelloRequest request = HelloRequest.newBuilder()
                 .setName("Test")
                 .build();
         StreamRecorder<HelloReply> responseObserver = StreamRecorder.create();
         myService.sayHello(request, responseObserver);
-        if (!responseObserver.awaitCompletion(5, TimeUnit.SECONDS);
+        if (!responseObserver.awaitCompletion(5, TimeUnit.SECONDS)) {
             fail("The call did not terminate in time");
         }
         assertNull(responseObserver.getError());
-        List<HelloReply> results = responseObserver.getValues().size();
+        List<HelloReply> results = responseObserver.getValues();
         assertEquals(1, results.size());
         HelloReply response = results.get(0);
         assertEquals(HelloReply.newBuilder()
@@ -190,17 +190,17 @@ public class MyServiceTest {
     private MyServiceImpl myService;
 
     @Test
-    void testSayHellpo() {
+    void testSayHellpo() throws Exception {
         HelloRequest request = HelloRequest.newBuilder()
                 .setName("Test")
                 .build();
         StreamRecorder<HelloReply> responseObserver = StreamRecorder.create();
         myService.sayHello(request, responseObserver);
-        if (!responseObserver.awaitCompletion(5, TimeUnit.SECONDS);
+        if (!responseObserver.awaitCompletion(5, TimeUnit.SECONDS)) {
             fail("The call did not terminate in time");
         }
         assertNull(responseObserver.getError());
-        List<HelloReply> results = responseObserver.getValues().size();
+        List<HelloReply> results = responseObserver.getValues();
         assertEquals(1, results.size());
         HelloReply response = results.get(0);
         assertEquals(HelloReply.newBuilder()
