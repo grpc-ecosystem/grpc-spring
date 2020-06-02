@@ -11,16 +11,15 @@ buildscript {
     ext {
         projectVersion = '2.8.0-SNAPSHOT'
 
-        grpcVersion = '1.28.1'
+        grpcVersion = '1.29.0'
         protobufVersion = '3.11.4'
         protobufGradlePluginVersion = '0.8.11'
 
-        springBootVersion = '2.2.6.RELEASE'
-        springCloudVersion = 'Hoxton.SR3'
+        springBootVersion = '2.2.7.RELEASE'
+        springCloudVersion = 'Hoxton.SR4'
         springDependencyManagementVersion = '1.0.9.RELEASE'
-        springCloudAlibabaNacosVersion = '2.2.0.RELEASE'
-        braveInstrumentationGrpc = '5.10.2'
-        springSecurityOAuthVersion = '2.4.0.RELEASE'
+        springCloudAlibabaNacosVersion = '2.2.1.RELEASE'
+        springSecurityOAuthVersion = '2.4.1.RELEASE'
 
         lombokPluginVersion = '3.2.0'
         versioningPluginVersion = '2.10.0'
@@ -34,13 +33,13 @@ plugins {
     id 'java'
     id 'java-library'
     // future improvement would be to use the version declared above in the ext block instead of repeating it here
-    id 'org.springframework.boot' version '2.2.6.RELEASE' apply false
+    id 'org.springframework.boot' version '2.2.7.RELEASE' apply false
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
-    id 'net.nemerosa.versioning' version '2.12.1'
+    id 'net.nemerosa.versioning' version '2.13.1'
     id 'com.google.protobuf' version '0.8.12'
-    id 'io.franzbecker.gradle-lombok' version '3.3.0' apply false
+    id 'io.franzbecker.gradle-lombok' version '4.0.0' apply false
     id 'com.github.ben-manes.versions' version '0.28.0' // gradle dependencyUpdates (Takes quite some time)
-    id 'com.diffplug.gradle.spotless' version '3.28.0'
+    id 'com.diffplug.gradle.spotless' version '4.0.1'
 }
 
 // If you attempt to build without the `--scan` parameter in `gradle 6.0+` it will cause a build error that it can't find
@@ -150,10 +149,10 @@ allprojects { project ->
     buildscript {
         dependencyManagement {
             imports {
-                mavenBom "io.grpc:grpc-bom:${grpcVersion}"
-                mavenBom "com.google.protobuf:protobuf-bom:${protobufVersion}"
                 mavenBom "org.springframework.boot:spring-boot-starter-parent:${springBootVersion}"
                 mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+                mavenBom "com.google.protobuf:protobuf-bom:${protobufVersion}"
+                mavenBom "io.grpc:grpc-bom:${grpcVersion}"
             }
         }
 
