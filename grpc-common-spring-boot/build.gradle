@@ -17,5 +17,5 @@ dependencies {
     api('io.grpc:grpc-core')
 
     optionalSupportImplementation('org.springframework.cloud:spring-cloud-starter-sleuth')
-    optionalSupportImplementation("io.zipkin.brave:brave-instrumentation-grpc:${braveInstrumentationGrpc}")
+    optionalSupportImplementation('io.zipkin.brave:brave-instrumentation-grpc')
 }

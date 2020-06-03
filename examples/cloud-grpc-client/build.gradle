@@ -7,7 +7,7 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.cloud:spring-cloud-starter-zipkin'
-    implementation "io.zipkin.brave:brave-instrumentation-grpc:${braveInstrumentationGrpc}"
+    implementation 'io.zipkin.brave:brave-instrumentation-grpc'
     implementation project(':grpc-client-spring-boot-starter') // replace to implementation("net.devh:grpc-client-spring-boot-starter:${springBootGrpcVersion}")
     implementation project(':examples:grpc-lib')
 }
