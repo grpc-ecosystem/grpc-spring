@@ -80,7 +80,7 @@ publishing {
     }
 
     tasks.withType(Sign) {
-        onlyIf { project.ext.isReleaseVersion && gradle.taskGraph.hasTask("publish") }
+        onlyIf { project.ext.isReleaseVersion }
     }
 
     signing {
