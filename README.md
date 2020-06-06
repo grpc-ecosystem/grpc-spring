@@ -1,6 +1,6 @@
 # gRPC Spring Boot Starter
 
-[![Build Status](https://travis-ci.org/yidongnan/grpc-spring-boot-starter.svg?branch=master)](https://travis-ci.org/yidongnan/grpc-spring-boot-starter)
+[![Build master branch](https://github.com/yidongnan/grpc-spring-boot-starter/workflows/Build%20master%20branch/badge.svg)](https://github.com/yidongnan/grpc-spring-boot-starter/actions)
 [![Maven Central with version prefix filter](https://img.shields.io/maven-central/v/net.devh/grpc-spring-boot-starter.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.devh%22%20grpc)
 [![MIT License](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 [![Crowdin](https://badges.crowdin.net/grpc-spring-boot-starter/localized.svg)](https://crowdin.com/project/grpc-spring-boot-starter)
