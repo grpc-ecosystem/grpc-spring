@@ -1,21 +1,8 @@
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
-gradle.taskGraph.whenReady { taskGraph ->
-    if (taskGraph.allTasks.any { it instanceof Sign } && project.ext.isReleaseVersion) {
-        def id = System.getenv('GPG_ID')
-        def file = '/home/travis/.gnupg/secring.gpg'
-        def password = System.getenv('GPG_PASSWORD')
-
-        allprojects { ext."signing.keyId" = id }
-        allprojects { ext."signing.secretKeyRingFile" = file }
-        allprojects { ext."signing.password" = password }
-    }
-}
-
 ext {
     isReleaseVersion = !(projectVersion =~ /-SNAPSHOT$/)
-    isNeedSign = System.getenv('GPG_ID') && isReleaseVersion
 }
 
 task sourcesJar(type: Jar) {
@@ -67,6 +54,15 @@ publishing {
                     url = 'https://github.com/yidongnan/grpc-spring-boot-starter'
                 }
             }
+
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
         }
     }
     repositories {
@@ -83,8 +79,12 @@ publishing {
         }
     }
 
+    tasks.withType(Sign) {
+        onlyIf { project.ext.isReleaseVersion && gradle.taskGraph.hasTask("publish") }
+    }
+
     signing {
-        required { project.ext.isNeedSign }
+        useGpgCmd()
         sign publishing.publications.mavenJava
     }
 
