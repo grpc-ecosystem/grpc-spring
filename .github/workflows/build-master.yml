@@ -1,0 +1,61 @@
+name: Build master branch
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build on java ${{ matrix.java }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: ['8', '11']
+    steps:
+      - uses: actions/checkout@v2
+
+      # https://github.com/actions/virtual-environments/issues/929
+      - name: "Setup /etc/hosts for Linux"
+        shell: bash
+        run: |
+          if [ `uname` = "Linux" ]; then
+            echo "\$ cat /etc/hosts"
+            cat /etc/hosts
+            echo
+            (
+              echo "127.0.0.1       localhost";
+              echo "::1     localhost ip6-localhost ip6-loopback";
+            ) | sudo tee /etc/hosts
+            echo
+            echo "\$ cat /etc/hosts"
+            cat /etc/hosts
+          fi
+
+      - name: Set up java ${{ matrix.java }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Decrypt file
+        run: openssl aes-256-cbc -K ${{ secrets.ENCRYPTED_KEY }} -iv ${{ secrets.ENCRYPTED_IV }} -in private.key.enc -out ./private.key -d && gpg --batch --import ./private.key || echo
+
+      - name: Build with Gradle
+        run: ./gradlew --scan --stacktrace --warning-mode=all build
+
+      - name: Deploy with Gradle
+        run: ./gradlew --scan publish -x check -Psigning.gnupg.executable=gpg -Psigning.gnupg.keyName=${{ secrets.GPG_NAME }} -Psigning.gnupg.passphrase=${{ secrets.GPG_PASSWORD }}
+        if: ${{ matrix.java == '8' }}
+        env:
+          OSSRH_USER: ${{ secrets.OSSRH_USER }}
+          OSSRH_PASS: ${{ secrets.OSSRH_PASS }}
