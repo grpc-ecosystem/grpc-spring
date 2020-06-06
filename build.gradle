@@ -17,7 +17,6 @@ buildscript {
 
         springBootVersion = '2.2.7.RELEASE'
         springCloudVersion = 'Hoxton.SR4'
-        springDependencyManagementVersion = '1.0.9.RELEASE'
         springCloudAlibabaNacosVersion = '2.2.1.RELEASE'
         springSecurityOAuthVersion = '2.4.1.RELEASE'
 
