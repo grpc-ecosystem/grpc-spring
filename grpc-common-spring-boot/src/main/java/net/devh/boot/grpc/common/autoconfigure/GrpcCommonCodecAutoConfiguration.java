@@ -70,7 +70,7 @@ public class GrpcCommonCodecAutoConfiguration {
         log.debug("Found GrpcCodecDiscoverer -> Creating custom DecompressorRegistry");
         DecompressorRegistry registry = DecompressorRegistry.getDefaultInstance();
         for (final GrpcCodecDefinition definition : codecDiscoverer.findGrpcCodecs()) {
-            if (definition.getCodecType().isForCompression()) {
+            if (definition.getCodecType().isForDecompression()) {
                 final Codec codec = definition.getCodec();
                 final boolean isAdvertised = definition.isAdvertised();
                 log.debug("Registering {} decompressor: '{}' ({})",
