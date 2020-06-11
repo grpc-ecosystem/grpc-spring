@@ -3,6 +3,7 @@ apply plugin: 'signing'
 
 ext {
     isReleaseVersion = !(projectVersion =~ /-SNAPSHOT$/)
+    isNeedSign = project.hasProperty('signing.gnupg.keyName') && isReleaseVersion
 }
 
 task sourcesJar(type: Jar) {
@@ -80,7 +81,7 @@ publishing {
     }
 
     tasks.withType(Sign) {
-        onlyIf { project.ext.isReleaseVersion }
+        onlyIf { project.ext.isNeedSign }
     }
 
     signing {
