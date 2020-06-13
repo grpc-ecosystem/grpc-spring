@@ -9,22 +9,26 @@ buildscript {
         }
     }
     ext {
-        projectVersion = '2.8.0.RELEASE'
+        projectVersion = '2.9.0-SNAPSHOT'
 
-        grpcVersion = '1.29.0'
-        protobufVersion = '3.11.4'
+        // https://github.com/grpc/grpc-java/releases
+        grpcVersion = '1.30.0'
+        // https://github.com/protocolbuffers/protobuf/releases
+        protobufVersion = '3.12.2'
         protobufGradlePluginVersion = '0.8.11'
 
-        springBootVersion = '2.2.7.RELEASE'
-        springCloudVersion = 'Hoxton.SR4'
+        // https://github.com/spring-projects/spring-boot/releases
+        springBootVersion = '2.3.1.RELEASE'
+        // https://github.com/spring-cloud/spring-cloud-release/releases
+        springCloudVersion = 'Hoxton.SR5'
+        // https://github.com/alibaba/spring-cloud-alibaba/releases
         springCloudAlibabaNacosVersion = '2.2.1.RELEASE'
-        springSecurityOAuthVersion = '2.4.1.RELEASE'
+        // https://github.com/spring-projects/spring-security-oauth/releases/tag/2.5.0.RELEASE
+        springSecurityOAuthVersion = '2.5.0.RELEASE'
 
         lombokPluginVersion = '3.2.0'
         versioningPluginVersion = '2.10.0'
         versionsPluginVersion = '0.27.0'
-
-        nimbusJoseJwtVersion = '8.11'
     }
 }
 
@@ -32,13 +36,13 @@ plugins {
     id 'java'
     id 'java-library'
     // future improvement would be to use the version declared above in the ext block instead of repeating it here
-    id 'org.springframework.boot' version '2.2.7.RELEASE' apply false
+    id 'org.springframework.boot' version '2.3.1.RELEASE' apply false
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
     id 'net.nemerosa.versioning' version '2.13.1'
     id 'com.google.protobuf' version '0.8.12'
     id 'io.franzbecker.gradle-lombok' version '4.0.0' apply false
     id 'com.github.ben-manes.versions' version '0.28.0' // gradle dependencyUpdates (Takes quite some time)
-    id 'com.diffplug.gradle.spotless' version '4.0.1'
+    id 'com.diffplug.gradle.spotless' version '4.3.0'
 }
 
 // If you attempt to build without the `--scan` parameter in `gradle 6.0+` it will cause a build error that it can't find
@@ -52,7 +56,9 @@ if (hasProperty('buildScan')) {
 
 // you may use IntelliJ's project configuration to make it use the gradle version defined in the gradle script's wrapper section
 wrapper {
-    gradleVersion = '6.2.1'
+    // Update using:
+    // ./gradlew wrapper --gradle-version=6.5 --distribution-type=bin
+    gradleVersion = '6.5'
 }
 
 def buildTimeAndDate = OffsetDateTime.now()
