@@ -8,7 +8,6 @@ dependencies {
     implementation 'org.springframework.security:spring-security-oauth2-client'
     implementation project(':grpc-server-spring-boot-starter') // replace to implementation("net.devh:grpc-server-spring-boot-starter:${springBootGrpcVersion}")
     implementation project(':examples:grpc-lib')
-    implementation 'com.nimbusds:nimbus-jose-jwt:${nimbusJoseJwtVersion}'
     implementation "org.springframework.security.oauth:spring-security-oauth2:${springSecurityOAuthVersion}"
     implementation 'org.springframework.security:spring-security-web'
     implementation 'org.springframework.security:spring-security-oauth2-resource-server'
