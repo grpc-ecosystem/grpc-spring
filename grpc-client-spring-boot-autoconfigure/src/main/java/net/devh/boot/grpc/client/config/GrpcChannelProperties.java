@@ -376,12 +376,11 @@ public class GrpcChannelProperties {
     }
 
     /**
-     * Instructs a client to connect to GRPC-endpoint when GRPC stub is created.
-     * If it's set to {@code true} application startup will be slower due to connection process
-     * will be executed synchronously with maximum to connection timeout.
-     * If connection fails stub will fail to create with an exception which in turn causes context
-     * startup to fail.
-     * Defaults to false.
+     * Instructs a client to connect to GRPC-endpoint when GRPC stub is created. If it's set to {@code true} application
+     * startup will be slower due to connection process will be executed synchronously with maximum to connection
+     * timeout. If connection fails stub will fail to create with an exception which in turn causes context startup to
+     * If connection fails stub will fail to create with an exception which in turn causes context fail. Defaults to
+     * false.
      *
      * @param immediateConnect whether client should try to connect on startup.
      */
