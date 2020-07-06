@@ -22,8 +22,11 @@ import static java.util.Objects.requireNonNull;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
+import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.BeanCreationException;
@@ -57,7 +60,7 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     // which could lead to problems with the correct bean setup.
     private GrpcChannelFactory channelFactory = null;
     private List<StubTransformer> stubTransformers = null;
-    private final List<StubFactory> stubFactories;
+    private List<StubFactory> stubFactories = null;
 
     /**
      * Creates a new GrpcClientBeanPostProcessor with the given ApplicationContext.
@@ -67,7 +70,6 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
      */
     public GrpcClientBeanPostProcessor(final ApplicationContext applicationContext) {
         this.applicationContext = requireNonNull(applicationContext, "applicationContext");
-        stubFactories = new ArrayList<>(applicationContext.getBeansOfType(StubFactory.class).values());
     }
 
     @Override
@@ -226,25 +228,36 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     }
 
     /**
-     * Creates a stub instance for the specified stub type.
+     * Creates a stub instance for the specified stub type using the resolved {@link StubFactory}.
      * 
      * @param stubClass
      * @param channel
-     * @throws IllegalArgumentException If the method was called with an unsupported stub type.
-     * @throws IllegalStateException If failed creating the stub instance.
-     * @return
+     * @throws BeanInstantiationException If the stub couldn't be created, either because the type isn't supported or because of a failure in creation.
+     * @return A newly created gRPC stub.
      */
     private AbstractStub<?> createStub(Class<? extends AbstractStub<?>> stubClass, Channel channel) {
-        final StubFactory factory = this.stubFactories.stream()
+        final StubFactory factory = getStubFactories().stream()
                 .filter(stubFactory -> stubFactory.isApplicable(stubClass))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new BeanInstantiationException(stubClass,
                         "Unsupported stub type: " + stubClass.getName() + " -> Please report this issue."));
 
         try {
             return factory.createStub(stubClass, channel);
         } catch (Exception exception) {
-            throw new IllegalStateException("Failed to create gRPC stub of type " + stubClass.getName(), exception);
+            throw new BeanInstantiationException(stubClass, "Failed to create gRPC stub of type " + stubClass.getName(), exception);
         }
+    }
+
+    /**
+     * Lazy getter for the list of defined {@link StubFactory} beans.
+     *
+     * @return A list of all defined {@link StubFactory} beans.
+     */
+    private List<StubFactory> getStubFactories() {
+        if (this.stubFactories == null) {
+            stubFactories = new ArrayList<>(applicationContext.getBeansOfType(StubFactory.class).values());
+        }
+        return stubFactories;
     }
 }

@@ -17,13 +17,11 @@
 
 package net.devh.boot.grpc.client.stubfactory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-
-import org.springframework.beans.BeanInstantiationException;
-
 import io.grpc.Channel;
 import io.grpc.stub.AbstractStub;
+import org.springframework.beans.BeanInstantiationException;
+
+import java.lang.reflect.Method;
 
 /**
  * A factory for creating stubs provided by standard grpc Java library. This is an abstract super-type that can be
@@ -31,33 +29,15 @@ import io.grpc.stub.AbstractStub;
  */
 public abstract class StandardJavaGrpcStubFactory implements StubFactory {
 
-    /**
-     * Creates a stub of the given type.
-     *
-     * @param stubType The type of the stub to create.
-     * @param channel The channel used to create the stub.
-     * @return The newly created stub.
-     *
-     * @throws BeanInstantiationException If the stub couldn't be created.
-     */
     @Override
     public AbstractStub<?> createStub(final Class<? extends AbstractStub<?>> stubType, final Channel channel) {
         try {
-            // First try the public static factory method
+            // Use the public static factory method
             final String methodName = getFactoryMethodName();
             final Class<?> enclosingClass = stubType.getEnclosingClass();
             final Method factoryMethod = enclosingClass.getMethod(methodName, Channel.class);
             return stubType.cast(factoryMethod.invoke(null, channel));
         } catch (final Exception e) {
-            try {
-                // Use the private constructor as backup
-                final Constructor<? extends AbstractStub<?>> constructor =
-                        stubType.getDeclaredConstructor(Channel.class);
-                constructor.setAccessible(true);
-                return constructor.newInstance(channel);
-            } catch (final Exception e1) {
-                e.addSuppressed(e1);
-            }
             throw new BeanInstantiationException(stubType, "Failed to create gRPC client", e);
         }
     }
