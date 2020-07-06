@@ -361,6 +361,36 @@ public class GrpcChannelProperties {
 
     // --------------------------------------------------
 
+    private Boolean immediateConnect;
+    private static final boolean DEFAULT_IMMEDIATE_CONNECT = false;
+
+    /**
+     * Gets the negotiation type to use on the connection.
+     *
+     * @return whether client should try to connect on startup.
+     *
+     * @see #setImmediateConnect(Boolean)
+     */
+    public boolean isImmediateConnect() {
+        return this.immediateConnect == null ? DEFAULT_IMMEDIATE_CONNECT : this.immediateConnect;
+    }
+
+    /**
+     * Instructs a client to connect to GRPC-endpoint when GRPC stub is created.
+     * If it's set to {@code true} application startup will be slower due to connection process
+     * will be executed synchronously with maximum to connection timeout.
+     * If connection fails stub will fail to create with an exception which in turn causes context
+     * startup to fail.
+     * Defaults to false.
+     *
+     * @param immediateConnect whether client should try to connect on startup.
+     */
+    public void setImmediateConnect(final Boolean immediateConnect) {
+        this.immediateConnect = immediateConnect;
+    }
+
+    // --------------------------------------------------
+
     private final Security security = new Security();
 
     /**
@@ -408,6 +438,9 @@ public class GrpcChannelProperties {
         }
         if (this.negotiationType == null) {
             this.negotiationType = config.negotiationType;
+        }
+        if (this.immediateConnect == null) {
+            this.immediateConnect = config.immediateConnect;
         }
         this.security.copyDefaultsFrom(config.security);
     }

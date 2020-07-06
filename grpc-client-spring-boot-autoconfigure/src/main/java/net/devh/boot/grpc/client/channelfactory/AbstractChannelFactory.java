@@ -23,7 +23,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PreDestroy;
 import javax.annotation.concurrent.GuardedBy;
@@ -132,8 +134,41 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         final T builder = newChannelBuilder(name);
         configure(builder, name);
         final ManagedChannel channel = builder.build();
+        if (properties.getChannel(name).isImmediateConnect()) {
+            connectOnStartup(name, channel);
+        }
         watchConnectivityState(name, channel);
         return channel;
+    }
+
+    private void connectOnStartup(String name, ManagedChannel channel) {
+        final ConnectivityState state = channel.getState(true);
+        final CountDownLatch timeout = new CountDownLatch(1);
+        final AtomicBoolean connected = new AtomicBoolean(false);
+
+        channel.notifyWhenStateChanged(state, () -> {
+            ConnectivityState state1 = channel.getState(false);
+            log.info("First state change {}", state1);
+            if (state1 == ConnectivityState.CONNECTING) {
+                channel.notifyWhenStateChanged(state1, () -> {
+                    ConnectivityState state2 = channel.getState(false);
+                    log.info("Second state change {}", state2);
+                    connected.set(state2 == ConnectivityState.READY);
+                    timeout.countDown();
+                });
+            }
+        });
+        boolean timeoutExceeded;
+        try {
+            log.info("Waiting for connect");
+            timeoutExceeded = !timeout.await(20, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            timeoutExceeded = true;
+        }
+        if (!connected.get() || timeoutExceeded) {
+            throw new IllegalStateException("Can't connect to channel " + name);
+        }
     }
 
     /**
