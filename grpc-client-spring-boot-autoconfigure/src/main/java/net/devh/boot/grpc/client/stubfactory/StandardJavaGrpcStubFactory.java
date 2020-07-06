@@ -17,11 +17,12 @@
 
 package net.devh.boot.grpc.client.stubfactory;
 
-import io.grpc.Channel;
-import io.grpc.stub.AbstractStub;
+import java.lang.reflect.Method;
+
 import org.springframework.beans.BeanInstantiationException;
 
-import java.lang.reflect.Method;
+import io.grpc.Channel;
+import io.grpc.stub.AbstractStub;
 
 /**
  * A factory for creating stubs provided by standard grpc Java library. This is an abstract super-type that can be

@@ -232,7 +232,8 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
      * 
      * @param stubClass
      * @param channel
-     * @throws BeanInstantiationException If the stub couldn't be created, either because the type isn't supported or because of a failure in creation.
+     * @throws BeanInstantiationException If the stub couldn't be created, either because the type isn't supported or
+     *         because of a failure in creation.
      * @return A newly created gRPC stub.
      */
     private AbstractStub<?> createStub(Class<? extends AbstractStub<?>> stubClass, Channel channel) {
@@ -245,7 +246,8 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
         try {
             return factory.createStub(stubClass, channel);
         } catch (Exception exception) {
-            throw new BeanInstantiationException(stubClass, "Failed to create gRPC stub of type " + stubClass.getName(), exception);
+            throw new BeanInstantiationException(stubClass, "Failed to create gRPC stub of type " + stubClass.getName(),
+                    exception);
         }
     }
 

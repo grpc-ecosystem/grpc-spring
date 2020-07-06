@@ -17,13 +17,14 @@
 
 package net.devh.boot.grpc.client.stubfactory;
 
-import io.grpc.Channel;
-import io.grpc.stub.AbstractStub;
 import org.springframework.beans.BeanInstantiationException;
 
+import io.grpc.Channel;
+import io.grpc.stub.AbstractStub;
+
 /**
- * A factory for gRPC stubs. This is an extension mechanism for supporting different types of gRPC compiled stubs
- * in addition to the standard Java compiled gRPC.
+ * A factory for gRPC stubs. This is an extension mechanism for supporting different types of gRPC compiled stubs in
+ * addition to the standard Java compiled gRPC.
  *
  * Spring beans implementing this type will be picked up automatically and added to the list of supported types.
  */
@@ -42,6 +43,7 @@ public interface StubFactory {
 
     /**
      * Used to resolve a factory that matches the particular stub type.
+     * 
      * @param stubType The type of the stub that needs to be created.
      * @return True if this particular factory is capable of creating instances of this stub type. False otherwise.
      */
