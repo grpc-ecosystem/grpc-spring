@@ -39,7 +39,7 @@ public interface StubFactory {
      *
      * @throws BeanInstantiationException If the stub couldn't be created.
      */
-    AbstractStub<?> createStub(final Class<? extends AbstractStub<?>> stubType, final Channel channel);
+    AbstractStub<?> createStub(Class<? extends AbstractStub<?>> stubType, Channel channel);
 
     /**
      * Used to resolve a factory that matches the particular stub type.

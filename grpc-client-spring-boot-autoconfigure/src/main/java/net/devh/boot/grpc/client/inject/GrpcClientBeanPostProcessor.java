@@ -230,8 +230,8 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     /**
      * Creates a stub instance for the specified stub type using the resolved {@link StubFactory}.
      * 
-     * @param stubClass
-     * @param channel
+     * @param stubClass The stub class that needs to be created.
+     * @param channel The gRPC channel associated with the created stub, passed as a parameter to the stub factory.
      * @throws BeanInstantiationException If the stub couldn't be created, either because the type isn't supported or
      *         because of a failure in creation.
      * @return A newly created gRPC stub.
