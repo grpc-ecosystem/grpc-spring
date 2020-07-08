@@ -35,24 +35,24 @@ import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
 
-public class ImmediateConnectSuccessTest {
+public class ImmediateConnectTest {
 
     @Slf4j
     @SpringBootTest(properties = {
             "grpc.client.GLOBAL.address=localhost:9090",
             "grpc.client.GLOBAL.negotiationType=PLAINTEXT",
-            "grpc.client.GLOBAL.immediateConnectTimeout=1s",
+            "grpc.client.GLOBAL.immediateConnectTimeout=10s",
     })
     @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
     @DirtiesContext
-    static class ImmediateConnectEnabledAnsSuccessfulTest extends AbstractSimpleServerClientTest {
+    static class ImmediateConnectEnabledAndSuccessfulTest extends AbstractSimpleServerClientTest {
 
-        ImmediateConnectEnabledAnsSuccessfulTest() {
+        ImmediateConnectEnabledAndSuccessfulTest() {
             log.info("--- ImmediateConnectEnabledAnsSuccessfulTest ---");
         }
 
         @Test
-        void immediateConnectEnabledAnsSuccessful() {
+        void immediateConnectEnabledAndSuccessful() {
             assumeTrue(channel instanceof ManagedChannel,
                     "To run this test channel must be ManagedChannel");
             ManagedChannel managedChannel = (ManagedChannel) channel;
