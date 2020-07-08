@@ -19,6 +19,7 @@ package net.devh.boot.grpc.client.channelfactory;
 
 import static java.util.Objects.requireNonNull;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -134,16 +135,17 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         final T builder = newChannelBuilder(name);
         configure(builder, name);
         final ManagedChannel channel = builder.build();
-        if (properties.getChannel(name).isImmediateConnect()) {
-            connectOnStartup(name, channel);
+        final Duration timeout = properties.getChannel(name).getImmediateConnectTimeout();
+        if (!timeout.isZero()) {
+            connectOnStartup(name, channel, timeout);
         }
         watchConnectivityState(name, channel);
         return channel;
     }
 
-    private void connectOnStartup(String name, ManagedChannel channel) {
+    private void connectOnStartup(String name, ManagedChannel channel, Duration timeout) {
         final ConnectivityState state = channel.getState(true);
-        final CountDownLatch timeout = new CountDownLatch(1);
+        final CountDownLatch timeoutLatch = new CountDownLatch(1);
         final AtomicBoolean connected = new AtomicBoolean(false);
 
         channel.notifyWhenStateChanged(state, () -> {
@@ -154,14 +156,14 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
                     ConnectivityState state2 = channel.getState(false);
                     log.info("Second state change {}", state2);
                     connected.set(state2 == ConnectivityState.READY);
-                    timeout.countDown();
+                    timeoutLatch.countDown();
                 });
             }
         });
         boolean timeoutExceeded;
         try {
             log.info("Waiting for connect");
-            timeoutExceeded = !timeout.await(20, TimeUnit.SECONDS);
+            timeoutExceeded = !timeoutLatch.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             timeoutExceeded = true;

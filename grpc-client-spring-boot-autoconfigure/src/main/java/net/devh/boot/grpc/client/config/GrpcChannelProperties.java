@@ -361,31 +361,34 @@ public class GrpcChannelProperties {
 
     // --------------------------------------------------
 
-    private Boolean immediateConnect;
-    private static final boolean DEFAULT_IMMEDIATE_CONNECT = false;
+    private Duration immediateConnectTimeout;
+    private static final Duration DEFAULT_IMMEDIATE_CONNECT = Duration.ZERO;
 
     /**
-     * Gets the negotiation type to use on the connection.
+     * Get the connection timeout at application startup.
      *
-     * @return whether client should try to connect on startup.
+     * @return connection timeout at application startup.
      *
-     * @see #setImmediateConnect(Boolean)
+     * @see #setImmediateConnectTimeout(Duration)
      */
-    public boolean isImmediateConnect() {
-        return this.immediateConnect == null ? DEFAULT_IMMEDIATE_CONNECT : this.immediateConnect;
+    public Duration getImmediateConnectTimeout() {
+        return this.immediateConnectTimeout == null ? DEFAULT_IMMEDIATE_CONNECT : this.immediateConnectTimeout;
     }
 
     /**
-     * Instructs a client to connect to GRPC-endpoint when GRPC stub is created. If it's set to {@code true} application
-     * startup will be slower due to connection process will be executed synchronously with maximum to connection
-     * timeout. If connection fails stub will fail to create with an exception which in turn causes context startup to
-     * If connection fails stub will fail to create with an exception which in turn causes context fail. Defaults to
-     * false.
+     * If set to a positive duration instructs a client to connect to GRPC-endpoint when GRPC stub is created. If it's
+     * set to a positive timeout application startup will be slower due to connection process will be executed
+     * synchronously with maximum to connection timeout. If connection fails stub will fail to create with an exception
+     * which in turn causes context startup to If connection fails stub will fail to create with an exception which in
+     * turn causes context fail. Defaults to false.
      *
-     * @param immediateConnect whether client should try to connect on startup.
+     * @param immediateConnectTimeout Connection timeout at application startup.
      */
-    public void setImmediateConnect(final Boolean immediateConnect) {
-        this.immediateConnect = immediateConnect;
+    public void setImmediateConnectTimeout(final Duration immediateConnectTimeout) {
+        if (immediateConnectTimeout.isNegative()) {
+            throw new IllegalArgumentException("Timeout can't be negative");
+        }
+        this.immediateConnectTimeout = immediateConnectTimeout;
     }
 
     // --------------------------------------------------
@@ -438,8 +441,8 @@ public class GrpcChannelProperties {
         if (this.negotiationType == null) {
             this.negotiationType = config.negotiationType;
         }
-        if (this.immediateConnect == null) {
-            this.immediateConnect = config.immediateConnect;
+        if (this.immediateConnectTimeout == null) {
+            this.immediateConnectTimeout = config.immediateConnectTimeout;
         }
         this.security.copyDefaultsFrom(config.security);
     }
