@@ -276,15 +276,13 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
     }
 
     private void waitForReady(ManagedChannel channel, CountDownLatch readySignal) {
-        final ConnectivityState state = channel.getState(true);
+        final ConnectivityState state = channel.getState(false);
         log.debug("Waiting for ready state. Currently in {}", state);
-        channel.notifyWhenStateChanged(state, () -> {
-            if (ConnectivityState.READY == channel.getState(false)) {
-                readySignal.countDown();
-            } else {
-                waitForReady(channel, readySignal);
-            }
-        });
+        if (state == ConnectivityState.READY) {
+            readySignal.countDown();
+        } else {
+            channel.notifyWhenStateChanged(state, () -> waitForReady(channel, readySignal));
+        }
     }
 
     /**
