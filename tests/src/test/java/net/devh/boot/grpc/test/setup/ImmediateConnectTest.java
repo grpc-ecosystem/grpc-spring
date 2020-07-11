@@ -78,6 +78,7 @@ public class ImmediateConnectTest {
         }
 
         @Test
+        @DirtiesContext
         void immediateConnectDisabled() {
             assumeTrue(channel instanceof ManagedChannel,
                     "To run this test channel must be ManagedChannel");
