@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PreDestroy;
 import javax.annotation.concurrent.GuardedBy;
@@ -35,12 +34,7 @@ import org.springframework.util.unit.DataSize;
 
 import com.google.common.collect.Lists;
 
-import io.grpc.Channel;
-import io.grpc.ClientInterceptor;
-import io.grpc.ClientInterceptors;
-import io.grpc.ConnectivityState;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
+import io.grpc.*;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
@@ -53,7 +47,6 @@ import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
  * connection pooling and thus needs to be {@link #close() closed} after usage.
  *
  * @param <T> The type of builder used by this channel factory.
- *
  * @author Michael (yidongnan@gmail.com)
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  * @since 5/17/16
@@ -144,33 +137,35 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
     }
 
     private void connectOnStartup(String name, ManagedChannel channel, Duration timeout) {
-        final ConnectivityState state = channel.getState(true);
-        final CountDownLatch timeoutLatch = new CountDownLatch(1);
-        final AtomicBoolean connected = new AtomicBoolean(false);
+        log.debug("Initiating connection to channel {}", name);
+        channel.getState(true);
 
-        channel.notifyWhenStateChanged(state, () -> {
-            ConnectivityState state1 = channel.getState(false);
-            log.info("First state change {}", state1);
-            if (state1 == ConnectivityState.CONNECTING) {
-                channel.notifyWhenStateChanged(state1, () -> {
-                    ConnectivityState state2 = channel.getState(false);
-                    log.info("Second state change {}", state2);
-                    connected.set(state2 == ConnectivityState.READY);
-                    timeoutLatch.countDown();
-                });
-            }
-        });
-        boolean timeoutExceeded;
+        final CountDownLatch readyLatch = new CountDownLatch(1);
+        waitForReady(channel, readyLatch);
+        boolean connected;
         try {
-            log.info("Waiting for connect");
-            timeoutExceeded = !timeoutLatch.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
+            log.debug("Waiting for connection to channel {}", name);
+            connected = !readyLatch.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            timeoutExceeded = true;
+            connected = false;
         }
-        if (!connected.get() || timeoutExceeded) {
+        if (connected) {
             throw new IllegalStateException("Can't connect to channel " + name);
         }
+        log.info("Successfully connected to channel {}", name);
+    }
+
+    private void waitForReady(ManagedChannel channel, CountDownLatch readySignal) {
+        final ConnectivityState state = channel.getState(true);
+        log.debug("Waiting for ready state. Currently in {}", state);
+        channel.notifyWhenStateChanged(state, () -> {
+            if (ConnectivityState.READY == channel.getState(false)) {
+                readySignal.countDown();
+            } else {
+                waitForReady(channel, readySignal);
+            }
+        });
     }
 
     /**
