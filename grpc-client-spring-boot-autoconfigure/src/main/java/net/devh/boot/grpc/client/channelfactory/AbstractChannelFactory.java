@@ -47,6 +47,7 @@ import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
  * connection pooling and thus needs to be {@link #close() closed} after usage.
  *
  * @param <T> The type of builder used by this channel factory.
+ *
  * @author Michael (yidongnan@gmail.com)
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  * @since 5/17/16
@@ -134,38 +135,6 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         }
         watchConnectivityState(name, channel);
         return channel;
-    }
-
-    private void connectOnStartup(String name, ManagedChannel channel, Duration timeout) {
-        log.debug("Initiating connection to channel {}", name);
-        channel.getState(true);
-
-        final CountDownLatch readyLatch = new CountDownLatch(1);
-        waitForReady(channel, readyLatch);
-        boolean connected;
-        try {
-            log.debug("Waiting for connection to channel {}", name);
-            connected = !readyLatch.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            connected = false;
-        }
-        if (connected) {
-            throw new IllegalStateException("Can't connect to channel " + name);
-        }
-        log.info("Successfully connected to channel {}", name);
-    }
-
-    private void waitForReady(ManagedChannel channel, CountDownLatch readySignal) {
-        final ConnectivityState state = channel.getState(true);
-        log.debug("Waiting for ready state. Currently in {}", state);
-        channel.notifyWhenStateChanged(state, () -> {
-            if (ConnectivityState.READY == channel.getState(false)) {
-                readySignal.countDown();
-            } else {
-                waitForReady(channel, readySignal);
-            }
-        });
     }
 
     /**
@@ -284,6 +253,38 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         if (state != ConnectivityState.SHUTDOWN) {
             channel.notifyWhenStateChanged(state, () -> watchConnectivityState(name, channel));
         }
+    }
+
+    private void connectOnStartup(String name, ManagedChannel channel, Duration timeout) {
+        log.debug("Initiating connection to channel {}", name);
+        channel.getState(true);
+
+        final CountDownLatch readyLatch = new CountDownLatch(1);
+        waitForReady(channel, readyLatch);
+        boolean connected;
+        try {
+            log.debug("Waiting for connection to channel {}", name);
+            connected = !readyLatch.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            connected = false;
+        }
+        if (connected) {
+            throw new IllegalStateException("Can't connect to channel " + name);
+        }
+        log.info("Successfully connected to channel {}", name);
+    }
+
+    private void waitForReady(ManagedChannel channel, CountDownLatch readySignal) {
+        final ConnectivityState state = channel.getState(true);
+        log.debug("Waiting for ready state. Currently in {}", state);
+        channel.notifyWhenStateChanged(state, () -> {
+            if (ConnectivityState.READY == channel.getState(false)) {
+                readySignal.countDown();
+            } else {
+                waitForReady(channel, readySignal);
+            }
+        });
     }
 
     /**
