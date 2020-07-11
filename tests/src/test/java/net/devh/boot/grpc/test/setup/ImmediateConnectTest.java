@@ -44,7 +44,6 @@ public class ImmediateConnectTest {
             "grpc.client.GLOBAL.immediateConnectTimeout=10s",
     })
     @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
-    @DirtiesContext
     static class ImmediateConnectEnabledAndSuccessfulTest extends AbstractSimpleServerClientTest {
 
         ImmediateConnectEnabledAndSuccessfulTest() {
@@ -52,6 +51,7 @@ public class ImmediateConnectTest {
         }
 
         @Test
+        @DirtiesContext
         void immediateConnectEnabledAndSuccessful() {
             assumeTrue(channel instanceof ManagedChannel,
                     "To run this test channel must be ManagedChannel");
@@ -107,6 +107,7 @@ public class ImmediateConnectTest {
         }
 
         @Test
+        @DirtiesContext
         void immediateConnectEnabledAndFailedToConnect() {
             contextRunner.run(context -> {
                 assertThat(context).hasFailed();
