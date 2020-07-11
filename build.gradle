@@ -173,8 +173,8 @@ allprojects { project ->
     test {
         useJUnitPlatform()
         testLogging {
-            // failFast = true
-            // showStandardStreams = true
+            failFast = true
+            showStandardStreams = true
             exceptionFormat = 'full'
             showCauses = true
             showExceptions = true
