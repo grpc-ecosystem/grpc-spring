@@ -321,7 +321,7 @@ public class GrpcServerProperties {
         }
     }
 
-    public void setmaxInboundMetadataSize(final DataSize maxInboundMetadataSize) {
+    public void setMaxInboundMetadataSize(final DataSize maxInboundMetadataSize) {
         if (maxInboundMetadataSize == null || maxInboundMetadataSize.toBytes() >= 0) {
             this.maxInboundMetadataSize = maxInboundMetadataSize;
         } else if (maxInboundMetadataSize.toBytes() == -1) {
