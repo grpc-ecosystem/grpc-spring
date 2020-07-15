@@ -40,7 +40,7 @@ import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReade
  *
  * @author Gregor Eeckels (gregor.eeckels@gmail.com)
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 // proxyTargetClass is required, if you use annotation driven security!
 // However, you will receive a warning that GrpcServerService#bindService() method is final.
 // You cannot avoid that warning (without massive amount of work), but it is safe to ignore it.

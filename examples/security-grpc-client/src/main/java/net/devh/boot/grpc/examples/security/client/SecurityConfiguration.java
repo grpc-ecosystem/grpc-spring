@@ -32,7 +32,7 @@ import net.devh.boot.grpc.client.security.CallCredentialsHelper;
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  * @see CallCredentialsHelper
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class SecurityConfiguration {
 
     @Value("${auth.username}")

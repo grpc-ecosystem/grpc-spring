@@ -37,7 +37,7 @@ import net.devh.boot.grpc.server.config.GrpcServerProperties;
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
 @ConditionalOnClass({EurekaInstanceConfigBean.class, EurekaClient.class})
 public class GrpcMetadataEurekaConfiguration {

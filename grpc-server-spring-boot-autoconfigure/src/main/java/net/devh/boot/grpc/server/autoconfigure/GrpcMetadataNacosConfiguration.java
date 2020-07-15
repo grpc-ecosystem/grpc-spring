@@ -36,7 +36,7 @@ import net.devh.boot.grpc.server.config.GrpcServerProperties;
  *
  * @author Michael (yidongnan@gmail.com)
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
 @ConditionalOnClass({NacosDiscoveryProperties.class, NacosNamingService.class})
 public class GrpcMetadataNacosConfiguration {
