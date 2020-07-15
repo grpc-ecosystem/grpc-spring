@@ -46,6 +46,9 @@ import net.devh.boot.grpc.client.inject.GrpcClientBeanPostProcessor;
 import net.devh.boot.grpc.client.interceptor.AnnotationGlobalClientInterceptorConfigurer;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 import net.devh.boot.grpc.client.nameresolver.NameResolverRegistration;
+import net.devh.boot.grpc.client.stubfactory.AsyncStubFactory;
+import net.devh.boot.grpc.client.stubfactory.BlockingStubFactory;
+import net.devh.boot.grpc.client.stubfactory.FutureStubFactory;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 
 /**
@@ -63,6 +66,21 @@ public class GrpcClientAutoConfiguration {
     @Bean
     static GrpcClientBeanPostProcessor grpcClientBeanPostProcessor(final ApplicationContext applicationContext) {
         return new GrpcClientBeanPostProcessor(applicationContext);
+    }
+
+    @Bean
+    AsyncStubFactory asyncStubFactory() {
+        return new AsyncStubFactory();
+    }
+
+    @Bean
+    BlockingStubFactory blockingStubFactory() {
+        return new BlockingStubFactory();
+    }
+
+    @Bean
+    FutureStubFactory futureStubFactory() {
+        return new FutureStubFactory();
     }
 
     @ConditionalOnMissingBean
