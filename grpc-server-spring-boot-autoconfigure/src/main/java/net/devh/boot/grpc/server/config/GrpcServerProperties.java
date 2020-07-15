@@ -324,8 +324,8 @@ public class GrpcServerProperties {
 
     /**
      * Sets the maximum metadata size allowed to be received by the server. If not set ({@code null}) then it will
-     * default to {@link GrpcUtil#DEFAULT_MAX_HEADER_LIST_SIZE gRPC's default}. If set to {@code -1} then it will use the
-     * highest possible limit (not recommended).
+     * default to {@link GrpcUtil#DEFAULT_MAX_HEADER_LIST_SIZE gRPC's default}. If set to {@code -1} then it will use
+     * the highest possible limit (not recommended).
      *
      * @param maxInboundMetadataSize The new maximum size allowed for incoming metadata. {@code -1} for max possible.
      *        Null to use the gRPC's default.
