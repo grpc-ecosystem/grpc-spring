@@ -19,10 +19,12 @@ package net.devh.boot.grpc.client.channelfactory;
 
 import static java.util.Objects.requireNonNull;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PreDestroy;
@@ -132,6 +134,10 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         final T builder = newChannelBuilder(name);
         configure(builder, name);
         final ManagedChannel channel = builder.build();
+        final Duration timeout = properties.getChannel(name).getImmediateConnectTimeout();
+        if (!timeout.isZero()) {
+            connectOnStartup(name, channel, timeout);
+        }
         watchConnectivityState(name, channel);
         return channel;
     }
@@ -251,6 +257,36 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         this.channelStates.put(name, state);
         if (state != ConnectivityState.SHUTDOWN) {
             channel.notifyWhenStateChanged(state, () -> watchConnectivityState(name, channel));
+        }
+    }
+
+    private void connectOnStartup(String name, ManagedChannel channel, Duration timeout) {
+        log.debug("Initiating connection to channel {}", name);
+        channel.getState(true);
+
+        final CountDownLatch readyLatch = new CountDownLatch(1);
+        waitForReady(channel, readyLatch);
+        boolean connected;
+        try {
+            log.debug("Waiting for connection to channel {}", name);
+            connected = !readyLatch.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            connected = false;
+        }
+        if (connected) {
+            throw new IllegalStateException("Can't connect to channel " + name);
+        }
+        log.info("Successfully connected to channel {}", name);
+    }
+
+    private void waitForReady(ManagedChannel channel, CountDownLatch readySignal) {
+        final ConnectivityState state = channel.getState(false);
+        log.debug("Waiting for ready state. Currently in {}", state);
+        if (state == ConnectivityState.READY) {
+            readySignal.countDown();
+        } else {
+            channel.notifyWhenStateChanged(state, () -> waitForReady(channel, readySignal));
         }
     }
 

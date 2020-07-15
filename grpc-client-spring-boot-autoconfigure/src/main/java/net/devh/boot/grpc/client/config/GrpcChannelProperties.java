@@ -361,6 +361,38 @@ public class GrpcChannelProperties {
 
     // --------------------------------------------------
 
+    private Duration immediateConnectTimeout;
+    private static final Duration DEFAULT_IMMEDIATE_CONNECT = Duration.ZERO;
+
+    /**
+     * Get the connection timeout at application startup.
+     *
+     * @return connection timeout at application startup.
+     *
+     * @see #setImmediateConnectTimeout(Duration)
+     */
+    public Duration getImmediateConnectTimeout() {
+        return this.immediateConnectTimeout == null ? DEFAULT_IMMEDIATE_CONNECT : this.immediateConnectTimeout;
+    }
+
+    /**
+     * If set to a positive duration instructs a client to connect to GRPC-endpoint when GRPC stub is created. If it's
+     * set to a positive timeout application startup will be slower due to connection process will be executed
+     * synchronously with maximum to connection timeout. If connection fails stub will fail to create with an exception
+     * which in turn causes context startup to If connection fails stub will fail to create with an exception which in
+     * turn causes context fail. Defaults to false.
+     *
+     * @param immediateConnectTimeout Connection timeout at application startup.
+     */
+    public void setImmediateConnectTimeout(final Duration immediateConnectTimeout) {
+        if (immediateConnectTimeout.isNegative()) {
+            throw new IllegalArgumentException("Timeout can't be negative");
+        }
+        this.immediateConnectTimeout = immediateConnectTimeout;
+    }
+
+    // --------------------------------------------------
+
     private final Security security = new Security();
 
     /**
@@ -408,6 +440,9 @@ public class GrpcChannelProperties {
         }
         if (this.negotiationType == null) {
             this.negotiationType = config.negotiationType;
+        }
+        if (this.immediateConnectTimeout == null) {
+            this.immediateConnectTimeout = config.immediateConnectTimeout;
         }
         this.security.copyDefaultsFrom(config.security);
     }
