@@ -19,7 +19,6 @@ package net.devh.boot.grpc.client.inject;
 
 import static java.util.Objects.requireNonNull;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -41,12 +40,10 @@ import com.google.common.collect.Lists;
 
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
-import io.grpc.stub.AbstractAsyncStub;
-import io.grpc.stub.AbstractBlockingStub;
-import io.grpc.stub.AbstractFutureStub;
 import io.grpc.stub.AbstractStub;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import net.devh.boot.grpc.client.nameresolver.NameResolverRegistration;
+import net.devh.boot.grpc.client.stubfactory.StubFactory;
 
 /**
  * This {@link BeanPostProcessor} searches for fields and methods in beans that are annotated with {@link GrpcClient}
@@ -63,6 +60,7 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     // which could lead to problems with the correct bean setup.
     private GrpcChannelFactory channelFactory = null;
     private List<StubTransformer> stubTransformers = null;
+    private List<StubFactory> stubFactories = null;
 
     /**
      * Creates a new GrpcClientBeanPostProcessor with the given ApplicationContext.
@@ -217,7 +215,8 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
         } else if (AbstractStub.class.isAssignableFrom(injectionType)) {
 
             @SuppressWarnings("unchecked") // Eclipse incorrectly marks this as not required
-            AbstractStub<?> stub = createStub(injectionType.asSubclass(AbstractStub.class), channel);
+            AbstractStub<?> stub = createStub(
+                    (Class<? extends AbstractStub<?>>) injectionType.asSubclass(AbstractStub.class), channel);
             for (final StubTransformer stubTransformer : getStubTransformers()) {
                 stub = stubTransformer.transform(name, stub);
             }
@@ -229,53 +228,38 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     }
 
     /**
-     * Creates a stub of the given type.
-     *
-     * @param <T> The type of the instance to be injected.
-     * @param stubType The type of the stub to create.
-     * @param channel The channel used to create the stub.
-     * @return The newly created stub.
-     *
-     * @throws BeanInstantiationException If the stub couldn't be created.
+     * Creates a stub instance for the specified stub type using the resolved {@link StubFactory}.
+     * 
+     * @param stubClass The stub class that needs to be created.
+     * @param channel The gRPC channel associated with the created stub, passed as a parameter to the stub factory.
+     * @throws BeanInstantiationException If the stub couldn't be created, either because the type isn't supported or
+     *         because of a failure in creation.
+     * @return A newly created gRPC stub.
      */
-    protected <T extends AbstractStub<T>> T createStub(final Class<T> stubType, final Channel channel) {
+    private AbstractStub<?> createStub(Class<? extends AbstractStub<?>> stubClass, Channel channel) {
+        final StubFactory factory = getStubFactories().stream()
+                .filter(stubFactory -> stubFactory.isApplicable(stubClass))
+                .findFirst()
+                .orElseThrow(() -> new BeanInstantiationException(stubClass,
+                        "Unsupported stub type: " + stubClass.getName() + " -> Please report this issue."));
+
         try {
-            // First try the public static factory method
-            final String methodName = deriveStubFactoryMethodName(stubType);
-            final Class<?> enclosingClass = stubType.getEnclosingClass();
-            final Method factoryMethod = enclosingClass.getMethod(methodName, Channel.class);
-            return stubType.cast(factoryMethod.invoke(null, channel));
-        } catch (final Exception e) {
-            try {
-                // Use the private constructor as backup
-                final Constructor<T> constructor = stubType.getDeclaredConstructor(Channel.class);
-                constructor.setAccessible(true);
-                return constructor.newInstance(channel);
-            } catch (final Exception e1) {
-                e.addSuppressed(e1);
-            }
-            throw new BeanInstantiationException(stubType, "Failed to create gRPC client", e);
+            return factory.createStub(stubClass, channel);
+        } catch (Exception exception) {
+            throw new BeanInstantiationException(stubClass, "Failed to create gRPC stub of type " + stubClass.getName(),
+                    exception);
         }
     }
 
     /**
-     * Derives the name of the factory method from the given stub type.
+     * Lazy getter for the list of defined {@link StubFactory} beans.
      *
-     * @param stubType The type of the stub to get it for.
-     * @return The name of the factory method.
-     * @throws IllegalArgumentException If the method was called with an unsupported stub type.
+     * @return A list of all defined {@link StubFactory} beans.
      */
-    protected String deriveStubFactoryMethodName(final Class<? extends AbstractStub<?>> stubType) {
-        if (AbstractAsyncStub.class.isAssignableFrom(stubType)) {
-            return "newStub";
-        } else if (AbstractBlockingStub.class.isAssignableFrom(stubType)) {
-            return "newBlockingStub";
-        } else if (AbstractFutureStub.class.isAssignableFrom(stubType)) {
-            return "newFutureStub";
-        } else {
-            throw new IllegalArgumentException(
-                    "Unsupported stub type: " + stubType.getName() + " -> Please report this issue.");
+    private List<StubFactory> getStubFactories() {
+        if (this.stubFactories == null) {
+            stubFactories = new ArrayList<>(applicationContext.getBeansOfType(StubFactory.class).values());
         }
+        return stubFactories;
     }
-
 }
