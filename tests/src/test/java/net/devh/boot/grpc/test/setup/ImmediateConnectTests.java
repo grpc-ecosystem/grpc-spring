@@ -31,11 +31,17 @@ import io.grpc.Channel;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
 
-public class ImmediateConnectTest {
+/**
+ * These tests check the property {@link GrpcChannelProperties#getImmediateConnectTimeout()}. They check for
+ * backwards-compatibility when this property didn't existed and various cases when it's enabled (for successful
+ * connection and failed one).
+ */
+public class ImmediateConnectTests {
 
     @Slf4j
     @SpringBootTest(properties = {
@@ -44,6 +50,7 @@ public class ImmediateConnectTest {
             "grpc.client.GLOBAL.immediateConnectTimeout=10s",
     })
     @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
+    @DirtiesContext
     static class ImmediateConnectEnabledAndSuccessfulTest extends AbstractSimpleServerClientTest {
 
         ImmediateConnectEnabledAndSuccessfulTest() {
@@ -107,7 +114,6 @@ public class ImmediateConnectTest {
         }
 
         @Test
-        @DirtiesContext
         void immediateConnectEnabledAndFailedToConnect() {
             contextRunner.run(context -> {
                 assertThat(context).hasFailed();
