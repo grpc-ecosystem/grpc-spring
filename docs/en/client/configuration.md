@@ -11,6 +11,7 @@ This section describes how you can configure your grpc-spring-boot-starter clien
 - [Configuration via Beans](#configuration-via-beans)
   - [GrpcChannelConfigurer](#grpcchannelconfigurer)
   - [ClientInterceptor](#clientinterceptor)
+  - [StubFactory](#stubfactory)
   - [StubTransformer](#stubtransformer)
 
 ## Additional Topics <!-- omit in toc -->
@@ -131,6 +132,45 @@ There are three ways to add a `ClientInterceptor` to your channel.
   the `GlobalClientInterceptorRegistry`
 - Explicitly list them in the `@GrpcClient#interceptors` or `@GrpcClient#interceptorNames` field
 - Use a `StubTransformer` and call `stub.withInterceptors(ClientInterceptor... interceptors)`
+
+### StubFactory
+
+A `StubFactory` is used to create a `Stub` of a specific type. The registered stub factories will be checked in order
+and the first applicable factory will be used to create the stub.
+
+This library has build in support for the `Stub` types defined in grpc-java:
+
+- [`AsyncStubs`](https://grpc.github.io/grpc-java/javadoc/io/grpc/stub/AbstractAsyncStub.html)
+- [`BlockingStubs`](https://grpc.github.io/grpc-java/javadoc/io/grpc/stub/AbstractBlockingStub.html)
+- [`FutureStubs`](https://grpc.github.io/grpc-java/javadoc/io/grpc/stub/AbstractFutureStub.html)
+
+But you can easily add support for other `Stub` types by adding a custom `StubFactory` to your application context.
+
+````java
+@Component
+public class MyCustomStubFactory implements StubFactory {
+
+    @Override
+    public MyCustomStub<?> createStub(Class<? extends AbstractStub<?>> stubType, Channel channel) {
+        try {
+            Class<?> enclosingClass = stubType.getEnclosingClass();
+            Method factoryMethod = enclosingClass.getMethod("newMyBetterFutureStub", Channel.class);
+            return stubType.cast(factoryMethod.invoke(null, channel));
+        } catch (Exception e) {
+            throw new BeanInstantiationException(stubType, "Failed to create gRPC stub", e);
+        }
+    }
+
+    @Override
+    public boolean isApplicable(Class<? extends AbstractStub<?>> stubType) {
+        return AbstractMyCustomStub.class.isAssignableFrom(stubType);
+    }
+
+}
+````
+
+> **Note:** Please report missing stub types (and the corresponding library) in our issue tracker so that we can add
+> support if possible.
 
 ### StubTransformer
 
