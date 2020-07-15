@@ -161,6 +161,15 @@ public class GrpcServerProperties {
     private DataSize maxInboundMessageSize = null;
 
     /**
+     * The maximum size of metadata allowed to be received. If not set ({@code null}) then
+     * {@link GrpcUtil#DEFAULT_MAX_HEADER_LIST_SIZE gRPC's default} should be used.
+     * 
+     * @return The maximum metadata size allowed.
+     */
+    @DataSizeUnit(DataUnit.BYTES)
+    private DataSize maxInboundMetadataSize = null;
+
+    /**
      * Whether gRPC health service is enabled or not. Defaults to {@code true}.
      *
      * @param healthServiceEnabled Whether gRPC health service is enabled.
@@ -310,6 +319,26 @@ public class GrpcServerProperties {
             this.maxInboundMessageSize = DataSize.ofBytes(Integer.MAX_VALUE);
         } else {
             throw new IllegalArgumentException("Unsupported maxInboundMessageSize: " + maxInboundMessageSize);
+        }
+    }
+
+    /**
+     * Sets the maximum metadata size allowed to be received by the server. If not set ({@code null}) then it will
+     * default to {@link GrpcUtil#DEFAULT_MAX_HEADER_LIST_SIZE gRPC's default}. If set to {@code -1} then it will use
+     * the highest possible limit (not recommended).
+     *
+     * @param maxInboundMetadataSize The new maximum size allowed for incoming metadata. {@code -1} for max possible.
+     *        Null to use the gRPC's default.
+     *
+     * @see ServerBuilder#maxInboundMetadataSize(int)
+     */
+    public void setMaxInboundMetadataSize(final DataSize maxInboundMetadataSize) {
+        if (maxInboundMetadataSize == null || maxInboundMetadataSize.toBytes() >= 0) {
+            this.maxInboundMetadataSize = maxInboundMetadataSize;
+        } else if (maxInboundMetadataSize.toBytes() == -1) {
+            this.maxInboundMetadataSize = DataSize.ofBytes(Integer.MAX_VALUE);
+        } else {
+            throw new IllegalArgumentException("Unsupported maxInboundMetadataSize: " + maxInboundMetadataSize);
         }
     }
 

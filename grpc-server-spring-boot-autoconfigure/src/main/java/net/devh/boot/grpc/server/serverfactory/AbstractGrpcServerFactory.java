@@ -151,6 +151,10 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
         if (maxInboundMessageSize != null) {
             builder.maxInboundMessageSize((int) maxInboundMessageSize.toBytes());
         }
+        final DataSize maxInboundMetadataSize = this.properties.getMaxInboundMetadataSize();
+        if (maxInboundMetadataSize != null) {
+            builder.maxInboundMetadataSize((int) maxInboundMetadataSize.toBytes());
+        }
     }
 
     @Override
