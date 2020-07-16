@@ -51,9 +51,11 @@ import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReade
 public class SecurityConfiguration {
 
     @Bean
-    JwtAuthenticationConverter jwtAuthenticationConverter() {
+    JwtAuthenticationConverter jwtAuthenticationConverter(
+            final KeyCloakGrantedAuthoritiesConverter keyCloakGrantedAuthoritiesConverter) {
+
         final JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(keyCloakGrantedAuthoritiesConverter());
+        converter.setJwtGrantedAuthoritiesConverter(keyCloakGrantedAuthoritiesConverter);
         return converter;
     }
 
@@ -63,9 +65,9 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    JwtAuthenticationProvider jwtAuthenticationProvider() {
+    JwtAuthenticationProvider jwtAuthenticationProvider(final JwtAuthenticationConverter jwtAuthenticationConverter) {
         final JwtAuthenticationProvider provider = new JwtAuthenticationProvider(jwtDecoder());
-        provider.setJwtAuthenticationConverter(jwtAuthenticationConverter());
+        provider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
         return provider;
     }
 
@@ -73,16 +75,16 @@ public class SecurityConfiguration {
     /*
      * Add the authentication providers to the manager.
      */
-    AuthenticationManager authenticationManager() {
+    AuthenticationManager authenticationManager(final JwtAuthenticationProvider jwtAuthenticationProvider) {
         final List<AuthenticationProvider> providers = new ArrayList<>();
-        providers.add(jwtAuthenticationProvider());
+        providers.add(jwtAuthenticationProvider);
         return new ProviderManager(providers);
     }
 
     @Bean
     // Configure which authentication types you support.
     GrpcAuthenticationReader authenticationReader() {
-        return new BearerAuthenticationReader(accessToken -> new BearerTokenAuthenticationToken(accessToken));
+        return new BearerAuthenticationReader(BearerTokenAuthenticationToken::new);
     }
 
     @Bean

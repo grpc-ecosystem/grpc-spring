@@ -65,17 +65,17 @@ public class SecurityConfiguration {
 
     @Bean
     // This could be your database lookup. There are some complete implementations in spring-security-web.
-    UserDetailsService userDetailsService() {
+    UserDetailsService userDetailsService(final PasswordEncoder passwordEncoder) {
         return username -> {
             log.debug("Searching user: {}", username);
             switch (username) {
                 case "guest": {
-                    return new User(username, passwordEncoder().encode(username + "Password"), Collections.emptyList());
+                    return new User(username, passwordEncoder.encode(username + "Password"), Collections.emptyList());
                 }
                 case "user": {
                     final List<SimpleGrantedAuthority> authorities =
                             Arrays.asList(new SimpleGrantedAuthority("ROLE_GREET"));
-                    return new User(username, passwordEncoder().encode(username + "Password"), authorities);
+                    return new User(username, passwordEncoder.encode(username + "Password"), authorities);
                 }
                 default: {
                     throw new UsernameNotFoundException("Could not find user!");
@@ -87,18 +87,21 @@ public class SecurityConfiguration {
     @Bean
     // One of your authentication providers.
     // They ensure that the credentials are valid and populate the user's authorities.
-    DaoAuthenticationProvider daoAuthenticationProvider() {
+    DaoAuthenticationProvider daoAuthenticationProvider(
+            final UserDetailsService userDetailsService,
+            final PasswordEncoder passwordEncoder) {
+
         final DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService());
-        provider.setPasswordEncoder(passwordEncoder());
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
         return provider;
     }
 
     @Bean
     // Add the authentication providers to the manager.
-    AuthenticationManager authenticationManager() {
+    AuthenticationManager authenticationManager(final DaoAuthenticationProvider daoAuthenticationProvider) {
         final List<AuthenticationProvider> providers = new ArrayList<>();
-        providers.add(daoAuthenticationProvider());
+        providers.add(daoAuthenticationProvider);
         return new ProviderManager(providers);
     }
 
