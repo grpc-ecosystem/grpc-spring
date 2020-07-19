@@ -158,7 +158,7 @@ public class CallCredentialsHelper {
     }
 
     /**
-     * Creates a new call credential with the given token for bearer auth.
+     * Creates new call credentials with the given token for bearer auth.
      *
      * <p>
      * <b>Note:</b> This method uses experimental grpc-java-API features.
@@ -166,15 +166,15 @@ public class CallCredentialsHelper {
      *
      * @param token the bearer token to use
      * @return The newly created bearer auth credentials.
+     * @see #BEARER_AUTH_PREFIX
+     * @see #authorizationHeader(String)
      */
     public static CallCredentials bearerAuth(final String token) {
-        final Metadata extraHeaders = new Metadata();
-        extraHeaders.put(AUTHORIZATION_HEADER, BEARER_AUTH_PREFIX + token);
-        return new StaticSecurityHeaderCallCredentials(extraHeaders);
+        return authorizationHeader(BEARER_AUTH_PREFIX + token);
     }
 
     /**
-     * Creates a new call credential with the given username and password for basic auth.
+     * Creates new call credentials with the given username and password for basic auth.
      *
      * <p>
      * <b>Note:</b> This method uses experimental grpc-java-API features.
@@ -183,11 +183,12 @@ public class CallCredentialsHelper {
      * @param username The username to use.
      * @param password The password to use.
      * @return The newly created basic auth credentials.
+     * @see #BASIC_AUTH_PREFIX
+     * @see #encodeBasicAuth(String, String)
+     * @see #authorizationHeader(String)
      */
     public static CallCredentials basicAuth(final String username, final String password) {
-        final Metadata extraHeaders = new Metadata();
-        extraHeaders.put(AUTHORIZATION_HEADER, encodeBasicAuth(username, password));
-        return new StaticSecurityHeaderCallCredentials(extraHeaders);
+        return authorizationHeader(encodeBasicAuth(username, password));
     }
 
     /**
@@ -197,6 +198,7 @@ public class CallCredentialsHelper {
      * @param username The username to use.
      * @param password The password to use.
      * @return The encoded basic auth header value.
+     * @see #BASIC_AUTH_PREFIX
      */
     public static String encodeBasicAuth(final String username, final String password) {
         requireNonNull(username, "username");
@@ -209,6 +211,36 @@ public class CallCredentialsHelper {
             throw new IllegalArgumentException("Failed to encode basic authentication token", e);
         }
         return BASIC_AUTH_PREFIX + new String(encoded, UTF_8);
+    }
+
+    /**
+     * Creates new call credentials with the given static authorization information.
+     *
+     * <p>
+     * <b>Note:</b> This method uses experimental grpc-java-API features.
+     * </p>
+     *
+     * @param authorization The authorization to use. The authorization usually starts with the scheme such as as
+     *        {@code "Basic "} or {@code "Bearer "} followed by the actual authentication information.
+     * @return The newly created call credentials.
+     * @see #AUTHORIZATION_HEADER
+     * @see #authorizationHeaders(Metadata)
+     */
+    public static CallCredentials authorizationHeader(final String authorization) {
+        requireNonNull(authorization);
+        final Metadata extraHeaders = new Metadata();
+        extraHeaders.put(AUTHORIZATION_HEADER, authorization);
+        return authorizationHeaders(extraHeaders);
+    }
+
+    /**
+     * Creates new call credentials with the given static authorization headers.
+     *
+     * @param authorizationHeaders The authorization headers to use.
+     * @return The newly created call credentials.
+     */
+    public static CallCredentials authorizationHeaders(final Metadata authorizationHeaders) {
+        return new StaticSecurityHeaderCallCredentials(requireNonNull(authorizationHeaders));
     }
 
     /**
