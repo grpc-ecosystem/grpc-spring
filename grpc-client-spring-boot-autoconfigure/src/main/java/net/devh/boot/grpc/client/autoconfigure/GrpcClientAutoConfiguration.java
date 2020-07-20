@@ -182,7 +182,7 @@ public class GrpcClientAutoConfiguration {
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
 
-        log.warn("Could not detect any GrpcChannelFactory: Creating InProcessChannelFactory as fallback");
+        log.warn("Could not find a GrpcChannelFactory on the classpath: Creating InProcessChannelFactory as fallback");
         return new InProcessChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
     }
 
