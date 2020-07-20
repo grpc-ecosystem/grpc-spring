@@ -57,7 +57,7 @@ import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
 @AutoConfigureAfter(name = "org.springframework.cloud.client.CommonsClientAutoConfiguration",
         value = GrpcCommonCodecAutoConfiguration.class)

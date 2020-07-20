@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Lazy;
 
 import net.devh.boot.grpc.client.nameresolver.DiscoveryClientResolverFactory;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnBean(DiscoveryClient.class)
 public class GrpcDiscoveryClientAutoConfiguration {
 

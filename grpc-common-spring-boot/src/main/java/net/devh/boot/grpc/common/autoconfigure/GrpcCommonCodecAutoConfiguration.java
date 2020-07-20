@@ -37,7 +37,7 @@ import net.devh.boot.grpc.common.codec.GrpcCodecDiscoverer;
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @Slf4j
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(Codec.class)
 public class GrpcCommonCodecAutoConfiguration {
 

@@ -126,6 +126,9 @@ This section assumes that you have already defined and generated your [Protobuf 
   automatically attach it to all `Stub`s (**NOT** `Channel`s). The
   [`CallCredentialsHelper`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/security/CallCredentialsHelper.html)
   utility class helps you to create commonly used `CallCredentials` types and related `StubTransformer`.
+- [`StubFactory`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/stubfactory/StubFactory.html):
+  A factory that can be used to create a specfic `Stub` type from a `Channel`. Multiple `StubFactory`s can be registered to support different stub types.
+  See also [Configuration -> StubFactory](configuration.md#stubfactory).
 - [`StubTransformer`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/StubTransformer.html):
   A transformer that will be applied to all client `Stub`s before they are injected.
   See also [Configuration -> StubTransformer](configuration.md#stubtransformer).

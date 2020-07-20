@@ -28,7 +28,7 @@ import net.devh.boot.grpc.client.security.CallCredentialsHelper;
  *
  * @author Gregor Eeckels (gregor.eeckels@gmail.com)
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class SecurityConfiguration {
 
     // This token will usually be created by a login endpoint (e.g. from Keycloak).

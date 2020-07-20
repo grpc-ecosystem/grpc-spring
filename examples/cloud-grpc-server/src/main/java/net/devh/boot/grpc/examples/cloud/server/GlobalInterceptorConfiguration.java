@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
 
 import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorConfigurer;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class GlobalInterceptorConfiguration {
 
     @Bean
