@@ -59,7 +59,7 @@ import net.devh.boot.grpc.server.security.interceptors.ExceptionTranslatingServe
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnBean(AuthenticationManager.class)
 @AutoConfigureAfter(WebSecurityEnablerConfiguration.class)
 public class GrpcServerSecurityAutoConfiguration {

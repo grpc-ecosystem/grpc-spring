@@ -45,7 +45,7 @@ import net.devh.boot.grpc.server.service.GrpcServiceDiscoverer;
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnMissingBean({GrpcServerFactory.class, GrpcServerLifecycle.class})
 @AutoConfigureAfter(GrpcServerAutoConfiguration.class)
 public class GrpcServerFactoryAutoConfiguration {

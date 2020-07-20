@@ -34,7 +34,7 @@ import net.devh.boot.grpc.server.interceptor.OrderedServerInterceptor;
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty(value = "spring.sleuth.grpc.enabled", matchIfMissing = true)
 @AutoConfigureAfter(GrpcCommonTraceAutoConfiguration.class)
 @ConditionalOnBean(GrpcTracing.class)

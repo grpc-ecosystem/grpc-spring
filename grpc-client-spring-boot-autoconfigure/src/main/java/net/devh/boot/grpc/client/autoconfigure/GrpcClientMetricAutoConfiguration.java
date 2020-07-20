@@ -34,7 +34,7 @@ import net.devh.boot.grpc.client.metric.MetricCollectingClientInterceptor;
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @AutoConfigureAfter(CompositeMeterRegistryAutoConfiguration.class)
 @AutoConfigureBefore(GrpcClientAutoConfiguration.class)
 @ConditionalOnBean(MeterRegistry.class)

@@ -40,7 +40,7 @@ import net.devh.boot.grpc.client.security.CallCredentialsHelper;
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @AutoConfigureBefore(GrpcClientAutoConfiguration.class)
 public class GrpcClientSecurityAutoConfiguration {
 
