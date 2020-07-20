@@ -36,7 +36,7 @@ import net.devh.boot.grpc.server.config.GrpcServerProperties;
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
 @ConditionalOnClass({ConsulDiscoveryProperties.class, ConsulClient.class, GrpcServerProperties.class})
 public class GrpcMetadataConsulConfiguration {

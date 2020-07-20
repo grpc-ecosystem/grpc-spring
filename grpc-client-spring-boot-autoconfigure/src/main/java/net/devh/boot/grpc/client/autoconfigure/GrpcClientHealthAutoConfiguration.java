@@ -35,7 +35,7 @@ import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @AutoConfigureAfter(GrpcClientAutoConfiguration.class)
 @ConditionalOnClass(name = "org.springframework.boot.actuate.health.HealthIndicator")
 public class GrpcClientHealthAutoConfiguration {

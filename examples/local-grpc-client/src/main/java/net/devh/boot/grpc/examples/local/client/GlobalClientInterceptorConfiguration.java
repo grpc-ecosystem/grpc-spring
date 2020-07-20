@@ -25,7 +25,7 @@ import org.springframework.core.annotation.Order;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorConfigurer;
 
 @Order(Ordered.LOWEST_PRECEDENCE)
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class GlobalClientInterceptorConfiguration {
 
     @Bean

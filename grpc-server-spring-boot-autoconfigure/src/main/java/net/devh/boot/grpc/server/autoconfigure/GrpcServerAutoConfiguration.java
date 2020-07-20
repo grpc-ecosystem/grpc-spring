@@ -51,7 +51,7 @@ import net.devh.boot.grpc.server.service.GrpcServiceDiscoverer;
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
 @ConditionalOnClass(Server.class)
 @AutoConfigureAfter(GrpcCommonCodecAutoConfiguration.class)

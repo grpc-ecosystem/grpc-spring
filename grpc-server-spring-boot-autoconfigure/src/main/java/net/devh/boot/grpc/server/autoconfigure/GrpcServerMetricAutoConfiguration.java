@@ -53,7 +53,7 @@ import net.devh.boot.grpc.server.metric.MetricCollectingServerInterceptor;
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @Slf4j
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @AutoConfigureAfter(CompositeMeterRegistryAutoConfiguration.class)
 @AutoConfigureBefore(GrpcServerAutoConfiguration.class)
 @ConditionalOnBean(MeterRegistry.class)
