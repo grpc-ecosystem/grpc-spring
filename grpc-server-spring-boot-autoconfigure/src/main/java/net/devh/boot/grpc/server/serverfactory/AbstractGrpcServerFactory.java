@@ -19,17 +19,22 @@ package net.devh.boot.grpc.server.serverfactory;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.unit.DataSize;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.health.v1.HealthCheckResponse;
+import io.grpc.health.v1.HealthGrpc;
 import io.grpc.protobuf.services.ProtoReflectionService;
+import io.grpc.reflection.v1alpha.ServerReflectionGrpc;
 import io.grpc.services.HealthStatusManager;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
@@ -52,7 +57,8 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
     protected final List<GrpcServerConfigurer> serverConfigurers;
 
     @Autowired
-    private HealthStatusManager healthStatusManager;
+    @VisibleForTesting
+    HealthStatusManager healthStatusManager;
 
     /**
      * Creates a new server factory with the given properties.
@@ -102,16 +108,24 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
      * @param builder The server builder to configure.
      */
     protected void configureServices(final T builder) {
+        final Set<String> serviceNames = new LinkedHashSet<>();
+
         // support health check
         if (this.properties.isHealthServiceEnabled()) {
             builder.addService(this.healthStatusManager.getHealthService());
+            serviceNames.add(HealthGrpc.getServiceDescriptor().getName());
         }
+        // gRPC reflection
         if (this.properties.isReflectionServiceEnabled()) {
             builder.addService(ProtoReflectionService.newInstance());
+            serviceNames.add(ServerReflectionGrpc.getServiceDescriptor().getName());
         }
 
         for (final GrpcServiceDefinition service : this.serviceList) {
             final String serviceName = service.getDefinition().getServiceDescriptor().getName();
+            if (!serviceNames.add(serviceName)) {
+                throw new IllegalStateException("Found duplicate service implementation: " + serviceName);
+            }
             log.info("Registered gRPC service: " + serviceName + ", bean: " + service.getBeanName() + ", class: "
                     + service.getBeanClazz().getName());
             builder.addService(service.getDefinition());
