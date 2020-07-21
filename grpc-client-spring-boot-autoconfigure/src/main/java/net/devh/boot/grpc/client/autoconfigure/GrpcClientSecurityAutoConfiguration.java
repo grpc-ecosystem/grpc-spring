@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
 
 import io.grpc.CallCredentials;
 import io.grpc.stub.AbstractStub;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.StubTransformer;
 import net.devh.boot.grpc.client.security.CallCredentialsHelper;
 
@@ -40,6 +41,7 @@ import net.devh.boot.grpc.client.security.CallCredentialsHelper;
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
+@Slf4j
 @Configuration(proxyBeanMethods = false)
 @AutoConfigureBefore(GrpcClientAutoConfiguration.class)
 public class GrpcClientSecurityAutoConfiguration {
@@ -60,6 +62,7 @@ public class GrpcClientSecurityAutoConfiguration {
     @ConditionalOnSingleCandidate(CallCredentials.class)
     @Bean
     StubTransformer stubCallCredentialsTransformer(final CallCredentials credentials) {
+        log.info("Found single CallCredentials in the context, automatically using it for all stubs");
         return CallCredentialsHelper.fixedCredentialsStubTransformer(credentials);
     }
 

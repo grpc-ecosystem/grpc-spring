@@ -266,7 +266,7 @@ public class CallCredentialsHelper {
 
         @Override
         public String toString() {
-            return "StaticSecurityHeaderCallCredentials [extraHeaders=" + this.extraHeaders + "]";
+            return "StaticSecurityHeaderCallCredentials [extraHeaders.keys=" + this.extraHeaders.keys() + "]";
         }
 
     }
