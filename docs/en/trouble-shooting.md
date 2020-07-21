@@ -95,7 +95,8 @@ or (2) the target is not a grpc-server (e.g. a web-server).
    ````
 
    or remove the `negotiationType` config completely as `TLS` is the default.
-2. Validate that the configured server is running and is a grpc-server using `grpcurl` or a similar tool.
+2. Validate that the configured server is running and is a grpc-server using
+   [`grpcurl`](https://github.com/fullstorydev/grpcurl) or a similar tool.
 
 ## Could not find TLS ALPN provider
 
