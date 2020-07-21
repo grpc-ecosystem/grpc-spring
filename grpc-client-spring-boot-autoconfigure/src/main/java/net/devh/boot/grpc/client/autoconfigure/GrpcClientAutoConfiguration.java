@@ -35,6 +35,7 @@ import io.grpc.CompressorRegistry;
 import io.grpc.DecompressorRegistry;
 import io.grpc.NameResolverProvider;
 import io.grpc.NameResolverRegistry;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.InProcessChannelFactory;
@@ -55,8 +56,8 @@ import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
  * The auto configuration used by Spring-Boot that contains all beans to create and inject grpc clients into beans.
  *
  * @author Michael (yidongnan@gmail.com)
- * @since 5/17/16
  */
+@Slf4j
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
 @AutoConfigureAfter(name = "org.springframework.cloud.client.CommonsClientAutoConfiguration",
@@ -112,7 +113,7 @@ public class GrpcClientAutoConfiguration {
     @Bean
     NameResolverRegistration grpcNameResolverRegistration(
             @Autowired(required = false) final List<NameResolverProvider> nameResolverProviders) {
-        NameResolverRegistration nameResolverRegistration = new NameResolverRegistration(nameResolverProviders);
+        final NameResolverRegistration nameResolverRegistration = new NameResolverRegistration(nameResolverProviders);
         nameResolverRegistration.register(NameResolverRegistry.getDefaultRegistry());
         return nameResolverRegistration;
     }
@@ -141,9 +142,12 @@ public class GrpcClientAutoConfiguration {
             "io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder"})
     @Bean
     @Lazy
-    GrpcChannelFactory shadedNettyGrpcChannelFactory(final GrpcChannelsProperties properties,
+    GrpcChannelFactory shadedNettyGrpcChannelFactory(
+            final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
+
+        log.info("Detected grpc-netty-shaded: Creating ShadedNettyChannelFactory + InProcessChannelFactory");
         final ShadedNettyChannelFactory channelFactory =
                 new ShadedNettyChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
         final InProcessChannelFactory inProcessChannelFactory =
@@ -156,9 +160,12 @@ public class GrpcClientAutoConfiguration {
     @ConditionalOnClass(name = {"io.netty.channel.Channel", "io.grpc.netty.NettyChannelBuilder"})
     @Bean
     @Lazy
-    GrpcChannelFactory nettyGrpcChannelFactory(final GrpcChannelsProperties properties,
+    GrpcChannelFactory nettyGrpcChannelFactory(
+            final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
+
+        log.info("Detected grpc-netty: Creating NettyChannelFactory + InProcessChannelFactory");
         final NettyChannelFactory channelFactory =
                 new NettyChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
         final InProcessChannelFactory inProcessChannelFactory =
@@ -170,9 +177,12 @@ public class GrpcClientAutoConfiguration {
     @ConditionalOnMissingBean(GrpcChannelFactory.class)
     @Bean
     @Lazy
-    GrpcChannelFactory inProcessGrpcChannelFactory(final GrpcChannelsProperties properties,
+    GrpcChannelFactory inProcessGrpcChannelFactory(
+            final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
+
+        log.warn("Could not find a GrpcChannelFactory on the classpath: Creating InProcessChannelFactory as fallback");
         return new InProcessChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
     }
 

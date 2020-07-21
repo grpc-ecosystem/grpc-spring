@@ -28,6 +28,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.condition.ConditionalOnInterprocessServer;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import net.devh.boot.grpc.server.serverfactory.GrpcServerConfigurer;
@@ -45,6 +46,7 @@ import net.devh.boot.grpc.server.service.GrpcServiceDiscoverer;
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
+@Slf4j
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnMissingBean({GrpcServerFactory.class, GrpcServerLifecycle.class})
 @AutoConfigureAfter(GrpcServerAutoConfiguration.class)
@@ -63,8 +65,12 @@ public class GrpcServerFactoryAutoConfiguration {
             "io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder"})
     @Conditional(ConditionalOnInterprocessServer.class)
     @Bean
-    public ShadedNettyGrpcServerFactory shadedNettyGrpcServerFactory(final GrpcServerProperties properties,
-            final GrpcServiceDiscoverer serviceDiscoverer, final List<GrpcServerConfigurer> serverConfigurers) {
+    public ShadedNettyGrpcServerFactory shadedNettyGrpcServerFactory(
+            final GrpcServerProperties properties,
+            final GrpcServiceDiscoverer serviceDiscoverer,
+            final List<GrpcServerConfigurer> serverConfigurers) {
+
+        log.info("Detected grpc-netty-shaded: Creating ShadedNettyGrpcServerFactory");
         final ShadedNettyGrpcServerFactory factory = new ShadedNettyGrpcServerFactory(properties, serverConfigurers);
         for (final GrpcServiceDefinition service : serviceDiscoverer.findGrpcServices()) {
             factory.addService(service);
@@ -80,7 +86,7 @@ public class GrpcServerFactoryAutoConfiguration {
      */
     @ConditionalOnBean(ShadedNettyGrpcServerFactory.class)
     @Bean
-    public GrpcServerLifecycle shadedNettyGrpcServerLifecycle(ShadedNettyGrpcServerFactory factory) {
+    public GrpcServerLifecycle shadedNettyGrpcServerLifecycle(final ShadedNettyGrpcServerFactory factory) {
         return new GrpcServerLifecycle(factory);
     }
 
@@ -97,8 +103,12 @@ public class GrpcServerFactoryAutoConfiguration {
     @Conditional(ConditionalOnInterprocessServer.class)
     @ConditionalOnClass(name = {"io.netty.channel.Channel", "io.grpc.netty.NettyServerBuilder"})
     @Bean
-    public NettyGrpcServerFactory nettyGrpcServerFactory(final GrpcServerProperties properties,
-            final GrpcServiceDiscoverer serviceDiscoverer, final List<GrpcServerConfigurer> serverConfigurers) {
+    public NettyGrpcServerFactory nettyGrpcServerFactory(
+            final GrpcServerProperties properties,
+            final GrpcServiceDiscoverer serviceDiscoverer,
+            final List<GrpcServerConfigurer> serverConfigurers) {
+
+        log.info("Detected grpc-netty: Creating NettyGrpcServerFactory");
         final NettyGrpcServerFactory factory = new NettyGrpcServerFactory(properties, serverConfigurers);
         for (final GrpcServiceDefinition service : serviceDiscoverer.findGrpcServices()) {
             factory.addService(service);
@@ -127,8 +137,11 @@ public class GrpcServerFactoryAutoConfiguration {
      */
     @ConditionalOnProperty(prefix = "grpc.server", name = "in-process-name")
     @Bean
-    public InProcessGrpcServerFactory inProcessGrpcServerFactory(final GrpcServerProperties properties,
+    public InProcessGrpcServerFactory inProcessGrpcServerFactory(
+            final GrpcServerProperties properties,
             final GrpcServiceDiscoverer serviceDiscoverer) {
+
+        log.info("'grpc.server.in-process-name' is set: Creating InProcessGrpcServerFactory");
         final InProcessGrpcServerFactory factory = new InProcessGrpcServerFactory(properties);
         for (final GrpcServiceDefinition service : serviceDiscoverer.findGrpcServices()) {
             factory.addService(service);
