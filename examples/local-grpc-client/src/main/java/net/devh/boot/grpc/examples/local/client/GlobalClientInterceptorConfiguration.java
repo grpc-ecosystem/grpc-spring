@@ -17,18 +17,18 @@
 
 package net.devh.boot.grpc.examples.local.client;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
 import io.grpc.ClientInterceptor;
+import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
 
 @Order(Ordered.LOWEST_PRECEDENCE)
 @Configuration(proxyBeanMethods = false)
 public class GlobalClientInterceptorConfiguration {
 
-    @Bean
+    @GrpcGlobalClientInterceptor
     ClientInterceptor logClientInterceptor() {
         return new LogGrpcInterceptor();
     }
