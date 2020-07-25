@@ -17,7 +17,13 @@
 
 package net.devh.boot.grpc.server.interceptor;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import static com.google.common.collect.Maps.transformValues;
+import static java.util.Objects.requireNonNull;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.springframework.context.ApplicationContext;
 
 import io.grpc.ServerInterceptor;
@@ -31,17 +37,36 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AnnotationGlobalServerInterceptorConfigurer implements GlobalServerInterceptorConfigurer {
 
-    @Autowired
-    private ApplicationContext context;
+    private final ApplicationContext applicationContext;
+
+    /**
+     * Creates a new AnnotationGlobalServerInterceptorConfigurer.
+     *
+     * @param applicationContext The application context to fetch the {@link GrpcGlobalServerInterceptor} annotated
+     *        {@link ServerInterceptor} beans from.
+     */
+    public AnnotationGlobalServerInterceptorConfigurer(final ApplicationContext applicationContext) {
+        this.applicationContext = requireNonNull(applicationContext, "applicationContext");
+    }
+
+    /**
+     * Helper method used to get the {@link GrpcGlobalServerInterceptor} annotated {@link ServerInterceptor}s from the
+     * application context.
+     *
+     * @return A map containing the global interceptor beans.
+     */
+    protected Map<String, ServerInterceptor> getServerInterceptorBeans() {
+        return transformValues(this.applicationContext.getBeansWithAnnotation(GrpcGlobalServerInterceptor.class),
+                ServerInterceptor.class::cast);
+    }
 
     @Override
-    public void addServerInterceptors(final GlobalServerInterceptorRegistry registry) {
-        this.context.getBeansWithAnnotation(GrpcGlobalServerInterceptor.class)
-                .forEach((name, bean) -> {
-                    ServerInterceptor interceptor = (ServerInterceptor) bean;
-                    log.debug("Registering GlobalServerInterceptor: {} ({})", name, interceptor);
-                    registry.addServerInterceptors(interceptor);
-                });
+    public void configureServerInterceptors(final List<ServerInterceptor> interceptors) {
+        for (final Entry<String, ServerInterceptor> entry : getServerInterceptorBeans().entrySet()) {
+            final ServerInterceptor interceptor = entry.getValue();
+            log.debug("Registering GlobalServerInterceptor: {} ({})", entry.getKey(), interceptor);
+            interceptors.add(interceptor);
+        }
     }
 
 }

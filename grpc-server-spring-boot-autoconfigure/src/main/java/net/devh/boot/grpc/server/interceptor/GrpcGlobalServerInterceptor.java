@@ -23,6 +23,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import io.grpc.ServerInterceptor;
@@ -32,9 +33,10 @@ import io.grpc.ServerInterceptor;
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Component
+@Bean
 public @interface GrpcGlobalServerInterceptor {
 }

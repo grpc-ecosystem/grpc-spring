@@ -128,8 +128,8 @@ public GrpcChannelConfigurer keepAliveClientConfigurer() {
 
 There are three ways to add a `ClientInterceptor` to your channel.
 
-- Define the `ClientInterceptor` as a global interceptor using either the `@GrpcGlobalClientInterceptor` annotation or
-  the `GlobalClientInterceptorRegistry`
+- Define the `ClientInterceptor` as a global interceptor using either the `@GrpcGlobalClientInterceptor` annotation,
+  or a `GlobalClientInterceptorConfigurer`
 - Explicitly list them in the `@GrpcClient#interceptors` or `@GrpcClient#interceptorNames` field
 - Use a `StubTransformer` and call `stub.withInterceptors(ClientInterceptor... interceptors)`
 

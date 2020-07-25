@@ -17,10 +17,12 @@
 
 package net.devh.boot.grpc.server.interceptor;
 
+import java.util.List;
+
 import io.grpc.ServerInterceptor;
 
 /**
- * This configurer can be used to register new global {@link ServerInterceptor}s.
+ * A bean that can be used to configure global {@link ServerInterceptor}s.
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
@@ -28,10 +30,11 @@ import io.grpc.ServerInterceptor;
 public interface GlobalServerInterceptorConfigurer {
 
     /**
-     * Adds the {@link ServerInterceptor}s that should be registered globally to the given registry.
+     * Configures the given list of server interceptors, possibly adding new elements, removing unwanted elements, or
+     * reordering the existing ones.
      *
-     * @param registry The registry the interceptors should be added to.
+     * @param interceptors A mutable list of server interceptors to configure.
      */
-    void addServerInterceptors(GlobalServerInterceptorRegistry registry);
+    void configureServerInterceptors(List<ServerInterceptor> interceptors);
 
 }

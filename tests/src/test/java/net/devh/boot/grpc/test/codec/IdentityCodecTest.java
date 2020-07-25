@@ -25,10 +25,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorConfigurer;
+import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
 import net.devh.boot.grpc.common.codec.GrpcCodecDefinition;
 import net.devh.boot.grpc.common.codec.GrpcCodecDiscoverer;
-import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorConfigurer;
+import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
 
@@ -42,8 +42,10 @@ import net.devh.boot.grpc.test.config.ServiceConfiguration;
         "grpc.client.GLOBAL.address=localhost:9090",
         "grpc.client.GLOBAL.negotiationType=PLAINTEXT"
 })
-@SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class,
-        IdentityCodecTest.CustomConfiguration.class})
+@SpringJUnitConfig(classes = {
+        IdentityCodecTest.CustomConfiguration.class,
+        ServiceConfiguration.class,
+        BaseAutoConfiguration.class})
 @DirtiesContext
 public class IdentityCodecTest extends AbstractCodecTest {
 
@@ -56,14 +58,14 @@ public class IdentityCodecTest extends AbstractCodecTest {
     @Configuration
     public static class CustomConfiguration {
 
-        @Bean
-        GlobalClientInterceptorConfigurer gcic() {
-            return registry -> registry.addClientInterceptors(new CodecValidatingClientInterceptor(CODEC));
+        @GrpcGlobalClientInterceptor
+        CodecValidatingClientInterceptor gcic() {
+            return new CodecValidatingClientInterceptor(CODEC);
         }
 
-        @Bean
-        GlobalServerInterceptorConfigurer gsic() {
-            return registry -> registry.addServerInterceptors(new CodecValidatingServerInterceptor(CODEC));
+        @GrpcGlobalServerInterceptor
+        CodecValidatingServerInterceptor gsic() {
+            return new CodecValidatingServerInterceptor(CODEC);
         }
 
         @Bean
