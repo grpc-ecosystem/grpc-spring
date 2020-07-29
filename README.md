@@ -15,18 +15,34 @@ README: [English](README.md) | [中文](README-zh-CN.md)
 
 ## Features
 
-* Auto configures and runs the embedded gRPC server with `@GrpcService`-enabled beans as part of your spring-boot
-application
+* Automatically configures and runs the gRPC server with your `@GrpcService` implementations
 
 * Automatically creates and manages your grpc channels and stubs with `@GrpcClient`
 
-* Supports [Spring Cloud](https://spring.io/projects/spring-cloud) (register services to [Consul](https://github.com/spring-cloud/spring-cloud-consul) or [Eureka](https://github.com/spring-cloud/spring-cloud-netflix) or [Nacos](https://github.com/spring-cloud-incubator/spring-cloud-alibaba) and fetch gRPC server information)
+* Supports other grpc-java flavors (e.g.
+  [Reactive gRPC (RxJava)](https://github.com/salesforce/reactive-grpc/tree/master/rx-java),
+  [grpc-kotlin](https://github.com/grpc/grpc-kotlin), ...)
+  * Server-side: Should work for all grpc-java flavors (`io.grpc.BindableService` based)
+  * Client-side: Requires custom `StubFactory`s\
+    Currently build-in support:
+    * grpc-java
+    * (Please report missing ones, so we can add support for them)
 
-* Supports [Spring Sleuth](https://github.com/spring-cloud/spring-cloud-sleuth) as distributed tracing solution (If [brave-instrumentation-grpc](https://mvnrepository.com/artifact/io.zipkin.brave/brave-instrumentation-grpc) is present)
+* Supports [Spring-Security](https://github.com/spring-projects/spring-security)
+
+* Supports [Spring Cloud](https://spring.io/projects/spring-cloud)
+  * Server-side: Adds grpc-port information to the service registration details\
+    Currently natively supported:
+    * [Consul](https://github.com/spring-cloud/spring-cloud-consul)
+    * [Eureka](https://github.com/spring-cloud/spring-cloud-netflix)
+    * [Nacos](https://github.com/spring-cloud-incubator/spring-cloud-alibaba)
+    * (Please report missing ones, so we can add support for them)
+  * Client-side: Reads the service's target addresses from spring's `DiscoveryClient` (all flavors)
+
+* Supports [Spring Sleuth](https://github.com/spring-cloud/spring-cloud-sleuth) as distributed tracing solution\
+  (If [brave-instrumentation-grpc](https://mvnrepository.com/artifact/io.zipkin.brave/brave-instrumentation-grpc) is present)
 
 * Supports global and custom gRPC server/client interceptors
-
-* [Spring-Security](https://github.com/spring-projects/spring-security) support
 
 * Automatic metric support ([micrometer](https://micrometer.io/)/[actuator](https://github.com/spring-projects/spring-boot/tree/master/spring-boot-project/spring-boot-actuator) based)
 
@@ -129,6 +145,7 @@ dependencies {
   compile 'net.devh:grpc-client-spring-boot-starter:2.9.0.RELEASE'
 }
 ````
+
 Annotate a field of your grpc client stub with `@GrpcClient(serverName)`
 
 * Do not use in conjunction with `@Autowired` or `@Inject`
