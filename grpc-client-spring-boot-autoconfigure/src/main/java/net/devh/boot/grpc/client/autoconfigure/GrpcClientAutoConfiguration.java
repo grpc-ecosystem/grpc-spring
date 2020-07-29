@@ -92,13 +92,15 @@ public class GrpcClientAutoConfiguration {
 
     @ConditionalOnMissingBean
     @Bean
-    GlobalClientInterceptorRegistry globalClientInterceptorRegistry() {
-        return new GlobalClientInterceptorRegistry();
+    GlobalClientInterceptorRegistry globalClientInterceptorRegistry(final ApplicationContext applicationContext) {
+        return new GlobalClientInterceptorRegistry(applicationContext);
     }
 
     @Bean
-    AnnotationGlobalClientInterceptorConfigurer annotationGlobalClientInterceptorConfigurer() {
-        return new AnnotationGlobalClientInterceptorConfigurer();
+    @Lazy
+    AnnotationGlobalClientInterceptorConfigurer annotationGlobalClientInterceptorConfigurer(
+            final ApplicationContext applicationContext) {
+        return new AnnotationGlobalClientInterceptorConfigurer(applicationContext);
     }
 
     /**

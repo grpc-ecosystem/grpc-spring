@@ -30,9 +30,9 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import io.grpc.Codec;
-import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorConfigurer;
+import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
 import net.devh.boot.grpc.common.codec.GrpcCodec;
-import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorConfigurer;
+import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
 
@@ -40,8 +40,10 @@ import net.devh.boot.grpc.test.config.ServiceConfiguration;
         "grpc.client.GLOBAL.address=localhost:9090",
         "grpc.client.GLOBAL.negotiationType=PLAINTEXT"
 })
-@SpringJUnitConfig(
-        classes = {BeanCodecTest.CustomConfiguration.class, ServiceConfiguration.class, BaseAutoConfiguration.class})
+@SpringJUnitConfig(classes = {
+        BeanCodecTest.CustomConfiguration.class,
+        ServiceConfiguration.class,
+        BaseAutoConfiguration.class})
 @DirtiesContext
 public class BeanCodecTest extends AbstractCodecTest {
 
@@ -54,14 +56,14 @@ public class BeanCodecTest extends AbstractCodecTest {
     @Configuration
     public static class CustomConfiguration {
 
-        @Bean
-        GlobalClientInterceptorConfigurer gcic() {
-            return registry -> registry.addClientInterceptors(new CodecValidatingClientInterceptor(CODEC));
+        @GrpcGlobalClientInterceptor
+        CodecValidatingClientInterceptor gcic() {
+            return new CodecValidatingClientInterceptor(CODEC);
         }
 
-        @Bean
-        GlobalServerInterceptorConfigurer gsic() {
-            return registry -> registry.addServerInterceptors(new CodecValidatingServerInterceptor(CODEC));
+        @GrpcGlobalServerInterceptor
+        CodecValidatingServerInterceptor gsic() {
+            return new CodecValidatingServerInterceptor(CODEC);
         }
 
         @Bean

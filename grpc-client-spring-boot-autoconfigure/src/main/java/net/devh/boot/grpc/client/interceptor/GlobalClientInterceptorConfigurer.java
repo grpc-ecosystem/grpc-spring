@@ -17,10 +17,12 @@
 
 package net.devh.boot.grpc.client.interceptor;
 
+import java.util.List;
+
 import io.grpc.ClientInterceptor;
 
 /**
- * This configurer can be used to register new global {@link ClientInterceptor}s.
+ * A bean that can be used to configure global {@link ClientInterceptor}s.
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
@@ -28,10 +30,11 @@ import io.grpc.ClientInterceptor;
 public interface GlobalClientInterceptorConfigurer {
 
     /**
-     * Adds the {@link ClientInterceptor}s that should be registered globally to the given registry.
+     * Configures the given list of client interceptors, possibly adding new elements, removing unwanted elements, or
+     * reordering the existing ones.
      *
-     * @param registry The registry the interceptors should be added to.
+     * @param interceptors A mutable list of client interceptors to configure.
      */
-    void addClientInterceptors(GlobalClientInterceptorRegistry registry);
+    void configureClientInterceptors(List<ClientInterceptor> interceptors);
 
 }

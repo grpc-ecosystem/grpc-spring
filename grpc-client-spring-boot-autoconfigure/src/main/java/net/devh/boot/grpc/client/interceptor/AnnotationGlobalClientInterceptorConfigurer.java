@@ -17,7 +17,13 @@
 
 package net.devh.boot.grpc.client.interceptor;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import static com.google.common.collect.Maps.transformValues;
+import static java.util.Objects.requireNonNull;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.springframework.context.ApplicationContext;
 
 import io.grpc.ClientInterceptor;
@@ -31,17 +37,36 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AnnotationGlobalClientInterceptorConfigurer implements GlobalClientInterceptorConfigurer {
 
-    @Autowired
-    private ApplicationContext context;
+    private final ApplicationContext applicationContext;
+
+    /**
+     * Creates a new AnnotationGlobalClientInterceptorConfigurer.
+     *
+     * @param applicationContext The application context to fetch the {@link GrpcGlobalClientInterceptor} annotated
+     *        {@link ClientInterceptor} beans from.
+     */
+    public AnnotationGlobalClientInterceptorConfigurer(final ApplicationContext applicationContext) {
+        this.applicationContext = requireNonNull(applicationContext, "applicationContext");
+    }
+
+    /**
+     * Helper method used to get the {@link GrpcGlobalClientInterceptor} annotated {@link ClientInterceptor}s from the
+     * application context.
+     *
+     * @return A map containing the global interceptor beans.
+     */
+    protected Map<String, ClientInterceptor> getClientInterceptorBeans() {
+        return transformValues(this.applicationContext.getBeansWithAnnotation(GrpcGlobalClientInterceptor.class),
+                ClientInterceptor.class::cast);
+    }
 
     @Override
-    public void addClientInterceptors(final GlobalClientInterceptorRegistry registry) {
-        this.context.getBeansWithAnnotation(GrpcGlobalClientInterceptor.class)
-                .forEach((name, bean) -> {
-                    ClientInterceptor interceptor = (ClientInterceptor) bean;
-                    log.debug("Registering GlobalClientInterceptor: {} ({})", name, interceptor);
-                    registry.addClientInterceptors(interceptor);
-                });
+    public void configureClientInterceptors(final List<ClientInterceptor> interceptors) {
+        for (final Entry<String, ClientInterceptor> entry : getClientInterceptorBeans().entrySet()) {
+            final ClientInterceptor interceptor = entry.getValue();
+            log.debug("Registering GlobalClientInterceptor: {} ({})", entry.getKey(), interceptor);
+            interceptors.add(interceptor);
+        }
     }
 
 }

@@ -10,6 +10,7 @@ This section describes how you can configure your grpc-spring-boot-starter appli
   - [Changing the Server Port](#changing-the-server-port)
   - [Enabling the InProcessServer](#enabling-the-inprocessserver)
 - [Configuration via Beans](#configuration-via-beans)
+  - [ServerInterceptor](#serverinterceptor)
   - [GrpcServerConfigurer](#grpcserverconfigurer)
 
 ## Additional topics <!-- omit in toc -->
@@ -85,6 +86,15 @@ extension points that exist in this library.
 First of all most of the beans can be replaced by custom ones, that you can configure in every way you want.
 If you don't wish to go that far, you can use classes such as `GrpcServerConfigurer` to configure the server and other
 components without losing the features provided by this library.
+
+### ServerInterceptor
+
+There are three ways to add a `ServerInterceptor` to your server.
+
+- Define the `ServerInterceptor` as a global interceptor using either the `@GrpcGlobalServerInterceptor` annotation,
+  or a `GlobalServerInterceptorConfigurer`
+- Explicitly list them in the `@GrpcService#interceptors` or `@GrpcService#interceptorNames` field
+- Use a `GrpcServerConfigurer` and call `serverBuilder.intercept(ServerInterceptor interceptor)`
 
 ### GrpcServerConfigurer
 

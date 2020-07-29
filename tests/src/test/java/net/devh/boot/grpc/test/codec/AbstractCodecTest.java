@@ -17,11 +17,13 @@
 
 package net.devh.boot.grpc.test.codec;
 
+import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.protobuf.Empty;
 
@@ -38,21 +40,41 @@ import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.internal.GrpcUtil;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
+import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorRegistry;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc;
 
-public abstract class AbstractCodecTest {
+/**
+ * Tests related to codecs.
+ */
+abstract class AbstractCodecTest {
 
     private final String codec;
-
-    public AbstractCodecTest(final String codec) {
-        this.codec = codec;
-    }
 
     @GrpcClient("test")
     protected Channel channel;
 
+    @Autowired
+    private GlobalClientInterceptorRegistry clientRegistry;
+
+    @Autowired
+    private GlobalServerInterceptorRegistry serverRegistry;
+
+    @Autowired
+    private CodecValidatingClientInterceptor clientValidator;
+
+    @Autowired
+    private CodecValidatingServerInterceptor serverValidator;
+
+    AbstractCodecTest(final String codec) {
+        this.codec = codec;
+    }
+
     @Test
-    public void testTransmission() {
+    void testTransmission() {
+        assumeThat(this.clientRegistry.getClientInterceptors()).contains(this.clientValidator);
+        assumeThat(this.serverRegistry.getServerInterceptors()).contains(this.serverValidator);
+
         assertEquals("1.2.3", TestServiceGrpc.newBlockingStub(this.channel).withCompression(this.codec)
                 .normal(Empty.getDefaultInstance()).getVersion());
     }

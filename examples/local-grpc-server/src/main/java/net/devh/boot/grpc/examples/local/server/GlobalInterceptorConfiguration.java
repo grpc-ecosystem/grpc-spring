@@ -17,23 +17,17 @@
 
 package net.devh.boot.grpc.examples.local.server;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorConfigurer;
-import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorRegistry;
+import io.grpc.ServerInterceptor;
+import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 
 @Configuration(proxyBeanMethods = false)
 public class GlobalInterceptorConfiguration {
 
-    @Bean
-    public GlobalServerInterceptorConfigurer globalInterceptorConfigurerAdapter() {
-        return new GlobalServerInterceptorConfigurer() {
-            @Override
-            public void addServerInterceptors(GlobalServerInterceptorRegistry registry) {
-                registry.addServerInterceptors(new LogGrpcInterceptor());
-            }
-        };
+    @GrpcGlobalServerInterceptor
+    ServerInterceptor logServerInterceptor() {
+        return new LogGrpcInterceptor();
     }
 
 }
