@@ -23,6 +23,7 @@ customization you need for your project.
 - Others setups
 - [Trouble-Shooting](trouble-shooting.md)
 - [Example Projects](examples.md)
+- [gRPC-Java Flavors](flavors.md)
 - [Version Overview](versions.md)
 - [Spring Boot Actuator / Metrics Support](actuator.md)
 - [Brave-Tracing / Spring Cloud Sleuth Support](brave.md)
