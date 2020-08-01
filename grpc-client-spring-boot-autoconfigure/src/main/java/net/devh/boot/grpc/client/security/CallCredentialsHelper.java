@@ -39,6 +39,7 @@ import io.grpc.stub.AbstractStub;
 import net.devh.boot.grpc.client.autoconfigure.GrpcClientSecurityAutoConfiguration;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.client.inject.StubTransformer;
+import net.devh.boot.grpc.common.security.SecurityConstants;
 
 /**
  * Helper class with useful methods to create and configure some commonly used authentication schemes such as
@@ -166,7 +167,7 @@ public class CallCredentialsHelper {
      *
      * @param token the bearer token to use
      * @return The newly created bearer auth credentials.
-     * @see #BEARER_AUTH_PREFIX
+     * @see SecurityConstants#BEARER_AUTH_PREFIX
      * @see #authorizationHeader(String)
      */
     public static CallCredentials bearerAuth(final String token) {
@@ -183,7 +184,7 @@ public class CallCredentialsHelper {
      * @param username The username to use.
      * @param password The password to use.
      * @return The newly created basic auth credentials.
-     * @see #BASIC_AUTH_PREFIX
+     * @see SecurityConstants#BASIC_AUTH_PREFIX
      * @see #encodeBasicAuth(String, String)
      * @see #authorizationHeader(String)
      */
@@ -198,7 +199,7 @@ public class CallCredentialsHelper {
      * @param username The username to use.
      * @param password The password to use.
      * @return The encoded basic auth header value.
-     * @see #BASIC_AUTH_PREFIX
+     * @see SecurityConstants#BASIC_AUTH_PREFIX
      */
     public static String encodeBasicAuth(final String username, final String password) {
         requireNonNull(username, "username");
@@ -223,7 +224,7 @@ public class CallCredentialsHelper {
      * @param authorization The authorization to use. The authorization usually starts with the scheme such as as
      *        {@code "Basic "} or {@code "Bearer "} followed by the actual authentication information.
      * @return The newly created call credentials.
-     * @see #AUTHORIZATION_HEADER
+     * @see SecurityConstants#AUTHORIZATION_HEADER
      * @see #authorizationHeaders(Metadata)
      */
     public static CallCredentials authorizationHeader(final String authorization) {
