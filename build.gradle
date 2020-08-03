@@ -212,6 +212,9 @@ allprojects { project ->
         // Javadoc Task
         javadoc {
             dependsOn delombok
+            if (project.name != 'grpc-common-spring-boot') {
+                dependsOn(":grpc-common-spring-boot:javadoc")
+            }
             source = delombok.outputDir
             failOnError = false
             options.locale = 'en_US'
