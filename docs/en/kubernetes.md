@@ -64,3 +64,7 @@ grpc.clients.my-grpc-server-app.address=dns:///<serviceName>[.<namespace>[.<clus
 
 > **Note:** DNS-SVC lookups require the `grpclb` dependency to be present and the service's port name to be `grpclb`.
 > Refer to grpc's official docs for more details.
+
+----------
+
+[<- Back to Index](index.md)
