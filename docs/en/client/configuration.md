@@ -52,29 +52,31 @@ grpc.client.__name__.address=static://localhost:9090
 There are a number of supported schemes, that you can use to determine the target server (Priorities 0 (low) - 10
 (high)):
 
-- `static` (Prio 4):
-  A simple static list of IPs (both v4 and v6), that can be use connect to the server (Supports `localhost`).
+- `static` (Prio 4): \
+  A simple static list of IPs (both v4 and v6), that can be use connect to the server (Supports `localhost`). \
   Example: `static://192.168.1.1:8080,10.0.0.1:1337`
-- [`dns`](https://github.com/grpc/grpc-java/blob/master/core/src/main/java/io/grpc/internal/DnsNameResolver.java#L66) (Prio 5):
+- [`dns`](https://github.com/grpc/grpc-java/blob/master/core/src/main/java/io/grpc/internal/DnsNameResolver.java#L66)
+  (Prio 5): \
   Resolves all addresses that are bound to the given DNS name. The addresses will be cached and will only be refreshed
-  if an existing connection is shutdown/fails. More options such as `SVC` lookups (useful for kubernetes) can be enabled
-  via system properties.
-  Example: `dns:///example.my.company`
-- `discovery` (Prio 6):
+  if an existing connection is shutdown/fails. \
+  Example: `dns:///example.my.company` \
+  Notice: There is also a `dns` resolver that is included in grpclb, that has a higher priority (`6`) than the default
+  one and also supports `SVC` lookups.
+- `discovery` (Prio 6): \
   (Optional) Uses spring-cloud's `DiscoveryClient` to lookup appropriate targets. The connections will be refreshed
   automatically during `HeartbeatEvent`s. Uses the `gRPC.port` metadata to determine the port, otherwise uses the
-  service port.
+  service port. \
   Example: `discovery:///service-name`
-- `self` (Prio 0):
+- `self` (Prio 0): \
   The self address or scheme is a keyword that is available, if you also use `grpc-server-spring-boot-starter` and
   allows you to connect to the server without specifying the own address/port. This is especially useful for tests
-  where you might want to use random server ports to avoid conflicts.
+  where you might want to use random server ports to avoid conflicts. \
   Example: `self` or `self:self`
-- `in-process`:
+- `in-process`: \
   This is a special scheme that will bypass the normal channel factory and will use the `InProcessChannelFactory`
-  instead. Use it to connect to the [`InProcessServer`](../server/configuration.md#enabling-the-inprocessserver).
+  instead. Use it to connect to the [`InProcessServer`](../server/configuration.md#enabling-the-inprocessserver). \
   Example: `in-process:foobar`
-- *custom*:
+- *custom*: \
   You can define custom
   [`NameResolverProvider`s](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/NameResolverProvider.html) those
   will be picked up, by either via Java's `ServiceLoader` or from spring's application context and registered in
