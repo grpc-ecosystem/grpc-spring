@@ -61,7 +61,7 @@ There are a number of supported schemes, that you can use to determine the targe
   if an existing connection is shutdown/fails. \
   Example: `dns:///example.my.company` \
   Notice: There is also a `dns` resolver that is included in grpclb, that has a higher priority (`6`) than the default
-  one and also supports `SVC` lookups.
+  one and also supports `SVC` lookups. See also [Kubernetes Setup](../kubernetes.md).
 - `discovery` (Prio 6): \
   (Optional) Uses spring-cloud's `DiscoveryClient` to lookup appropriate targets. The connections will be refreshed
   automatically during `HeartbeatEvent`s. Uses the `gRPC.port` metadata to determine the port, otherwise uses the
