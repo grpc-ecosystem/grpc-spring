@@ -12,13 +12,13 @@ buildscript {
         projectVersion = '2.10.0-SNAPSHOT'
 
         // https://github.com/grpc/grpc-java/releases
-        grpcVersion = '1.31.0'
+        grpcVersion = '1.31.1'
         // https://github.com/protocolbuffers/protobuf/releases
         protobufVersion = '3.12.4'
         protobufGradlePluginVersion = '0.8.12'
 
         // https://github.com/spring-projects/spring-boot/releases
-        springBootVersion = '2.3.2.RELEASE'
+        springBootVersion = '2.3.3.RELEASE'
         // https://github.com/spring-cloud/spring-cloud-release/releases
         springCloudVersion = 'Hoxton.SR7'
         // https://github.com/alibaba/spring-cloud-alibaba/releases
@@ -36,13 +36,13 @@ plugins {
     id 'java'
     id 'java-library'
     // future improvement would be to use the version declared above in the ext block instead of repeating it here
-    id 'org.springframework.boot' version '2.3.2.RELEASE' apply false
-    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'org.springframework.boot' version '2.3.3.RELEASE' apply false
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
     id 'net.nemerosa.versioning' version '2.14.0'
     id 'com.google.protobuf' version '0.8.12'
     id 'io.franzbecker.gradle-lombok' version '4.0.0' apply false
     id 'com.github.ben-manes.versions' version '0.29.0' // gradle dependencyUpdates (Takes quite some time)
-    id 'com.diffplug.spotless' version '5.1.0'
+    id 'com.diffplug.spotless' version '5.1.1'
 }
 
 // If you attempt to build without the `--scan` parameter in `gradle 6.0+` it will cause a build error that it can't find
