@@ -27,5 +27,6 @@ customization you need for your project.
 - [Version Overview](versions.md)
 - [Spring Boot Actuator / Metrics Support](actuator.md)
 - [Brave-Tracing / Spring Cloud Sleuth Support](brave.md)
+- [Kubernetes Setup](kubernetes.md)
 - [Benchmarking](benchmarking.md)
 - [Contributing](contributions.md)
