@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+
+	<property name="LOG_HOME" value="/data/logs/zipkin/user" />
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{X-B3-TraceId:-},%X{X-B3-SpanId:-}] [%thread] %logger{35} - %msg %n</pattern>
+			<charset>UTF-8</charset>
+		</encoder>
+	</appender>
+    <!-- 全部日志 -->
+	<appender name="ROLLING_ALL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_HOME}/info.log</file>
+        <!-- 每天滚动 -->
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_HOME}/info.log-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+            <!-- 保存90天 -->
+            <maxHistory>90</maxHistory>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<!-- 按日期和文件大小滚动，每个文件100MB -->
+				<maxFileSize>800MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{X-B3-TraceId:-},%X{X-B3-SpanId:-}] [%thread] %logger{35} - %msg %n</pattern>
+			<charset>UTF-8</charset>
+		</encoder>
+	</appender>
+    <!-- WARN级别日志 -->
+	<appender name="ROLLING_WARN" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_HOME}/info-warn.log</file>
+        <!-- 每天滚动 -->
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_HOME}/info-warn.log-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+            <!-- 保存90天 -->
+            <maxHistory>90</maxHistory>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 按日期和文件大小滚动，每个文件100MB -->
+				<maxFileSize>800MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{X-B3-TraceId:-},%X{X-B3-SpanId:-}] [%thread] %logger{35} - %msg %n</pattern>
+			<charset>UTF-8</charset>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>WARN</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	</appender>
+    <!-- ERROR级别日志 -->
+	<appender name="ROLLING_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender" level="ERROR">
+		<file>${LOG_HOME}/info-error.log</file>
+        <!-- 每天滚动 -->
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_HOME}/info-error.log-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+            <!-- 保存90天 -->
+            <maxHistory>90</maxHistory>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 按日期和文件大小滚动，每个文件100MB -->
+				<maxFileSize>800MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{X-B3-TraceId:-},%X{X-B3-SpanId:-}] [%thread] %logger{35} - %msg %n</pattern>
+			<charset>UTF-8</charset>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>ERROR</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	</appender>
+
+	<root level="DEBUG">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="ROLLING_ALL" />
+		<appender-ref ref="ROLLING_WARN" />
+		<appender-ref ref="ROLLING_ERROR" />
+	</root>
+
+	<logger name="com.qw.wefly" level="${logging.level.mapper}" />
+
+</configuration>

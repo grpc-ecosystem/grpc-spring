@@ -1,0 +1,11 @@
+server:
+  port: 8080
+spring:
+  profiles:
+    active: dev
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  main:
+    allow-bean-definition-overriding: true

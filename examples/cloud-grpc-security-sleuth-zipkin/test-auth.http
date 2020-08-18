@@ -1,0 +1,13 @@
+### 获取token-JWT
+# AuthorizationServerConfig 看客户端配置信息
+# UserDetailServiceImpl 看用户信息配置
+
+POST http://client:secret@localhost:8080/oauth/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&username=admin&password=admin&scope=A
+
+
+### 测试入口
+GET http://127.0.0.1:38080/api/pay
+Content-Type: application/x-www-form-urlencoded

@@ -1,0 +1,27 @@
+//指定proto3格式
+syntax = "proto3";
+//一些生成代码的设置
+option java_multiple_files = true; //以非外部类模式生成
+option java_package = "my.suveng.istio.grpc.api.pay"; //所在包名
+option java_outer_classname = "Pay"; //最外层类名称
+
+message PayRequest{
+    string money = 1;
+}
+
+message PayResponse {
+    bool success = 2;
+}
+
+// rpc 方法定义, 4种方式
+service PayService {
+    //     1. 普通请求返回
+    rpc getRealNameByUsername (PayRequest) returns (PayResponse);
+    //      2. 流式请求,普通返回
+    rpc getRealNameByUsernameResStream (PayRequest) returns (stream PayResponse);
+    //      3. 普通请求,流式返回
+    rpc getRealNameByUsernameReqStream (stream PayRequest) returns (PayResponse);
+    //      3. 流式请求, 流式返回
+    rpc getRealNameByUsernameStreamAll (stream PayRequest) returns (stream PayResponse);
+
+}

@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: istio-cloud-order-demo
+  zipkin:
+    base-url: http://192.168.9.208:9411
+    enabled: false
+  sleuth:
+    sampler:
+      probability: 1
+  main:
+    allow-bean-definition-overriding: true
+management:
+  server:
+    port: 18081
+server:
+  port: 18080
+grpc:
+  server:
+    port: 19090
+  client:
+    pay:
+      address: 'static://127.0.0.1:29090' # rpc服务的地址
+      negotiation-type: plaintext
+    user:
+      address: 'static://127.0.0.1:39090' # rpc服务的地址
+      negotiation-type: plaintext

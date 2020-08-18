@@ -1,0 +1,27 @@
+//指定proto3格式
+syntax = "proto3";
+//一些生成代码的设置
+option java_multiple_files = true; //以非外部类模式生成
+option java_package = "my.suveng.istio.grpc.api.order"; //所在包名
+option java_outer_classname = "Order"; //最外层类名称
+
+message OrderRequest{
+    string pay = 1;
+}
+
+message OrderResponse {
+    string orderId = 2;
+}
+
+// rpc 方法定义, 4种方式
+service OrderService {
+    //     1. 普通请求返回
+    rpc getRealNameByUsername (OrderRequest) returns (OrderResponse);
+    //      2. 流式请求,普通返回
+    rpc getRealNameByUsernameResStream (OrderRequest) returns (stream OrderResponse);
+    //      3. 普通请求,流式返回
+    rpc getRealNameByUsernameReqStream (stream OrderRequest) returns (OrderResponse);
+    //      3. 流式请求, 流式返回
+    rpc getRealNameByUsernameStreamAll (stream OrderRequest) returns (stream OrderResponse);
+
+}

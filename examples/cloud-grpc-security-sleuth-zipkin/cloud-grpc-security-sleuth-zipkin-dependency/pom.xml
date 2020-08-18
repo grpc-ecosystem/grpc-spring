@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>my.suveng</groupId>
+    <artifactId>cloud-grpc-security-sleuth-zipkin-dependency</artifactId>
+    <version>1.0.0</version>
+
+
+    <properties>
+        <java.version>1.8</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <protobuf.version>3.12.3</protobuf.version>
+        <spring-boot.version>2.3.0.RELEASE</spring-boot.version>
+        <grpc.version>1.29.0</grpc.version>
+        <spring-boot.version>2.2.1.RELEASE</spring-boot.version>
+        <spring-cloud.version>Hoxton.SR5</spring-cloud.version>
+        <java.version>1.8</java.version>
+        <protobuf.version>3.12.3</protobuf.version>
+        <grpc.version>1.29.0</grpc.version>
+    </properties>
+
+
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>su</id>
+            <name>Steven</name>
+            <email>suveng@163.com</email>
+        </developer>
+    </developers>
+
+
+    <dependencies>
+        <dependency>
+            <artifactId>util-core</artifactId>
+            <groupId>com.gitee.suveng</groupId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- https://mvnrepository.com/artifact/com.ofpay/logback-mdc-ttl -->
+            <dependency>
+                <groupId>com.ofpay</groupId>
+                <artifactId>logback-mdc-ttl</artifactId>
+                <version>1.0.2</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.alibaba/transmittable-thread-local -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>transmittable-thread-local</artifactId>
+                <version>2.11.5</version>
+            </dependency>
+
+
+            <!--springcloud依赖-->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!--springboot依赖-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>1.2.72</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-stub</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-protobuf</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+
+            <!-- 国产的grpc starter -->
+            <!-- https://yidongnan.github.io/grpc-spring-boot-starter/ -->
+            <dependency>
+                <groupId>net.devh</groupId>
+                <artifactId>grpc-spring-boot-starter</artifactId>
+                <version>2.9.0.RELEASE</version>
+            </dependency>
+
+            <dependency>
+                <artifactId>util-core</artifactId>
+                <groupId>com.gitee.suveng</groupId>
+                <version>1.0.6</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+</project>
