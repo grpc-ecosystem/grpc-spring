@@ -12,12 +12,12 @@ eclipse {
     }
     classpath {
         file.beforeMerged { cp ->
-            def generatedGrpcFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder('src/generated/test/grpc', null);
-            generatedGrpcFolder.entryAttributes['ignore_optional_problems'] = 'true';
-            cp.entries.add( generatedGrpcFolder );
-            def generatedJavaFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder('src/generated/test/java', null);
-            generatedJavaFolder.entryAttributes['ignore_optional_problems'] = 'true';
-            cp.entries.add( generatedJavaFolder );
+            def generatedGrpcFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder('src/generated/test/grpc', null)
+            generatedGrpcFolder.entryAttributes['ignore_optional_problems'] = 'true'
+            cp.entries.add( generatedGrpcFolder )
+            def generatedJavaFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder('src/generated/test/java', null)
+            generatedJavaFolder.entryAttributes['ignore_optional_problems'] = 'true'
+            cp.entries.add( generatedJavaFolder )
         }
     }
 }

@@ -28,7 +28,3 @@
 3. 启动所有服务, 测试`cloud-grpc-sleuth-zipkin-user`的`controller`的逻辑
 
 ![LyOQbX](https://gitee.com/suveng/upic/raw/master/uPic/LyOQbX.png)
-
-
-
-
