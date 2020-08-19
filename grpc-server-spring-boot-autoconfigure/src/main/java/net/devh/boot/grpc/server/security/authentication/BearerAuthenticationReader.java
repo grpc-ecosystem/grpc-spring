@@ -43,7 +43,7 @@ public class BearerAuthenticationReader implements GrpcAuthenticationReader {
     private static final String PREFIX = BEARER_AUTH_PREFIX.toLowerCase();
     private static final int PREFIX_LENGTH = PREFIX.length();
 
-    private Function<String, Authentication> tokenWrapper;
+    private final Function<String, Authentication> tokenWrapper;
 
     /**
      * Creates a new BearerAuthenticationReader with the given wrapper function.
@@ -62,7 +62,7 @@ public class BearerAuthenticationReader implements GrpcAuthenticationReader {
      * <pre>
      * <code>new BearerAuthenticationReader(token -&gt; new BearerTokenAuthenticationToken(token))</code>
      * </pre>
-     * 
+     *
      * @param tokenWrapper The function used to convert the token (without bearer prefix) into an {@link Authentication}
      *        object.
      */

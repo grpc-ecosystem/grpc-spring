@@ -33,10 +33,10 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class GrpcServerLifecycle implements SmartLifecycle {
-    private static AtomicInteger serverCounter = new AtomicInteger(-1);
+    private static final AtomicInteger serverCounter = new AtomicInteger(-1);
 
     private volatile Server server;
-    private volatile int phase = Integer.MAX_VALUE;
+    private final int phase = Integer.MAX_VALUE;
     private final GrpcServerFactory factory;
 
     public GrpcServerLifecycle(final GrpcServerFactory factory) {

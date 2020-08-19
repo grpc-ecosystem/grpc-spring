@@ -43,7 +43,7 @@ public enum CodecType {
     private final boolean forCompression;
     private final boolean forDecompression;
 
-    private CodecType(final boolean forCompression, final boolean forDecompression) {
+    CodecType(final boolean forCompression, final boolean forDecompression) {
         this.forCompression = forCompression;
         this.forDecompression = forDecompression;
     }

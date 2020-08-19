@@ -38,6 +38,6 @@ public enum ClientAuth {
     /**
      * Indicates that the {@link SSLEngine} will <b>require</b> client authentication.
      */
-    REQUIRE;
+    REQUIRE
 
 }

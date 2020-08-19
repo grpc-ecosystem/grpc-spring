@@ -39,6 +39,6 @@ public enum NegotiationType {
      * Just assume the connection is plaintext (non-SSL) and the remote endpoint supports HTTP/2 directly without an
      * upgrade.
      */
-    PLAINTEXT;
+    PLAINTEXT
 
 }

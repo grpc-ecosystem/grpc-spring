@@ -46,6 +46,6 @@ public interface AuthenticatingServerInterceptor extends ServerInterceptor {
     /**
      * The context key that can be used to retrieve the associated {@link Authentication}.
      */
-    public static final Context.Key<Authentication> AUTHENTICATION_CONTEXT_KEY = Context.key("authentication");
+    Context.Key<Authentication> AUTHENTICATION_CONTEXT_KEY = Context.key("authentication");
 
 }
