@@ -26,5 +26,6 @@
 1. 启动`oauth-server`, 获取一个`token`, 查看`oauth-server`的配置
 2. 在`cloud-grpc-sleuth-zipkin-user`中替换`token`
 3. 启动所有服务, 测试`cloud-grpc-sleuth-zipkin-user`的`controller`的逻辑
+4. 访问接口, 默认没有权限访问, 所以结果会是Permission denied, 但是修改源码, 给到对应权限之后, 就可以访问
 
 ![LyOQbX](https://gitee.com/suveng/upic/raw/master/uPic/LyOQbX.png)

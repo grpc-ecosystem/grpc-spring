@@ -16,7 +16,8 @@ import org.springframework.security.access.annotation.Secured;
 @Slf4j
 public class PayServiceImpl extends PayServiceGrpc.PayServiceImplBase {
 
-	@Secured("ROLE_admin")
+	//@Secured("ROLE_admin") // have right to access
+	@Secured("ROLE_uuu") // no right to access
 	@Override
 	public void getRealNameByUsername(PayRequest request, StreamObserver<PayResponse> responseObserver) {
 		log.info("pay 接受到参数: " + request + "");

@@ -13,7 +13,7 @@ dependencies {
     compile 'org.springframework.cloud:spring-cloud-starter-sleuth:2.2.3.RELEASE'
     compile 'org.springframework.cloud:spring-cloud-starter-zipkin:2.2.3.RELEASE'
     compile 'com.gitee.suveng:util-core:1.0.6'
-    compile 'net.devh:grpc-spring-boot-starter:2.9.0.RELEASE'
+    compile 'net.devh:grpc-spring-boot-starter:2.10.0.RELEASE'
     compile project(':cloud-grpc-security-sleuth-zipkin-api')
     compile 'org.springframework.boot:spring-boot-starter-web:2.2.1.RELEASE'
     compile 'org.springframework.boot:spring-boot-starter-actuator:2.2.1.RELEASE'
