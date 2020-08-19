@@ -19,8 +19,8 @@ grpc:
     port: 19090
   client:
     pay:
-      address: 'static://127.0.0.1:29090' # rpc服务的地址
+      address: 'static://127.0.0.1:29090' # pay service rpc 服务的地址
       negotiation-type: plaintext
     user:
-      address: 'static://127.0.0.1:39090' # rpc服务的地址
+      address: 'static://127.0.0.1:39090' # user service rpc 服务的地址
       negotiation-type: plaintext

@@ -19,8 +19,8 @@ grpc:
     port: 39090
   client:
     pay:
-      address: 'static://127.0.0.1:29090' # rpc服务的地址
+      address: 'static://127.0.0.1:29090' # pay service rpc服务的地址
       negotiation-type: plaintext
     order:
-      address: 'static://127.0.0.1:19090' # rpc服务的地址
+      address: 'static://127.0.0.1:19090' # order service rpc服务的地址
       negotiation-type: plaintext

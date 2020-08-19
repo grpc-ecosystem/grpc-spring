@@ -16,16 +16,18 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 
 /**
- * spring oauth 提供的 user服务
+ * user信息获取的逻辑
  * @author suwenguang
  **/
 @Service
 @Slf4j
 public class UserDetailServiceImpl implements UserDetailsService {
 
+    /**
+     * 默认的加密器
+     */
     @Autowired
     PasswordEncoder passwordEncoder;
-
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -34,10 +36,9 @@ public class UserDetailServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("用户名不能为空");
         }
 
-        //user信息, 写死
-        //User user = userServiceImpl.getUserInfoByUsername(username);
+        //user信息, 写死, 后续根据自己的需求, 使用MySQL或者其他数据库中获取用户信息
         ArrayList<GrantedAuthority> authorities = new ArrayList<>();
-        // 必须带前缀, 否则不生效, 具体看源码
+        // 必须带前缀, 否则在grpc server 的 @secured 不生效, 具体看看源码
         authorities.add(new SimpleGrantedAuthority("ROLE_admin"));
         authorities.add(new SimpleGrantedAuthority("ROLE_guest"));
         User user = new User("admin", passwordEncoder.encode("admin"), authorities);

@@ -1,6 +1,5 @@
 package my.suveng.oauth2.config.resource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,44 +17,25 @@ import org.springframework.util.FileCopyUtils;
 
 import java.io.IOException;
 
-// 资源服务配置
+/**
+ * 资源服务配置, 当前服务既充当 oauth server 也充当 resource server
+ */
 @Configuration
 @EnableResourceServer
 // 方法使用 @secured 用于角色权限控制
-@EnableGlobalMethodSecurity(securedEnabled = true,proxyTargetClass = true)
+@EnableGlobalMethodSecurity(securedEnabled = true, proxyTargetClass = true)
 public class OAuth2ResourceServer extends ResourceServerConfigurerAdapter {
-
-    @Autowired
-    @Qualifier("resourceTokenStore")
-    TokenStore tokenStore;
-
-    /**
-     * 资源安全权限配置
-     * @author suwenguang
-     */
-    @Override
-    public void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-                .anyRequest()
-                .authenticated()
-                .and()
-                .requestMatchers()
-                .antMatchers("/secure/**");
-    }
 
     /**
      * 配置resource使用jwt公钥解密
-     * @author suwenguang
      */
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
-        resources.tokenStore(tokenStore);
+        resources.tokenStore(tokenStore());
     }
-
 
     /**
      * resource的TokenStore
-     * @author suwenguang
      */
     @Bean
     @Qualifier("resourceTokenStore")
@@ -63,10 +43,8 @@ public class OAuth2ResourceServer extends ResourceServerConfigurerAdapter {
         return new JwtTokenStore(jwtTokenEnhancer());
     }
 
-
     /**
      * resource的jwt的RSA公钥解密配置
-     * @author suwenguang
      */
     @Bean(name = "publicJwtTokenEnhancer")
     public JwtAccessTokenConverter jwtTokenEnhancer() {
@@ -83,5 +61,19 @@ public class OAuth2ResourceServer extends ResourceServerConfigurerAdapter {
         converter.setVerifierKey(publicKey);
         return converter;
     }
+
+    /**
+     * 资源安全权限配置
+     */
+    @Override
+    public void configure(HttpSecurity http) throws Exception {
+        http.authorizeRequests()
+                .anyRequest()
+                .authenticated()
+                .and()
+                .requestMatchers()
+                .antMatchers("/secure/**");
+    }
+
 
 }

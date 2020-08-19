@@ -1,6 +1,7 @@
 package my.suveng.oauth2.config.auth;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -36,12 +37,21 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	@Autowired
 	private UserDetailsService userDetailsService;
 
+	/**
+	 * 注入实现的密码加密器
+	 */
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
+	/**
+	 * 注入认证授权管理器
+	 */
 	@Autowired
 	private AuthenticationManager authenticationManager;
 
+	/**
+	 * 设置jwt
+	 */
 	@Override
 	public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
 		// 设置令牌
@@ -54,7 +64,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 		;
 	}
 
-
+	/**
+	 * 设置授信客户端, 这里只设置一个默认客户端, 后续需要,可以集成jdbc, 从数据库中获取
+	 */
 	@Override
 	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 		// 读取客户端配置
@@ -66,6 +78,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	}
 
 
+	/**
+	 * 开启check_token的默认接口
+	 */
 	@Override
 	public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
 		security.tokenKeyAccess("permitAll()")
@@ -77,16 +92,16 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
 	/**
 	 * 配置token JWT存储
-	 * @author suwenguang
 	 */
 	@Bean
+	@Qualifier
 	public TokenStore tokenStore(){
 		return new JwtTokenStore(jwtTokenEnhancer());
 	}
 
 	/**
-	 * 配置JWT秘钥
-	 * @author suwenguang
+	 * 配置JWT秘钥, 秘钥存放在resource目录下
+	 * 至于怎么生成这一对RSA秘钥, 哈哈, 自己google一下就出来, 这里不赘述
 	 */
 	@Bean
 	protected JwtAccessTokenConverter jwtTokenEnhancer() {

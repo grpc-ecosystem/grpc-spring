@@ -13,20 +13,30 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
- *
+ * web uri 端点访问控制
  * @author suwenguang
  **/
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+	/**
+	 * 注入自定义的用户管理
+	 */
 	@Autowired
 	UserDetailServiceImpl userDetailService;
+
+	/**
+	 * 提供默认的加密器
+	 */
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder(){
 		return new BCryptPasswordEncoder();
 	}
 
+	/**
+	 * 这里自定义用户的认证和授权
+	 */
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		// 使用自定义认证与授权
