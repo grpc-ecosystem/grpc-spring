@@ -43,6 +43,7 @@ import io.grpc.ClientInterceptor;
 import io.grpc.stub.AbstractStub;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import net.devh.boot.grpc.client.nameresolver.NameResolverRegistration;
+import net.devh.boot.grpc.client.stubfactory.FallbackStubFactory;
 import net.devh.boot.grpc.client.stubfactory.StubFactory;
 
 /**
@@ -259,6 +260,7 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     private List<StubFactory> getStubFactories() {
         if (this.stubFactories == null) {
             this.stubFactories = new ArrayList<>(this.applicationContext.getBeansOfType(StubFactory.class).values());
+            this.stubFactories.add(new FallbackStubFactory());
         }
         return this.stubFactories;
     }
