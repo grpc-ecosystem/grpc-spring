@@ -56,7 +56,7 @@
                     <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}
                     </pluginArtifact>
                     <clearOutputDirectory>false</clearOutputDirectory>
-                    <outputDirectory>src/main/java</outputDirectory>
+<!--                    <outputDirectory>src/main/java</outputDirectory>-->
                 </configuration>
                 <executions>
                     <execution>
