@@ -1,6 +1,6 @@
 spring:
   application:
-    name: istio-cloud-user-demo
+    name: user-demo
   zipkin:
     base-url: http://localhost:9411
     enabled: true
