@@ -42,11 +42,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.lognet</groupId>
-            <artifactId>grpc-spring-boot-starter</artifactId>
-            <version>2.4.3</version>
-        </dependency>
-        <dependency>
             <groupId>io.zipkin.brave</groupId>
             <artifactId>brave-instrumentation-grpc</artifactId>
         </dependency>
@@ -59,12 +54,6 @@
             <artifactId>spring-cloud-starter-zipkin</artifactId>
         </dependency>
         <!--zipkin-->
-
-
-        <dependency>
-            <artifactId>util-core</artifactId>
-            <groupId>com.gitee.suveng</groupId>
-        </dependency>
 
         <!-- 国产的grpc starter -->
         <!-- https://yidongnan.github.io/grpc-spring-boot-starter/ -->

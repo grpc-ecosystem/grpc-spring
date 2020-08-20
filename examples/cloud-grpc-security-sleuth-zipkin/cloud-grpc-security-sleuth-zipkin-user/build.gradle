@@ -8,7 +8,6 @@ dependencies {
     compile 'org.springframework.security:spring-security-oauth2-jose:5.2.1.RELEASE'
     compile 'com.alibaba:transmittable-thread-local:2.11.5'
     compile 'com.ofpay:logback-mdc-ttl:1.0.2'
-    compile 'org.lognet:grpc-spring-boot-starter:2.4.3'
     compile 'io.zipkin.brave:brave-instrumentation-grpc:5.12.3'
     compile 'org.springframework.cloud:spring-cloud-starter-sleuth:2.2.3.RELEASE'
     compile 'org.springframework.cloud:spring-cloud-starter-zipkin:2.2.3.RELEASE'

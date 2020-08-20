@@ -5,7 +5,7 @@ import brave.grpc.GrpcTracing;
 import io.grpc.ClientInterceptor;
 import io.grpc.ServerInterceptor;
 import lombok.extern.slf4j.Slf4j;
-import org.lognet.springboot.grpc.GRpcGlobalInterceptor;
+import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorConfigurer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -35,7 +35,6 @@ public class CloudPayDemoApplication {
 	 * server stubs, we are just taking advantage of that to install the server-side gRPC tracer.
 	 */
 	@Bean
-	@GRpcGlobalInterceptor
 	ServerInterceptor grpcServerSleuthInterceptor(GrpcTracing grpcTracing) {
 		return grpcTracing.newServerInterceptor();
 	}
@@ -58,5 +57,12 @@ public class CloudPayDemoApplication {
 	@ConditionalOnProperty(value = "sample.zipkin.enabled", havingValue = "false")
 	public Reporter<Span> spanReporter() {
 		return span -> log.info(span+"");
+	}
+
+	@Bean
+	public GlobalServerInterceptorConfigurer globalInterceptorConfigurerAdapter(ServerInterceptor grpcServerSleuthInterceptor) {
+		return registry -> {
+			registry.add(grpcServerSleuthInterceptor);
+		};
 	}
 }

@@ -23,7 +23,7 @@
 注意: `token`的获取需要自行从`oauth server`中获取
 
 测试步骤:
-1. 启动`oauth-server`, 获取一个`token`, 查看`oauth-server`的配置
+1. 先编译项目,启动`oauth-server`, 获取一个`token`, 查看`oauth-server`的配置
 2. 在`cloud-grpc-sleuth-zipkin-user`中替换`token`
 3. 启动所有服务, 测试`cloud-grpc-sleuth-zipkin-user`的`controller`的逻辑
 4. 访问接口, 默认没有权限访问, 所以结果会是Permission denied, 但是修改源码, 给到对应权限之后, 就可以访问
