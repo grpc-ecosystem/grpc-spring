@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>my.suveng</groupId>
+    <groupId>net.devh</groupId>
     <artifactId>cloud-grpc-security-sleuth-zipkin</artifactId>
     <version>1.0.0</version>
     <properties>
@@ -29,7 +29,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>my.suveng</groupId>
+                <groupId>net.devh</groupId>
                 <artifactId>cloud-grpc-security-sleuth-zipkin-dependency</artifactId>
                 <version>1.0.0</version>
                 <type>pom</type>

@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>my.suveng</groupId>
+        <groupId>net.devh</groupId>
         <artifactId>cloud-grpc-security-sleuth-zipkin</artifactId>
         <version>1.0.0</version>
     </parent>
@@ -55,7 +55,7 @@
         </dependency>
         <!--zipkin-->
 
-        <!-- 国产的grpc starter -->
+
         <!-- https://yidongnan.github.io/grpc-spring-boot-starter/ -->
         <dependency>
             <groupId>net.devh</groupId>
@@ -63,7 +63,7 @@
         </dependency>
 
         <dependency>
-            <groupId>my.suveng</groupId>
+            <groupId>net.devh</groupId>
             <artifactId>cloud-grpc-security-sleuth-zipkin-api</artifactId>
             <version>1.0.0</version>
         </dependency>

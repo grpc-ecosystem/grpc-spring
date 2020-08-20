@@ -3,7 +3,7 @@
  */
 
 allprojects {
-    group = 'my.suveng'
+    group = 'net.devh'
     version = '1.0.0'
 }
 

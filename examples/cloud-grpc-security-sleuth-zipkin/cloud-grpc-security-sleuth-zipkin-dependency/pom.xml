@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>my.suveng</groupId>
+    <groupId>net.devh</groupId>
     <artifactId>cloud-grpc-security-sleuth-zipkin-dependency</artifactId>
     <version>1.0.0</version>
 
@@ -26,8 +26,8 @@
 
     <licenses>
         <license>
-            <name>Apache 2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <name>MIT License</name>
+            <url>https://raw.githubusercontent.com/yidongnan/grpc-spring-boot-starter/master/LICENSE</url>
         </license>
     </licenses>
 
@@ -41,10 +41,6 @@
 
 
     <dependencies>
-        <dependency>
-            <artifactId>util-core</artifactId>
-            <groupId>com.gitee.suveng</groupId>
-        </dependency>
 
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -104,20 +100,13 @@
                 <version>${grpc.version}</version>
             </dependency>
 
-            <!-- 国产的grpc starter -->
+
             <!-- https://yidongnan.github.io/grpc-spring-boot-starter/ -->
             <dependency>
                 <groupId>net.devh</groupId>
                 <artifactId>grpc-spring-boot-starter</artifactId>
                 <version>2.10.0.RELEASE</version>
             </dependency>
-
-            <dependency>
-                <artifactId>util-core</artifactId>
-                <groupId>com.gitee.suveng</groupId>
-                <version>1.0.6</version>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 
