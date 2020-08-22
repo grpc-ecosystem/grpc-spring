@@ -23,6 +23,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import io.grpc.BindableService;
@@ -40,12 +41,12 @@ import io.grpc.ServerInterceptors;
  * </p>
  *
  * @author Michael (yidongnan@gmail.com)
- * @since 5/17/16
  */
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Service
+@Bean
 public @interface GrpcService {
 
     /**
