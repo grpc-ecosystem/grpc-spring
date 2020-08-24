@@ -61,7 +61,7 @@ public abstract class AbstractSimpleServerClientTest {
     protected TestServiceFutureStub testServiceFutureStub;
 
     @PostConstruct
-    public void init() {
+    protected void init() {
         // Test injection
         assertNotNull(this.channel, "channel");
         assertNotNull(this.testServiceBlockingStub, "testServiceBlockingStub");
@@ -77,7 +77,7 @@ public abstract class AbstractSimpleServerClientTest {
      */
     @Test
     @DirtiesContext
-    public void testSuccessfulCall() throws InterruptedException, ExecutionException {
+    void testSuccessfulCall() throws InterruptedException, ExecutionException {
         log.info("--- Starting tests with successful call ---");
         assertEquals("1.2.3",
                 TestServiceGrpc.newBlockingStub(this.channel).normal(Empty.getDefaultInstance()).getVersion());
@@ -95,7 +95,7 @@ public abstract class AbstractSimpleServerClientTest {
      */
     @Test
     @DirtiesContext
-    public void testFailingCall() {
+    void testFailingCall() {
         log.info("--- Starting tests with failing call ---");
         assertThrowsStatus(UNIMPLEMENTED,
                 () -> TestServiceGrpc.newBlockingStub(this.channel).unimplemented(Empty.getDefaultInstance()));
