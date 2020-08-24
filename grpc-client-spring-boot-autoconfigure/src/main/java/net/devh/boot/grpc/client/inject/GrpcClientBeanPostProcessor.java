@@ -43,6 +43,7 @@ import io.grpc.ClientInterceptor;
 import io.grpc.stub.AbstractStub;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import net.devh.boot.grpc.client.nameresolver.NameResolverRegistration;
+import net.devh.boot.grpc.client.stubfactory.FallbackStubFactory;
 import net.devh.boot.grpc.client.stubfactory.StubFactory;
 
 /**
@@ -229,14 +230,14 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
 
     /**
      * Creates a stub instance for the specified stub type using the resolved {@link StubFactory}.
-     * 
+     *
      * @param stubClass The stub class that needs to be created.
      * @param channel The gRPC channel associated with the created stub, passed as a parameter to the stub factory.
      * @throws BeanInstantiationException If the stub couldn't be created, either because the type isn't supported or
      *         because of a failure in creation.
      * @return A newly created gRPC stub.
      */
-    private AbstractStub<?> createStub(Class<? extends AbstractStub<?>> stubClass, Channel channel) {
+    private AbstractStub<?> createStub(final Class<? extends AbstractStub<?>> stubClass, final Channel channel) {
         final StubFactory factory = getStubFactories().stream()
                 .filter(stubFactory -> stubFactory.isApplicable(stubClass))
                 .findFirst()
@@ -245,7 +246,7 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
 
         try {
             return factory.createStub(stubClass, channel);
-        } catch (Exception exception) {
+        } catch (final Exception exception) {
             throw new BeanInstantiationException(stubClass, "Failed to create gRPC stub of type " + stubClass.getName(),
                     exception);
         }
@@ -258,8 +259,10 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
      */
     private List<StubFactory> getStubFactories() {
         if (this.stubFactories == null) {
-            stubFactories = new ArrayList<>(applicationContext.getBeansOfType(StubFactory.class).values());
+            this.stubFactories = new ArrayList<>(this.applicationContext.getBeansOfType(StubFactory.class).values());
+            this.stubFactories.add(new FallbackStubFactory());
         }
-        return stubFactories;
+        return this.stubFactories;
     }
+
 }

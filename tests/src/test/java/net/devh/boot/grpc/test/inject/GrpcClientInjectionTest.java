@@ -23,14 +23,23 @@ import javax.annotation.PostConstruct;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import io.grpc.Channel;
+import io.grpc.stub.AbstractStub;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import net.devh.boot.grpc.client.stubfactory.StandardJavaGrpcStubFactory;
+import net.devh.boot.grpc.client.stubfactory.StubFactory;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.InProcessConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
+import net.devh.boot.grpc.test.inject.CustomGrpc.ConstructorAccessibleStub;
+import net.devh.boot.grpc.test.inject.CustomGrpc.CustomAccessibleStub;
+import net.devh.boot.grpc.test.inject.CustomGrpc.FactoryMethodAccessibleStub;
+import net.devh.boot.grpc.test.inject.GrpcClientInjectionTest.TestConfig;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceBlockingStub;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceFutureStub;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceStub;
@@ -41,24 +50,33 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceStub;
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @SpringBootTest
-@SpringJUnitConfig(classes = {InProcessConfiguration.class, ServiceConfiguration.class, BaseAutoConfiguration.class})
+@SpringJUnitConfig(classes = {TestConfig.class, InProcessConfiguration.class, ServiceConfiguration.class,
+        BaseAutoConfiguration.class})
 @DirtiesContext
-public class GrpcClientInjectionTest {
+class GrpcClientInjectionTest {
 
     @GrpcClient("test")
-    protected Channel channel;
+    Channel channel;
     @GrpcClient("test")
-    protected TestServiceStub stub;
+    TestServiceStub stub;
     @GrpcClient("test")
-    protected TestServiceBlockingStub blockingStub;
+    TestServiceBlockingStub blockingStub;
     @GrpcClient("test")
-    protected TestServiceFutureStub futureStub;
+    TestServiceFutureStub futureStub;
+    @GrpcClient("test")
+    ConstructorAccessibleStub constructorStub;
+    @GrpcClient("test")
+    FactoryMethodAccessibleStub factoryMethodStub;
+    @GrpcClient("test")
+    CustomAccessibleStub customStub;
 
-    protected Channel channelSetted;
-    protected TestServiceStub stubSetted;
-    protected TestServiceBlockingStub blockingStubSetted;
-    protected TestServiceFutureStub futureStubSetted;
-
+    Channel channelSetted;
+    TestServiceStub stubSetted;
+    TestServiceBlockingStub blockingStubSetted;
+    TestServiceFutureStub futureStubSetted;
+    ConstructorAccessibleStub constructorStubSetted;
+    FactoryMethodAccessibleStub factoryMethodStubSetted;
+    CustomAccessibleStub customStubSetted;
 
     @PostConstruct
     public void init() {
@@ -67,44 +85,93 @@ public class GrpcClientInjectionTest {
         assertNotNull(this.stub, "stub");
         assertNotNull(this.blockingStub, "blockingStub");
         assertNotNull(this.futureStub, "futureStub");
+        assertNotNull(this.constructorStub, "constructorStub");
+        assertNotNull(this.factoryMethodStub, "factoryMethodStub");
+        assertNotNull(this.customStub, "customStub");
     }
 
     @GrpcClient("test")
-    public void inject(Channel channel) {
+    void inject(final Channel channel) {
         assertNotNull(channel, "channel");
         this.channelSetted = channel;
     }
 
     @GrpcClient("test")
-    public void inject(TestServiceStub stub) {
+    void inject(final TestServiceStub stub) {
         assertNotNull(stub, "stub");
         this.stubSetted = stub;
     }
 
     @GrpcClient("test")
-    public void inject(TestServiceBlockingStub stub) {
+    void inject(final TestServiceBlockingStub stub) {
         assertNotNull(stub, "stub");
         this.blockingStubSetted = stub;
     }
 
     @GrpcClient("test")
-    public void inject(TestServiceFutureStub stub) {
+    void inject(final TestServiceFutureStub stub) {
         assertNotNull(stub, "stub");
         this.futureStubSetted = stub;
     }
 
+    @GrpcClient("test")
+    void inject(final ConstructorAccessibleStub stub) {
+        assertNotNull(stub, "stub");
+        this.constructorStubSetted = stub;
+    }
+
+    @GrpcClient("test")
+    void inject(final FactoryMethodAccessibleStub stub) {
+        assertNotNull(stub, "stub");
+        this.factoryMethodStubSetted = stub;
+    }
+
+    @GrpcClient("test")
+    void inject(final CustomAccessibleStub stub) {
+        assertNotNull(stub, "stub");
+        this.customStubSetted = stub;
+    }
+
     @Test
-    public void testAllSet() {
+    void testAllSet() {
         // Field injection
         assertNotNull(this.channel, "channel");
         assertNotNull(this.stub, "stub");
         assertNotNull(this.blockingStub, "blockingStub");
         assertNotNull(this.futureStub, "futureStub");
+        assertNotNull(this.constructorStub, "constructorStub");
+        assertNotNull(this.factoryMethodStub, "factoryMethodStub");
+        assertNotNull(this.customStub, "customStub");
         // Setter injection
         assertNotNull(this.channelSetted, "channelSetted");
         assertNotNull(this.stubSetted, "stubSetted");
         assertNotNull(this.blockingStubSetted, "blockingStubSetted");
         assertNotNull(this.futureStubSetted, "futureStubSetted");
+        assertNotNull(this.constructorStubSetted, "constructorStubSetted");
+        assertNotNull(this.factoryMethodStubSetted, "factoryMethodStubSetted");
+        assertNotNull(this.customStubSetted, "customStubSetted");
+    }
+
+    @TestConfiguration
+    public static class TestConfig {
+
+        @Bean
+        StubFactory customStubFactory() {
+            return new StandardJavaGrpcStubFactory() {
+
+                @Override
+                public boolean isApplicable(final Class<? extends AbstractStub<?>> stubType) {
+                    return CustomStub.class.isAssignableFrom(stubType);
+                }
+
+                @Override
+                protected String getFactoryMethodName() {
+                    return "custom";
+                }
+
+            };
+        }
+
     }
 
 }
