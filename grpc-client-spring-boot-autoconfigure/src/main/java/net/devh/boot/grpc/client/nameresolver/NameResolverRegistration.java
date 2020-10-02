@@ -58,9 +58,9 @@ public class NameResolverRegistration implements DisposableBean {
         for (NameResolverProvider provider : this.providers) {
             try {
                 registry.register(provider);
-                log.info("{} is available -> Added to the NameResolverRegistry", provider);
+                log.debug("{} is available -> Added to the NameResolverRegistry", provider);
             } catch (IllegalArgumentException e) {
-                log.info("{} is not available -> Not added to the NameResolverRegistry", provider);
+                log.debug("{} is not available -> Not added to the NameResolverRegistry", provider);
             }
         }
     }
@@ -70,7 +70,7 @@ public class NameResolverRegistration implements DisposableBean {
         for (NameResolverRegistry registry : this.registries) {
             for (NameResolverProvider provider : this.providers) {
                 registry.deregister(provider);
-                log.info("{} was removed from the NameResolverRegistry", provider);
+                log.debug("{} was removed from the NameResolverRegistry", provider);
             }
         }
         this.registries.clear();
