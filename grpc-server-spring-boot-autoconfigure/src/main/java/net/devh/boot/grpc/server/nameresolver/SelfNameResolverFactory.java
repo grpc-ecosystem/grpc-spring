@@ -44,12 +44,12 @@ public class SelfNameResolverFactory extends NameResolverProvider {
      *
      * @param properties The properties used to resolve this server's address.
      */
-    public SelfNameResolverFactory(GrpcServerProperties properties) {
+    public SelfNameResolverFactory(final GrpcServerProperties properties) {
         this.properties = properties;
     }
 
     @Override
-    public NameResolver newNameResolver(URI targetUri, Args args) {
+    public NameResolver newNameResolver(final URI targetUri, final Args args) {
         if (SELF_SCHEME.equals(targetUri.getScheme()) || targetUri.toString().equals(SELF_SCHEME)) {
             return new SelfNameResolver(this.properties, args);
         }
@@ -69,6 +69,11 @@ public class SelfNameResolverFactory extends NameResolverProvider {
     @Override
     protected int priority() {
         return 0; // Lowest priority
+    }
+
+    @Override
+    public String toString() {
+        return "SelfNameResolverFactory [scheme=" + getDefaultScheme() + "]";
     }
 
 }
