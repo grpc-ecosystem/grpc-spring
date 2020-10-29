@@ -43,14 +43,14 @@ import net.devh.boot.grpc.test.config.ServiceConfiguration;
 @SpringJUnitConfig(classes = ServiceConfiguration.class)
 @EnableAutoConfiguration
 @DirtiesContext
-public class MetricFullAutoConfigurationTest {
+class MetricFullAutoConfigurationTest {
 
     @Autowired
     private MeterRegistry meterRegistry;
 
     @Test
     @DirtiesContext
-    public void testAutoDiscovery() {
+    void testAutoDiscovery() {
         log.info("--- Starting tests with full auto discovery ---");
         assertEquals(METHOD_COUNT * 2, this.meterRegistry.getMeters().stream()
                 .filter(Counter.class::isInstance)

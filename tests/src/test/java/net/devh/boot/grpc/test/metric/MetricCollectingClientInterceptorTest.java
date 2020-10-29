@@ -39,7 +39,7 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc;
 class MetricCollectingClientInterceptorTest {
 
     @Test
-    public void testClientPreRegistration() {
+    void testClientPreRegistration() {
         log.info("--- Starting tests with client pre-registration ---");
         final MeterRegistry meterRegistry = new SimpleMeterRegistry();
         assertEquals(0, meterRegistry.getMeters().size());
@@ -52,7 +52,7 @@ class MetricCollectingClientInterceptorTest {
     }
 
     @Test
-    public void testClientCustomization() {
+    void testClientCustomization() {
         log.info("--- Starting tests with client customization ---");
         final MeterRegistry meterRegistry = new SimpleMeterRegistry();
         assertEquals(0, meterRegistry.getMeters().size());
