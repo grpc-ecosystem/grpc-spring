@@ -16,6 +16,7 @@ Please refer to [Tests with Grpc-Stubs](../client/testing.md).
   - [Standalone Tests](#standalone-tests)
   - [Spring-based Tests](#spring-based-tests)
 - [Integration Tests](#integration-tests)
+- [gRPCurl](#grpcurl)
 
 ## Additional Topics <!-- omit in toc -->
 
@@ -33,10 +34,11 @@ We all know how important it is to test our application, so I will only refer yo
 - [Testing with JUnit](https://junit.org/junit5/docs/current/user-guide/#writing-tests)
 - [grpc-spring-boot-starter's Tests](https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/tests/src/test/java/net/devh/boot/grpc/test)
 
-Generally there are two ways to test your grpc service:
+Generally there are three ways to test your grpc service:
 
 - [Test them directly](#unit-tests)
 - [Test them via grpc](#integration-tests)
+- [Test them in producation](#grpcurl) (in addition to automated build time tests)
 
 ## The Service to Test
 
@@ -295,6 +297,72 @@ public class MyServiceIntegrationTestConfiguration {
 ````
 
 > Note: This code might look shorter/simpler than the unit test one, but the execution time is serveral times longer.
+
+## gRPCurl
+
+[`gRPCurl`](https://github.com/fullstorydev/grpcurl) is a small command line application,
+that you can use to query your application at runtime. Or as their Readme states:
+
+> It's basically `curl` for gRPC servers.
+
+You can even use the responses with `jq` and use it in your automation.
+
+Skip the first/this block if you already know what you wish to query.
+
+````bash
+$ # First scan the server for available services
+$ grpcurl --plaintext localhost:9090 list
+net.devh.boot.grpc.example.MyService
+$ # Then list the methods available for that call
+$ grpcurl --plaintext localhost:9090 list net.devh.boot.grpc.example.MyService
+net.devh.boot.grpc.example.MyService.SayHello
+$ # Lets check the request and response types
+$ grpcurl --plaintext localhost:9090 describe net.devh.boot.grpc.example.MyService/SayHello
+net.devh.boot.grpc.example.MyService.SayHello is a method:
+rpc SayHello ( .HelloRequest ) returns ( .HelloReply );
+$ # Now we only have query for the request body structure
+$ grpcurl --plaintext localhost:9898 describe net.devh.boot.grpc.example.HelloRequest
+net.devh.boot.grpc.example.HelloRequest is a message:
+message HelloRequest {
+  string name = 1;
+}
+````
+
+> Note: `gRPCurl` supports both `.` and `/` as separator between the service name and the method name:
+>
+> - `net.devh.boot.grpc.example.MyService.SayHello`
+> - `net.devh.boot.grpc.example.MyService/SayHello`
+>
+> We recommend the second variant as it matches grpc's internal full method name and the method name is easier to
+> detect in the call.
+
+````bash
+$ # Finally we can call the actual method
+$ grpcurl --plaintext localhost:9090 net.devh.boot.grpc.example.MyService/SayHello
+{
+  "message": "Hello ==> ",
+  "counter": 1337
+}
+$ # Or call it with a populated request body
+$ grpcurl --plaintext -d '{"name": "Test"}' localhost:9090 net.devh.boot.grpc.example.MyService/SayHello
+{
+  "message": "Hello ==> Test",
+  "counter": 1337
+}
+````
+
+> Note: If you use the windows terminal or wish to use variables inside the data block then you have to use `"` instead
+> of `'` and escape the `"` that are part of the actual json.
+>
+> ````cmd
+> > grpcurl --plaintext -d "{\"name\": \"Test\"}" localhost:9090 net.devh.boot.grpc.example.MyService/sayHello
+> {
+>   "message": "Hello ==> Test",
+>   "counter": 1337
+> }
+> ````
+
+For more information regarding `gRPCurl` please refer to their [official documentation](https://github.com/fullstorydev/grpcurl)
 
 ## Additional Topics <!-- omit in toc -->
 
