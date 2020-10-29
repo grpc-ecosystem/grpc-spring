@@ -321,7 +321,7 @@ $ grpcurl --plaintext localhost:9090 describe net.devh.boot.grpc.example.MyServi
 net.devh.boot.grpc.example.MyService.SayHello is a method:
 rpc SayHello ( .HelloRequest ) returns ( .HelloReply );
 $ # Now we only have query for the request body structure
-$ grpcurl --plaintext localhost:9898 describe net.devh.boot.grpc.example.HelloRequest
+$ grpcurl --plaintext localhost:9090 describe net.devh.boot.grpc.example.HelloRequest
 net.devh.boot.grpc.example.HelloRequest is a message:
 message HelloRequest {
   string name = 1;
