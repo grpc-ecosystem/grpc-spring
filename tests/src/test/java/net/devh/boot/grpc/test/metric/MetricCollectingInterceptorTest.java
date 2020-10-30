@@ -175,12 +175,12 @@ class MetricCollectingInterceptorTest {
     }
 
     /**
-     * Test cancelled call.
+     * Test early cancelled call.
      */
     @Test
     @DirtiesContext
-    void testMetricsCancelledCall() {
-        log.info("--- Starting tests with cancelled call ---");
+    void testMetricsEarlyCancelledCall() {
+        log.info("--- Starting tests with early cancelled call ---");
         final AtomicReference<Throwable> exception = new AtomicReference<>();
         final CountDownLatch counter = new CountDownLatch(1);
 
@@ -241,7 +241,7 @@ class MetricCollectingInterceptorTest {
                 .tag(MetricConstants.TAG_METHOD_NAME, "echo")
                 .counter();
         assertNotNull(requestSentCounter);
-        assertEquals(1, requestSentCounter.count());
+        assertEquals(0, requestSentCounter.count());
 
         final Counter responseReceivedCounter = this.meterRegistry
                 .find(METRIC_NAME_CLIENT_RESPONSES_RECEIVED)
@@ -257,7 +257,117 @@ class MetricCollectingInterceptorTest {
                 .timer();
         assertNotNull(clientTimer);
         assertEquals(1, clientTimer.count());
-        assertTrue(clientTimer.max(TimeUnit.SECONDS) < 1);
+        assertTrue(clientTimer.max(TimeUnit.SECONDS) < 3);
+
+        // Test-Server
+        final Counter requestsReceivedCounter = this.meterRegistry
+                .find(METRIC_NAME_SERVER_REQUESTS_RECEIVED)
+                .tag(MetricConstants.TAG_METHOD_NAME, "echo")
+                .counter();
+        assertNotNull(requestsReceivedCounter);
+        assertEquals(0, requestsReceivedCounter.count());
+
+        final Counter responsesSentCounter = this.meterRegistry
+                .find(METRIC_NAME_SERVER_RESPONSES_SENT)
+                .tag(MetricConstants.TAG_METHOD_NAME, "echo")
+                .counter();
+        assertNotNull(responsesSentCounter);
+        assertEquals(0, responsesSentCounter.count());
+
+        final Timer serverTimer = this.meterRegistry
+                .find(METRIC_NAME_SERVER_PROCESSING_DURATION)
+                .tag(MetricConstants.TAG_METHOD_NAME, "echo")
+                .tag(TAG_STATUS_CODE, CANCELLED.name())
+                .timer();
+        assertNotNull(serverTimer);
+        assertEquals(1, serverTimer.count());
+        assertTrue(serverTimer.max(TimeUnit.SECONDS) < 3);
+
+        // Client has network overhead so it has to be slower
+        assertTrue(serverTimer.max(TimeUnit.SECONDS) <= clientTimer.max(TimeUnit.SECONDS));
+        log.info("--- Test completed ---");
+    }
+
+    /**
+     * Test cancelled call.
+     */
+    @Test
+    @DirtiesContext
+    void testMetricsCancelledCall() {
+        log.info("--- Starting tests with cancelled call ---");
+        final AtomicReference<Throwable> exception = new AtomicReference<>();
+        final CountDownLatch counter = new CountDownLatch(2);
+
+        // Invoke
+        final ClientCallStreamObserver<SomeType> observer =
+                (ClientCallStreamObserver<SomeType>) this.testStreamService.echo(new StreamObserver<SomeType>() {
+
+                    @Override
+                    public void onNext(final SomeType value) {
+                        counter.countDown();
+                    }
+
+                    @Override
+                    public void onError(final Throwable t) {
+                        setError(t);
+                        counter.countDown();
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        try {
+                            fail("Should never be here");
+                        } catch (final RuntimeException t) {
+                            setError(t);
+                            counter.countDown();
+                            throw t;
+                        }
+                    }
+
+                    private synchronized void setError(final Throwable t) {
+                        final Throwable previous = exception.get();
+                        if (previous == null) {
+                            exception.set(t);
+                        } else {
+                            previous.addSuppressed(t);
+                        }
+                    }
+
+                });
+
+        observer.onNext(SomeType.getDefaultInstance());
+        assertDoesNotThrow(() -> counter.await(1, TimeUnit.SECONDS));
+
+        observer.cancel("Cancelled", null);
+        assertTimeoutPreemptively(Duration.ofSeconds(3), (Executable) counter::await);
+        assertThat(exception.get())
+                .isNotNull()
+                .isInstanceOfSatisfying(StatusRuntimeException.class,
+                        t -> assertEquals(CANCELLED, t.getStatus().getCode()));
+
+        // Test-Client
+        final Counter requestSentCounter = this.meterRegistry
+                .find(METRIC_NAME_CLIENT_REQUESTS_SENT)
+                .tag(MetricConstants.TAG_METHOD_NAME, "echo")
+                .counter();
+        assertNotNull(requestSentCounter);
+        assertEquals(1, requestSentCounter.count());
+
+        final Counter responseReceivedCounter = this.meterRegistry
+                .find(METRIC_NAME_CLIENT_RESPONSES_RECEIVED)
+                .tag(MetricConstants.TAG_METHOD_NAME, "echo")
+                .counter();
+        assertNotNull(responseReceivedCounter);
+        assertEquals(1, responseReceivedCounter.count());
+
+        final Timer clientTimer = this.meterRegistry
+                .find(METRIC_NAME_CLIENT_PROCESSING_DURATION)
+                .tag(MetricConstants.TAG_METHOD_NAME, "echo")
+                .tag(TAG_STATUS_CODE, CANCELLED.name())
+                .timer();
+        assertNotNull(clientTimer);
+        assertEquals(1, clientTimer.count());
+        assertTrue(clientTimer.max(TimeUnit.SECONDS) < 3);
 
         // Test-Server
         final Counter requestsReceivedCounter = this.meterRegistry
@@ -272,16 +382,16 @@ class MetricCollectingInterceptorTest {
                 .tag(MetricConstants.TAG_METHOD_NAME, "echo")
                 .counter();
         assertNotNull(responsesSentCounter);
-        assertEquals(0, responsesSentCounter.count());
+        assertEquals(1, responsesSentCounter.count());
 
         final Timer serverTimer = this.meterRegistry
                 .find(METRIC_NAME_SERVER_PROCESSING_DURATION)
                 .tag(MetricConstants.TAG_METHOD_NAME, "echo")
-                .tag(TAG_STATUS_CODE, UNIMPLEMENTED.name())
+                .tag(TAG_STATUS_CODE, CANCELLED.name())
                 .timer();
         assertNotNull(serverTimer);
         assertEquals(1, serverTimer.count());
-        assertTrue(serverTimer.max(TimeUnit.SECONDS) < 1);
+        assertTrue(serverTimer.max(TimeUnit.SECONDS) < 3);
 
         // Client has network overhead so it has to be slower
         assertTrue(serverTimer.max(TimeUnit.SECONDS) <= clientTimer.max(TimeUnit.SECONDS));
