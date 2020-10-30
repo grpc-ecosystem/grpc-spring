@@ -17,16 +17,12 @@
 
 package net.devh.boot.grpc.server.metric;
 
-import java.util.function.Function;
-
 import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.Status;
 import io.grpc.Status.Code;
 import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
 
 /**
  * A simple forwarding server call that collects metrics for micrometer.
@@ -38,29 +34,29 @@ import io.micrometer.core.instrument.Timer;
 class MetricCollectingServerCall<Q, A> extends SimpleForwardingServerCall<Q, A> {
 
     private final Counter responseCounter;
-    private final Function<Code, Timer> timerFunction;
-    private final Timer.Sample timerSample;
+    private Code responseCode = Code.UNKNOWN;
 
     /**
      * Creates a new delegating ServerCall that will wrap the given server call to collect metrics.
      *
      * @param delegate The original call to wrap.
-     * @param registry The registry to save the metrics to.
      * @param responseCounter The counter for incoming responses.
-     * @param timerFunction A function that will return a timer for a given status code.
      */
-    public MetricCollectingServerCall(final ServerCall<Q, A> delegate, final MeterRegistry registry,
-            final Counter responseCounter,
-            final Function<Code, Timer> timerFunction) {
+    public MetricCollectingServerCall(
+            final ServerCall<Q, A> delegate,
+            final Counter responseCounter) {
+
         super(delegate);
         this.responseCounter = responseCounter;
-        this.timerFunction = timerFunction;
-        this.timerSample = Timer.start(registry);
+    }
+
+    public Code getResponseCode() {
+        return this.responseCode;
     }
 
     @Override
     public void close(final Status status, final Metadata responseHeaders) {
-        this.timerSample.stop(this.timerFunction.apply(status.getCode()));
+        this.responseCode = status.getCode();
         super.close(status, responseHeaders);
     }
 

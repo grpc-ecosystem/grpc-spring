@@ -17,15 +17,13 @@
 
 package net.devh.boot.grpc.client.metric;
 
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 import io.grpc.ClientCall;
 import io.grpc.ForwardingClientCall.SimpleForwardingClientCall;
 import io.grpc.Metadata;
-import io.grpc.Status.Code;
+import io.grpc.Status;
 import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
 
 /**
  * A simple forwarding client call that collects metrics for micrometer.
@@ -36,35 +34,37 @@ import io.micrometer.core.instrument.Timer;
  */
 class MetricCollectingClientCall<Q, A> extends SimpleForwardingClientCall<Q, A> {
 
-    private final MeterRegistry registry;
     private final Counter requestCounter;
     private final Counter responseCounter;
-    private final Function<Code, Timer> timerFunction;
+    private final Consumer<Status.Code> processingDurationTiming;
 
     /**
      * Creates a new delegating ClientCall that will wrap the given client call to collect metrics.
      *
      * @param delegate The original call to wrap.
-     * @param registry The registry to save the metrics to.
      * @param requestCounter The counter for outgoing requests.
      * @param responseCounter The counter for incoming responses.
-     * @param timerFunction A function that will return a timer for a given status code.
+     * @param processingDurationTiming The consumer used to time the processing duration along with a response status.
      */
-    public MetricCollectingClientCall(final ClientCall<Q, A> delegate, final MeterRegistry registry,
-            final Counter requestCounter, final Counter responseCounter,
-            final Function<Code, Timer> timerFunction) {
+    public MetricCollectingClientCall(
+            final ClientCall<Q, A> delegate,
+            final Counter requestCounter,
+            final Counter responseCounter,
+            final Consumer<Status.Code> processingDurationTiming) {
+
         super(delegate);
-        this.registry = registry;
         this.requestCounter = requestCounter;
         this.responseCounter = responseCounter;
-        this.timerFunction = timerFunction;
+        this.processingDurationTiming = processingDurationTiming;
     }
 
     @Override
     public void start(final ClientCall.Listener<A> responseListener, final Metadata metadata) {
         super.start(
-                new MetricCollectingClientCallListener<>(responseListener, this.registry, this.responseCounter,
-                        this.timerFunction),
+                new MetricCollectingClientCallListener<>(
+                        responseListener,
+                        this.responseCounter,
+                        this.processingDurationTiming),
                 metadata);
     }
 
