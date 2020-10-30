@@ -297,7 +297,7 @@ grpc-service.
 
 By default, the grpc-server will be started on port `9090` using `PLAINTEXT` mode.
 
-You can test that your application is working as expected by running these [grpcurl](https://github.com/fullstorydev/grpcurl) commands:
+You can test that your application is working as expected by running these [gRPCurl](https://github.com/fullstorydev/grpcurl) commands:
 
 ````sh
 grpcurl --plaintext localhost:9090 list
@@ -307,6 +307,10 @@ grpcurl --plaintext -d '{"name": "test"}' localhost:9090 net.devh.boot.grpc.exam
 # Windows or Linux (dynamic content)
 grpcurl --plaintext -d "{\"name\": \"test\"}" localhost:9090 net.devh.boot.grpc.example.MyService/sayHello
 ````
+
+See [here](testing.md#grpcurl) for `gRPCurl` example command output and additional information.
+
+> Note: Don't forget to write [actual/automated tests](testing.md) for your service implementation.
 
 ## Additional Topics <!-- omit in toc -->
 
