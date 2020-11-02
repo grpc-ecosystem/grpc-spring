@@ -11,6 +11,7 @@ This section describes how you write tests for components that use the `@GrpcCli
 - [Useful Dependencies](#useful-dependencies)
 - [Using a Mocked Stub](#using-a-mocked-stub)
 - [Running a Dummy Server](#running-a-dummy-server)
+- [Skipping injection](#skipping-injection)
 
 ## Additional Topics <!-- omit in toc -->
 
@@ -253,6 +254,31 @@ public class ChatServiceImplForMyComponentIntegrationTest extends ChatServiceGrp
 
 }
 ````
+
+## Skipping injection
+
+If you don't need a specific `@GrpcClient` in a test, then you can configure it to be skipped using the `null` scheme.
+(In that case it will be injected with `null`)
+
+````java
+@SpringBootTest(properties = {
+        "grpc.client.test.address=null:/",
+}, ...)
+class MyTest {
+
+    @GrpcClient("test")
+    Channel channel;
+
+    @Test()
+    void test() {
+        assertNull(channel);
+    }
+
+}
+````
+
+> **Note:** Due to configuration limitations you cannot use just `null` or `null:` as address,
+> you have to specify a scheme specific part e.g.: `null:/` or `null:null`.
 
 ## Additional Topics <!-- omit in toc -->
 

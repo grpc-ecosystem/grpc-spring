@@ -39,8 +39,9 @@ import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.InProcessChannelFactory;
-import net.devh.boot.grpc.client.channelfactory.InProcessOrAlternativeChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.NettyChannelFactory;
+import net.devh.boot.grpc.client.channelfactory.NullChannelFactory;
+import net.devh.boot.grpc.client.channelfactory.SchemaAwareChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.ShadedNettyChannelFactory;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 import net.devh.boot.grpc.client.inject.GrpcClientBeanPostProcessor;
@@ -139,6 +140,7 @@ public class GrpcClientAutoConfiguration {
     }
 
     // First try the shaded netty channel factory
+    @SuppressWarnings("resource")
     @ConditionalOnMissingBean(GrpcChannelFactory.class)
     @ConditionalOnClass(name = {"io.grpc.netty.shaded.io.netty.channel.Channel",
             "io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder"})
@@ -152,12 +154,15 @@ public class GrpcClientAutoConfiguration {
         log.info("Detected grpc-netty-shaded: Creating ShadedNettyChannelFactory + InProcessChannelFactory");
         final ShadedNettyChannelFactory channelFactory =
                 new ShadedNettyChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
-        final InProcessChannelFactory inProcessChannelFactory =
+        final InProcessChannelFactory inProcess =
                 new InProcessChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
-        return new InProcessOrAlternativeChannelFactory(properties, inProcessChannelFactory, channelFactory);
+        return new SchemaAwareChannelFactory(properties, channelFactory)
+                .put(InProcessChannelFactory.SCHEME, inProcess)
+                .put(NullChannelFactory.SCHEME, new NullChannelFactory());
     }
 
     // Then try the normal netty channel factory
+    @SuppressWarnings("resource")
     @ConditionalOnMissingBean(GrpcChannelFactory.class)
     @ConditionalOnClass(name = {"io.netty.channel.Channel", "io.grpc.netty.NettyChannelBuilder"})
     @Bean
@@ -170,9 +175,11 @@ public class GrpcClientAutoConfiguration {
         log.info("Detected grpc-netty: Creating NettyChannelFactory + InProcessChannelFactory");
         final NettyChannelFactory channelFactory =
                 new NettyChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
-        final InProcessChannelFactory inProcessChannelFactory =
+        final InProcessChannelFactory inProcess =
                 new InProcessChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
-        return new InProcessOrAlternativeChannelFactory(properties, inProcessChannelFactory, channelFactory);
+        return new SchemaAwareChannelFactory(properties, channelFactory)
+                .put(InProcessChannelFactory.SCHEME, inProcess)
+                .put(NullChannelFactory.SCHEME, new NullChannelFactory());
     }
 
     // Finally try the in process channel factory

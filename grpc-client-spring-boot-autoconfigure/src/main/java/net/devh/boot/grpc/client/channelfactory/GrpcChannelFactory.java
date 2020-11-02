@@ -45,7 +45,8 @@ public interface GrpcChannelFactory extends AutoCloseable {
      * </p>
      *
      * @param name The name of the service.
-     * @return The newly created channel for the given service.
+     * @return The newly created channel for the given service. Might return null if the channel was intentionally
+     *         skipped.
      */
     default Channel createChannel(final String name) {
         return createChannel(name, Collections.emptyList());
@@ -66,7 +67,8 @@ public interface GrpcChannelFactory extends AutoCloseable {
      *
      * @param name The name of the service.
      * @param interceptors A list of additional client interceptors that should be added to the channel.
-     * @return The newly created channel for the given service.
+     * @return The newly created channel for the given service. Might return null if the channel was intentionally
+     *         skipped.
      */
     default Channel createChannel(final String name, final List<ClientInterceptor> interceptors) {
         return createChannel(name, interceptors, false);
@@ -88,7 +90,8 @@ public interface GrpcChannelFactory extends AutoCloseable {
      * @param name The name of the service.
      * @param interceptors A list of additional client interceptors that should be added to the channel.
      * @param sortInterceptors Whether the interceptors (both global and custom) should be sorted before being applied.
-     * @return The newly created channel for the given service.
+     * @return The newly created channel for the given service. Might return null if the channel was intentionally
+     *         skipped.
      */
     Channel createChannel(String name, List<ClientInterceptor> interceptors, boolean sortInterceptors);
 

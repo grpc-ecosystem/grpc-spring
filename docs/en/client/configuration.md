@@ -85,6 +85,11 @@ There are a number of supported schemes, that you can use to determine the targe
   If you are using `grpc-netty` you also need the `netty-transport-native-epoll` dependency.
   `grpc-netty-shaded` already contains that dependency, so there is no need to add anything for it to work. \
   Example: `unix:/run/grpc-server`
+- `null`: \
+  This is a special scheme that will bypass the normal channel factory and will use the `NullChannelFactory`
+  instead. Use it to use `null` for a GrpcClient annotated field. \
+  Useful for testing. \
+  Example: `null:/`
 - *custom*: \
   You can define custom
   [`NameResolverProvider`s](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/NameResolverProvider.html) those
