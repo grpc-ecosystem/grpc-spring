@@ -64,9 +64,9 @@ public class ShadedNettyGrpcServerFactory
     protected NettyServerBuilder newServerBuilder() {
         final String address = getAddress();
         final int port = getPort();
-        if (address.startsWith("unix://")) {
+        if (address.startsWith(GrpcServerProperties.DOMAIN_SOCKET_ADDRESS_PREFIX)) {
             return NettyServerBuilder
-                    .forAddress(new DomainSocketAddress(address.substring(7)))
+                    .forAddress(new DomainSocketAddress(address.substring(GrpcServerProperties.DOMAIN_SOCKET_ADDRESS_PREFIX.length())))
                     .channelType(EpollServerDomainSocketChannel.class);
         } else if (GrpcServerProperties.ANY_IP_ADDRESS.equals(address)) {
             return NettyServerBuilder.forPort(port);
