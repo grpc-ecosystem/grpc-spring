@@ -23,6 +23,7 @@ import static net.devh.boot.grpc.common.metric.MetricConstants.METRIC_NAME_CLIEN
 import static net.devh.boot.grpc.common.metric.MetricUtils.prepareCounterFor;
 import static net.devh.boot.grpc.common.metric.MetricUtils.prepareTimerFor;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
@@ -104,15 +105,19 @@ public class MetricCollectingClientInterceptor extends AbstractMetricCollectingI
     }
 
     @Override
-    public <Q, A> ClientCall<Q, A> interceptCall(final MethodDescriptor<Q, A> methodDescriptor,
-            final CallOptions callOptions, final Channel channel) {
+    public <Q, A> ClientCall<Q, A> interceptCall(
+            final MethodDescriptor<Q, A> methodDescriptor,
+            final CallOptions callOptions,
+            final Channel channel) {
+
         final MetricSet metrics = metricsFor(methodDescriptor);
+        final Consumer<Code> processingDurationTiming = metrics.newProcessingDurationTiming(this.registry);
+
         return new MetricCollectingClientCall<>(
                 channel.newCall(methodDescriptor, callOptions),
-                this.registry,
                 metrics.getRequestCounter(),
                 metrics.getResponseCounter(),
-                metrics.getTimerFunction());
+                processingDurationTiming);
     }
 
 }

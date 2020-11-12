@@ -41,7 +41,7 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceImplBase;
 @GrpcService
 public class TestServiceImpl extends TestServiceImplBase {
 
-    public static final int METHOD_COUNT = 6;
+    public static final int METHOD_COUNT = 7;
 
     public TestServiceImpl() {
         log.info("Created TestServiceImpl");
@@ -60,6 +60,11 @@ public class TestServiceImpl extends TestServiceImplBase {
         log.debug("unimplemented");
         // Not implemented (on purpose)
         super.unimplemented(request, responseObserver);
+    }
+
+    @Override
+    public StreamObserver<SomeType> echo(StreamObserver<SomeType> responseObserver) {
+        return responseObserver;
     }
 
     @Override

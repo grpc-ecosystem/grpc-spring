@@ -40,7 +40,7 @@ import net.devh.boot.grpc.test.server.TestServiceImpl;
 class MetricCollectingServerInterceptorTest {
 
     @Test
-    public void testServerPreRegistration() {
+    void testServerPreRegistration() {
         log.info("--- Starting tests with server pre-registration ---");
         final MeterRegistry meterRegistry = new SimpleMeterRegistry();
         assertEquals(0, meterRegistry.getMeters().size());
@@ -53,7 +53,7 @@ class MetricCollectingServerInterceptorTest {
     }
 
     @Test
-    public void testServerCustomization() {
+    void testServerCustomization() {
         log.info("--- Starting tests with server customization ---");
         final MeterRegistry meterRegistry = new SimpleMeterRegistry();
         assertEquals(0, meterRegistry.getMeters().size());

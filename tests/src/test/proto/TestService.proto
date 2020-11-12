@@ -14,6 +14,9 @@ service TestService {
     // Unimplemented method
     rpc unimplemented(google.protobuf.Empty) returns (SomeType) {}
 
+    // Returns the incoming requests as is.
+    rpc echo(stream SomeType) returns (stream SomeType) {}
+
     // Secured method
     rpc secure(google.protobuf.Empty) returns (SomeType) {}
 
