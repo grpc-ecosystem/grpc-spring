@@ -112,6 +112,11 @@ public class GrpcServerLifecycle implements SmartLifecycle {
         final Server localServer = this.server;
         if (localServer != null) {
             localServer.shutdown();
+            try {
+                this.server.awaitTermination();
+            } catch (final InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
             this.server = null;
             log.info("gRPC server shutdown.");
         }
