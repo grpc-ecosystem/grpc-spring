@@ -36,11 +36,18 @@ import org.springframework.util.Assert;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * TODO..
+ * 
+ * @author Andjelko (andjelko.perisic@gmail.com)
+ */
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
 @ConditionalOnBean(annotation = GrpcServiceAdvice.class)
 public class GrpcExceptionHandlerMethodResolver implements InitializingBean {
+
+    // TODO remove lombok
 
     private final Map<Class<? extends Throwable>, Method> mappedMethods = new HashMap<>(16);
     private final ApplicationContext applicationContext;

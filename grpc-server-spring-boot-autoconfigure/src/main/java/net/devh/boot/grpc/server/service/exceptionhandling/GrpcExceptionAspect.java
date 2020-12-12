@@ -20,6 +20,7 @@ package net.devh.boot.grpc.server.service.exceptionhandling;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.Map.Entry;
 import java.util.Optional;
 
@@ -37,6 +38,10 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Exception handling for thrown {@link RuntimeException} inside gRPC service classes, which implements
  * {@link io.grpc.BindableService}.
+ * 
+ * TODO...
+ *
+ * @author Andjelko (andjelko.perisic@gmail.com)
  */
 @Slf4j
 @Aspect
@@ -114,11 +119,11 @@ public class GrpcExceptionAspect {
     }
 
     private Class<?> convertToClass(Parameter parameter) {
-        return Optional.of(parameter)
-                .map(Parameter::getParameterizedType)
-                .filter(type -> type instanceof Class)
-                .map(type -> (Class<?>) type)
-                .orElseThrow();
+        Type paramType = parameter.getParameterizedType();
+        if (paramType instanceof Class) {
+            return (Class<?>) paramType;
+        }
+        throw new IllegalStateException("Parametertype of method has to be from Class, it was: " + paramType);
     }
 
     private Throwable castToThrowable(Object statusThrowable) {

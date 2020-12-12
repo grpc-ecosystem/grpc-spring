@@ -27,6 +27,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * Special {@link Component @Component} to declare GrpcException Handling.
+ * 
+ * @author Andjelko (andjelko.perisic@gmail.com)
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
