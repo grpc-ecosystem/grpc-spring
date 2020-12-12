@@ -13,6 +13,7 @@ This section describes how you can store contextual / per request data.
 
 - [Getting Started](getting-started.md)
 - [Configuration](configuration.md)
+- [Exception Handling](exception-handling.md)  
 - *Contextual Data / Scoped Beans*
 - [Testing the Service](testing.md)
 - [Security](security.md)
@@ -61,6 +62,7 @@ public void grpcMethod(Request request, StreamObserver<Response> responseObserve
 
 - [Getting Started](getting-started.md)
 - [Configuration](configuration.md)
+- [Exception Handling](exception-handling.md)  
 - *Contextual Data / Scoped Beans*
 - [Testing the Service](testing.md)
 - [Security](security.md)

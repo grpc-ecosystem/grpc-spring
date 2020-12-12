@@ -1,9 +1,9 @@
 # gRPC-Spring-Boot-Starter Documentation
 
 gRPC-spring-boot-starter combines [google's open-source high performance RPC-framework](https://grpc.io) with
-[spring boot's ease of setup](https://spring.io/projects/spring-boot).
-This project simplifies the gRPC-server/client setup to adding one dependency to your project and adding a single
-annotation to your service class / client (stub) field.
+[spring boot's ease of setup](https://spring.io/projects/spring-boot). 
+This project simplifies the gRPC-server/client setup to adding one dependency to your project and adding a single 
+annotation to your service class / client (stub) field. 
 The features of this library are meant to complement your experience with gRPC and still allow you to do any
 customization you need for your project.
 
@@ -12,6 +12,7 @@ customization you need for your project.
 - Server
   - [Getting Started](server/getting-started.md)
   - [Configuration](server/configuration.md)
+  - [Exception Handling](server/exception-handling.md)
   - [Contextual Data / Scoped Beans](server/contextual-data.md)
   - [Testing the Service](server/testing.md)
   - [Security](server/security.md)
