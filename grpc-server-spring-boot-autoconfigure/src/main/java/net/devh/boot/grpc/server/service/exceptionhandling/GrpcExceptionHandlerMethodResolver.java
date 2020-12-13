@@ -22,7 +22,6 @@ import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -98,7 +97,7 @@ class GrpcExceptionHandlerMethodResolver implements InitializingBean {
     private Class<? extends Throwable>[] checkForExceptionType(Class<?>[] methodParamTypes) {
 
         for (Class<?> methodParamType : methodParamTypes) {
-            if (!RuntimeException.class.isAssignableFrom(methodParamType)) {
+            if (!Throwable.class.isAssignableFrom(methodParamType)) {
                 throw new IllegalStateException("Annotated Class is not of Type Throwable: " + methodParamType);
             }
         }
@@ -135,21 +134,33 @@ class GrpcExceptionHandlerMethodResolver implements InitializingBean {
         }
     }
 
-    <E extends Throwable> boolean isMethodMappedForException(Class<E> exception) {
-        return mappedMethods.get(exception) != null;
-    }
 
-    Map.Entry<Object, Method> resolveMethodWithInstance(Class<? extends Throwable> exceptionType) {
+    public <E extends Throwable> Map.Entry<Object, Method> resolveMethodWithInstance(Class<E> exceptionType) {
 
-        Method value = mappedMethods.get(exceptionType);
-        Class<?> methodClass = Optional.ofNullable(value).map(Method::getDeclaringClass).orElse(null);
+        Method value = extractExtendedThrowable(exceptionType);
+        if (value == null) {
+            return new SimpleImmutableEntry<>(null, null);
+        }
+
+        Class<?> methodClass = value.getDeclaringClass();
         Object key = annotatedBeans.values()
                 .stream()
-                .filter(obj -> obj.getClass().equals(methodClass))
+                .filter(obj -> methodClass.isAssignableFrom(obj.getClass()))
                 .findFirst()
                 .orElse(null);
-
         return new SimpleImmutableEntry<>(key, value);
+    }
+
+    public <E extends Throwable> boolean isMethodMappedForException(Class<E> exception) {
+        return extractExtendedThrowable(exception) != null;
+    }
+
+    private <E extends Throwable> Method extractExtendedThrowable(Class<E> exception) {
+        return mappedMethods.keySet()
+                .stream().filter(clazz -> clazz.isAssignableFrom(exception))
+                .findAny()
+                .map(mappedMethods::get)
+                .orElse(null);
     }
 
 

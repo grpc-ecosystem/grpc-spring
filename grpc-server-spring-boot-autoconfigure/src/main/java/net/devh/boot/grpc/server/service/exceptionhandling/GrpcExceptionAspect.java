@@ -75,9 +75,12 @@ public class GrpcExceptionAspect {
         log.error("Exception caught during gRPC service execution: ", exception);
         this.exception = exception;
 
-        if (!grpcExceptionHandlerMethodResolver.isMethodMappedForException(exception.getClass())) {
+        boolean exceptionIsMapped =
+                grpcExceptionHandlerMethodResolver.isMethodMappedForException(exception.getClass());
+        if (!exceptionIsMapped) {
             return;
         }
+
         extractNecessaryInformation();
         Throwable throwable = invokeMappedMethodSafely();
         closeStreamObserverOnError(joinPoint.getArgs(), throwable);
@@ -118,7 +121,7 @@ public class GrpcExceptionAspect {
 
         for (int i = 0; i < parameters.length; i++) {
             Class<?> parameterClass = convertToClass(parameters[i]);
-            if (parameterClass.equals(exception.getClass())) {
+            if (parameterClass.isAssignableFrom(exception.getClass())) {
                 instancedParams[i] = exception;
                 break;
             }
@@ -139,7 +142,7 @@ public class GrpcExceptionAspect {
                 .filter(thrbl -> thrbl instanceof Throwable)
                 .map(thrbl -> (Throwable) thrbl)
                 .orElseThrow(() -> new IllegalStateException(
-                        "Return type has to beo f type java.lang.Throable: " + statusThrowable));
+                        "Return type has to be of type java.lang.Throwable: " + statusThrowable));
     }
 
     private void closeStreamObserverOnError(Object[] joinPointParams, Throwable throwable) {
