@@ -31,6 +31,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 
@@ -138,6 +139,11 @@ public class GrpcExceptionAspect {
     }
 
     private Throwable castToThrowable(Object statusThrowable) {
+
+        if (statusThrowable instanceof Status) {
+            Status statusToBeWrapped = (Status) statusThrowable;
+            return statusToBeWrapped.asRuntimeException();
+        }
         return Optional.of(statusThrowable)
                 .filter(thrbl -> thrbl instanceof Throwable)
                 .map(thrbl -> (Throwable) thrbl)
