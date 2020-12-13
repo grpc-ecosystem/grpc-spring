@@ -22,6 +22,7 @@ import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -30,10 +31,9 @@ import java.util.stream.Stream;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -42,18 +42,20 @@ import lombok.extern.slf4j.Slf4j;
  * @author Andjelko (andjelko.perisic@gmail.com)
  */
 @Slf4j
-@Configuration
-@RequiredArgsConstructor
+@Component
 @ConditionalOnBean(annotation = GrpcServiceAdvice.class)
-public class GrpcExceptionHandlerMethodResolver implements InitializingBean {
-
-    // TODO remove lombok
+class GrpcExceptionHandlerMethodResolver implements InitializingBean {
 
     private final Map<Class<? extends Throwable>, Method> mappedMethods = new HashMap<>(16);
     private final ApplicationContext applicationContext;
 
     private Class<? extends Throwable>[] annotatedExceptions;
     private Map<String, Object> annotatedBeans;
+
+
+    GrpcExceptionHandlerMethodResolver(final ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -100,6 +102,7 @@ public class GrpcExceptionHandlerMethodResolver implements InitializingBean {
                 throw new IllegalStateException("Annotated Class is not of Type Throwable: " + methodParamType);
             }
         }
+        // safe to call, prior to the check above
         @SuppressWarnings("unchecked")
         Class<? extends Throwable>[] paramExceptionTypes = (Class<? extends Throwable>[]) methodParamTypes;
         return paramExceptionTypes;
@@ -132,12 +135,17 @@ public class GrpcExceptionHandlerMethodResolver implements InitializingBean {
         }
     }
 
+    <E extends Throwable> boolean isMethodMappedForException(Class<E> exception) {
+        return mappedMethods.get(exception) != null;
+    }
 
-    public Map.Entry<Object, Method> resolveMethodWithInstance(Class<? extends Throwable> exceptionType) {
+    Map.Entry<Object, Method> resolveMethodWithInstance(Class<? extends Throwable> exceptionType) {
+
         Method value = mappedMethods.get(exceptionType);
+        Class<?> methodClass = Optional.ofNullable(value).map(Method::getDeclaringClass).orElse(null);
         Object key = annotatedBeans.values()
                 .stream()
-                .filter(obj -> obj.getClass().equals(value.getDeclaringClass()))
+                .filter(obj -> obj.getClass().equals(methodClass))
                 .findFirst()
                 .orElse(null);
 

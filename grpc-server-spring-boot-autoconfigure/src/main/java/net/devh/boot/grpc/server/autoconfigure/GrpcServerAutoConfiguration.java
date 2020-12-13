@@ -108,8 +108,6 @@ public class GrpcServerAutoConfiguration {
         return new AnnotationGrpcServiceDiscoverer();
     }
 
-    // TODO eventually insert @Conditional
-
     @ConditionalOnMissingBean
     @Bean
     public HealthStatusManager healthStatusManager() {
