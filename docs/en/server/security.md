@@ -19,7 +19,7 @@ We strongly recommend enabling at least transport layer security.
 
 - [Getting Started](getting-started.md)
 - [Configuration](configuration.md)
-- [Exception Handling](exception-handling.md)  
+- [Exception Handling](exception-handling.md)
 - [Contextual Data / Scoped Beans](contextual-data.md)
 - [Testing the Service](testing.md)
 - *Security*
@@ -280,7 +280,7 @@ public void methodX(Request request, StreamObserver<Response> responseObserver) 
 
 - [Getting Started](getting-started.md)
 - [Configuration](configuration.md)
-- [Exception Handling](exception-handling.md)  
+- [Exception Handling](exception-handling.md)
 - [Contextual Data / Scoped Beans](contextual-data.md)
 - [Testing the Service](testing.md)
 - *Security*

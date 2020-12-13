@@ -22,7 +22,7 @@ Please refer to [Tests with Grpc-Stubs](../client/testing.md).
 
 - [Getting Started](getting-started.md)
 - [Configuration](configuration.md)
-- [Exception Handling](exception-handling.md)  
+- [Exception Handling](exception-handling.md)
 - [Contextual Data / Scoped Beans](contextual-data.md)
 - *Testing the Service*
 - [Security](security.md)
@@ -369,7 +369,7 @@ For more information regarding `gRPCurl` please refer to their [official documen
 
 - [Getting Started](getting-started.md)
 - [Configuration](configuration.md)
-- [Exception Handling](exception-handling.md)  
+- [Exception Handling](exception-handling.md)
 - [Contextual Data / Scoped Beans](contextual-data.md)
 - *Testing the Service*
 - [Security](security.md)
