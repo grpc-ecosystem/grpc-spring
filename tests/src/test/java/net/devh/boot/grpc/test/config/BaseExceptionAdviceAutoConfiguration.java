@@ -17,38 +17,20 @@
 
 package net.devh.boot.grpc.test.config;
 
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 
-import com.google.protobuf.Empty;
-
-import io.grpc.Status;
-import io.grpc.stub.StreamObserver;
-import net.devh.boot.grpc.server.service.GrpcService;
-import net.devh.boot.grpc.server.service.exceptionhandling.GrpcExceptionHandler;
-import net.devh.boot.grpc.server.service.exceptionhandling.GrpcServiceAdvice;
-import net.devh.boot.grpc.test.proto.SomeType;
-import net.devh.boot.grpc.test.proto.TestServiceGrpc;
+import net.devh.boot.grpc.server.service.exceptionhandling.GrpcExceptionHandlerMethodResolver;
+import net.devh.boot.grpc.server.service.exceptionhandling.GrpcServiceAdviceDiscoverer;
+import net.devh.boot.grpc.server.service.exceptionhandling.GrpcServiceAdviceExceptionHandler;
+import net.devh.boot.grpc.server.service.exceptionhandling.GrpcServiceAdviceIsPresent;
 
 @Configuration
-public class GrpcServiceAdviceConfig {
-
-
-    @GrpcService
-    public class TestGrpcService extends TestServiceGrpc.TestServiceImplBase {
-
-        @Override
-        public void normal(final Empty request, final StreamObserver<SomeType> responseObserver) {
-            throw new IllegalArgumentException("Trigger GrpcServiceAdvice");
-        }
-    }
-
-    @GrpcServiceAdvice
-    public class TestAdvice {
-
-        @GrpcExceptionHandler
-        public Status handleIllegalArgumentException(IllegalArgumentException e) {
-            return Status.NOT_FOUND.withCause(e).withDescription(e.getMessage());
-        }
-    }
+@ImportAutoConfiguration({
+        GrpcServiceAdviceIsPresent.class,
+        GrpcServiceAdviceDiscoverer.class,
+        GrpcExceptionHandlerMethodResolver.class,
+        GrpcServiceAdviceExceptionHandler.class})
+public class BaseExceptionAdviceAutoConfiguration {
 
 }
