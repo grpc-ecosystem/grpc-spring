@@ -28,29 +28,27 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.stereotype.Component;
 
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Exception handling for thrown {@link RuntimeException} inside annotated CLasses with
- * {@link net.devh.boot.grpc.server.service.GrpcService @GrpcService}, which implement {@link io.grpc.BindableService}.
+ * As part of Spring AOP, when a thrown exception is caught inside annotated class
+ * {@link net.devh.boot.grpc.server.service.GrpcService @GrpcService}, which implements {@link io.grpc.BindableService},
+ * then this thrown exception is being handled. Specifically handled by {@link GrpcExceptionHandlerMethodResolver} where
+ * a mapping between exception and the in case to be executed method exists.
  * <p>
- * After calling the mapped Methods to the corresponding Exception, the returned {@link Throwable} is beeing send to the
- * {@link io.grpc.stub.StreamObserver#onError(Throwable)}.
- * 
- * TODO...
+ * After calling the mapped Method, the returned {@link Throwable} is being send to the
+ * {@link io.grpc.stub.StreamObserver#onError(Throwable)}. In case the return type is {@link Status} a conversion to
+ * {@link Status#asRuntimeException()} is made.
  *
- * @author Andjelko (andjelko.perisic@gmail.com)
+ * @author Andjelko Perisic (andjelko.perisic@gmail.com)
+ * @see GrpcExceptionHandlerMethodResolver
  */
 @Slf4j
 @Aspect
-@Component
-@ConditionalOnBean(annotation = GrpcServiceAdvice.class)
-public class GrpcExceptionAspect {
+public class GrpcServiceAdviceExceptionHandler {
 
     private final GrpcExceptionHandlerMethodResolver grpcExceptionHandlerMethodResolver;
 
@@ -58,7 +56,8 @@ public class GrpcExceptionAspect {
     private Method mappedMethod;
     private Object instanceOfMappedMethod;
 
-    public GrpcExceptionAspect(final GrpcExceptionHandlerMethodResolver grpcExceptionHandlerMethodResolver) {
+    public GrpcServiceAdviceExceptionHandler(
+            final GrpcExceptionHandlerMethodResolver grpcExceptionHandlerMethodResolver) {
         this.grpcExceptionHandlerMethodResolver = grpcExceptionHandlerMethodResolver;
     }
 
@@ -72,7 +71,9 @@ public class GrpcExceptionAspect {
     @AfterThrowing(
             pointcut = "grpcServiceAnnotatedPointcut() && implementedBindableServicePointcut()",
             throwing = "exception")
-    public <E extends Throwable> void handleExceptionInsideGrpcService(JoinPoint joinPoint, E exception) {
+    public <E extends Throwable> void handleExceptionInsideGrpcService(
+            JoinPoint joinPoint, E exception) throws Throwable {
+
         log.error("Exception caught during gRPC service execution: ", exception);
         this.exception = exception;
 
@@ -105,13 +106,13 @@ public class GrpcExceptionAspect {
                                 " No mapped instance found for Exception " + exceptionClass));
     }
 
-    private Throwable invokeMappedMethodSafely() {
+    private Throwable invokeMappedMethodSafely() throws Throwable {
         try {
             Object[] instancedParams = determineInstancedParameters(mappedMethod);
             Object statusThrowable = mappedMethod.invoke(instanceOfMappedMethod, instancedParams);
             return castToThrowable(statusThrowable);
         } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new MethodExecutionException("Error during mapped exception method execution: ", e.getCause());
+            throw e.getCause();
         }
     }
 

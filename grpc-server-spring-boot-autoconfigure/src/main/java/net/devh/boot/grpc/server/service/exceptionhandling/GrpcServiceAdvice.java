@@ -26,9 +26,14 @@ import java.lang.annotation.Target;
 import org.springframework.stereotype.Component;
 
 /**
- * Special {@link Component @Component} to declare GrpcException Handling.
+ * Special {@link Component @Component} to declare {@link GrpcExceptionHandler GrpcException Handling}.
  * 
- * @author Andjelko (andjelko.perisic@gmail.com)
+ * Every class annotated with {@link GrpcServiceAdvice @GrpcServiceAdvice} is marked to be scanned for
+ * {@link GrpcExceptionHandler @GrpcExceptionHandler} annotations.
+ * 
+ * @author Andjelko Perisic (andjelko.perisic@gmail.com)
+ * 
+ * @see GrpcExceptionHandler
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

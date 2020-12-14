@@ -22,66 +22,44 @@ import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * TODO..
+ * Given an annotated {@link GrpcServiceAdvice @GrpcServiceAdvice} class and annotated methods with
+ * {@link GrpcExceptionHandler @GrpcExceptionHandler}, {@link GrpcExceptionHandlerMethodResolver} resolves given
+ * exception type and maps it to the corresponding method to be executed, when this exception is being raised.<br>
+ * For an example how to make use of it, please have a look {@link GrpcExceptionHandler @GrpcExceptionHandler}.<br>
+ * <br>
  * 
- * @author Andjelko (andjelko.perisic@gmail.com)
+ * @author Andjelko Perisic (andjelko.perisic@gmail.com)
+ * @see GrpcServiceAdvice
+ * @see GrpcExceptionHandler
+ * @see GrpcServiceAdviceExceptionHandler
  */
 @Slf4j
-@Component
-@ConditionalOnBean(annotation = GrpcServiceAdvice.class)
-class GrpcExceptionHandlerMethodResolver implements InitializingBean {
+public class GrpcExceptionHandlerMethodResolver implements InitializingBean {
 
     private final Map<Class<? extends Throwable>, Method> mappedMethods = new HashMap<>(16);
-    private final ApplicationContext applicationContext;
+
+    private final GrpcServiceAdviceDiscoverer grpcServiceAdviceDiscoverer;
 
     private Class<? extends Throwable>[] annotatedExceptions;
-    private Map<String, Object> annotatedBeans;
 
-
-    GrpcExceptionHandlerMethodResolver(final ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    public GrpcExceptionHandlerMethodResolver(final GrpcServiceAdviceDiscoverer grpcServiceAdviceDiscoverer) {
+        this.grpcServiceAdviceDiscoverer = grpcServiceAdviceDiscoverer;
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        Set<Class<?>> annotatedClasses = findAllAnnotatedClasses();
-        Set<Method> annotatedMethods = getAnnotatedMethods(annotatedClasses);
-
-        annotatedMethods.forEach(this::checkParamTypesAreAlignedToExceptionTypes);
+        grpcServiceAdviceDiscoverer.getAnnotatedMethods()
+                .forEach(this::extractAndMapExceptionToMethod);
     }
 
-    private Set<Class<?>> findAllAnnotatedClasses() {
-        annotatedBeans = applicationContext.getBeansWithAnnotation(GrpcServiceAdvice.class);
-        return annotatedBeans.values()
-                .stream()
-                .map(Object::getClass)
-                .collect(Collectors.toSet());
-    }
-
-    private Set<Method> getAnnotatedMethods(Set<Class<?>> annotatedClasses) {
-        Function<Class<?>, Stream<Method>> extractMethodsFromClass = clazz -> Arrays.stream(clazz.getDeclaredMethods());
-        return annotatedClasses.stream()
-                .flatMap(extractMethodsFromClass)
-                .filter(method -> method.isAnnotationPresent(GrpcExceptionHandler.class))
-                .collect(Collectors.toSet());
-    }
-
-
-    private void checkParamTypesAreAlignedToExceptionTypes(Method method) {
+    private void extractAndMapExceptionToMethod(Method method) {
 
         GrpcExceptionHandler annotation = method.getDeclaredAnnotation(GrpcExceptionHandler.class);
         Assert.notNull(annotation, "@GrpcExceptionHandler annotation not found.");
@@ -107,6 +85,17 @@ class GrpcExceptionHandlerMethodResolver implements InitializingBean {
         return paramExceptionTypes;
     }
 
+    private void addExceptionMapping(Class<? extends Throwable> exceptionType, Method method) {
+
+        parameterTypeIsAssignable(exceptionType);
+
+        Method oldMethod = mappedMethods.put(exceptionType, method);
+        if (oldMethod != null && !oldMethod.equals(method)) {
+            throw new IllegalStateException("Ambiguous @GrpcExceptionHandler method mapped for [" +
+                    exceptionType + "]: {" + oldMethod + ", " + method + "}");
+        }
+    }
+
     private void parameterTypeIsAssignable(Class<? extends Throwable> paramType) {
 
         if (annotatedExceptions.length == 0) {
@@ -123,17 +112,6 @@ class GrpcExceptionHandlerMethodResolver implements InitializingBean {
                         paramType, Arrays.toString(annotatedExceptions)));
     }
 
-    private void addExceptionMapping(Class<? extends Throwable> exceptionType, Method method) {
-
-        parameterTypeIsAssignable(exceptionType);
-
-        Method oldMethod = mappedMethods.put(exceptionType, method);
-        if (oldMethod != null && !oldMethod.equals(method)) {
-            throw new IllegalStateException("Ambiguous @GrpcExceptionHandler method mapped for [" +
-                    exceptionType + "]: {" + oldMethod + ", " + method + "}");
-        }
-    }
-
 
     public <E extends Throwable> Map.Entry<Object, Method> resolveMethodWithInstance(Class<E> exceptionType) {
 
@@ -143,7 +121,8 @@ class GrpcExceptionHandlerMethodResolver implements InitializingBean {
         }
 
         Class<?> methodClass = value.getDeclaringClass();
-        Object key = annotatedBeans.values()
+        Object key = grpcServiceAdviceDiscoverer.getAnnotatedBeans()
+                .values()
                 .stream()
                 .filter(obj -> methodClass.isAssignableFrom(obj.getClass()))
                 .findFirst()
@@ -162,6 +141,5 @@ class GrpcExceptionHandlerMethodResolver implements InitializingBean {
                 .map(mappedMethods::get)
                 .orElse(null);
     }
-
 
 }

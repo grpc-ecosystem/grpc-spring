@@ -17,14 +17,33 @@
 
 package net.devh.boot.grpc.server.service.exceptionhandling;
 
-/**
- * TODO..
- *
- * @author Andjelko (andjelko.perisic@gmail.com)
- */
-class MethodExecutionException extends RuntimeException {
+import java.util.Objects;
 
-    MethodExecutionException(String msg, Throwable e) {
-        super(msg, e);
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.ConfigurationCondition;
+import org.springframework.core.type.AnnotatedTypeMetadata;
+
+/**
+ * Condition to check if {@link GrpcServiceAdvice @GrpcServiceAdvice} is present. Mainly checking if
+ * {@link GrpcServiceAdviceDiscoverer} should be a instantiated.<br>
+ * <br>
+ * 
+ * @author Andjelko Perisic (andjelko.perisic@gmail.com)
+ * @see GrpcServiceAdviceDiscoverer
+ */
+public class GrpcServiceAdviceIsPresent implements ConfigurationCondition {
+
+    @Override
+    public ConfigurationPhase getConfigurationPhase() {
+        return ConfigurationPhase.REGISTER_BEAN;
+    }
+
+    @Override
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+
+        ConfigurableListableBeanFactory safeBeanFactory =
+                Objects.requireNonNull(context.getBeanFactory(), "ConfigurableListableBeanFactory is null");
+        return !safeBeanFactory.getBeansWithAnnotation(GrpcServiceAdvice.class).isEmpty();
     }
 }
