@@ -22,44 +22,57 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 
-import net.devh.boot.grpc.server.service.exceptionhandling.GrpcExceptionHandler;
-import net.devh.boot.grpc.server.service.exceptionhandling.GrpcExceptionHandlerMethodResolver;
-import net.devh.boot.grpc.server.service.exceptionhandling.GrpcServiceAdvice;
-import net.devh.boot.grpc.server.service.exceptionhandling.GrpcServiceAdviceDiscoverer;
-import net.devh.boot.grpc.server.service.exceptionhandling.GrpcServiceAdviceExceptionHandler;
-import net.devh.boot.grpc.server.service.exceptionhandling.GrpcServiceAdviceIsPresent;
+import net.devh.boot.grpc.common.util.InterceptorOrder;
+import net.devh.boot.grpc.server.advice.GrpcAdvice;
+import net.devh.boot.grpc.server.advice.GrpcAdviceDiscoverer;
+import net.devh.boot.grpc.server.advice.GrpcAdviceExceptionHandler;
+import net.devh.boot.grpc.server.advice.GrpcAdviceExceptionInterceptor;
+import net.devh.boot.grpc.server.advice.GrpcExceptionHandler;
+import net.devh.boot.grpc.server.advice.GrpcExceptionHandlerMethodResolver;
+import net.devh.boot.grpc.server.advice.GrpcServiceAdviceIsPresent;
+import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 
 /**
  * The auto configuration that will create necessary beans to provide a proper exception handling via annotations
- * {@link GrpcServiceAdvice @GrpcServiceAdvice} and {@link GrpcExceptionHandler @GrpcExceptionHandler}.
+ * {@link GrpcAdvice @GrpcAdvice} and {@link GrpcExceptionHandler @GrpcExceptionHandler}.
  * <p>
+ * Exception handling via global server interceptors {@link GrpcGlobalServerInterceptor @GrpcGlobalServerInterceptor}.
  *
  * @author Andjelko Perisic (andjelko.perisic@gmail.com)
- * @see GrpcServiceAdvice
+ * @see GrpcAdvice
  * @see GrpcExceptionHandler
+ * @see GrpcAdviceExceptionInterceptor
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
 @Conditional(GrpcServiceAdviceIsPresent.class)
 @AutoConfigureAfter(GrpcServerAutoConfiguration.class)
-public class GrpcExceptionAdviceAutoConfiguration {
+public class GrpcAdviceAutoConfiguration {
 
     @Bean
-    public GrpcServiceAdviceDiscoverer grpcServiceAdviceDiscoverer() {
-        return new GrpcServiceAdviceDiscoverer();
+    public GrpcAdviceDiscoverer grpcServiceAdviceDiscoverer() {
+        return new GrpcAdviceDiscoverer();
     }
 
     @Bean
     public GrpcExceptionHandlerMethodResolver grpcExceptionHandlerMethodResolver(
-            final GrpcServiceAdviceDiscoverer grpcServiceAdviceDiscoverer) {
-        return new GrpcExceptionHandlerMethodResolver(grpcServiceAdviceDiscoverer);
+            final GrpcAdviceDiscoverer grpcAdviceDiscoverer) {
+        return new GrpcExceptionHandlerMethodResolver(grpcAdviceDiscoverer);
     }
 
     @Bean
-    public GrpcServiceAdviceExceptionHandler grpcServiceAdviceExceptionHandler(
+    public GrpcAdviceExceptionHandler grpcServiceAdviceExceptionHandler(
             GrpcExceptionHandlerMethodResolver grpcExceptionHandlerMethodResolver) {
-        return new GrpcServiceAdviceExceptionHandler(grpcExceptionHandlerMethodResolver);
+        return new GrpcAdviceExceptionHandler(grpcExceptionHandlerMethodResolver);
+    }
+
+    @GrpcGlobalServerInterceptor
+    @Order(InterceptorOrder.ORDER_GLOBAL_EXCEPTION_HANDLING)
+    public GrpcAdviceExceptionInterceptor grpcServiceAdviceExceptionInterceptor(
+            GrpcAdviceExceptionHandler grpcAdviceExceptionHandler) {
+        return new GrpcAdviceExceptionInterceptor(grpcAdviceExceptionHandler);
     }
 
 }

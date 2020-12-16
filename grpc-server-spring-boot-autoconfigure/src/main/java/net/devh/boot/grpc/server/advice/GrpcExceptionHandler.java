@@ -15,7 +15,7 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.server.service.exceptionhandling;
+package net.devh.boot.grpc.server.advice;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -28,12 +28,11 @@ import java.lang.annotation.Target;
  * Exception, by declaring either in {@link GrpcExceptionHandler#value() @GrpcExceptionHandler(value = ...)} as value or
  * as annotated methods parameter (both is working too).
  * <p>
- * Return type of annotated methods has to be of type {@link Throwable} or {@link io.grpc.Status}, the latter is wrapped
- * up later as {@link io.grpc.StatusRuntimeException}. For more detailed information
- * {@link GrpcExceptionHandlerMethodResolver}. <br>
+ * Return type of annotated methods has to be of type {@link io.grpc.Status}, {@link io.grpc.StatusException},
+ * {@link io.grpc.StatusRuntimeException} or {@link Throwable}.
  * <p>
  *
- * As an example, this is the preferred way of handling exception,
+ * An example without {@link io.grpc.Metadata}:
  * 
  * <pre>
  * {@code @GrpcExceptionHandler
@@ -45,7 +44,7 @@ import java.lang.annotation.Target;
  *  }
  * </pre>
  * 
- * but the following is also possible, especially if {@link io.grpc.Metadata} has to be returned.
+ * <b>With</b> {@link io.grpc.Metadata}:
  * 
  * <pre>
  * {@code @GrpcExceptionHandler
@@ -53,21 +52,17 @@ import java.lang.annotation.Target;
  *      Status status = Status.INVALID_ARGUMENT
  *                            .withDescription(e.getMessage())
  *                            .withCause(e);
- *      return status.asRuntimeException();
+ *      Metadata myMetadata = new Metadata();
+ *      myMetadata = ...
+ *      return status.asRuntimeException(myMetadata);
  *    }
  *  }
  * </pre>
  * 
- * Further when an {@link Exception} is raised by the application during runtime,
- * {@link GrpcServiceAdviceExceptionHandler} interrupts after thrown exception and executes above mentioned annotated
- * method which was mapped by {@link GrpcExceptionHandler @GrpcExceptionHandler} inside a class annotated with
- * {@link GrpcServiceAdvice @GrpcServiceAdvice}.<br>
- * <p>
- * 
  * @author Andjelko Perisic (andjelko.perisic@gmail.com)
- * @see GrpcServiceAdvice
+ * @see GrpcAdvice
  * @see GrpcExceptionHandlerMethodResolver
- * @see GrpcServiceAdviceExceptionHandler
+ * @see GrpcAdviceExceptionHandler
  */
 @Documented
 @Target(ElementType.METHOD)
@@ -76,8 +71,12 @@ public @interface GrpcExceptionHandler {
 
     /**
      * Exceptions handled by the annotated method.
-     * 
+     * <p>
      * If empty, will default to any exceptions listed in the method argument list.
+     * <p>
+     * <b>Note:</b> When exception types are set within value, they are prioritized in mapping the exceptions over
+     * listed method arguments. And in case method arguments are provided, they <b>must</b> match the types declared
+     * with this value.
      */
     Class<? extends Throwable>[] value() default {};
 }

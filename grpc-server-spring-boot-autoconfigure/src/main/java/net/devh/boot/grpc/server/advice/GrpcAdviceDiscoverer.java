@@ -15,7 +15,7 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.server.service.exceptionhandling;
+package net.devh.boot.grpc.server.advice;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -28,20 +28,21 @@ import java.util.stream.Stream;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.util.Assert;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A discovery class to find all Beans annotated with {@link GrpcServiceAdvice @GrpcServiceAdvice} and for all found
- * beans a second search is performed looking for methods with {@link GrpcExceptionHandler @GrpcExceptionHandler}.<br>
- * <br>
+ * A discovery class to find all Beans annotated with {@link GrpcAdvice @GrpcAdvice} and for all found beans a second
+ * search is performed looking for methods with {@link GrpcExceptionHandler @GrpcExceptionHandler}.<br>
+ * <p>
  * 
  * @author Andjelko Perisic (andjelko.perisic@gmail.com)
- * @see GrpcServiceAdvice
+ * @see GrpcAdvice
  * @see GrpcExceptionHandler
  */
 @Slf4j
-public class GrpcServiceAdviceDiscoverer implements InitializingBean, ApplicationContextAware {
+public class GrpcAdviceDiscoverer implements InitializingBean, ApplicationContextAware {
 
     private ApplicationContext applicationContext;
     private Map<String, Object> annotatedBeans;
@@ -49,31 +50,22 @@ public class GrpcServiceAdviceDiscoverer implements InitializingBean, Applicatio
     private Set<Method> annotatedMethods;
 
 
-    Map<String, Object> getAnnotatedBeans() {
-        return annotatedBeans;
-    }
-
-    Set<Method> getAnnotatedMethods() {
-        return annotatedMethods;
-    }
-
-
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        annotatedBeans = applicationContext.getBeansWithAnnotation(GrpcServiceAdvice.class);
-        annotatedClasses = findAllAnnotatedClasses();
-        annotatedMethods = getAnnotatedMethods(annotatedClasses);
+        annotatedBeans = applicationContext.getBeansWithAnnotation(GrpcAdvice.class);
+        annotatedClasses = extractClassType();
+        annotatedMethods = findAnnotatedMethods();
     }
 
-    private Set<Class<?>> findAllAnnotatedClasses() {
+    private Set<Class<?>> extractClassType() {
         return annotatedBeans.values()
                 .stream()
                 .map(Object::getClass)
                 .collect(Collectors.toSet());
     }
 
-    private Set<Method> getAnnotatedMethods(Set<Class<?>> annotatedClasses) {
+    private Set<Method> findAnnotatedMethods() {
         Function<Class<?>, Stream<Method>> extractMethodsFromClass = clazz -> Arrays.stream(clazz.getDeclaredMethods());
         return annotatedClasses.stream()
                 .flatMap(extractMethodsFromClass)
@@ -81,13 +73,25 @@ public class GrpcServiceAdviceDiscoverer implements InitializingBean, Applicatio
                 .collect(Collectors.toSet());
     }
 
+    @Override
+    public void setApplicationContext(final ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
     boolean isAnnotationPresent() {
 
         return !annotatedClasses.isEmpty() && !annotatedMethods.isEmpty();
     }
 
-    @Override
-    public void setApplicationContext(final ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    Map<String, Object> getAnnotatedBeans() {
+        Assert.state(annotatedBeans != null, "@GrpcAdvice annotation scanning failed.");
+        return annotatedBeans;
     }
+
+    Set<Method> getAnnotatedMethods() {
+        Assert.state(annotatedMethods != null, "@GrpcExceptionHandler annotation scanning failed.");
+        return annotatedMethods;
+    }
+
+
 }

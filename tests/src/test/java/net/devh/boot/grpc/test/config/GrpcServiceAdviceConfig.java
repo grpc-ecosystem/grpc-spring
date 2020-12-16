@@ -23,9 +23,9 @@ import com.google.protobuf.Empty;
 
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.server.advice.GrpcAdvice;
+import net.devh.boot.grpc.server.advice.GrpcExceptionHandler;
 import net.devh.boot.grpc.server.service.GrpcService;
-import net.devh.boot.grpc.server.service.exceptionhandling.GrpcExceptionHandler;
-import net.devh.boot.grpc.server.service.exceptionhandling.GrpcServiceAdvice;
 import net.devh.boot.grpc.test.proto.SomeType;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc;
 
@@ -42,7 +42,7 @@ public class GrpcServiceAdviceConfig {
         }
     }
 
-    @GrpcServiceAdvice
+    @GrpcAdvice
     public class TestAdvice {
 
         @GrpcExceptionHandler

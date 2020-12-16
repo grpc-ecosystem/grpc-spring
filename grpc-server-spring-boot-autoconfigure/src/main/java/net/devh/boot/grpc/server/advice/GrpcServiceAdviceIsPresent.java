@@ -15,30 +15,35 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.server.service.exceptionhandling;
+package net.devh.boot.grpc.server.advice;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.Objects;
 
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.ConfigurationCondition;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
- * Special {@link Component @Component} to declare {@link GrpcExceptionHandler GrpcException Handling}.
- * 
- * Every class annotated with {@link GrpcServiceAdvice @GrpcServiceAdvice} is marked to be scanned for
- * {@link GrpcExceptionHandler @GrpcExceptionHandler} annotations.
+ * Condition to check if {@link GrpcAdvice @GrpcServiceAdvice} is present. Mainly checking if
+ * {@link GrpcAdviceDiscoverer} should be a instantiated.<br>
+ * <br>
  * 
  * @author Andjelko Perisic (andjelko.perisic@gmail.com)
- * 
- * @see GrpcExceptionHandler
+ * @see GrpcAdviceDiscoverer
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-@Component
-public @interface GrpcServiceAdvice {
+public class GrpcServiceAdviceIsPresent implements ConfigurationCondition {
 
+    @Override
+    public ConfigurationPhase getConfigurationPhase() {
+        return ConfigurationPhase.REGISTER_BEAN;
+    }
+
+    @Override
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+
+        ConfigurableListableBeanFactory safeBeanFactory =
+                Objects.requireNonNull(context.getBeanFactory(), "ConfigurableListableBeanFactory is null");
+        return !safeBeanFactory.getBeansWithAnnotation(GrpcAdvice.class).isEmpty();
+    }
 }

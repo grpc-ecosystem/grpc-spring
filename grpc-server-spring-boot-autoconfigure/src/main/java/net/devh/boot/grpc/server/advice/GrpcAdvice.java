@@ -15,35 +15,30 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.server.service.exceptionhandling;
+package net.devh.boot.grpc.server.advice;
 
-import java.util.Objects;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.context.annotation.ConditionContext;
-import org.springframework.context.annotation.ConfigurationCondition;
-import org.springframework.core.type.AnnotatedTypeMetadata;
+import org.springframework.stereotype.Component;
 
 /**
- * Condition to check if {@link GrpcServiceAdvice @GrpcServiceAdvice} is present. Mainly checking if
- * {@link GrpcServiceAdviceDiscoverer} should be a instantiated.<br>
- * <br>
+ * Special {@link Component @Component} to declare global gRPC exception handling.
+ * 
+ * Every class annotated with {@link GrpcAdvice @GrpcAdvice} is marked to be scanned for
+ * {@link GrpcExceptionHandler @GrpcExceptionHandler} annotations.
+ * <p>
  * 
  * @author Andjelko Perisic (andjelko.perisic@gmail.com)
- * @see GrpcServiceAdviceDiscoverer
+ * @see GrpcExceptionHandler
  */
-public class GrpcServiceAdviceIsPresent implements ConfigurationCondition {
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Component
+public @interface GrpcAdvice {
 
-    @Override
-    public ConfigurationPhase getConfigurationPhase() {
-        return ConfigurationPhase.REGISTER_BEAN;
-    }
-
-    @Override
-    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-
-        ConfigurableListableBeanFactory safeBeanFactory =
-                Objects.requireNonNull(context.getBeanFactory(), "ConfigurableListableBeanFactory is null");
-        return !safeBeanFactory.getBeansWithAnnotation(GrpcServiceAdvice.class).isEmpty();
-    }
 }

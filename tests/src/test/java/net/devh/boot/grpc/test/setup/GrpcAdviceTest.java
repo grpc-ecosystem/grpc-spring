@@ -31,7 +31,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.server.service.exceptionhandling.GrpcServiceAdvice;
+import net.devh.boot.grpc.server.advice.GrpcAdvice;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.BaseExceptionAdviceAutoConfiguration;
 import net.devh.boot.grpc.test.config.GrpcServiceAdviceConfig;
@@ -39,7 +39,7 @@ import net.devh.boot.grpc.test.config.GrpcServiceAdviceConfig.TestGrpcService;
 import net.devh.boot.grpc.test.config.InProcessConfiguration;
 
 /**
- * A test checking that the server picks up a {@link GrpcServiceAdvice} annotated bean from a {@link Configuration}.
+ * A test checking that the server picks up a {@link GrpcAdvice} annotated bean from a {@link Configuration}.
  *
  * @author Andjelko Perisic (andjelko.perisic@gmail.com)
  */
@@ -51,9 +51,9 @@ import net.devh.boot.grpc.test.config.InProcessConfiguration;
         BaseAutoConfiguration.class,
         BaseExceptionAdviceAutoConfiguration.class})
 @DirtiesContext
-class GrpcServiceAdviceTest extends AbstractSimpleServerClientTest {
+class GrpcAdviceTest extends AbstractSimpleServerClientTest {
 
-    public GrpcServiceAdviceTest() {
+    public GrpcAdviceTest() {
         log.info("--- GrpcServiceAdviceTest ---");
     }
 

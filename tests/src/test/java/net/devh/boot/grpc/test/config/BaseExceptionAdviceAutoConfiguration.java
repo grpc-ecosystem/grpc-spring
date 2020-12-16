@@ -20,17 +20,17 @@ package net.devh.boot.grpc.test.config;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 
-import net.devh.boot.grpc.server.service.exceptionhandling.GrpcExceptionHandlerMethodResolver;
-import net.devh.boot.grpc.server.service.exceptionhandling.GrpcServiceAdviceDiscoverer;
-import net.devh.boot.grpc.server.service.exceptionhandling.GrpcServiceAdviceExceptionHandler;
-import net.devh.boot.grpc.server.service.exceptionhandling.GrpcServiceAdviceIsPresent;
+import net.devh.boot.grpc.server.advice.GrpcAdviceDiscoverer;
+import net.devh.boot.grpc.server.advice.GrpcAdviceExceptionHandler;
+import net.devh.boot.grpc.server.advice.GrpcExceptionHandlerMethodResolver;
+import net.devh.boot.grpc.server.advice.GrpcServiceAdviceIsPresent;
 
 @Configuration
 @ImportAutoConfiguration({
         GrpcServiceAdviceIsPresent.class,
-        GrpcServiceAdviceDiscoverer.class,
+        GrpcAdviceDiscoverer.class,
         GrpcExceptionHandlerMethodResolver.class,
-        GrpcServiceAdviceExceptionHandler.class})
+        GrpcAdviceExceptionHandler.class})
 public class BaseExceptionAdviceAutoConfiguration {
 
 }
