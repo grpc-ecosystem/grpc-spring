@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Configuration;
 
 import net.devh.boot.grpc.server.advice.GrpcAdviceDiscoverer;
 import net.devh.boot.grpc.server.advice.GrpcAdviceExceptionHandler;
+import net.devh.boot.grpc.server.advice.GrpcAdviceExceptionInterceptor;
 import net.devh.boot.grpc.server.advice.GrpcExceptionHandlerMethodResolver;
 import net.devh.boot.grpc.server.advice.GrpcServiceAdviceIsPresent;
 
@@ -30,7 +31,8 @@ import net.devh.boot.grpc.server.advice.GrpcServiceAdviceIsPresent;
         GrpcServiceAdviceIsPresent.class,
         GrpcAdviceDiscoverer.class,
         GrpcExceptionHandlerMethodResolver.class,
-        GrpcAdviceExceptionHandler.class})
-public class BaseExceptionAdviceAutoConfiguration {
+        GrpcAdviceExceptionHandler.class,
+        GrpcAdviceExceptionInterceptor.class})
+public class BaseAdviceAutoConfiguration {
 
 }
