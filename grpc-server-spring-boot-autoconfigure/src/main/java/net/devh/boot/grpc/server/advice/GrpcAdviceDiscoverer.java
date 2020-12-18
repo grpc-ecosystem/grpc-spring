@@ -54,6 +54,9 @@ public class GrpcAdviceDiscoverer implements InitializingBean, ApplicationContex
     public void afterPropertiesSet() throws Exception {
 
         annotatedBeans = applicationContext.getBeansWithAnnotation(GrpcAdvice.class);
+        annotatedBeans.forEach(
+                (key, value) -> log.debug("Found gRPC advice: " + key + ", class: " + value.getClass().getName()));
+
         annotatedClasses = extractClassType();
         annotatedMethods = findAnnotatedMethods();
     }
@@ -83,12 +86,12 @@ public class GrpcAdviceDiscoverer implements InitializingBean, ApplicationContex
         return !annotatedClasses.isEmpty() && !annotatedMethods.isEmpty();
     }
 
-    Map<String, Object> getAnnotatedBeans() {
+    public Map<String, Object> getAnnotatedBeans() {
         Assert.state(annotatedBeans != null, "@GrpcAdvice annotation scanning failed.");
         return annotatedBeans;
     }
 
-    Set<Method> getAnnotatedMethods() {
+    public Set<Method> getAnnotatedMethods() {
         Assert.state(annotatedMethods != null, "@GrpcExceptionHandler annotation scanning failed.");
         return annotatedMethods;
     }

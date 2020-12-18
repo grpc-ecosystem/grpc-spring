@@ -82,7 +82,7 @@ class GrpcAdviceExceptionListener<ReqT, RespT> extends SimpleForwardingServerCal
             return Status.fromThrowable((Throwable) mappedReturnType);
         }
         throw new IllegalStateException(String.format(
-                "Error for mapped return type [%s] inside @GrpcServiceAdvice, it has to be of type: "
+                "Error for mapped return type [%s] inside @GrpcAdvice, it has to be of type: "
                         + "[Status, StatusException, StatusRuntimeException, Throwable] ",
                 mappedReturnType));
     }

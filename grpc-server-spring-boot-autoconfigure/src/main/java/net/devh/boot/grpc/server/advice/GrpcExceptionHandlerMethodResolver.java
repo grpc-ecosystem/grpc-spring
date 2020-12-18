@@ -87,19 +87,26 @@ public class GrpcExceptionHandlerMethodResolver implements InitializingBean {
 
         Set<Class<? extends Throwable>> exceptionsToBeMapped = new HashSet<>();
         for (Class<? extends Throwable> annoClass : annotatedExceptions) {
-            boolean annoTypeIsNotSuperclass = Arrays.stream(methodParamTypes).noneMatch(annoClass::isAssignableFrom);
-            if (annoTypeIsNotSuperclass) {
-                throw new IllegalStateException(
-                        String.format(
-                                "@GrpcExceptionHandler annotated method declared exception [%s] "
-                                        + "is NOT superclass of listed parameter arguments [%s]",
-                                annoClass, Arrays.toString(methodParamTypes)));
-            }
+            if (methodParamTypes.length > 0)
+                validateAppropriateParentException(annoClass, methodParamTypes);
             exceptionsToBeMapped.add(annoClass);
         }
 
         addMappingInCaseAnnotationIsEmpty(methodParamTypes, exceptionsToBeMapped);
         return exceptionsToBeMapped;
+    }
+
+    private void validateAppropriateParentException(Class<? extends Throwable> annoClass, Class<?>[] methodParamTypes) {
+
+        boolean paramTypeIsNotSuperclass =
+                Arrays.stream(methodParamTypes).noneMatch(param -> param.isAssignableFrom(annoClass));
+        if (paramTypeIsNotSuperclass) {
+            throw new IllegalStateException(
+                    String.format(
+                            "no listed parameter argument [%s] is equal or superclass "
+                                    + "of annotated @GrpcExceptionHandler method declared exception [%s].",
+                            Arrays.toString(methodParamTypes), annoClass));
+        }
     }
 
     private void addMappingInCaseAnnotationIsEmpty(

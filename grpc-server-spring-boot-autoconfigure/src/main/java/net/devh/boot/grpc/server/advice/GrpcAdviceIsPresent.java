@@ -25,14 +25,14 @@ import org.springframework.context.annotation.ConfigurationCondition;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
- * Condition to check if {@link GrpcAdvice @GrpcServiceAdvice} is present. Mainly checking if
- * {@link GrpcAdviceDiscoverer} should be a instantiated.<br>
+ * Condition to check if {@link GrpcAdvice @GrpcAdvice} is present. Mainly checking if {@link GrpcAdviceDiscoverer}
+ * should be a instantiated.<br>
  * <br>
  * 
  * @author Andjelko Perisic (andjelko.perisic@gmail.com)
  * @see GrpcAdviceDiscoverer
  */
-public class GrpcServiceAdviceIsPresent implements ConfigurationCondition {
+public class GrpcAdviceIsPresent implements ConfigurationCondition {
 
     @Override
     public ConfigurationPhase getConfigurationPhase() {

@@ -15,40 +15,27 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.test.config;
+package net.devh.boot.grpc.test.advice;
 
-import org.springframework.context.annotation.Configuration;
+import io.grpc.Metadata;
 
-import com.google.protobuf.Empty;
+public class GrpcMetdaDataUtils {
 
-import io.grpc.Status;
-import io.grpc.stub.StreamObserver;
-import net.devh.boot.grpc.server.advice.GrpcAdvice;
-import net.devh.boot.grpc.server.advice.GrpcExceptionHandler;
-import net.devh.boot.grpc.server.service.GrpcService;
-import net.devh.boot.grpc.test.proto.SomeType;
-import net.devh.boot.grpc.test.proto.TestServiceGrpc;
-
-@Configuration
-public class GrpcServiceAdviceConfig {
-
-
-    @GrpcService
-    public class TestGrpcService extends TestServiceGrpc.TestServiceImplBase {
-
-        @Override
-        public void normal(final Empty request, final StreamObserver<SomeType> responseObserver) {
-            throw new IllegalArgumentException("Trigger GrpcServiceAdvice");
-        }
+    private GrpcMetdaDataUtils() {
+        throw new UnsupportedOperationException("Util class not to be instantiated.");
     }
 
-    @GrpcAdvice
-    public class TestAdvice {
+    public static Metadata createExpectedAsciiHeader() {
 
-        @GrpcExceptionHandler
-        public Status handleIllegalArgumentException(IllegalArgumentException e) {
-            return Status.NOT_FOUND.withCause(e).withDescription(e.getMessage());
-        }
+        return createAsciiHeader("HEADER_KEY", "HEADER_VALUE");
     }
 
+
+    public static Metadata createAsciiHeader(String key, String value) {
+
+        Metadata metadata = new Metadata();
+        Metadata.Key<String> asciiKey = Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER);
+        metadata.put(asciiKey, value);
+        return metadata;
+    }
 }

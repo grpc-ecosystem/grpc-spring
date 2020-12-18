@@ -17,7 +17,7 @@
 
 package net.devh.boot.grpc.server.autoconfigure;
 
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -29,9 +29,9 @@ import net.devh.boot.grpc.server.advice.GrpcAdvice;
 import net.devh.boot.grpc.server.advice.GrpcAdviceDiscoverer;
 import net.devh.boot.grpc.server.advice.GrpcAdviceExceptionHandler;
 import net.devh.boot.grpc.server.advice.GrpcAdviceExceptionInterceptor;
+import net.devh.boot.grpc.server.advice.GrpcAdviceIsPresent;
 import net.devh.boot.grpc.server.advice.GrpcExceptionHandler;
 import net.devh.boot.grpc.server.advice.GrpcExceptionHandlerMethodResolver;
-import net.devh.boot.grpc.server.advice.GrpcServiceAdviceIsPresent;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 
 /**
@@ -47,12 +47,12 @@ import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
-@Conditional(GrpcServiceAdviceIsPresent.class)
-@AutoConfigureAfter(GrpcServerAutoConfiguration.class)
+@Conditional(GrpcAdviceIsPresent.class)
+@AutoConfigureBefore(GrpcServerFactoryAutoConfiguration.class)
 public class GrpcAdviceAutoConfiguration {
 
     @Bean
-    public GrpcAdviceDiscoverer grpcServiceAdviceDiscoverer() {
+    public GrpcAdviceDiscoverer grpcAdviceDiscoverer() {
         return new GrpcAdviceDiscoverer();
     }
 
@@ -63,14 +63,14 @@ public class GrpcAdviceAutoConfiguration {
     }
 
     @Bean
-    public GrpcAdviceExceptionHandler grpcServiceAdviceExceptionHandler(
+    public GrpcAdviceExceptionHandler grpcAdviceExceptionHandler(
             GrpcExceptionHandlerMethodResolver grpcExceptionHandlerMethodResolver) {
         return new GrpcAdviceExceptionHandler(grpcExceptionHandlerMethodResolver);
     }
 
     @GrpcGlobalServerInterceptor
     @Order(InterceptorOrder.ORDER_GLOBAL_EXCEPTION_HANDLING)
-    public GrpcAdviceExceptionInterceptor grpcServiceAdviceExceptionInterceptor(
+    public GrpcAdviceExceptionInterceptor grpcAdviceExceptionInterceptor(
             GrpcAdviceExceptionHandler grpcAdviceExceptionHandler) {
         return new GrpcAdviceExceptionInterceptor(grpcAdviceExceptionHandler);
     }
