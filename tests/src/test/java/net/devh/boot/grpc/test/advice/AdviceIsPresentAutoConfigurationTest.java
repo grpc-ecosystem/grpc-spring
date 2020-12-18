@@ -18,7 +18,10 @@
 package net.devh.boot.grpc.test.advice;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -71,9 +74,13 @@ class AdviceIsPresentAutoConfigurationTest {
     void testAdviceIsPresentWithExceptionMapping() {
         log.info("--- Starting tests with advice auto discovery ---");
 
-        Map<String, Object> expectedAdviceBeans = Map.of(
-                "net.devh.boot.grpc.test.config.GrpcAdviceConfig$TestAdviceWithOutMetadata", testAdviceWithOutMetadata,
-                "net.devh.boot.grpc.test.config.GrpcAdviceConfig$TestAdviceWithMetadata", testAdviceWithMetadata);
+        Map<String, Object> expectedAdviceBeans = new HashMap<>();
+        expectedAdviceBeans.put(
+                "net.devh.boot.grpc.test.config.GrpcAdviceConfig$TestAdviceWithOutMetadata",
+                testAdviceWithOutMetadata);
+        expectedAdviceBeans.put(
+                "net.devh.boot.grpc.test.config.GrpcAdviceConfig$TestAdviceWithMetadata",
+                testAdviceWithMetadata);
         Set<Method> expectedAdviceMethods = expectedMethods();
 
         Map<String, Object> actualAdviceBeans = grpcAdviceDiscoverer.getAnnotatedBeans();
@@ -92,8 +99,11 @@ class AdviceIsPresentAutoConfigurationTest {
     // ###################
 
     private Set<Method> expectedMethods() {
-        Set<Method> methodsWithMetadata = Set.of(testAdviceWithMetadata.getClass().getDeclaredMethods());
-        Set<Method> methodsWithOutMetadata = Set.of(testAdviceWithOutMetadata.getClass().getDeclaredMethods());
+        new HashSet<>();
+        Set<Method> methodsWithMetadata =
+                Arrays.stream(testAdviceWithMetadata.getClass().getDeclaredMethods()).collect(Collectors.toSet());
+        Set<Method> methodsWithOutMetadata =
+                Arrays.stream(testAdviceWithOutMetadata.getClass().getDeclaredMethods()).collect(Collectors.toSet());
 
         return Stream.of(methodsWithMetadata, methodsWithOutMetadata)
                 .flatMap(Collection::stream)
