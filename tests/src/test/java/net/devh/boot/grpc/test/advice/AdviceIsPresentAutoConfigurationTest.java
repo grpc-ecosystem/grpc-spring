@@ -17,6 +17,8 @@
 
 package net.devh.boot.grpc.test.advice;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,9 +29,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -59,7 +61,8 @@ import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceWithOutMetadata
 class AdviceIsPresentAutoConfigurationTest {
 
     private static final int ADVICE_CLASSES = 2;
-    private static final int ADVICE_METHODS = 4;
+    private static final int ADVICE_METHODS = 5;
+
 
     @Autowired
     private GrpcAdviceDiscoverer grpcAdviceDiscoverer;
@@ -69,27 +72,26 @@ class AdviceIsPresentAutoConfigurationTest {
     @Autowired
     private TestAdviceWithMetadata testAdviceWithMetadata;
 
+    @BeforeEach
+    void setup() {}
+
     @Test
     @DirtiesContext
     void testAdviceIsPresentWithExceptionMapping() {
         log.info("--- Starting tests with advice auto discovery ---");
 
         Map<String, Object> expectedAdviceBeans = new HashMap<>();
-        expectedAdviceBeans.put(
-                "net.devh.boot.grpc.test.config.GrpcAdviceConfig$TestAdviceWithOutMetadata",
-                testAdviceWithOutMetadata);
-        expectedAdviceBeans.put(
-                "net.devh.boot.grpc.test.config.GrpcAdviceConfig$TestAdviceWithMetadata",
-                testAdviceWithMetadata);
+        expectedAdviceBeans.put(TestAdviceWithOutMetadata.class.getName(), testAdviceWithOutMetadata);
+        expectedAdviceBeans.put(TestAdviceWithMetadata.class.getName(), testAdviceWithMetadata);
         Set<Method> expectedAdviceMethods = expectedMethods();
 
         Map<String, Object> actualAdviceBeans = grpcAdviceDiscoverer.getAnnotatedBeans();
         Set<Method> actualAdviceMethods = grpcAdviceDiscoverer.getAnnotatedMethods();
 
-        Assertions.assertThat(actualAdviceBeans)
+        assertThat(actualAdviceBeans)
                 .hasSize(ADVICE_CLASSES)
                 .containsExactlyInAnyOrderEntriesOf(expectedAdviceBeans);
-        Assertions.assertThat(actualAdviceMethods)
+        assertThat(actualAdviceMethods)
                 .hasSize(ADVICE_METHODS)
                 .containsExactlyInAnyOrderElementsOf(expectedAdviceMethods);
     }

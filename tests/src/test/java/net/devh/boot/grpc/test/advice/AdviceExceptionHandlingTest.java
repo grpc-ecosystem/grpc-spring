@@ -17,10 +17,14 @@
 
 package net.devh.boot.grpc.test.advice;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.security.AccessControlException;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -28,16 +32,22 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.server.advice.GrpcAdviceExceptionListener;
 import net.devh.boot.grpc.server.autoconfigure.GrpcAdviceAutoConfiguration;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.GrpcAdviceConfig;
 import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceWithMetadata.FirstLevelException;
 import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceWithMetadata.MyRootRuntimeException;
+import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceWithMetadata.StatusMappingException;
 import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestGrpcAdviceService;
 import net.devh.boot.grpc.test.config.InProcessConfiguration;
+import net.devh.boot.grpc.test.util.LoggerTestUtil;
 
 /**
  * A test checking that the server and client can start and connect to each other with minimal config and a exception
@@ -56,9 +66,15 @@ import net.devh.boot.grpc.test.config.InProcessConfiguration;
 @DirtiesContext
 class AdviceExceptionHandlingTest extends AbstractSimpleServerClientTest {
 
+    private ListAppender<ILoggingEvent> loggingEventListAppender;
 
     @Autowired
     private TestGrpcAdviceService testGrpcAdviceService;
+
+    @BeforeEach
+    void setup() {
+        loggingEventListAppender = LoggerTestUtil.getListAppenderForClasses(GrpcAdviceExceptionListener.class);
+    }
 
     @Test
     @DirtiesContext
@@ -98,14 +114,21 @@ class AdviceExceptionHandlingTest extends AbstractSimpleServerClientTest {
 
     @Test
     @DirtiesContext
-    void testThrownMyRootRuntimeException_IsNotMapped() {
+    void testThrownMyRootRuntimeException_IsNotMappedAndResultsInInvocationException() {
 
         MyRootRuntimeException exceptionToMap = new MyRootRuntimeException("Trigger Advice");
         testGrpcAdviceService.setExceptionToSimulate(exceptionToMap);
-        Status expectedStatus = Status.INTERNAL.withDescription(exceptionToMap.getMessage());
+        Status expectedStatus =
+                Status.INTERNAL.withDescription("There was a server error trying to handle an exception");
         Metadata metadata = new Metadata();
 
         testGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+        assertThat(loggingEventListAppender.list)
+                .extracting(ILoggingEvent::getMessage, ILoggingEvent::getLevel)
+                .contains(Tuple.tuple("Exception caught during gRPC execution: ", Level.ERROR))
+                .contains(Tuple.tuple(
+                        "Exception thrown during invocation of annotated @GrpcExceptionHandler method: ",
+                        Level.ERROR));
     }
 
     @Test
@@ -118,6 +141,26 @@ class AdviceExceptionHandlingTest extends AbstractSimpleServerClientTest {
         Metadata metadata = GrpcMetdaDataUtils.createExpectedAsciiHeader();
 
         testGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+    }
+
+    @Test
+    @DirtiesContext
+    void testThrownStatusMappingException_IsResolvedAsInternalServerError() {
+
+        StatusMappingException exceptionToMap = new StatusMappingException("Trigger Advice");
+        testGrpcAdviceService.setExceptionToSimulate(exceptionToMap);
+        Status expectedStatus =
+                Status.INTERNAL.withDescription("There was a server error trying to handle an exception");
+        Metadata metadata = new Metadata();
+
+        testGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+
+        assertThat(loggingEventListAppender.list)
+                .extracting(ILoggingEvent::getMessage, ILoggingEvent::getLevel)
+                .contains(Tuple.tuple("Exception caught during gRPC execution: ", Level.ERROR))
+                .contains(Tuple.tuple(
+                        "Exception thrown during invocation of annotated @GrpcExceptionHandler method: ",
+                        Level.ERROR));
     }
 
 

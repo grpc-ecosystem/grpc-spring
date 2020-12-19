@@ -39,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
  * @see GrpcAdviceExceptionHandler
  */
 @Slf4j
-class GrpcAdviceExceptionListener<ReqT, RespT> extends SimpleForwardingServerCallListener<ReqT> {
+public class GrpcAdviceExceptionListener<ReqT, RespT> extends SimpleForwardingServerCallListener<ReqT> {
 
     private final GrpcAdviceExceptionHandler exceptionHandler;
     private final ServerCall<ReqT, RespT> serverCall;
@@ -66,7 +66,7 @@ class GrpcAdviceExceptionListener<ReqT, RespT> extends SimpleForwardingServerCal
     private void handleCaughtException(Exception exception) {
         try {
             Object mappedReturnType = exceptionHandler.handleThrownException(exception);
-            Status status = resolveStatus(mappedReturnType);
+            Status status = resolveStatus(mappedReturnType).withCause(exception);
             Metadata metadata = resolveMetadata(mappedReturnType);
 
             serverCall.close(status, metadata);
@@ -100,8 +100,9 @@ class GrpcAdviceExceptionListener<ReqT, RespT> extends SimpleForwardingServerCal
     }
 
     private void handleThrownExceptionByImplementation(Throwable throwable) {
+        log.error("Exception thrown during invocation of annotated @GrpcExceptionHandler method: ", throwable);
         serverCall.close(Status.INTERNAL.withCause(throwable)
-                .withDescription(throwable.getMessage()), new Metadata());
+                .withDescription("There was a server error trying to handle an exception"), new Metadata());
     }
 
 }

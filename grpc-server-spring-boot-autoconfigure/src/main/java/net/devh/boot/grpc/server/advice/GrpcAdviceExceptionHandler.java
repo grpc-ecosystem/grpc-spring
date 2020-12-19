@@ -108,13 +108,11 @@ public class GrpcAdviceExceptionHandler {
             Method mappedMethod,
             Object instanceOfMappedMethod,
             Object[] instancedParams) throws Throwable {
-        Object statusThrowable = null;
         try {
-            statusThrowable = mappedMethod.invoke(instanceOfMappedMethod, instancedParams);
+            return mappedMethod.invoke(instanceOfMappedMethod, instancedParams);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw e.getCause(); // throw the exception thrown by implementation
         }
-        return statusThrowable;
     }
 
 }

@@ -97,6 +97,12 @@ public class GrpcAdviceConfig {
             return status.asRuntimeException(metadata);
         }
 
+        @GrpcExceptionHandler
+        public StatusRuntimeException handleStatusMappingException(StatusMappingException e) {
+
+            throw new NullPointerException("Simulate developer error");
+        }
+
 
         public static class MyRootRuntimeException extends RuntimeException {
 
@@ -108,6 +114,13 @@ public class GrpcAdviceConfig {
         public static class FirstLevelException extends MyRootRuntimeException {
 
             public FirstLevelException(String msg) {
+                super(msg);
+            }
+        }
+
+        public static class StatusMappingException extends RuntimeException {
+
+            public StatusMappingException(String msg) {
                 super(msg);
             }
         }
