@@ -143,13 +143,12 @@ We recommended to inject (`@GrpcClient`) `Stub`s instead of plain `Channel`s.
 > **Note:** There are different types of `Stub`s. Not all of them support all request types (streaming calls).
 
 ````java
-import example.HelloReply;
 import example.HelloRequest;
-import example.MyServiceGrpc;
+import example.MyServiceGrpc.MyServiceBlockingStub;
 
-import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 
-import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.stereotype.Service;
 
 @Service
 public class FoobarService {
