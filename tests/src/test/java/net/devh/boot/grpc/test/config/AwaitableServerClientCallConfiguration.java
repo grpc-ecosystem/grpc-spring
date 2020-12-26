@@ -73,7 +73,7 @@ public class AwaitableServerClientCallConfiguration {
                     return next.startCall(call, headers);
                 } else {
                     final CountDownLatch thatCounter = serverCounter;
-                    return next.startCall(new SimpleForwardingServerCall<>(call) {
+                    return next.startCall(new SimpleForwardingServerCall<ReqT, RespT>(call) {
 
                         @Override
                         public void close(final Status status, final Metadata trailers) {
@@ -108,11 +108,11 @@ public class AwaitableServerClientCallConfiguration {
                     return next.newCall(method, callOptions);
                 } else {
                     final CountDownLatch thatCounter = clientCounter;
-                    return new SimpleForwardingClientCall<>(next.newCall(method, callOptions)) {
+                    return new SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
 
                         @Override
                         public void start(final Listener<RespT> responseListener, final Metadata headers) {
-                            super.start(new SimpleForwardingClientCallListener<>(responseListener) {
+                            super.start(new SimpleForwardingClientCallListener<RespT>(responseListener) {
 
                                 @Override
                                 public void onClose(final Status status, final Metadata trailers) {
