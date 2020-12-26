@@ -128,12 +128,59 @@ public GrpcChannelConfigurer keepAliveClientConfigurer() {
 
 ### ClientInterceptor
 
+`ClientInterceptor`s can be used for various tasks, including:
+
+- Authentication/Authorization
+- Request validation
+- Response filtering
+- Attaching additional context to the call (e.g. tracing ids)
+- Exception to error `Status` response mapping
+- Logging
+- ...
+
 There are three ways to add a `ClientInterceptor` to your channel.
 
 - Define the `ClientInterceptor` as a global interceptor using either the `@GrpcGlobalClientInterceptor` annotation,
   or a `GlobalClientInterceptorConfigurer`
 - Explicitly list them in the `@GrpcClient#interceptors` or `@GrpcClient#interceptorNames` field
 - Use a `StubTransformer` and call `stub.withInterceptors(ClientInterceptor... interceptors)`
+
+The following examples demonstrate how to use annotations to create a global client interceptor:
+
+````java
+@Configuration
+public class ThirdPartyInterceptorConfig {}
+
+    @GrpcGlobalServerInterceptor
+    ServerInterceptor logServerInterceptor() {
+        return new LogGrpcInterceptor();
+    }
+
+}
+````
+
+This variant is very handy if you wish to add third-party interceptors to the global scope.
+
+For your own interceptor implementations you can achieve the same result by adding the annotation to the class itself:
+
+````java
+@GrpcGlobalServerInterceptor
+public class LogGrpcInterceptor implements ServerInterceptor {
+
+    private static final Logger log = LoggerFactory.getLogger(LogGrpcInterceptor.class);
+
+    @Override
+    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
+            ServerCall<ReqT, RespT> serverCall,
+            Metadata metadata,
+            ServerCallHandler<ReqT, RespT> serverCallHandler) {
+
+        log.info(serverCall.getMethodDescriptor().getFullMethodName());
+        return serverCallHandler.startCall(serverCall, metadata);
+    }
+
+}
+````
 
 ### StubFactory
 
