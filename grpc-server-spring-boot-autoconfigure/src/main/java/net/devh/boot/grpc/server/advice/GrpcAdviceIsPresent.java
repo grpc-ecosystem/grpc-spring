@@ -26,8 +26,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
  * Condition to check if {@link GrpcAdvice @GrpcAdvice} is present. Mainly checking if {@link GrpcAdviceDiscoverer}
- * should be a instantiated.<br>
- * <br>
+ * should be a instantiated.
  * 
  * @author Andjelko Perisic (andjelko.perisic@gmail.com)
  * @see GrpcAdviceDiscoverer

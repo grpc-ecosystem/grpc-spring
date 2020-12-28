@@ -23,7 +23,6 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Map.Entry;
 
-import org.aspectj.lang.annotation.Aspect;
 import org.springframework.lang.Nullable;
 
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +41,6 @@ import lombok.extern.slf4j.Slf4j;
  * @see GrpcAdviceExceptionInterceptor
  */
 @Slf4j
-@Aspect
 public class GrpcAdviceExceptionHandler {
 
     private final GrpcExceptionHandlerMethodResolver grpcExceptionHandlerMethodResolver;
@@ -64,6 +62,7 @@ public class GrpcAdviceExceptionHandler {
      */
     @Nullable
     public <E extends Throwable> Object handleThrownException(E exception) throws Throwable {
+        log.debug("Exception caught during gRPC execution: ", exception);
 
         final Class<? extends Throwable> exceptionClass = exception.getClass();
         boolean exceptionIsMapped =

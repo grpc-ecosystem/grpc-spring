@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component;
  * @author Andjelko Perisic (andjelko.perisic@gmail.com)
  * @see GrpcExceptionHandler
  */
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Component

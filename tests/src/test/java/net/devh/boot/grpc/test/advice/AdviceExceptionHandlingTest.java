@@ -38,6 +38,7 @@ import ch.qos.logback.core.read.ListAppender;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.server.advice.GrpcAdviceExceptionHandler;
 import net.devh.boot.grpc.server.advice.GrpcAdviceExceptionListener;
 import net.devh.boot.grpc.server.autoconfigure.GrpcAdviceAutoConfiguration;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
@@ -73,7 +74,9 @@ class AdviceExceptionHandlingTest extends AbstractSimpleServerClientTest {
 
     @BeforeEach
     void setup() {
-        loggingEventListAppender = LoggerTestUtil.getListAppenderForClasses(GrpcAdviceExceptionListener.class);
+        loggingEventListAppender = LoggerTestUtil.getListAppenderForClasses(
+                GrpcAdviceExceptionListener.class,
+                GrpcAdviceExceptionHandler.class);
     }
 
     @Test
@@ -107,7 +110,7 @@ class AdviceExceptionHandlingTest extends AbstractSimpleServerClientTest {
         ClassCastException exceptionToMap = new ClassCastException("Casting with classes failed.");
         testGrpcAdviceService.setExceptionToSimulate(exceptionToMap);
         Status expectedStatus = Status.FAILED_PRECONDITION.withDescription(exceptionToMap.getMessage());
-        Metadata metadata = GrpcMetdaDataUtils.createExpectedAsciiHeader();
+        Metadata metadata = GrpcMetaDataUtils.createExpectedAsciiHeader();
 
         testGrpcCallAndVerifyMappedException(expectedStatus, metadata);
     }
@@ -125,7 +128,7 @@ class AdviceExceptionHandlingTest extends AbstractSimpleServerClientTest {
         testGrpcCallAndVerifyMappedException(expectedStatus, metadata);
         assertThat(loggingEventListAppender.list)
                 .extracting(ILoggingEvent::getMessage, ILoggingEvent::getLevel)
-                .contains(Tuple.tuple("Exception caught during gRPC execution: ", Level.ERROR))
+                .contains(Tuple.tuple("Exception caught during gRPC execution: ", Level.DEBUG))
                 .contains(Tuple.tuple(
                         "Exception thrown during invocation of annotated @GrpcExceptionHandler method: ",
                         Level.ERROR));
@@ -138,7 +141,7 @@ class AdviceExceptionHandlingTest extends AbstractSimpleServerClientTest {
         FirstLevelException exceptionToMap = new FirstLevelException("Trigger Advice");
         testGrpcAdviceService.setExceptionToSimulate(exceptionToMap);
         Status expectedStatus = Status.NOT_FOUND.withDescription(exceptionToMap.getMessage());
-        Metadata metadata = GrpcMetdaDataUtils.createExpectedAsciiHeader();
+        Metadata metadata = GrpcMetaDataUtils.createExpectedAsciiHeader();
 
         testGrpcCallAndVerifyMappedException(expectedStatus, metadata);
     }
@@ -157,7 +160,7 @@ class AdviceExceptionHandlingTest extends AbstractSimpleServerClientTest {
 
         assertThat(loggingEventListAppender.list)
                 .extracting(ILoggingEvent::getMessage, ILoggingEvent::getLevel)
-                .contains(Tuple.tuple("Exception caught during gRPC execution: ", Level.ERROR))
+                .contains(Tuple.tuple("Exception caught during gRPC execution: ", Level.DEBUG))
                 .contains(Tuple.tuple(
                         "Exception thrown during invocation of annotated @GrpcExceptionHandler method: ",
                         Level.ERROR));

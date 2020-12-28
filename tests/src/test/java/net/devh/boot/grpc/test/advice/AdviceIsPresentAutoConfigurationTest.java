@@ -81,7 +81,7 @@ class AdviceIsPresentAutoConfigurationTest {
         log.info("--- Starting tests with advice auto discovery ---");
 
         Map<String, Object> expectedAdviceBeans = new HashMap<>();
-        expectedAdviceBeans.put(TestAdviceWithOutMetadata.class.getName(), testAdviceWithOutMetadata);
+        expectedAdviceBeans.put("grpcAdviceWithBean", testAdviceWithOutMetadata);
         expectedAdviceBeans.put(TestAdviceWithMetadata.class.getName(), testAdviceWithMetadata);
         Set<Method> expectedAdviceMethods = expectedMethods();
 

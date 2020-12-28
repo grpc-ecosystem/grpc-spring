@@ -20,6 +20,7 @@ package net.devh.boot.grpc.test.config;
 import java.security.AccessControlException;
 
 import org.assertj.core.api.Assertions;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.ConversionFailedException;
 
@@ -33,7 +34,7 @@ import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.advice.GrpcAdvice;
 import net.devh.boot.grpc.server.advice.GrpcExceptionHandler;
 import net.devh.boot.grpc.server.service.GrpcService;
-import net.devh.boot.grpc.test.advice.GrpcMetdaDataUtils;
+import net.devh.boot.grpc.test.advice.GrpcMetaDataUtils;
 import net.devh.boot.grpc.test.proto.SomeType;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc;
 
@@ -58,6 +59,11 @@ public class GrpcAdviceConfig {
     }
 
     @GrpcAdvice
+    @Bean
+    public TestAdviceWithOutMetadata grpcAdviceWithBean() {
+        return new TestAdviceWithOutMetadata();
+    }
+
     public static class TestAdviceWithOutMetadata {
 
         @GrpcExceptionHandler
@@ -85,7 +91,7 @@ public class GrpcAdviceConfig {
         public StatusException handleFirstLevelException(MyRootRuntimeException e) {
 
             Status status = Status.NOT_FOUND.withCause(e).withDescription(e.getMessage());
-            Metadata metadata = GrpcMetdaDataUtils.createExpectedAsciiHeader();
+            Metadata metadata = GrpcMetaDataUtils.createExpectedAsciiHeader();
             return status.asException(metadata);
         }
 
@@ -93,7 +99,7 @@ public class GrpcAdviceConfig {
         public StatusRuntimeException handleClassCastException() {
 
             Status status = Status.FAILED_PRECONDITION.withDescription("Casting with classes failed.");
-            Metadata metadata = GrpcMetdaDataUtils.createExpectedAsciiHeader();
+            Metadata metadata = GrpcMetaDataUtils.createExpectedAsciiHeader();
             return status.asRuntimeException(metadata);
         }
 

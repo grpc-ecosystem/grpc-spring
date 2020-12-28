@@ -45,8 +45,23 @@ public class GrpcAdviceExceptionInterceptor implements ServerInterceptor {
             ServerCall<ReqT, RespT> call,
             Metadata headers,
             ServerCallHandler<ReqT, RespT> next) {
-        Listener<ReqT> delegate = next.startCall(call, headers);
-        return new GrpcAdviceExceptionListener<>(delegate, call, grpcAdviceExceptionHandler);
+        try {
+            Listener<ReqT> delegate = next.startCall(call, headers);
+            return new GrpcAdviceExceptionListener<>(delegate, call, grpcAdviceExceptionHandler);
+        } catch (Throwable throwable) {
+            return noOpCallListener();
+        }
+    }
+
+    /**
+     * Creates a new no-op call listener because you can neither return null nor throw an exception in
+     * {@link #interceptCall(ServerCall, Metadata, ServerCallHandler)}.
+     *
+     * @param <ReqT> The type of the request.
+     * @return The newly created dummy listener.
+     */
+    protected <ReqT> Listener<ReqT> noOpCallListener() {
+        return new Listener<ReqT>() {};
     }
 
 }

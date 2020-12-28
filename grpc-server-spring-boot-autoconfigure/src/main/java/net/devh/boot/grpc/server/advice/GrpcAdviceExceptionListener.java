@@ -57,21 +57,21 @@ public class GrpcAdviceExceptionListener<ReqT, RespT> extends SimpleForwardingSe
     public void onHalfClose() {
         try {
             super.onHalfClose();
-        } catch (Exception exception) {
-            log.error("Exception caught during gRPC execution: ", exception);
-            handleCaughtException(exception);
+
+        } catch (Throwable throwable) {
+            handleCaughtException(throwable);
         }
     }
 
-    private void handleCaughtException(Exception exception) {
+    private void handleCaughtException(Throwable throwable) {
         try {
-            Object mappedReturnType = exceptionHandler.handleThrownException(exception);
-            Status status = resolveStatus(mappedReturnType).withCause(exception);
+            Object mappedReturnType = exceptionHandler.handleThrownException(throwable);
+            Status status = resolveStatus(mappedReturnType).withCause(throwable);
             Metadata metadata = resolveMetadata(mappedReturnType);
 
             serverCall.close(status, metadata);
-        } catch (Throwable throwable) {
-            handleThrownExceptionByImplementation(throwable);
+        } catch (Throwable throwableWhileResolving) {
+            handleThrownExceptionByImplementation(throwableWhileResolving);
         }
     }
 

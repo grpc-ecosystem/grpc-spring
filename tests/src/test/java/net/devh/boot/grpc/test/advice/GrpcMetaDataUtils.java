@@ -19,9 +19,9 @@ package net.devh.boot.grpc.test.advice;
 
 import io.grpc.Metadata;
 
-public class GrpcMetdaDataUtils {
+public class GrpcMetaDataUtils {
 
-    private GrpcMetdaDataUtils() {
+    private GrpcMetaDataUtils() {
         throw new UnsupportedOperationException("Util class not to be instantiated.");
     }
 
