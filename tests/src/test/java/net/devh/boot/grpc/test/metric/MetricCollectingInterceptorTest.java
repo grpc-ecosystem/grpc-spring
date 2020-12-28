@@ -27,6 +27,7 @@ import static net.devh.boot.grpc.common.metric.MetricConstants.METRIC_NAME_SERVE
 import static net.devh.boot.grpc.common.metric.MetricConstants.METRIC_NAME_SERVER_RESPONSES_SENT;
 import static net.devh.boot.grpc.common.metric.MetricConstants.TAG_METHOD_NAME;
 import static net.devh.boot.grpc.common.metric.MetricConstants.TAG_STATUS_CODE;
+import static net.devh.boot.grpc.test.config.AwaitableServerClientCallConfiguration.awaitNextServerAndClientCallCloses;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -63,6 +64,7 @@ import net.devh.boot.grpc.client.autoconfigure.GrpcClientMetricAutoConfiguration
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.common.metric.MetricConstants;
 import net.devh.boot.grpc.server.autoconfigure.GrpcServerMetricAutoConfiguration;
+import net.devh.boot.grpc.test.config.AwaitableServerClientCallConfiguration;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.MetricConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
@@ -78,10 +80,18 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceStub;
 @Slf4j
 @SpringBootTest(properties = {
         "grpc.client.GLOBAL.address=localhost:9090",
-        "grpc.client.GLOBAL.negotiationType=PLAINTEXT"
+        "grpc.client.GLOBAL.negotiationType=PLAINTEXT",
 })
-@SpringJUnitConfig(classes = {MetricConfiguration.class, ServiceConfiguration.class, BaseAutoConfiguration.class})
-@ImportAutoConfiguration({GrpcClientMetricAutoConfiguration.class, GrpcServerMetricAutoConfiguration.class})
+@SpringJUnitConfig(classes = {
+        MetricConfiguration.class,
+        ServiceConfiguration.class,
+        BaseAutoConfiguration.class,
+        AwaitableServerClientCallConfiguration.class,
+})
+@ImportAutoConfiguration({
+        GrpcClientMetricAutoConfiguration.class,
+        GrpcServerMetricAutoConfiguration.class,
+})
 @DirtiesContext
 class MetricCollectingInterceptorTest {
 
@@ -103,8 +113,12 @@ class MetricCollectingInterceptorTest {
     @DirtiesContext
     void testMetricsSuccessfulCall() {
         log.info("--- Starting tests with successful call ---");
+        CountDownLatch counter = awaitNextServerAndClientCallCloses(1);
+
         // Invoke 1
         assertEquals("1.2.3", this.testService.normal(EMPTY).getVersion());
+
+        assertTimeoutPreemptively(Duration.ofSeconds(1), (Executable) counter::await);
 
         // Test-Client 1
         final Counter requestSentCounter =
@@ -154,8 +168,12 @@ class MetricCollectingInterceptorTest {
 
         // --------------------------------------------------------------------
 
+        counter = awaitNextServerAndClientCallCloses(1);
+
         // Invoke 2
         assertEquals("1.2.3", this.testService.normal(EMPTY).getVersion());
+
+        assertTimeoutPreemptively(Duration.ofSeconds(1), (Executable) counter::await);
 
         // Test-Client 2
         assertEquals(2, requestSentCounter.count());
@@ -182,7 +200,7 @@ class MetricCollectingInterceptorTest {
     void testMetricsEarlyCancelledCall() {
         log.info("--- Starting tests with early cancelled call ---");
         final AtomicReference<Throwable> exception = new AtomicReference<>();
-        final CountDownLatch counter = new CountDownLatch(1);
+        final CountDownLatch counter = awaitNextServerAndClientCallCloses(1);
 
         // Invoke
         final ClientCallStreamObserver<SomeType> observer =
@@ -201,7 +219,6 @@ class MetricCollectingInterceptorTest {
                     @Override
                     public void onError(final Throwable t) {
                         setError(t);
-                        counter.countDown();
                     }
 
                     @Override
@@ -210,7 +227,6 @@ class MetricCollectingInterceptorTest {
                             fail("Should never be here");
                         } catch (final RuntimeException t) {
                             setError(t);
-                            counter.countDown();
                             throw t;
                         }
                     }
@@ -296,21 +312,18 @@ class MetricCollectingInterceptorTest {
     void testMetricsCancelledCall() {
         log.info("--- Starting tests with cancelled call ---");
         final AtomicReference<Throwable> exception = new AtomicReference<>();
-        final CountDownLatch counter = new CountDownLatch(2);
+        final CountDownLatch counter = awaitNextServerAndClientCallCloses(1);
 
         // Invoke
         final ClientCallStreamObserver<SomeType> observer =
                 (ClientCallStreamObserver<SomeType>) this.testStreamService.echo(new StreamObserver<SomeType>() {
 
                     @Override
-                    public void onNext(final SomeType value) {
-                        counter.countDown();
-                    }
+                    public void onNext(final SomeType value) {}
 
                     @Override
                     public void onError(final Throwable t) {
                         setError(t);
-                        counter.countDown();
                     }
 
                     @Override
@@ -319,7 +332,6 @@ class MetricCollectingInterceptorTest {
                             fail("Should never be here");
                         } catch (final RuntimeException t) {
                             setError(t);
-                            counter.countDown();
                             throw t;
                         }
                     }
@@ -405,9 +417,14 @@ class MetricCollectingInterceptorTest {
     @DirtiesContext
     void testMetricsFailingCall() {
         log.info("--- Starting tests with failing call ---");
+
+        final CountDownLatch counter = awaitNextServerAndClientCallCloses(1);
+
         // Invoke
         assertThrows(StatusRuntimeException.class,
                 () -> this.testService.unimplemented(EMPTY));
+
+        assertTimeoutPreemptively(Duration.ofSeconds(1), (Executable) counter::await);
 
         // Test-Client
         final Counter requestSentCounter = this.meterRegistry
