@@ -17,15 +17,16 @@
 
 package net.devh.boot.grpc.server.autoconfigure;
 
-import net.devh.boot.grpc.common.util.GrpcUtils;
-import net.devh.boot.grpc.server.config.GrpcServerProperties;
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaRegistration;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.PostConstruct;
+import net.devh.boot.grpc.common.util.GrpcUtils;
+import net.devh.boot.grpc.server.config.GrpcServerProperties;
 
 /**
  * Configuration class that configures the required beans for grpc discovery via Eureka.

@@ -17,18 +17,20 @@
 
 package net.devh.boot.grpc.server.autoconfigure;
 
-import net.devh.boot.grpc.common.util.GrpcUtils;
-import net.devh.boot.grpc.server.config.GrpcServerProperties;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.consul.serviceregistry.ConsulRegistration;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import net.devh.boot.grpc.common.util.GrpcUtils;
+import net.devh.boot.grpc.server.config.GrpcServerProperties;
 
 /**
  * Configuration class that configures the required beans for gRPC discovery via Consul.

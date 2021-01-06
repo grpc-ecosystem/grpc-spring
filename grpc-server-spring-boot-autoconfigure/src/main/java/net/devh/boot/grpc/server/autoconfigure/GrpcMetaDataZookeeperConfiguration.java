@@ -17,22 +17,23 @@
 
 package net.devh.boot.grpc.server.autoconfigure;
 
-import net.devh.boot.grpc.common.util.GrpcUtils;
-import net.devh.boot.grpc.server.config.GrpcServerProperties;
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.zookeeper.serviceregistry.ZookeeperRegistration;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.PostConstruct;
+import net.devh.boot.grpc.common.util.GrpcUtils;
+import net.devh.boot.grpc.server.config.GrpcServerProperties;
 
 /**
  * Configuration class that configures the required beans for grpc discovery via Zookeeper.
  *
  * @author zhaochunlin (946599275@gmail.com)
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
 @ConditionalOnClass({ZookeeperRegistration.class})
 public class GrpcMetaDataZookeeperConfiguration {
@@ -49,7 +50,8 @@ public class GrpcMetaDataZookeeperConfiguration {
         final String port = String.valueOf(grpcServerProperties.getPort());
         zookeeperRegistration.setPort(0);
         if (!GrpcUtils.INTER_PROCESS_DISABLE.equals(port)) {
-            zookeeperRegistration.getServiceInstance().getPayload().getMetadata().put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT, port);
+            zookeeperRegistration.getServiceInstance().getPayload().getMetadata()
+                    .put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT, port);
         }
     }
 }
