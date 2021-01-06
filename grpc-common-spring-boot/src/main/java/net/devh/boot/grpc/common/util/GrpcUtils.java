@@ -31,6 +31,9 @@ public final class GrpcUtils {
      */
     public static final String CLOUD_DISCOVERY_METADATA_PORT = "gRPC.port";
 
+
+    public static final String INTER_PROCESS_DISABLE = "-1";
+
     /**
      * Extracts the service name from the given method.
      *

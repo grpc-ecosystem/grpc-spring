@@ -17,19 +17,15 @@
 
 package net.devh.boot.grpc.server.autoconfigure;
 
-import javax.annotation.PostConstruct;
-
+import net.devh.boot.grpc.common.util.GrpcUtils;
+import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
+import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaRegistration;
 import org.springframework.context.annotation.Configuration;
 
-import com.netflix.appinfo.EurekaInstanceConfig;
-import com.netflix.discovery.EurekaClient;
-
-import net.devh.boot.grpc.common.util.GrpcUtils;
-import net.devh.boot.grpc.server.config.GrpcServerProperties;
+import javax.annotation.PostConstruct;
 
 /**
  * Configuration class that configures the required beans for grpc discovery via Eureka.
@@ -39,23 +35,20 @@ import net.devh.boot.grpc.server.config.GrpcServerProperties;
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
-@ConditionalOnClass({EurekaInstanceConfigBean.class, EurekaClient.class})
+@ConditionalOnClass({EurekaRegistration.class})
 public class GrpcMetadataEurekaConfiguration {
 
     @Autowired(required = false)
-    private EurekaInstanceConfig instance;
+    private EurekaRegistration eurekaRegistration;
 
     @Autowired
     private GrpcServerProperties grpcProperties;
 
     @PostConstruct
     public void init() {
-        if (this.instance == null) {
-            return;
-        }
-        final int port = this.grpcProperties.getPort();
-        if (port != -1) {
-            this.instance.getMetadataMap().put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT, Integer.toString(port));
+        final String port = String.valueOf(grpcProperties.getPort());
+        if (!GrpcUtils.INTER_PROCESS_DISABLE.equals(port)) {
+            eurekaRegistration.getInstanceConfig().getMetadataMap().put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT, port);
         }
     }
 
