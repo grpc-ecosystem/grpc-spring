@@ -51,12 +51,14 @@ public class GrpcMetadataConsulConfiguration {
 
     @PostConstruct
     public void init() {
-        final String port = String.valueOf(grpcProperties.getPort());
-        List<String> tags = consulRegistration.getService().getTags();
-        tags = Objects.isNull(tags) ? new ArrayList<>() : tags;
-        if (!GrpcUtils.INTER_PROCESS_DISABLE.equals(port)) {
-            tags.add(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT + "=" + port);
-            consulRegistration.getService().setTags(tags);
+        if (!Objects.isNull(consulRegistration)) {
+            final String port = String.valueOf(grpcProperties.getPort());
+            List<String> tags = consulRegistration.getService().getTags();
+            tags = Objects.isNull(tags) ? new ArrayList<>() : tags;
+            if (!GrpcUtils.INTER_PROCESS_DISABLE.equals(port)) {
+                tags.add(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT + "=" + port);
+                consulRegistration.getService().setTags(tags);
+            }
         }
     }
 }

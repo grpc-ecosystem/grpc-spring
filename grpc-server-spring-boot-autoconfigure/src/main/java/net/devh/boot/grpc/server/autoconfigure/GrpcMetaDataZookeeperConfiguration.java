@@ -17,6 +17,8 @@
 
 package net.devh.boot.grpc.server.autoconfigure;
 
+import java.util.Objects;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,11 +49,13 @@ public class GrpcMetaDataZookeeperConfiguration {
 
     @PostConstruct
     public void init() {
-        final String port = String.valueOf(grpcServerProperties.getPort());
-        zookeeperRegistration.setPort(0);
-        if (!GrpcUtils.INTER_PROCESS_DISABLE.equals(port)) {
-            zookeeperRegistration.getServiceInstance().getPayload().getMetadata()
-                    .put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT, port);
+        if (!Objects.isNull(zookeeperRegistration)) {
+            final String port = String.valueOf(grpcServerProperties.getPort());
+            zookeeperRegistration.setPort(0);
+            if (!GrpcUtils.INTER_PROCESS_DISABLE.equals(port)) {
+                zookeeperRegistration.getServiceInstance().getPayload().getMetadata()
+                        .put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT, port);
+            }
         }
     }
 }
