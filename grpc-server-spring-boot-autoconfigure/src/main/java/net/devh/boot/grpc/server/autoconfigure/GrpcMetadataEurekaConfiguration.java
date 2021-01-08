@@ -49,7 +49,7 @@ public class GrpcMetadataEurekaConfiguration {
 
     @PostConstruct
     public void init() {
-        if (!Objects.isNull(eurekaRegistration)) {
+        if (eurekaRegistration != null) {
             final String port = String.valueOf(grpcProperties.getPort());
             if (!GrpcUtils.INTER_PROCESS_DISABLE.equals(port)) {
                 eurekaRegistration.getInstanceConfig().getMetadataMap().put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT,

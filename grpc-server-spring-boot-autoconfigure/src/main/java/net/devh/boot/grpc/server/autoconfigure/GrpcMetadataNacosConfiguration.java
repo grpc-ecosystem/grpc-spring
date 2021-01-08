@@ -49,7 +49,7 @@ public class GrpcMetadataNacosConfiguration {
 
     @PostConstruct
     public void init() {
-        if (!Objects.isNull(nacosRegistration)) {
+        if (nacosRegistration != null) {
             final String port = String.valueOf(grpcProperties.getPort());
             if (!GrpcUtils.INTER_PROCESS_DISABLE.equals(port)) {
                 nacosRegistration.getMetadata().put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT, port);

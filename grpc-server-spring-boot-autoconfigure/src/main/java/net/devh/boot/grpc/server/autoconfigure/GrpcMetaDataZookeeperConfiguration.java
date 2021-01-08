@@ -49,7 +49,7 @@ public class GrpcMetaDataZookeeperConfiguration {
 
     @PostConstruct
     public void init() {
-        if (!Objects.isNull(zookeeperRegistration)) {
+        if (zookeeperRegistration != null) {
             final String port = String.valueOf(grpcServerProperties.getPort());
             zookeeperRegistration.setPort(0);
             if (!GrpcUtils.INTER_PROCESS_DISABLE.equals(port)) {
