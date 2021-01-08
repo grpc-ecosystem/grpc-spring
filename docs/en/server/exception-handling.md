@@ -23,11 +23,11 @@ This section describes how you can handle exceptions inside GrpcService layer wi
 
 ## Proper exception handling
 
-If you are already familiar with springs [error handling](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-error-handling),
-you should see some similarity with intended exception handling for gRPC.
-
+If you are already familiar with spring's [error handling](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-error-handling),
+you should see some similarities with the exception handling for gRPC.
 
 _An explanation for the following class:_
+
 ```java
 @GrpcAdvice
 public class GrpcExceptionAdvice {
@@ -35,12 +35,12 @@ public class GrpcExceptionAdvice {
 
     @GrpcExceptionHandler
     public Status handleInvalidArgument(IllegalArgumentException e) {
-        return Status.INVALID_ARGUMENT.withDescription("Your description");
+        return Status.INVALID_ARGUMENT.withDescription("Your description").withCause(e);
     }
 
     @GrpcExceptionHandler(ResourceNotFoundException.class)
     public StatusException handleResourceNotFoundException(ResourceNotFoundException e) {
-        Status status = Status.NOT_FOUND.withDescription("Your description");
+        Status status = Status.NOT_FOUND.withDescription("Your description").withCause(e);
         Metadata metadata = ...
         return status.asException(metadata);
     }
@@ -48,31 +48,36 @@ public class GrpcExceptionAdvice {
 }
 ```
 
-- `@GrpcAdvice` marks a class to be picked up for exception handling
-- `@GrpcExceptionHandler` maps given method to be executed, in case of _specified_ thrown exception
-    - f.e. if your application throws `IllegalArgumentException`, then the `handleInvalidArgument(IllegalArgumentException e)` method will be is executed
-- `io.grpc.Status` is specified and returned response status
+- `@GrpcAdvice` marks a class to be checked up for exception handling methods
+- `@GrpcExceptionHandler` marks the annotated method to be executed, in case of the _specified_ exception being thrown
+  - f.e. if your application throws `IllegalArgumentException`,
+    then the `handleInvalidArgument(IllegalArgumentException e)` method will be executed
+- The method must either return a `io.grpc.Status`, `StatusException`, or `StatusRuntimeException`
+- If you handle server errors, you might want to log the exception/stacktrace inside the exception handler
 
 > **Note:** Cause is not transmitted from server to client - as stated in [official docs](https://grpc.github.io/grpc-java/javadoc/io/grpc/Status.html#withCause-java.lang.Throwable-)
+> So we recommend adding it to the `Status`/`StatusException` to avoid the loss of information on the server side.
 
 ## Detailed explanation
 
 ### Priority of mapped exceptions
 
-Given method with specified Exception in Annotation *and* as method argument
+Given this method with specified exception in the annotation *and* as a method argument
 
 ```java
-    @GrpcExceptionHandler(ResourceNotFoundException.class)
-    public StatusException handleResourceNotFoundException(ResourceNotFoundException e) {
-        // your exception handling
-    }
+@GrpcExceptionHandler(ResourceNotFoundException.class)
+public StatusException handleResourceNotFoundException(ResourceNotFoundException e) {
+    // your exception handling
+}
 ```
-> **Note:** Exception type in annotation is prioritized in mapping the exception over listed method argument
-> **and** they _must_ match the types declared with this value.
 
-_(Matching means: Exception type in annotation is superclass of listed method parameter)_
+If the `GrpcExceptionHandler` annotation contains at least one exception type, then only those will be
+considered for exception handling for that method. The method parameters must be "compatible" with the specified
+exception types. If the annotation does not specify any handled exception types, then all method parameters are being
+used instead.
 
-If no annotation type is provided in the annotation, listed method parameter are being picked up.
+_("Compatible" means that the exception type in annotation is either the same class or a superclass of one of the
+listed method parameters)_
 
 ### Sending Metadata in response
 
@@ -87,19 +92,18 @@ public StatusRuntimeException handleResourceNotFoundException(IllegalArgumentExc
 }
 ```
 
-As you do not need `Metadata` in your response, just return your specified `Status`.
+If you do not need `Metadata` in your response, just return your specified `Status`.
 
 ### Overview of returnable types
 
-Here is a small overview of possible mapped return types with `@GrpcExceptionHandler` and if
-custom Metadata can be returned.
+Here is a small overview of possible mapped return types with `@GrpcExceptionHandler` and if custom `Metadata` can be
+returned:
 
-| Return Type | Custom Metadata |
+| Return Type | Supports Custom Metadata |
 | ----------- | --------------- |
-| Status | &cross; |
-| StatusException | &#10004; |
-| StatusRuntimeException | &#10004; |
-| Throwable | &cross; |
+| `Status` | &cross; |
+| `StatusException` | &#10004; |
+| `StatusRuntimeException` | &#10004; |
 
 ## Additional Topics <!-- omit in toc -->
 
