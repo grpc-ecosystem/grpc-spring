@@ -1,0 +1,20 @@
+server:
+  port: 8082
+spring:
+  application:
+    name: cloud-grpc-consul-client
+  cloud:
+    consul:
+      discovery:
+        port: 8500
+        hostname: 127.0.0.1
+        
+#grpc:
+#  client:
+#    grpc-server:
+#      host:
+#      - ${GRPC-SERVER-HOST:127.0.0.1}
+#      port:
+#      - 9090
+#      enableKeepAlive: true
+#      keepAliveWithoutCalls: true

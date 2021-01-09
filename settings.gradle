@@ -19,3 +19,12 @@ include "examples:security-grpc-client"
 include "examples:security-grpc-server"
 include "examples:security-grpc-bearerAuth-server"
 include "examples:security-grpc-bearerAuth-client"
+include 'cloud-consul-server'
+include 'cloud-consul-server'
+include 'examples:cloud-consul-server'
+findProject(':examples:cloud-consul-server')?.name = 'cloud-consul-server'
+include 'examples:cloud-grpc-server-consul'
+findProject(':examples:cloud-grpc-server-consul')?.name = 'cloud-grpc-server-consul'
+include 'examples:cloud-grpc-client-consul'
+findProject(':examples:cloud-grpc-client-consul')?.name = 'cloud-grpc-client-consul'
+
