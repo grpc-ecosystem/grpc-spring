@@ -24,10 +24,9 @@ import net.devh.boot.grpc.examples.lib.SimpleGrpc;
 import net.devh.boot.grpc.server.service.GrpcService;
 
 /**
- * @author Michael (yidongnan@gmail.com)
- * @since 2016/11/8
+ * @author zhaochunlin (946599275@qq.com)
+ * @since 2021/1/9
  */
-
 @GrpcService
 public class GrpcServerService extends SimpleGrpc.SimpleImplBase {
 

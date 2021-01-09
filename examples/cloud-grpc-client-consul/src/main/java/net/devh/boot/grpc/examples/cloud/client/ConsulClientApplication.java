@@ -21,6 +21,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
+/**
+ * @author zhaochunlin (946599275@qq.com)
+ * @since 2021/1/9
+ */
 @EnableDiscoveryClient
 @SpringBootApplication
 public class ConsulClientApplication {

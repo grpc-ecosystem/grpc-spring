@@ -23,8 +23,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @author Michael (yidongnan@gmail.com)
- * @since 2016/12/4
+ * @author zhaochunlin (946599275@qq.com)
+ * @since 2021/1/9
  */
 @RestController
 public class GrpcClientController {

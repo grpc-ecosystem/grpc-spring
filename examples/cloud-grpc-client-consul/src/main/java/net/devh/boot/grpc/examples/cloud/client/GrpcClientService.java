@@ -26,8 +26,8 @@ import net.devh.boot.grpc.examples.lib.SimpleGrpc.SimpleBlockingStub;
 import org.springframework.stereotype.Service;
 
 /**
- * @author Michael (yidongnan@gmail.com)
- * @since 2016/11/8
+ * @author zhaochunlin (946599275@qq.com)
+ * @since 2021/1/9
  */
 @Service
 @Slf4j
