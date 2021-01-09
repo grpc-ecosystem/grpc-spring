@@ -50,8 +50,8 @@ public class GrpcMetadataEurekaConfiguration {
         if (eurekaRegistration != null) {
             final int port = grpcProperties.getPort();
             if (GrpcUtils.INTER_PROCESS_DISABLE != port) {
-                eurekaRegistration.getInstanceConfig().getMetadataMap().put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT,
-                        Integer.toString(port));
+                eurekaRegistration.getInstanceConfig().getMetadataMap()
+                        .put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT, Integer.toString(port));
             }
         }
     }

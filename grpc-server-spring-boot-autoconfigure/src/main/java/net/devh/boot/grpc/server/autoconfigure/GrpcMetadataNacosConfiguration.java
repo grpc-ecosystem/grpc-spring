@@ -50,7 +50,8 @@ public class GrpcMetadataNacosConfiguration {
         if (nacosRegistration != null) {
             final int port = grpcProperties.getPort();
             if (GrpcUtils.INTER_PROCESS_DISABLE != port) {
-                nacosRegistration.getMetadata().put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT, Integer.toString(port));
+                nacosRegistration.getMetadata()
+                        .put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT, Integer.toString(port));
             }
         }
 
