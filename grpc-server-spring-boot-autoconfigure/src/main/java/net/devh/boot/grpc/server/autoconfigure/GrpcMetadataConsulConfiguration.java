@@ -19,7 +19,6 @@ package net.devh.boot.grpc.server.autoconfigure;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import javax.annotation.PostConstruct;
 
@@ -52,10 +51,10 @@ public class GrpcMetadataConsulConfiguration {
     @PostConstruct
     public void init() {
         if (consulRegistration != null) {
-            final String port = String.valueOf(grpcProperties.getPort());
+            final int port = grpcProperties.getPort();
             List<String> tags = consulRegistration.getService().getTags();
             tags = tags==null ? new ArrayList<>() : tags;
-            if (!GrpcUtils.INTER_PROCESS_DISABLE.equals(port)) {
+            if (GrpcUtils.INTER_PROCESS_DISABLE != port) {
                 tags.add(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT + "=" + port);
                 consulRegistration.getService().setTags(tags);
             }

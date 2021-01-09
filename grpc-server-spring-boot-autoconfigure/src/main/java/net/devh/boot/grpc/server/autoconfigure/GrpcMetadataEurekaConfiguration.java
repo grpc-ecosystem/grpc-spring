@@ -17,8 +17,6 @@
 
 package net.devh.boot.grpc.server.autoconfigure;
 
-import java.util.Objects;
-
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,10 +48,10 @@ public class GrpcMetadataEurekaConfiguration {
     @PostConstruct
     public void init() {
         if (eurekaRegistration != null) {
-            final String port = String.valueOf(grpcProperties.getPort());
-            if (!GrpcUtils.INTER_PROCESS_DISABLE.equals(port)) {
+            final int port = grpcProperties.getPort();
+            if (GrpcUtils.INTER_PROCESS_DISABLE != port) {
                 eurekaRegistration.getInstanceConfig().getMetadataMap().put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT,
-                        port);
+                        Integer.toString(port));
             }
         }
     }
