@@ -7,11 +7,10 @@ spring:
   cloud:
     consul:
       discovery:
+        registry: true
         port: 8500
         hostname: 127.0.0.1
 
 grpc:
   server:
     port: 9999
-#  enabled: true
-#  inProcessServerName: user

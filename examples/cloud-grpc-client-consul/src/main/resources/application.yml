@@ -6,15 +6,7 @@ spring:
   cloud:
     consul:
       discovery:
+        registry: false
         port: 8500
         hostname: 127.0.0.1
-        
-#grpc:
-#  client:
-#    grpc-server:
-#      host:
-#      - ${GRPC-SERVER-HOST:127.0.0.1}
-#      port:
-#      - 9090
-#      enableKeepAlive: true
-#      keepAliveWithoutCalls: true
+
