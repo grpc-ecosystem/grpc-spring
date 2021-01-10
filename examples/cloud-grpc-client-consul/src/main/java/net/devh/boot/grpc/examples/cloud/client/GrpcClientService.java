@@ -17,13 +17,14 @@
 
 package net.devh.boot.grpc.examples.cloud.client;
 
+import org.springframework.stereotype.Service;
+
 import io.grpc.StatusRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.examples.lib.HelloReply;
 import net.devh.boot.grpc.examples.lib.HelloRequest;
 import net.devh.boot.grpc.examples.lib.SimpleGrpc.SimpleBlockingStub;
-import org.springframework.stereotype.Service;
 
 /**
  * @author zhaochunlin (946599275@qq.com)
