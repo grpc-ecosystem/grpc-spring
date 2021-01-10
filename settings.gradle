@@ -23,4 +23,3 @@ include 'examples:cloud-grpc-server-consul'
 include 'examples:cloud-grpc-client-consul'
 include 'examples:cloud-grpc-server-zookeeper'
 include 'examples:cloud-grpc-client-zookeeper'
-
