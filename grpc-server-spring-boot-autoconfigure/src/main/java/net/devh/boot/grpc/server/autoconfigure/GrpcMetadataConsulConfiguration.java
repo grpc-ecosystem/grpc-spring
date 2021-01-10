@@ -53,7 +53,7 @@ public class GrpcMetadataConsulConfiguration {
         if (consulRegistration != null) {
             final int port = grpcProperties.getPort();
             List<String> tags = consulRegistration.getService().getTags();
-            tags = tags==null ? new ArrayList<>() : tags;
+            tags = tags == null ? new ArrayList<>() : tags;
             if (GrpcUtils.INTER_PROCESS_DISABLE != port) {
                 tags.add(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT + "=" + port);
                 consulRegistration.getService().setTags(tags);
