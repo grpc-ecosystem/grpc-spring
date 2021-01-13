@@ -18,31 +18,37 @@
 package net.devh.boot.grpc.server.advice;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.MethodIntrospector;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils.MethodFilter;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * A discovery class to find all Beans annotated with {@link GrpcAdvice @GrpcAdvice} and for all found beans a second
- * search is performed looking for methods with {@link GrpcExceptionHandler @GrpcExceptionHandler}.<br>
- * <p>
- * 
+ * search is performed looking for methods with {@link GrpcExceptionHandler @GrpcExceptionHandler}.
+ *
  * @author Andjelko Perisic (andjelko.perisic@gmail.com)
  * @see GrpcAdvice
  * @see GrpcExceptionHandler
  */
 @Slf4j
 public class GrpcAdviceDiscoverer implements InitializingBean, ApplicationContextAware {
+
+    /**
+     * A filter for selecting {@code @GrpcExceptionHandler} methods.
+     */
+    public static final MethodFilter EXCEPTION_HANDLER_METHODS =
+            method -> AnnotatedElementUtils.hasAnnotation(method, GrpcExceptionHandler.class);
 
     private ApplicationContext applicationContext;
     private Map<String, Object> annotatedBeans;
@@ -72,11 +78,14 @@ public class GrpcAdviceDiscoverer implements InitializingBean, ApplicationContex
     }
 
     private Set<Method> findAnnotatedMethods() {
-        Function<Class<?>, Stream<Method>> extractMethodsFromClass = clazz -> Arrays.stream(clazz.getDeclaredMethods());
-        return annotatedClasses.stream()
-                .flatMap(extractMethodsFromClass)
-                .filter(method -> method.isAnnotationPresent(GrpcExceptionHandler.class))
+        return this.annotatedClasses.stream()
+                .map(this::findAnnotatedMethods)
+                .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
+    }
+
+    private Set<Method> findAnnotatedMethods(final Class<?> clazz) {
+        return MethodIntrospector.selectMethods(clazz, EXCEPTION_HANDLER_METHODS);
     }
 
     boolean isAnnotationPresent() {
