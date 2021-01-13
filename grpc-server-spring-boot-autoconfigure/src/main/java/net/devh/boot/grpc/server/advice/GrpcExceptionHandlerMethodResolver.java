@@ -17,6 +17,8 @@
 
 package net.devh.boot.grpc.server.advice;
 
+import static java.util.Objects.requireNonNull;
+
 import java.lang.reflect.Method;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
@@ -30,12 +32,11 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * Given an annotated {@link GrpcAdvice @GrpcAdvice} class and annotated methods with
  * {@link GrpcExceptionHandler @GrpcExceptionHandler}, {@link GrpcExceptionHandlerMethodResolver} resolves given
  * exception type and maps it to the corresponding method to be executed, when this exception is being raised.
+ *
  * <p>
  * For an example how to make use of it, please have a look at {@link GrpcExceptionHandler @GrpcExceptionHandler}.
  * <p>
@@ -45,7 +46,6 @@ import lombok.extern.slf4j.Slf4j;
  * @see GrpcExceptionHandler
  * @see GrpcAdviceExceptionHandler
  */
-@Slf4j
 public class GrpcExceptionHandlerMethodResolver implements InitializingBean {
 
     private final Map<Class<? extends Throwable>, Method> mappedMethods = new HashMap<>(16);
@@ -54,8 +54,12 @@ public class GrpcExceptionHandlerMethodResolver implements InitializingBean {
 
     private Class<? extends Throwable>[] annotatedExceptions;
 
+    /**
+     * Creates a new GrpcExceptionHandlerMethodResolver.
+     * @param grpcAdviceDiscoverer The advice discoverer to use.
+     */
     public GrpcExceptionHandlerMethodResolver(final GrpcAdviceDiscoverer grpcAdviceDiscoverer) {
-        this.grpcAdviceDiscoverer = grpcAdviceDiscoverer;
+        this.grpcAdviceDiscoverer = requireNonNull(grpcAdviceDiscoverer, "grpcAdviceDiscoverer");
     }
 
     @Override
