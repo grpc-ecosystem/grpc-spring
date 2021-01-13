@@ -18,7 +18,6 @@
 package net.devh.boot.grpc.server.autoconfigure;
 
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -37,8 +36,10 @@ import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 /**
  * The auto configuration that will create necessary beans to provide a proper exception handling via annotations
  * {@link GrpcAdvice @GrpcAdvice} and {@link GrpcExceptionHandler @GrpcExceptionHandler}.
+ *
  * <p>
  * Exception handling via global server interceptors {@link GrpcGlobalServerInterceptor @GrpcGlobalServerInterceptor}.
+ * </p>
  *
  * @author Andjelko Perisic (andjelko.perisic@gmail.com)
  * @see GrpcAdvice
@@ -46,7 +47,6 @@ import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
  * @see GrpcAdviceExceptionInterceptor
  */
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties
 @Conditional(GrpcAdviceIsPresentCondition.class)
 @AutoConfigureBefore(GrpcServerFactoryAutoConfiguration.class)
 public class GrpcAdviceAutoConfiguration {
