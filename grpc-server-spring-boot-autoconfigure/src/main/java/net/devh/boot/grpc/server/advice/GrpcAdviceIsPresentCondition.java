@@ -17,7 +17,7 @@
 
 package net.devh.boot.grpc.server.advice;
 
-import java.util.Objects;
+import static java.util.Objects.requireNonNull;
 
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.annotation.ConditionContext;
@@ -27,11 +27,11 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 /**
  * Condition to check if {@link GrpcAdvice @GrpcAdvice} is present. Mainly checking if {@link GrpcAdviceDiscoverer}
  * should be a instantiated.
- * 
+ *
  * @author Andjelko Perisic (andjelko.perisic@gmail.com)
  * @see GrpcAdviceDiscoverer
  */
-public class GrpcAdviceIsPresent implements ConfigurationCondition {
+public class GrpcAdviceIsPresentCondition implements ConfigurationCondition {
 
     @Override
     public ConfigurationPhase getConfigurationPhase() {
@@ -39,10 +39,10 @@ public class GrpcAdviceIsPresent implements ConfigurationCondition {
     }
 
     @Override
-    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-
-        ConfigurableListableBeanFactory safeBeanFactory =
-                Objects.requireNonNull(context.getBeanFactory(), "ConfigurableListableBeanFactory is null");
+    public boolean matches(final ConditionContext context, final AnnotatedTypeMetadata metadata) {
+        final ConfigurableListableBeanFactory safeBeanFactory =
+                requireNonNull(context.getBeanFactory(), "ConfigurableListableBeanFactory is null");
         return !safeBeanFactory.getBeansWithAnnotation(GrpcAdvice.class).isEmpty();
     }
+
 }

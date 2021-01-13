@@ -29,7 +29,7 @@ import net.devh.boot.grpc.server.advice.GrpcAdvice;
 import net.devh.boot.grpc.server.advice.GrpcAdviceDiscoverer;
 import net.devh.boot.grpc.server.advice.GrpcAdviceExceptionHandler;
 import net.devh.boot.grpc.server.advice.GrpcAdviceExceptionInterceptor;
-import net.devh.boot.grpc.server.advice.GrpcAdviceIsPresent;
+import net.devh.boot.grpc.server.advice.GrpcAdviceIsPresentCondition;
 import net.devh.boot.grpc.server.advice.GrpcExceptionHandler;
 import net.devh.boot.grpc.server.advice.GrpcExceptionHandlerMethodResolver;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
@@ -47,7 +47,7 @@ import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
-@Conditional(GrpcAdviceIsPresent.class)
+@Conditional(GrpcAdviceIsPresentCondition.class)
 @AutoConfigureBefore(GrpcServerFactoryAutoConfiguration.class)
 public class GrpcAdviceAutoConfiguration {
 
