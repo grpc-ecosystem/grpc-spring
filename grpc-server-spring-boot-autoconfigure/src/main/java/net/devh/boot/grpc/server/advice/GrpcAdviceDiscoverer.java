@@ -52,7 +52,6 @@ public class GrpcAdviceDiscoverer implements InitializingBean, ApplicationContex
 
     private ApplicationContext applicationContext;
     private Map<String, Object> annotatedBeans;
-    private Set<Class<?>> annotatedClasses;
     private Set<Method> annotatedMethods;
 
     @Override
@@ -66,19 +65,12 @@ public class GrpcAdviceDiscoverer implements InitializingBean, ApplicationContex
         annotatedBeans.forEach(
                 (key, value) -> log.debug("Found gRPC advice: " + key + ", class: " + value.getClass().getName()));
 
-        annotatedClasses = extractClassType();
         annotatedMethods = findAnnotatedMethods();
     }
 
-    private Set<Class<?>> extractClassType() {
-        return annotatedBeans.values()
-                .stream()
-                .map(Object::getClass)
-                .collect(Collectors.toSet());
-    }
-
     private Set<Method> findAnnotatedMethods() {
-        return this.annotatedClasses.stream()
+        return this.annotatedBeans.values().stream()
+                .map(Object::getClass)
                 .map(this::findAnnotatedMethods)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
@@ -86,10 +78,6 @@ public class GrpcAdviceDiscoverer implements InitializingBean, ApplicationContex
 
     private Set<Method> findAnnotatedMethods(final Class<?> clazz) {
         return MethodIntrospector.selectMethods(clazz, EXCEPTION_HANDLER_METHODS);
-    }
-
-    boolean isAnnotationPresent() {
-        return !annotatedClasses.isEmpty() && !annotatedMethods.isEmpty();
     }
 
     public Map<String, Object> getAnnotatedBeans() {
