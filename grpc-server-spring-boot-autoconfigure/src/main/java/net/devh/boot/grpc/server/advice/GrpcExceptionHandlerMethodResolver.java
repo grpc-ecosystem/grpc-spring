@@ -56,6 +56,7 @@ public class GrpcExceptionHandlerMethodResolver implements InitializingBean {
 
     /**
      * Creates a new GrpcExceptionHandlerMethodResolver.
+     *
      * @param grpcAdviceDiscoverer The advice discoverer to use.
      */
     public GrpcExceptionHandlerMethodResolver(final GrpcAdviceDiscoverer grpcAdviceDiscoverer) {
