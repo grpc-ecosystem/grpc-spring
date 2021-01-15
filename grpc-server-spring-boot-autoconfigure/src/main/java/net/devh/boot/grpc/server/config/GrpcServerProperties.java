@@ -186,6 +186,20 @@ public class GrpcServerProperties {
     private boolean reflectionServiceEnabled = true;
 
     /**
+     * Whether the port allowed to be reused or not. Defaults to {@code false}.
+     * @param reUsePort Whether the port allowed to be reused or not.
+     * @return True, if the port allowed to be reused. False otherwise.
+     */
+    private boolean reUsePort = false;
+
+    /**
+     * Whether the address allowed to be reused or not. Defaults to {@code false}.
+     * @param reUseAddr Whether the address allowed to be reused or not.
+     * @return True, if the address allowed to be reused. False otherwise.
+     */
+    private boolean reUseAddr = false;
+
+    /**
      * Security options for transport security. Defaults to disabled. We strongly recommend to enable this though.
      *
      * @return The security options for transport security.

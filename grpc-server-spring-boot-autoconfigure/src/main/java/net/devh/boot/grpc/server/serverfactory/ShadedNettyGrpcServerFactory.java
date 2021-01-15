@@ -19,6 +19,7 @@ package net.devh.boot.grpc.server.serverfactory;
 
 import static java.util.Objects.requireNonNull;
 
+import io.grpc.netty.shaded.io.netty.channel.unix.UnixChannelOption;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
@@ -63,9 +64,23 @@ public class ShadedNettyGrpcServerFactory
         final String address = getAddress();
         final int port = getPort();
         if (GrpcServerProperties.ANY_IP_ADDRESS.equals(address)) {
-            return NettyServerBuilder.forPort(port);
+            NettyServerBuilder nettyServerBuilder=NettyServerBuilder.forPort(port);
+            if(this.properties.isReUsePort()){
+                nettyServerBuilder.withOption(UnixChannelOption.SO_REUSEPORT,true);
+            }
+            if(this.properties.isReUseAddr()){
+                nettyServerBuilder.withOption(UnixChannelOption.SO_REUSEADDR,true);
+            }
+            return nettyServerBuilder;
         } else {
-            return NettyServerBuilder.forAddress(new InetSocketAddress(InetAddresses.forString(address), port));
+            NettyServerBuilder nettyServerBuilder=NettyServerBuilder.forAddress(new InetSocketAddress(InetAddresses.forString(address), port));
+            if(this.properties.isReUsePort()){
+                nettyServerBuilder.withOption(UnixChannelOption.SO_REUSEPORT,true);
+            }
+            if(this.properties.isReUseAddr()){
+                nettyServerBuilder.withOption(UnixChannelOption.SO_REUSEADDR,true);
+            }
+            return nettyServerBuilder;
         }
     }
 
