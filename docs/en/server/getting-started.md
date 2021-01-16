@@ -44,19 +44,28 @@ We recommend splitting your project into 2-3 separate modules.
 #### Maven (Interface)
 
 ````xml
+    <properties>
+        <protobuf.version>3.14.0</protobuf.version>
+        <protobuf-plugin.version>0.6.1</protobuf-plugin.version>
+        <grpc.version>1.35.0</grpc.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-stub</artifactId>
+            <version>${grpc.version}</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf</artifactId>
+            <version>${grpc.version}</version>
         </dependency>
         <dependency>
             <!-- Java 9+ compatibility -->
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
+            <version>2.0.0</version>
         </dependency>
     </dependencies>
 
@@ -65,6 +74,7 @@ We recommend splitting your project into 2-3 separate modules.
             <extension>
                 <groupId>kr.motd.maven</groupId>
                 <artifactId>os-maven-plugin</artifactId>
+                <version>1.6.2</version>
             </extension>
         </extensions>
 
@@ -72,6 +82,7 @@ We recommend splitting your project into 2-3 separate modules.
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
+                <version>${protobuf-plugin.version}</version>
                 <configuration>
                     <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
                     <pluginId>grpc-java</pluginId>
@@ -93,11 +104,27 @@ We recommend splitting your project into 2-3 separate modules.
 #### Gradle (Interface)
 
 ````gradle
-apply plugin: 'com.google.protobuf'
+buildscript {
+    ext {
+        protobufVersion = '3.14.0'
+        protobufPluginVersion = '0.8.14'
+        grpcVersion = '1.35.0'
+    }
+}
+
+plugins {
+    id 'java-library'
+    id 'com.google.protobuf' version "${protobufPluginVersion}"
+}
+
+repositories {
+    mavenCentral()
+}
 
 dependencies {
-    compile "io.grpc:grpc-protobuf"
-    compile "io.grpc:grpc-stub"
+    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+    implementation "io.grpc:grpc-stub:${grpcVersion}"
+    implementation 'jakarta.annotation:jakarta.annotation-api:2.0.0' // Java 9+ compatibility
 }
 
 protobuf {
@@ -110,19 +137,13 @@ protobuf {
     }
     plugins {
         grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java"
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
         }
     }
     generateProtoTasks {
         all()*.plugins {
             grpc {}
         }
-    }
-}
-
-buildscript {
-    dependencies {
-        classpath "com.google.protobuf:protobuf-gradle-plugin:${protobufGradlePluginVersion}"
     }
 }
 
