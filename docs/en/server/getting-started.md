@@ -62,10 +62,11 @@ We recommend splitting your project into 2-3 separate modules.
             <version>${grpc.version}</version>
         </dependency>
         <dependency>
-            <!-- Java 9+ compatibility -->
+            <!-- Java 9+ compatibility - Do NOT update to 2.0.0 -->
             <groupId>jakarta.annotation</groupId>
             <artifactId>jakarta.annotation-api</artifactId>
-            <version>2.0.0</version>
+            <version>1.3.5</version>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
@@ -124,7 +125,7 @@ repositories {
 dependencies {
     implementation "io.grpc:grpc-protobuf:${grpcVersion}"
     implementation "io.grpc:grpc-stub:${grpcVersion}"
-    implementation 'jakarta.annotation:jakarta.annotation-api:2.0.0' // Java 9+ compatibility
+    compileOnly 'jakarta.annotation:jakarta.annotation-api:1.3.5' // Java 9+ compatibility - Do NOT update to 2.0.0 (Compile only)
 }
 
 protobuf {
