@@ -8,4 +8,5 @@ net.devh.boot.grpc.server.autoconfigure.GrpcServerAutoConfiguration,\
 net.devh.boot.grpc.server.autoconfigure.GrpcServerFactoryAutoConfiguration,\
 net.devh.boot.grpc.server.autoconfigure.GrpcServerSecurityAutoConfiguration,\
 net.devh.boot.grpc.server.autoconfigure.GrpcServerMetricAutoConfiguration,\
-net.devh.boot.grpc.server.autoconfigure.GrpcServerTraceAutoConfiguration
+net.devh.boot.grpc.server.autoconfigure.GrpcServerTraceAutoConfiguration,\
+net.devh.boot.grpc.server.autoconfigure.GrpcAdviceAutoConfiguration

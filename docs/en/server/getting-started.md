@@ -18,6 +18,7 @@ This section describes the steps necessary to convert your application into a gr
 
 - *Getting started*
 - [Configuration](configuration.md)
+- [Exception Handling](exception-handling.md)
 - [Contextual Data / Scoped Beans](contextual-data.md)
 - [Testing the Service](testing.md)
 - [Security](security.md)
@@ -316,6 +317,7 @@ See [here](testing.md#grpcurl) for `gRPCurl` example command output and addition
 
 - *Getting Started*
 - [Configuration](configuration.md)
+- [Exception Handling](exception-handling.md)
 - [Contextual Data / Scoped Beans](contextual-data.md)
 - [Testing the Service](testing.md)
 - [Security](security.md)
