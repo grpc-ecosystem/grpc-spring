@@ -12,6 +12,7 @@ customization you need for your project.
 - Server
   - [Getting Started](server/getting-started.md)
   - [Configuration](server/configuration.md)
+  - [Exception Handling](server/exception-handling.md)
   - [Contextual Data / Scoped Beans](server/contextual-data.md)
   - [Testing the Service](server/testing.md)
   - [Security](server/security.md)
