@@ -32,6 +32,11 @@ public final class GrpcUtils {
     public static final String CLOUD_DISCOVERY_METADATA_PORT = "gRPC.port";
 
     /**
+     * The constant for the grpc server port, -1 represents don't start an inter process server.
+     */
+    public static final int INTER_PROCESS_DISABLE = -1;
+
+    /**
      * Extracts the service name from the given method.
      *
      * @param method The method to get the service name from.

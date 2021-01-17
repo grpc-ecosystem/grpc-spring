@@ -17,17 +17,18 @@
 
 package net.devh.boot.grpc.server.autoconfigure;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.consul.discovery.ConsulDiscoveryProperties;
-import org.springframework.cloud.consul.serviceregistry.ConsulRegistrationCustomizer;
-import org.springframework.context.annotation.Bean;
+import org.springframework.cloud.consul.serviceregistry.ConsulRegistration;
 import org.springframework.context.annotation.Configuration;
 
-import com.ecwid.consul.v1.ConsulClient;
-
-import net.devh.boot.grpc.server.cloud.ConsulGrpcRegistrationCustomizer;
+import net.devh.boot.grpc.common.util.GrpcUtils;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 
 /**
@@ -38,20 +39,25 @@ import net.devh.boot.grpc.server.config.GrpcServerProperties;
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
-@ConditionalOnClass({ConsulDiscoveryProperties.class, ConsulClient.class, GrpcServerProperties.class})
+@ConditionalOnClass({ConsulRegistration.class})
 public class GrpcMetadataConsulConfiguration {
 
-    /**
-     * Creates a bean that registers the gRPC endpoint via consul.
-     *
-     * @param grpcServerProperties The server properties used to fill in the blanks.
-     * @return The newly created consulGrpcRegistrationCustomizer bean.
-     */
-    @ConditionalOnMissingBean
-    @Bean
-    public ConsulRegistrationCustomizer consulGrpcRegistrationCustomizer(
-            final GrpcServerProperties grpcServerProperties) {
-        return new ConsulGrpcRegistrationCustomizer(grpcServerProperties);
-    }
+    @Autowired(required = false)
+    private ConsulRegistration consulRegistration;
 
+    @Autowired
+    private GrpcServerProperties grpcProperties;
+
+    @PostConstruct
+    public void init() {
+        if (consulRegistration != null) {
+            final int port = grpcProperties.getPort();
+            List<String> tags = consulRegistration.getService().getTags();
+            tags = tags == null ? new ArrayList<>() : tags;
+            if (GrpcUtils.INTER_PROCESS_DISABLE != port) {
+                tags.add(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT + "=" + port);
+                consulRegistration.getService().setTags(tags);
+            }
+        }
+    }
 }

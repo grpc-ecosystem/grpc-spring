@@ -1,0 +1,15 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: cloud-grpc-server-zookeeper
+  cloud:
+    zookeeper:
+      discovery:
+        register: true
+      connect-string: localhost:2181
+
+grpc:
+  server:
+    port: 9999

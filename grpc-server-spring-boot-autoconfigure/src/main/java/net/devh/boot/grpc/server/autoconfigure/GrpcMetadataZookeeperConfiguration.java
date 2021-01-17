@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -22,38 +22,38 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaRegistration;
+import org.springframework.cloud.zookeeper.serviceregistry.ZookeeperRegistration;
 import org.springframework.context.annotation.Configuration;
 
 import net.devh.boot.grpc.common.util.GrpcUtils;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 
 /**
- * Configuration class that configures the required beans for grpc discovery via Eureka.
+ * Configuration class that configures the required beans for grpc discovery via Zookeeper.
  *
- * @author Michael (yidongnan@gmail.com)
- * @since 5/17/16
+ * @author zhaochunlin (946599275@gmail.com)
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
-@ConditionalOnClass({EurekaRegistration.class})
-public class GrpcMetadataEurekaConfiguration {
+@ConditionalOnClass({ZookeeperRegistration.class})
+public class GrpcMetadataZookeeperConfiguration {
 
     @Autowired(required = false)
-    private EurekaRegistration eurekaRegistration;
+    private ZookeeperRegistration zookeeperRegistration;
 
     @Autowired
-    private GrpcServerProperties grpcProperties;
+    private GrpcServerProperties grpcServerProperties;
+
 
     @PostConstruct
     public void init() {
-        if (eurekaRegistration != null) {
-            final int port = grpcProperties.getPort();
+        if (zookeeperRegistration != null) {
+            final int port = grpcServerProperties.getPort();
+            zookeeperRegistration.setPort(0);
             if (GrpcUtils.INTER_PROCESS_DISABLE != port) {
-                eurekaRegistration.getInstanceConfig().getMetadataMap()
+                zookeeperRegistration.getServiceInstance().getPayload().getMetadata()
                         .put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT, Integer.toString(port));
             }
         }
     }
-
 }

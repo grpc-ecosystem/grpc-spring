@@ -1,0 +1,16 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: cloud-grpc-server-consul
+  cloud:
+    consul:
+      discovery:
+        registry: true
+        port: 8500
+        hostname: 127.0.0.1
+
+grpc:
+  server:
+    port: 9999

@@ -1,0 +1,16 @@
+server:
+  port: 8082
+spring:
+  application:
+    name: cloud-grpc-client-zookeeper
+  cloud:
+    zookeeper:
+      discovery:
+        registry: false
+      connect-string: localhost:2181
+grpc:
+  client:
+    cloud-grpc-server-zookeeper:
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: plaintext

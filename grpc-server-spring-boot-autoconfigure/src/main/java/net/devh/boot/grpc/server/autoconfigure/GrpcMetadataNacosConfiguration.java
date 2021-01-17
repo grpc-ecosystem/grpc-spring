@@ -24,9 +24,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
 import com.alibaba.cloud.nacos.registry.NacosRegistration;
-import com.alibaba.nacos.client.naming.NacosNamingService;
 
 import net.devh.boot.grpc.common.util.GrpcUtils;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
@@ -38,7 +36,7 @@ import net.devh.boot.grpc.server.config.GrpcServerProperties;
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
-@ConditionalOnClass({NacosDiscoveryProperties.class, NacosNamingService.class})
+@ConditionalOnClass({NacosRegistration.class})
 public class GrpcMetadataNacosConfiguration {
 
     @Autowired(required = false)
@@ -49,13 +47,14 @@ public class GrpcMetadataNacosConfiguration {
 
     @PostConstruct
     public void init() {
-        if (this.nacosRegistration == null) {
-            return;
+        if (nacosRegistration != null) {
+            final int port = grpcProperties.getPort();
+            if (GrpcUtils.INTER_PROCESS_DISABLE != port) {
+                nacosRegistration.getMetadata()
+                        .put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT, Integer.toString(port));
+            }
         }
-        final int port = this.grpcProperties.getPort();
-        if (port != -1) {
-            this.nacosRegistration.getMetadata().put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT, Integer.toString(port));
-        }
+
     }
 
 }
