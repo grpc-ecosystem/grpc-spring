@@ -119,7 +119,7 @@ class AdviceExceptionHandlingTest extends AbstractSimpleServerClientTest {
 
     @Test
     @DirtiesContext
-    void testThrownMyRootRuntimeException_IsNotMappedAndResultsInInvocationException() {
+    void testThrownAccountExpiredException_IsNotMappedAndResultsInInvocationException() {
 
         AccountExpiredException exceptionToMap =
                 new AccountExpiredException("Trigger Advice"); // not mapped in GrpcAdviceConfig
