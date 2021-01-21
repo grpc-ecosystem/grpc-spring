@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
@@ -45,6 +46,7 @@ import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.GrpcAdviceConfig;
 import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceWithMetadata.FirstLevelException;
 import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceWithMetadata.MyRootRuntimeException;
+import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceWithMetadata.SecondLevelException;
 import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceWithMetadata.StatusMappingException;
 import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestGrpcAdviceService;
 import net.devh.boot.grpc.test.config.InProcessConfiguration;
@@ -119,7 +121,8 @@ class AdviceExceptionHandlingTest extends AbstractSimpleServerClientTest {
     @DirtiesContext
     void testThrownMyRootRuntimeException_IsNotMappedAndResultsInInvocationException() {
 
-        MyRootRuntimeException exceptionToMap = new MyRootRuntimeException("Trigger Advice");
+        AccountExpiredException exceptionToMap =
+                new AccountExpiredException("Trigger Advice"); // not mapped in GrpcAdviceConfig
         testGrpcAdviceService.setExceptionToSimulate(exceptionToMap);
         Status expectedStatus =
                 Status.INTERNAL.withDescription("There was a server error trying to handle an exception");
@@ -164,6 +167,33 @@ class AdviceExceptionHandlingTest extends AbstractSimpleServerClientTest {
                 .contains(Tuple.tuple(
                         "Exception thrown during invocation of annotated @GrpcExceptionHandler method: ",
                         Level.ERROR));
+    }
+
+    @Test
+    @DirtiesContext
+    void testThrownRootDepth_IsMappedCorrectlyWithRootException() {
+
+        MyRootRuntimeException rootRuntimeException = new MyRootRuntimeException("root exception triggered.");
+
+        testGrpcAdviceService.setExceptionToSimulate(rootRuntimeException);
+        Status expectedStatus = Status.DEADLINE_EXCEEDED.withDescription(rootRuntimeException.getMessage());
+        Metadata metadata = new Metadata();
+
+        testGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+    }
+
+    @Test
+    @DirtiesContext
+    void testThrownSecondLevenDepth_IsMappedCorrectlyWithSecondLevelException() {
+
+        SecondLevelException secondLevelException =
+                new SecondLevelException("level under first level and second level under root triggered.");
+
+        testGrpcAdviceService.setExceptionToSimulate(secondLevelException);
+        Status expectedStatus = Status.ABORTED.withDescription(secondLevelException.getMessage());
+        Metadata metadata = new Metadata();
+
+        testGrpcCallAndVerifyMappedException(expectedStatus, metadata);
     }
 
 
