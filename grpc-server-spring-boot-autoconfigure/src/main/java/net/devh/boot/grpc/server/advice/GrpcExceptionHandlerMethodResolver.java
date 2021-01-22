@@ -29,7 +29,9 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.ExceptionDepthComparator;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -175,11 +177,13 @@ public class GrpcExceptionHandlerMethodResolver implements InitializingBean {
         return extractExtendedThrowable(exception) != null;
     }
 
-    private <E extends Throwable> Method extractExtendedThrowable(Class<E> exception) {
+    @Nullable
+    private <E extends Throwable> Method extractExtendedThrowable(Class<E> exceptionType) {
+
         return mappedMethods.keySet()
                 .stream()
-                .filter(clazz -> clazz.isAssignableFrom(exception))
-                .findAny()
+                .filter(ex -> ex.isAssignableFrom(exceptionType))
+                .min(new ExceptionDepthComparator(exceptionType))
                 .map(mappedMethods::get)
                 .orElse(null);
     }

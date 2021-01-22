@@ -44,6 +44,7 @@ import net.devh.boot.grpc.server.advice.GrpcExceptionHandler;
 import net.devh.boot.grpc.server.autoconfigure.GrpcAdviceAutoConfiguration;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.GrpcAdviceConfig;
+import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceForInheritedExceptions;
 import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceWithMetadata;
 import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceWithOutMetadata;
 
@@ -59,8 +60,8 @@ import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceWithOutMetadata
 @DirtiesContext
 class AdviceIsPresentAutoConfigurationTest {
 
-    private static final int ADVICE_CLASSES = 2;
-    private static final int ADVICE_METHODS = 5;
+    private static final int ADVICE_CLASSES = 3;
+    private static final int ADVICE_METHODS = 7;
 
 
     @Autowired
@@ -70,6 +71,8 @@ class AdviceIsPresentAutoConfigurationTest {
     private TestAdviceWithOutMetadata testAdviceWithOutMetadata;
     @Autowired
     private TestAdviceWithMetadata testAdviceWithMetadata;
+    @Autowired
+    private TestAdviceForInheritedExceptions testAdviceForInheritedExceptions;
 
 
     @Test
@@ -80,6 +83,7 @@ class AdviceIsPresentAutoConfigurationTest {
         Map<String, Object> expectedAdviceBeans = new HashMap<>();
         expectedAdviceBeans.put("grpcAdviceWithBean", testAdviceWithOutMetadata);
         expectedAdviceBeans.put(TestAdviceWithMetadata.class.getName(), testAdviceWithMetadata);
+        expectedAdviceBeans.put(TestAdviceForInheritedExceptions.class.getName(), testAdviceForInheritedExceptions);
         Set<Method> expectedAdviceMethods = expectedMethods();
 
         Map<String, Object> actualAdviceBeans = grpcAdviceDiscoverer.getAnnotatedBeans();
@@ -103,8 +107,11 @@ class AdviceIsPresentAutoConfigurationTest {
                 Arrays.stream(testAdviceWithMetadata.getClass().getDeclaredMethods()).collect(Collectors.toSet());
         Set<Method> methodsWithOutMetadata =
                 Arrays.stream(testAdviceWithOutMetadata.getClass().getDeclaredMethods()).collect(Collectors.toSet());
+        Set<Method> methodsForInheritedExceptions =
+                Arrays.stream(testAdviceForInheritedExceptions.getClass().getDeclaredMethods())
+                        .collect(Collectors.toSet());
 
-        return Stream.of(methodsWithMetadata, methodsWithOutMetadata)
+        return Stream.of(methodsWithMetadata, methodsWithOutMetadata, methodsForInheritedExceptions)
                 .flatMap(Collection::stream)
                 .filter(method -> method.isAnnotationPresent(GrpcExceptionHandler.class))
                 .collect(Collectors.toSet());

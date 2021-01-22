@@ -23,6 +23,7 @@ import org.assertj.core.api.Assertions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.ConversionFailedException;
+import org.springframework.security.authentication.AccountExpiredException;
 
 import com.google.protobuf.Empty;
 
@@ -35,6 +36,8 @@ import net.devh.boot.grpc.server.advice.GrpcAdvice;
 import net.devh.boot.grpc.server.advice.GrpcExceptionHandler;
 import net.devh.boot.grpc.server.service.GrpcService;
 import net.devh.boot.grpc.test.advice.GrpcMetaDataUtils;
+import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceWithMetadata.MyRootRuntimeException;
+import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceWithMetadata.SecondLevelException;
 import net.devh.boot.grpc.test.proto.SomeType;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc;
 
@@ -78,7 +81,7 @@ public class GrpcAdviceConfig {
             return (e1 != null) ? e1 : ((e2 != null) ? e2 : new RuntimeException("Should not happen."));
         }
 
-        public Status methodNotToBePickup(IllegalArgumentException e) {
+        public Status methodNotToBePickup(AccountExpiredException e) {
             Assertions.fail("Not supposed to be picked up.");
             return Status.FAILED_PRECONDITION;
         }
@@ -124,11 +127,37 @@ public class GrpcAdviceConfig {
             }
         }
 
+        public static class SecondLevelException extends FirstLevelException {
+
+            public SecondLevelException(String msg) {
+                super(msg);
+            }
+        }
+
         public static class StatusMappingException extends RuntimeException {
 
             public StatusMappingException(String msg) {
                 super(msg);
             }
+        }
+
+    }
+
+
+    @GrpcAdvice
+    public static class TestAdviceForInheritedExceptions {
+
+
+        @GrpcExceptionHandler(SecondLevelException.class)
+        public Status handleSecondLevelException(SecondLevelException e) {
+
+            return Status.ABORTED.withCause(e).withDescription(e.getMessage());
+        }
+
+        @GrpcExceptionHandler
+        public Status handleMyRootRuntimeException(MyRootRuntimeException e) {
+
+            return Status.DEADLINE_EXCEEDED.withCause(e).withDescription(e.getMessage());
         }
 
     }
