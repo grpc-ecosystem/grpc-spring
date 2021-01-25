@@ -76,6 +76,7 @@ dependencies {
     }
 
     testImplementation 'org.springframework.boot:spring-boot-starter-actuator'
+    testImplementation 'io.projectreactor:reactor-core'
     testImplementation 'org.springframework.security:spring-security-config'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
 

@@ -178,6 +178,22 @@ public class GrpcServerProperties {
     private boolean healthServiceEnabled = true;
 
     /**
+     * Whether to expose the health service via as a healthcheck probe.
+     *
+     * @param exposeActuatorHealth Whether gRPC health is exposed as an actuator health probe.
+     * @return True, to expose as an actuator. False otherwise.
+     */
+    private boolean exposeActuatorHealth = true;
+
+    /**
+     * Deadline time to ping the health service.
+     *
+     * @param actuatorHealthCheckDeadlineMs Time to wait for the health response in ms. Defaults to 100
+     * @return the configured deadline time in ms
+     */
+    private long actuatorHealthCheckDeadlineMs = 100L;
+
+    /**
      * Whether proto reflection service is enabled or not. Defaults to {@code true}.
      *
      * @param reflectionServiceEnabled Whether gRPC reflection service is enabled.

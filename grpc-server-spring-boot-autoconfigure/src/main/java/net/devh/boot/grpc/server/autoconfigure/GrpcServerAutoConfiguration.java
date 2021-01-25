@@ -24,6 +24,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +37,7 @@ import io.grpc.Server;
 import io.grpc.services.HealthStatusManager;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
+import net.devh.boot.grpc.server.health.GrpcServerActuatorHealthIndicator;
 import net.devh.boot.grpc.server.interceptor.AnnotationGlobalServerInterceptorConfigurer;
 import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorRegistry;
 import net.devh.boot.grpc.server.nameresolver.SelfNameResolverFactory;
@@ -112,6 +114,16 @@ public class GrpcServerAutoConfiguration {
     @Bean
     public HealthStatusManager healthStatusManager() {
         return new HealthStatusManager();
+    }
+
+    @ConditionalOnProperty(prefix = "grpc", name = {"healthServiceEnabled", "exposeActuatorHealth"},
+            havingValue = "true", matchIfMissing = true)
+    @ConditionalOnClass(name = "org.springframework.boot.actuate.health.AbstractReactiveHealthIndicator")
+    @Bean
+    public GrpcServerActuatorHealthIndicator actuatorHealthIndicator(final GrpcServerProperties serverProperties) {
+        return new GrpcServerActuatorHealthIndicator(serverProperties.getAddress(),
+                serverProperties.getPort(),
+                serverProperties.getActuatorHealthCheckDeadlineMs());
     }
 
     @ConditionalOnBean(CompressorRegistry.class)
