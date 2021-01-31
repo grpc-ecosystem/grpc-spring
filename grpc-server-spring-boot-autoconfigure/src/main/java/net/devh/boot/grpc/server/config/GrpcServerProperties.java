@@ -94,6 +94,17 @@ public class GrpcServerProperties {
     private String inProcessName;
 
     /**
+     * The time to wait for the server to gracefully shutdown (completing all requests after the server started to
+     * shutdown). If set to {@code -1} the server waits forever. If set to {@code 0} the server will force shutdown
+     * immediately. Defaults to {@code 30s}.
+     * 
+     * @param gracefullShutdownTimeout The time to wait for a graceful shutdown.
+     * @return The time to wait for a graceful shutdown.
+     */
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration gracefullShutdownTimeout = Duration.of(30, ChronoUnit.SECONDS);
+
+    /**
      * Setting to enable keepAlive. Default to {@code false}.
      *
      * @param enableKeepAlive Whether keep alive should be enabled.

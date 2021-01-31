@@ -82,12 +82,16 @@ public class GrpcServerFactoryAutoConfiguration {
      * The server lifecycle bean for a shaded netty based server.
      *
      * @param factory The factory used to create the lifecycle.
+     * @param properties The server properties to use.
      * @return The inter-process server lifecycle bean.
      */
     @ConditionalOnBean(ShadedNettyGrpcServerFactory.class)
     @Bean
-    public GrpcServerLifecycle shadedNettyGrpcServerLifecycle(final ShadedNettyGrpcServerFactory factory) {
-        return new GrpcServerLifecycle(factory);
+    public GrpcServerLifecycle shadedNettyGrpcServerLifecycle(
+            final ShadedNettyGrpcServerFactory factory,
+            final GrpcServerProperties properties) {
+
+        return new GrpcServerLifecycle(factory, properties.getGracefullShutdownTimeout());
     }
 
     // Then try the normal netty server
@@ -120,12 +124,16 @@ public class GrpcServerFactoryAutoConfiguration {
      * The server lifecycle bean for netty based server.
      *
      * @param factory The factory used to create the lifecycle.
+     * @param properties The server properties to use.
      * @return The inter-process server lifecycle bean.
      */
     @ConditionalOnBean(NettyGrpcServerFactory.class)
     @Bean
-    public GrpcServerLifecycle nettyGrpcServerLifecycle(final NettyGrpcServerFactory factory) {
-        return new GrpcServerLifecycle(factory);
+    public GrpcServerLifecycle nettyGrpcServerLifecycle(
+            final NettyGrpcServerFactory factory,
+            final GrpcServerProperties properties) {
+
+        return new GrpcServerLifecycle(factory, properties.getGracefullShutdownTimeout());
     }
 
     /**
@@ -153,12 +161,16 @@ public class GrpcServerFactoryAutoConfiguration {
      * The server lifecycle bean for the in-process-server.
      *
      * @param factory The factory used to create the lifecycle.
+     * @param properties The server properties to use.
      * @return The in-process server lifecycle bean.
      */
     @ConditionalOnBean(InProcessGrpcServerFactory.class)
     @Bean
-    public GrpcServerLifecycle inProcessGrpcServerLifecycle(final InProcessGrpcServerFactory factory) {
-        return new GrpcServerLifecycle(factory);
+    public GrpcServerLifecycle inProcessGrpcServerLifecycle(
+            final InProcessGrpcServerFactory factory,
+            final GrpcServerProperties properties) {
+
+        return new GrpcServerLifecycle(factory, properties.getGracefullShutdownTimeout());
     }
 
 }

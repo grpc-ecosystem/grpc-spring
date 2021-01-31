@@ -17,7 +17,11 @@
 
 package net.devh.boot.grpc.server.serverfactory;
 
+import static java.util.Objects.requireNonNull;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.io.IOException;
+import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.context.SmartLifecycle;
@@ -29,18 +33,26 @@ import lombok.extern.slf4j.Slf4j;
  * Lifecycle bean that automatically starts and stops the grpc server.
  *
  * @author Michael (yidongnan@gmail.com)
- * @since 5/17/16
  */
 @Slf4j
 public class GrpcServerLifecycle implements SmartLifecycle {
+
     private static AtomicInteger serverCounter = new AtomicInteger(-1);
 
-    private volatile Server server;
-    private volatile int phase = Integer.MAX_VALUE;
     private final GrpcServerFactory factory;
+    private final Duration gracefulShutdownTimeout;
 
-    public GrpcServerLifecycle(final GrpcServerFactory factory) {
-        this.factory = factory;
+    private Server server;
+
+    /**
+     * Creates a new GrpcServerLifecycle
+     *
+     * @param factory The server factory to use.
+     * @param gracefulShutdownTimeout The time to wait for the server to gracefully shut down.
+     */
+    public GrpcServerLifecycle(final GrpcServerFactory factory, final Duration gracefulShutdownTimeout) {
+        this.factory = requireNonNull(factory, "factory");
+        this.gracefulShutdownTimeout = requireNonNull(gracefulShutdownTimeout, "gracefulShutdownTimeout");
     }
 
     @Override
@@ -70,7 +82,7 @@ public class GrpcServerLifecycle implements SmartLifecycle {
 
     @Override
     public int getPhase() {
-        return this.phase;
+        return Integer.MAX_VALUE;
     }
 
     @Override
@@ -84,41 +96,54 @@ public class GrpcServerLifecycle implements SmartLifecycle {
      * @throws IOException If the server is unable to bind the port.
      */
     protected void createAndStartGrpcServer() throws IOException {
-        final Server localServer = this.server;
-        if (localServer == null) {
-            this.server = this.factory.createServer();
-            this.server.start();
+        if (this.server == null) {
+            final Server localServer = this.factory.createServer();
+            this.server = localServer;
+            localServer.start();
             log.info("gRPC Server started, listening on address: " + this.factory.getAddress() + ", port: "
                     + this.factory.getPort());
 
             // Prevent the JVM from shutting down while the server is running
             final Thread awaitThread = new Thread(() -> {
                 try {
-                    this.server.awaitTermination();
+                    localServer.awaitTermination();
                 } catch (final InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-            }, "grpc-server-container-" + (serverCounter.incrementAndGet()));
+            });
+            awaitThread.setName("grpc-server-container-" + (serverCounter.incrementAndGet()));
             awaitThread.setDaemon(false);
             awaitThread.start();
         }
     }
 
     /**
-     * Initiates an orderly shutdown of the grpc server and releases the references to the server. This call does not
-     * wait for the server to be completely shut down.
+     * Initiates an orderly shutdown of the grpc server and releases the references to the server. This call waits for
+     * the server to be completely shut down.
      */
     protected void stopAndReleaseGrpcServer() {
         final Server localServer = this.server;
         if (localServer != null) {
+            final long millis = this.gracefulShutdownTimeout.toMillis();
+            log.debug("Initiating gRPC server shutdown");
             localServer.shutdown();
+            // Wait for the server to shutdown completely before continuing with destroying the spring context
             try {
-                this.server.awaitTermination();
+                if (millis > 0) {
+                    localServer.awaitTermination(millis, MILLISECONDS);
+                } else if (millis == 0) {
+                    // Do not wait
+                } else {
+                    // Wait infinitely
+                    localServer.awaitTermination();
+                }
             } catch (final InterruptedException e) {
                 Thread.currentThread().interrupt();
+            } finally {
+                localServer.shutdownNow();
+                this.server = null;
             }
-            this.server = null;
-            log.info("gRPC server shutdown.");
+            log.info("Completed gRPC server shutdown");
         }
     }
 
