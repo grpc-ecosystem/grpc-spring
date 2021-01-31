@@ -134,7 +134,7 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         final T builder = newChannelBuilder(name);
         configure(builder, name);
         final ManagedChannel channel = builder.build();
-        final Duration timeout = properties.getChannel(name).getImmediateConnectTimeout();
+        final Duration timeout = this.properties.getChannel(name).getImmediateConnectTimeout();
         if (!timeout.isZero()) {
             connectOnStartup(name, channel, timeout);
         }
@@ -260,7 +260,7 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         }
     }
 
-    private void connectOnStartup(String name, ManagedChannel channel, Duration timeout) {
+    private void connectOnStartup(final String name, final ManagedChannel channel, final Duration timeout) {
         log.debug("Initiating connection to channel {}", name);
         channel.getState(true);
 
@@ -270,7 +270,7 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         try {
             log.debug("Waiting for connection to channel {}", name);
             connected = !readyLatch.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             connected = false;
         }
@@ -280,7 +280,7 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         log.info("Successfully connected to channel {}", name);
     }
 
-    private void waitForReady(ManagedChannel channel, CountDownLatch readySignal) {
+    private void waitForReady(final ManagedChannel channel, final CountDownLatch readySignal) {
         final ConnectivityState state = channel.getState(false);
         log.debug("Waiting for ready state. Currently in {}", state);
         if (state == ConnectivityState.READY) {
