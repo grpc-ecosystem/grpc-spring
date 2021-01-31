@@ -17,12 +17,16 @@
 
 package net.devh.boot.grpc.client.channelfactory;
 
+import static java.util.Comparator.comparingLong;
 import static java.util.Objects.requireNonNull;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -302,16 +306,30 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
             return;
         }
         this.shutdown = true;
-        for (final ManagedChannel channel : this.channels.values()) {
+        final List<ShutdownRecord> shutdownEntries = new ArrayList<>();
+        for (final Entry<String, ManagedChannel> entry : this.channels.entrySet()) {
+            final ManagedChannel channel = entry.getValue();
             channel.shutdown();
+            final long gracePeriod = this.properties.getChannel(entry.getKey()).getShutdownGracePeriod().toMillis();
+            shutdownEntries.add(new ShutdownRecord(entry.getKey(), channel, gracePeriod));
         }
         try {
-            final long waitLimit = System.currentTimeMillis() + 60_000; // wait 60 seconds at max
-            for (final ManagedChannel channel : this.channels.values()) {
-                int i = 0;
-                do {
-                    log.debug("Awaiting channel shutdown: {} ({}s)", channel, i++);
-                } while (System.currentTimeMillis() < waitLimit && !channel.awaitTermination(1, TimeUnit.SECONDS));
+            final long start = System.currentTimeMillis();
+            shutdownEntries.sort(comparingLong(ShutdownRecord::getGracePeriod));
+
+            for (final ShutdownRecord entry : shutdownEntries) {
+                if (!entry.channel.isTerminated()) {
+                    log.debug("Awaiting channel termination: {}", entry.name);
+
+                    final long waitedTime = System.currentTimeMillis() - start;
+                    final long waitTime = entry.gracePeriod - waitedTime;
+
+                    if (waitTime > 0) {
+                        entry.channel.awaitTermination(waitTime, MILLISECONDS);
+                    }
+                    entry.channel.shutdownNow();
+                }
+                log.debug("Completed channel termination: {}", entry.name);
             }
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -328,6 +346,24 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         this.channels.clear();
         this.channelStates.clear();
         log.debug("GrpcCannelFactory closed (including {} channels)", channelCount);
+    }
+
+    private static class ShutdownRecord {
+
+        private final String name;
+        private final ManagedChannel channel;
+        private final long gracePeriod;
+
+        public ShutdownRecord(final String name, final ManagedChannel channel, final long gracePeriod) {
+            this.name = name;
+            this.channel = channel;
+            this.gracePeriod = gracePeriod;
+        }
+
+        long getGracePeriod() {
+            return this.gracePeriod;
+        }
+
     }
 
 }

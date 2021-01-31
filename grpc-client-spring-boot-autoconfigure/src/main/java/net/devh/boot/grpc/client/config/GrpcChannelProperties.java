@@ -264,6 +264,32 @@ public class GrpcChannelProperties {
     }
 
     // --------------------------------------------------
+
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration shutdownGracePeriod;
+    private static final Duration DEFAULT_SHUTDOWN_GRACE_PERIOD = Duration.ofSeconds(30);
+
+    /**
+     * Gets the time to wait for the channel to gracefully shutdown. If set to {@code -1} the server waits forever. If
+     * set to {@code 0} the server will force shutdown immediately. Defaults to {@code 30s}.
+     *
+     * @return The time to wait for a graceful shutdown.
+     */
+    public Duration getShutdownGracePeriod() {
+        return this.shutdownGracePeriod == null ? DEFAULT_SHUTDOWN_GRACE_PERIOD : this.shutdownGracePeriod;
+    }
+
+    /**
+     * Sets the time to wait for the channel to gracefully shutdown (completing all requests). If set to {@code -1} the
+     * channel waits forever. If set to {@code 0} the channel will force shutdown immediately. Defaults to {@code 30s}.
+     *
+     * @param shutdownGracePeriod The time to wait for a graceful shutdown.
+     */
+    public void setShutdownGracePeriod(final Duration shutdownGracePeriod) {
+        this.shutdownGracePeriod = shutdownGracePeriod;
+    }
+
+    // --------------------------------------------------
     // Message Transfer
     // --------------------------------------------------
 
