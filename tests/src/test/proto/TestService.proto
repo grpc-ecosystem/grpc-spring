@@ -10,6 +10,9 @@ service TestService {
 
     // Returns version information
     rpc normal(google.protobuf.Empty) returns (SomeType) {}
+    
+    // Fails with an error
+    rpc error(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
     // Unimplemented method
     rpc unimplemented(google.protobuf.Empty) returns (SomeType) {}
