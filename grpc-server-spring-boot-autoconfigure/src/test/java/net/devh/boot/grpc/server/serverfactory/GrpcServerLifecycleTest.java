@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTimeout;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
@@ -37,7 +36,6 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
-import org.opentest4j.AssertionFailedError;
 
 import io.grpc.Server;
 
@@ -123,36 +121,6 @@ class GrpcServerLifecycleTest {
         // We waited for the entire duration
         assertThat(duration).isBetween(5000L, 5100L);
 
-        assertTrue(server.isShutdown());
-        assertTrue(server.isTerminated());
-
-    }
-
-    @Test
-    void testInterruptShutdown() {
-
-        // The server takes 60s seconds to shutdown
-        final TestServer server = new TestServer(60000);
-        when(this.factory.createServer()).thenReturn(server);
-
-        // And we give it infinite time to shutdown
-        final GrpcServerLifecycle lifecycle = new GrpcServerLifecycle(this.factory, ofSeconds(-1));
-
-        lifecycle.start();
-
-        assertFalse(server.isShutdown());
-        assertFalse(server.isTerminated());
-
-        try {
-            // But we are in a hurry, so we interrupt it after 2s
-            assertTimeoutPreemptively(ofMillis(2000), (Executable) lifecycle::stop);
-            fail("Did not wait for shutdown to complete");
-        } catch (final AssertionFailedError e) {
-            // We failed due to the timeout/interrupt
-            assertThat(e).getCause().matches(t -> "ExecutionTimeoutException".equals(t.getClass().getSimpleName()));
-        }
-
-        // But the server is still properly terminated
         assertTrue(server.isShutdown());
         assertTrue(server.isTerminated());
 
