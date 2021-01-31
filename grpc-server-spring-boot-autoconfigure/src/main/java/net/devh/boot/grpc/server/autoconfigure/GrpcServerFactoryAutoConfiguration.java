@@ -91,7 +91,7 @@ public class GrpcServerFactoryAutoConfiguration {
             final ShadedNettyGrpcServerFactory factory,
             final GrpcServerProperties properties) {
 
-        return new GrpcServerLifecycle(factory, properties.getGracefullShutdownTimeout());
+        return new GrpcServerLifecycle(factory, properties.getShutdownGracePeriod());
     }
 
     // Then try the normal netty server
@@ -133,7 +133,7 @@ public class GrpcServerFactoryAutoConfiguration {
             final NettyGrpcServerFactory factory,
             final GrpcServerProperties properties) {
 
-        return new GrpcServerLifecycle(factory, properties.getGracefullShutdownTimeout());
+        return new GrpcServerLifecycle(factory, properties.getShutdownGracePeriod());
     }
 
     /**
@@ -170,7 +170,7 @@ public class GrpcServerFactoryAutoConfiguration {
             final InProcessGrpcServerFactory factory,
             final GrpcServerProperties properties) {
 
-        return new GrpcServerLifecycle(factory, properties.getGracefullShutdownTimeout());
+        return new GrpcServerLifecycle(factory, properties.getShutdownGracePeriod());
     }
 
 }

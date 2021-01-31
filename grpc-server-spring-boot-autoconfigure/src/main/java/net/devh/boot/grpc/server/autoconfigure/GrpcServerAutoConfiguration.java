@@ -136,7 +136,7 @@ public class GrpcServerAutoConfiguration {
     @ConditionalOnBean(GrpcServerFactory.class)
     @Bean
     public GrpcServerLifecycle grpcServerLifecycle(final GrpcServerFactory factory, GrpcServerProperties properties) {
-        return new GrpcServerLifecycle(factory, properties.getGracefullShutdownTimeout());
+        return new GrpcServerLifecycle(factory, properties.getShutdownGracePeriod());
     }
 
 }

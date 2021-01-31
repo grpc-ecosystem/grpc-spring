@@ -102,7 +102,7 @@ public class GrpcServerProperties {
      * @return The time to wait for a graceful shutdown.
      */
     @DurationUnit(ChronoUnit.SECONDS)
-    private Duration gracefullShutdownTimeout = Duration.of(30, ChronoUnit.SECONDS);
+    private Duration shutdownGracePeriod = Duration.of(30, ChronoUnit.SECONDS);
 
     /**
      * Setting to enable keepAlive. Default to {@code false}.
