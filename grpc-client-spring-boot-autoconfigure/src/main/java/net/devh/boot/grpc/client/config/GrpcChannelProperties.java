@@ -270,8 +270,8 @@ public class GrpcChannelProperties {
     private static final Duration DEFAULT_SHUTDOWN_GRACE_PERIOD = Duration.ofSeconds(30);
 
     /**
-     * Gets the time to wait for the channel to gracefully shutdown. If set to {@code -1} the server waits forever. If
-     * set to {@code 0} the server will force shutdown immediately. Defaults to {@code 30s}.
+     * Gets the time to wait for the channel to gracefully shutdown. If set to a negative value, the channel waits
+     * forever. If set to {@code 0} the channel will force shutdown immediately. Defaults to {@code 30s}.
      *
      * @return The time to wait for a graceful shutdown.
      */
@@ -280,8 +280,9 @@ public class GrpcChannelProperties {
     }
 
     /**
-     * Sets the time to wait for the channel to gracefully shutdown (completing all requests). If set to {@code -1} the
-     * channel waits forever. If set to {@code 0} the channel will force shutdown immediately. Defaults to {@code 30s}.
+     * Sets the time to wait for the channel to gracefully shutdown (completing all requests). If set to a negative
+     * value, the channel waits forever. If set to {@code 0} the channel will force shutdown immediately. Defaults to
+     * {@code 30s}.
      *
      * @param shutdownGracePeriod The time to wait for a graceful shutdown.
      */
@@ -457,6 +458,9 @@ public class GrpcChannelProperties {
         }
         if (this.keepAliveWithoutCalls == null) {
             this.keepAliveWithoutCalls = config.keepAliveWithoutCalls;
+        }
+        if (this.shutdownGracePeriod == null) {
+            this.shutdownGracePeriod = config.shutdownGracePeriod;
         }
         if (this.maxInboundMessageSize == null) {
             this.maxInboundMessageSize = config.maxInboundMessageSize;

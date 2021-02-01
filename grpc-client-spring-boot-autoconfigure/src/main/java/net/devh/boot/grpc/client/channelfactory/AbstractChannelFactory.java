@@ -357,7 +357,8 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         public ShutdownRecord(final String name, final ManagedChannel channel, final long gracePeriod) {
             this.name = name;
             this.channel = channel;
-            this.gracePeriod = gracePeriod;
+            // gracePeriod < 0 => Infinite
+            this.gracePeriod = gracePeriod < 0 ? Long.MAX_VALUE : gracePeriod;
         }
 
         long getGracePeriod() {
