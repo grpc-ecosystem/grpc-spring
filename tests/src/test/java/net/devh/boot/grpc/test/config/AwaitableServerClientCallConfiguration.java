@@ -17,6 +17,7 @@
 
 package net.devh.boot.grpc.test.config;
 
+import static net.devh.boot.grpc.common.util.InterceptorOrder.ORDER_FIRST;
 import static net.devh.boot.grpc.common.util.InterceptorOrder.ORDER_LAST;
 
 import java.util.concurrent.CountDownLatch;
@@ -29,7 +30,7 @@ import io.grpc.ClientCall;
 import io.grpc.ClientInterceptor;
 import io.grpc.ForwardingClientCall.SimpleForwardingClientCall;
 import io.grpc.ForwardingClientCallListener.SimpleForwardingClientCallListener;
-import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
+import io.grpc.ForwardingServerCallListener.SimpleForwardingServerCallListener;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.ServerCall;
@@ -73,19 +74,25 @@ public class AwaitableServerClientCallConfiguration {
                     return next.startCall(call, headers);
                 } else {
                     final CountDownLatch thatCounter = serverCounter;
-                    return next.startCall(new SimpleForwardingServerCall<ReqT, RespT>(call) {
+                    return new SimpleForwardingServerCallListener<ReqT>(next.startCall(call, headers)) {
 
                         @Override
-                        public void close(final Status status, final Metadata trailers) {
-                            super.close(status, trailers);
+                        public void onComplete() {
+                            super.onComplete();
                             thatCounter.countDown();
                         }
 
-                    }, headers);
+                        @Override
+                        public void onCancel() {
+                            super.onCancel();
+                            thatCounter.countDown();
+                        }
+
+                    };
                 }
             }
 
-        }, ORDER_LAST);
+        }, ORDER_FIRST);
     }
 
     /**

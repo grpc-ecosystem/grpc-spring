@@ -30,6 +30,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.Empty;
 
 import io.grpc.Context;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.security.interceptors.AuthenticatingServerInterceptor;
@@ -41,7 +42,7 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceImplBase;
 @GrpcService
 public class TestServiceImpl extends TestServiceImplBase {
 
-    public static final int METHOD_COUNT = 7;
+    public static final int METHOD_COUNT = 8;
 
     public TestServiceImpl() {
         log.info("Created TestServiceImpl");
@@ -63,7 +64,14 @@ public class TestServiceImpl extends TestServiceImplBase {
     }
 
     @Override
-    public StreamObserver<SomeType> echo(StreamObserver<SomeType> responseObserver) {
+    public void error(final Empty request, final StreamObserver<Empty> responseObserver) {
+        log.debug("error");
+        responseObserver.onError(Status.INTERNAL.asRuntimeException());
+    }
+
+    @Override
+    public StreamObserver<SomeType> echo(final StreamObserver<SomeType> responseObserver) {
+        log.debug("echo");
         return responseObserver;
     }
 

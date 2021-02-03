@@ -18,7 +18,9 @@
 package net.devh.boot.grpc.test.metric;
 
 import static io.grpc.Status.Code.CANCELLED;
+import static io.grpc.Status.Code.INTERNAL;
 import static io.grpc.Status.Code.UNIMPLEMENTED;
+import static io.grpc.Status.Code.UNKNOWN;
 import static net.devh.boot.grpc.common.metric.MetricConstants.METRIC_NAME_CLIENT_PROCESSING_DURATION;
 import static net.devh.boot.grpc.common.metric.MetricConstants.METRIC_NAME_CLIENT_REQUESTS_SENT;
 import static net.devh.boot.grpc.common.metric.MetricConstants.METRIC_NAME_CLIENT_RESPONSES_RECEIVED;
@@ -411,12 +413,12 @@ class MetricCollectingInterceptorTest {
     }
 
     /**
-     * Test failing call.
+     * Test unimplemented call.
      */
     @Test
     @DirtiesContext
-    void testMetricsFailingCall() {
-        log.info("--- Starting tests with failing call ---");
+    void testMetricsUniplementedCall() {
+        log.info("--- Starting tests with unimplemented call ---");
 
         final CountDownLatch counter = awaitNextServerAndClientCallCloses(1);
 
@@ -469,6 +471,142 @@ class MetricCollectingInterceptorTest {
                 .find(METRIC_NAME_SERVER_PROCESSING_DURATION)
                 .tag(MetricConstants.TAG_METHOD_NAME, "unimplemented")
                 .tag(TAG_STATUS_CODE, UNIMPLEMENTED.name())
+                .timer();
+        assertNotNull(serverTimer);
+        assertEquals(1, serverTimer.count());
+        assertTrue(serverTimer.max(TimeUnit.SECONDS) < 1);
+
+        // Client has network overhead so it has to be slower
+        assertTrue(serverTimer.max(TimeUnit.SECONDS) <= clientTimer.max(TimeUnit.SECONDS));
+        log.info("--- Test completed ---");
+    }
+
+    /**
+     * Test failed call.
+     */
+    @Test
+    @DirtiesContext
+    void testMetricsFailedCall() {
+        log.info("--- Starting tests with failing call ---");
+
+        final CountDownLatch counter = awaitNextServerAndClientCallCloses(1);
+
+        // Invoke
+        assertThrows(StatusRuntimeException.class, () -> this.testService.secure(EMPTY));
+
+        assertTimeoutPreemptively(Duration.ofSeconds(1), (Executable) counter::await);
+
+        // Test-Client
+        final Counter requestSentCounter = this.meterRegistry
+                .find(METRIC_NAME_CLIENT_REQUESTS_SENT)
+                .tag(MetricConstants.TAG_METHOD_NAME, "secure")
+                .counter();
+        assertNotNull(requestSentCounter);
+        assertEquals(1, requestSentCounter.count());
+
+        final Counter responseReceivedCounter = this.meterRegistry
+                .find(METRIC_NAME_CLIENT_RESPONSES_RECEIVED)
+                .tag(MetricConstants.TAG_METHOD_NAME, "secure")
+                .counter();
+        assertNotNull(responseReceivedCounter);
+        assertEquals(0, responseReceivedCounter.count());
+
+        final Timer clientTimer = this.meterRegistry
+                .find(METRIC_NAME_CLIENT_PROCESSING_DURATION)
+                .tag(MetricConstants.TAG_METHOD_NAME, "secure")
+                .tag(TAG_STATUS_CODE, UNKNOWN.name())
+                .timer();
+        assertNotNull(clientTimer);
+        assertEquals(1, clientTimer.count());
+        assertTrue(clientTimer.max(TimeUnit.SECONDS) < 1);
+
+        // Test-Server
+        final Counter requestsReceivedCounter = this.meterRegistry
+                .find(METRIC_NAME_SERVER_REQUESTS_RECEIVED)
+                .tag(MetricConstants.TAG_METHOD_NAME, "secure")
+                .counter();
+        assertNotNull(requestsReceivedCounter);
+        assertEquals(1, requestsReceivedCounter.count());
+
+        final Counter responsesSentCounter = this.meterRegistry
+                .find(METRIC_NAME_SERVER_RESPONSES_SENT)
+                .tag(MetricConstants.TAG_METHOD_NAME, "secure")
+                .counter();
+        assertNotNull(responsesSentCounter);
+        assertEquals(0, responsesSentCounter.count());
+
+        final Timer serverTimer = this.meterRegistry
+                .find(METRIC_NAME_SERVER_PROCESSING_DURATION)
+                .tag(MetricConstants.TAG_METHOD_NAME, "secure")
+                .tag(TAG_STATUS_CODE, UNKNOWN.name())
+                .timer();
+        assertNotNull(serverTimer);
+        assertEquals(1, serverTimer.count());
+        assertTrue(serverTimer.max(TimeUnit.SECONDS) < 1);
+
+        // Client has network overhead so it has to be slower
+        assertTrue(serverTimer.max(TimeUnit.SECONDS) <= clientTimer.max(TimeUnit.SECONDS));
+        log.info("--- Test completed ---");
+    }
+
+    /**
+     * Test error call.
+     */
+    @Test
+    @DirtiesContext
+    void testMetricsErrorCall() {
+        log.info("--- Starting tests with error status call ---");
+
+        final CountDownLatch counter = awaitNextServerAndClientCallCloses(1);
+
+        // Invoke
+        assertThrows(StatusRuntimeException.class, () -> this.testService.error(EMPTY));
+
+        assertTimeoutPreemptively(Duration.ofSeconds(1), (Executable) counter::await);
+
+        // Test-Client
+        final Counter requestSentCounter = this.meterRegistry
+                .find(METRIC_NAME_CLIENT_REQUESTS_SENT)
+                .tag(MetricConstants.TAG_METHOD_NAME, "error")
+                .counter();
+        assertNotNull(requestSentCounter);
+        assertEquals(1, requestSentCounter.count());
+
+        final Counter responseReceivedCounter = this.meterRegistry
+                .find(METRIC_NAME_CLIENT_RESPONSES_RECEIVED)
+                .tag(MetricConstants.TAG_METHOD_NAME, "error")
+                .counter();
+        assertNotNull(responseReceivedCounter);
+        assertEquals(0, responseReceivedCounter.count());
+
+        final Timer clientTimer = this.meterRegistry
+                .find(METRIC_NAME_CLIENT_PROCESSING_DURATION)
+                .tag(MetricConstants.TAG_METHOD_NAME, "error")
+                .tag(TAG_STATUS_CODE, INTERNAL.name())
+                .timer();
+        assertNotNull(clientTimer);
+        assertEquals(1, clientTimer.count());
+        assertTrue(clientTimer.max(TimeUnit.SECONDS) < 1);
+
+        // Test-Server
+        final Counter requestsReceivedCounter = this.meterRegistry
+                .find(METRIC_NAME_SERVER_REQUESTS_RECEIVED)
+                .tag(MetricConstants.TAG_METHOD_NAME, "error")
+                .counter();
+        assertNotNull(requestsReceivedCounter);
+        assertEquals(1, requestsReceivedCounter.count());
+
+        final Counter responsesSentCounter = this.meterRegistry
+                .find(METRIC_NAME_SERVER_RESPONSES_SENT)
+                .tag(MetricConstants.TAG_METHOD_NAME, "error")
+                .counter();
+        assertNotNull(responsesSentCounter);
+        assertEquals(0, responsesSentCounter.count());
+
+        final Timer serverTimer = this.meterRegistry
+                .find(METRIC_NAME_SERVER_PROCESSING_DURATION)
+                .tag(MetricConstants.TAG_METHOD_NAME, "error")
+                .tag(TAG_STATUS_CODE, INTERNAL.name())
                 .timer();
         assertNotNull(serverTimer);
         assertEquals(1, serverTimer.count());
