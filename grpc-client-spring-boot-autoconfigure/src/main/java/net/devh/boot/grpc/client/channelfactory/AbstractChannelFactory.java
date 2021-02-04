@@ -345,7 +345,7 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         final int channelCount = this.channels.size();
         this.channels.clear();
         this.channelStates.clear();
-        log.debug("GrpcCannelFactory closed (including {} channels)", channelCount);
+        log.debug("GrpcChannelFactory closed (including {} channels)", channelCount);
     }
 
     private static class ShutdownRecord {
