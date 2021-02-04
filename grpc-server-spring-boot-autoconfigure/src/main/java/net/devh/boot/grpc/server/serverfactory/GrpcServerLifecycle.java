@@ -40,7 +40,7 @@ public class GrpcServerLifecycle implements SmartLifecycle {
     private static AtomicInteger serverCounter = new AtomicInteger(-1);
 
     private final GrpcServerFactory factory;
-    private final Duration gracefulShutdownTimeout;
+    private final Duration shutdownGracePeriod;
 
     private Server server;
 
@@ -48,11 +48,11 @@ public class GrpcServerLifecycle implements SmartLifecycle {
      * Creates a new GrpcServerLifecycle
      *
      * @param factory The server factory to use.
-     * @param gracefulShutdownTimeout The time to wait for the server to gracefully shut down.
+     * @param shutdownGracePeriod The time to wait for the server to gracefully shut down.
      */
-    public GrpcServerLifecycle(final GrpcServerFactory factory, final Duration gracefulShutdownTimeout) {
+    public GrpcServerLifecycle(final GrpcServerFactory factory, final Duration shutdownGracePeriod) {
         this.factory = requireNonNull(factory, "factory");
-        this.gracefulShutdownTimeout = requireNonNull(gracefulShutdownTimeout, "gracefulShutdownTimeout");
+        this.shutdownGracePeriod = requireNonNull(shutdownGracePeriod, "shutdownGracePeriod");
     }
 
     @Override
@@ -124,7 +124,7 @@ public class GrpcServerLifecycle implements SmartLifecycle {
     protected void stopAndReleaseGrpcServer() {
         final Server localServer = this.server;
         if (localServer != null) {
-            final long millis = this.gracefulShutdownTimeout.toMillis();
+            final long millis = this.shutdownGracePeriod.toMillis();
             log.debug("Initiating gRPC server shutdown");
             localServer.shutdown();
             // Wait for the server to shutdown completely before continuing with destroying the spring context
