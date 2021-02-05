@@ -95,6 +95,13 @@
 			"defaultValue": "TLS"
 		},
 		{
+			"name": "grpc.client.GLOBAL.immediate-connection-timeout",
+			"type": "java.time.Duration",
+			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties",
+			"description": "Connection timeout at application startup. If set to a positive duration instructs a client to connect to GRPC-endpoint when GRPC stub is created.",
+			"defaultValue": 0
+		},
+		{
 			"name": "grpc.client.GLOBAL.security.authority-override",
 			"type": "java.lang.String",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties$Security",
