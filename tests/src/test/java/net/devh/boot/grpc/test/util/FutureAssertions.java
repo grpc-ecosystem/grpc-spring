@@ -23,32 +23,65 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
+/**
+ * Assertions related to {@link Future}s.
+ */
 public final class FutureAssertions {
 
-    public static <T> void assertFutureEquals(final T expected, final ListenableFuture<T> future,
+    /**
+     * Asserts that the {@link Future} returns the expected result.
+     *
+     * @param <T> The type of the future content.
+     * @param expected The expected content.
+     * @param future The future to check for the expected content.
+     * @param timeout The maximum time to wait for the result.
+     * @param timeoutUnit The time unit of the {@code timeout} argument.
+     */
+    public static <T> void assertFutureEquals(final T expected, final Future<T> future,
             final int timeout, final TimeUnit timeoutUnit) {
         assertFutureEquals(expected, future, UnaryOperator.identity(), timeout, timeoutUnit);
     }
 
-    public static <T, R> void assertFutureEquals(final T expected, final ListenableFuture<R> future,
+    /**
+     * Asserts that the {@link Future} returns the expected result.
+     *
+     * @param <T> The type of the unwrapped/expected content.
+     * @param <R> The type of the future content.
+     * @param expected The expected content.
+     * @param future The future to check for the expected content.
+     * @param unwrapper The function used to extract the content.
+     * @param timeout The maximum time to wait for the result.
+     * @param timeoutUnit The time unit of the {@code timeout} argument.
+     */
+    public static <T, R> void assertFutureEquals(final T expected, final Future<R> future,
             final Function<R, T> unwrapper, final int timeout, final TimeUnit timeoutUnit) {
         try {
             assertEquals(expected, unwrapper.apply(future.get(timeout, timeoutUnit)));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            fail(e);
+            fail("Unexpected error while trying to get the result", e);
         }
     }
 
+    /**
+     * Asserts that the given {@link Future} fails with an {@link ExecutionException} caused by the given exception
+     * type.
+     *
+     * @param <T> The type of the causing exception.
+     * @param expectedType The expected type of the causing exception.
+     * @param future The future expected to throw.
+     * @param timeout The maximum time to wait for the result.
+     * @param timeoutUnit The time unit of the {@code timeout} argument.
+     * @return The causing exception.
+     */
     @SuppressWarnings("unchecked")
     public static <T extends Exception> T assertFutureThrows(final Class<T> expectedType,
-            final ListenableFuture<?> future, final int timeout, final TimeUnit timeoutUnit) {
+            final Future<?> future, final int timeout, final TimeUnit timeoutUnit) {
         final Throwable cause =
                 assertThrows(ExecutionException.class, () -> future.get(timeout, timeoutUnit)).getCause();
         final Class<? extends Throwable> causeClass = cause.getClass();
