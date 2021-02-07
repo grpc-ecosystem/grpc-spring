@@ -17,19 +17,17 @@
 
 package net.devh.boot.grpc.server.autoconfigure;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-
+import net.devh.boot.grpc.common.util.GrpcUtils;
+import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.consul.serviceregistry.ConsulRegistration;
 import org.springframework.context.annotation.Configuration;
 
-import net.devh.boot.grpc.common.util.GrpcUtils;
-import net.devh.boot.grpc.server.config.GrpcServerProperties;
+import javax.annotation.PostConstruct;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Configuration class that configures the required beans for gRPC discovery via Consul.
@@ -52,11 +50,13 @@ public class GrpcMetadataConsulConfiguration {
     public void init() {
         if (consulRegistration != null) {
             final int port = grpcProperties.getPort();
-            List<String> tags = consulRegistration.getService().getTags();
-            tags = tags == null ? new ArrayList<>() : tags;
+            Map<String, String> meta = consulRegistration.getService().getMeta();
+            if (meta == null) {
+                meta = new HashMap<>();
+            }
             if (GrpcUtils.INTER_PROCESS_DISABLE != port) {
-                tags.add(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT + "=" + port);
-                consulRegistration.getService().setTags(tags);
+                meta.put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT, Integer.toString(port));
+                consulRegistration.getService().setMeta(meta);
             }
         }
     }
