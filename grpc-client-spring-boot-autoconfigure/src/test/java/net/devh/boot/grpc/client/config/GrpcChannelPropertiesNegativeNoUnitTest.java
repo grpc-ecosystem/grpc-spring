@@ -15,7 +15,7 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.server.config;
+package net.devh.boot.grpc.client.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -26,27 +26,23 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.util.unit.DataSize;
 
 /**
- * Tests whether the property resolution works when using suffixes.
+ * Tests whether the property resolution works with negative values and without suffixes.
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties = {
-        "grpc.server.keepAliveTime=42m",
-        "grpc.server.maxInboundMessageSize=5MB",
-        "grpc.server.maxInboundMetadataSize=10KB"
+        "grpc.client.test.shutdownGracePeriod=-1"
 })
-class GrpcServerPropertiesGivenUnitTest {
+class GrpcChannelPropertiesNegativeNoUnitTest {
 
     @Autowired
-    private GrpcServerProperties grpcServerProperties;
+    private GrpcChannelsProperties grpcChannelsProperties;
 
     @Test
     void test() {
-        assertEquals(Duration.ofMinutes(42), this.grpcServerProperties.getKeepAliveTime());
-        assertEquals(DataSize.ofMegabytes(5), this.grpcServerProperties.getMaxInboundMessageSize());
-        assertEquals(DataSize.ofKilobytes(10), this.grpcServerProperties.getMaxInboundMetadataSize());
+        final GrpcChannelProperties properties = this.grpcChannelsProperties.getChannel("test");
+        assertEquals(Duration.ofSeconds(-1), properties.getShutdownGracePeriod());
     }
 
 }
