@@ -84,7 +84,8 @@ public class InProcessGrpcServerFactory extends AbstractGrpcServerFactory<InProc
 
     @Override
     protected void configureSecurity(final InProcessServerBuilder builder) {
-        // Nothing to configure here
+        // No need to configure security as we are in process only.
+        // There is also no need to throw exceptions if transport security is configured.
     }
 
     @Override
