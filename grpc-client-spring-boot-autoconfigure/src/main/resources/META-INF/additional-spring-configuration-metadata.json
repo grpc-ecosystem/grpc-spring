@@ -82,6 +82,13 @@
 			"defaultValue": false
 		},
 		{
+			"name": "grpc.client.GLOBAL.shutdown-grace-period",
+			"type": "java.time.Duration",
+			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties",
+			"description": "The time to wait for the channel to gracefully shutdown (completing all requests).\nIf set to a negative value, the channel waits forever.\nIf set to 0 the channel will force shutdown immediately.\nDefaults to 30s.",
+			"defaultValue": "30s"
+		},
+		{
 			"name": "grpc.client.GLOBAL.max-inbound-message-size",
 			"type": "org.springframework.util.unit.DataSize",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties",
@@ -95,7 +102,7 @@
 			"defaultValue": "TLS"
 		},
 		{
-			"name": "grpc.client.GLOBAL.immediate-connection-timeout",
+			"name": "grpc.client.GLOBAL.immediate-connect-timeout",
 			"type": "java.time.Duration",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties",
 			"description": "Connection timeout at application startup. If set to a positive duration instructs a client to connect to GRPC-endpoint when GRPC stub is created.",
@@ -115,7 +122,7 @@
 		},
 		{
 			"name": "grpc.client.GLOBAL.security.ciphers",
-			"type": "java.lang.String",
+			"type": "java.util.List<java.lang.String>",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties$Security",
 			"description": "The cipher suite accepted for secure connections (in the order of preference). If not specified (null), then the default suites will be used."
 		},

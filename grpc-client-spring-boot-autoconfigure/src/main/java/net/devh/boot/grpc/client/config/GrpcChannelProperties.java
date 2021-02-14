@@ -403,11 +403,10 @@ public class GrpcChannelProperties {
     }
 
     /**
-     * If set to a positive duration instructs a client to connect to GRPC-endpoint when GRPC stub is created. If it's
-     * set to a positive timeout application startup will be slower due to connection process will be executed
-     * synchronously with maximum to connection timeout. If connection fails stub will fail to create with an exception
-     * which in turn causes context startup to If connection fails stub will fail to create with an exception which in
-     * turn causes context fail. Defaults to false.
+     * If set to a positive duration instructs the client to connect to the gRPC endpoint when the GRPC stub is created.
+     * As a result the application startup will be slightly slower due to connection process being executed
+     * synchronously up to the maximum to connection timeout. If the connection fails, the stub will fail to create with
+     * an exception which in turn causes the application context startup to fail. Defaults to false.
      *
      * @param immediateConnectTimeout Connection timeout at application startup.
      */
