@@ -29,7 +29,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.unit.DataSize;
 
 /**
- * Tests whether the property resolution without suffixes works (backwards compatibility).
+ * Tests whether the property resolution works without suffixes (backwards compatibility).
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties = {
