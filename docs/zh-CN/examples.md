@@ -23,7 +23,7 @@
 - [客户端](https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/examples/cloud-grpc-client)
 - [说明](https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/examples#cloud-mode)
 
-## Cloud 示例
+## Cloud-Nacos 示例
 
 使用 nacos 服务发现的 Cloud 环境。
 
