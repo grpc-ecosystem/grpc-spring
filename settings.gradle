@@ -26,4 +26,3 @@ include 'examples:cloud-grpc-client-zookeeper'
 include 'examples:cloud-grpc-server-nacos'
 include 'examples:cloud-grpc-client-nacos'
 include 'examples:cloud-grpc-client-nacos'
-
