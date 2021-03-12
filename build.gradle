@@ -18,9 +18,9 @@ buildscript {
         protobufGradlePluginVersion = '0.8.12'
 
         // https://github.com/spring-projects/spring-boot/releases
-        springBootVersion = '2.3.8.RELEASE'
+        springBootVersion = '2.4.3'
         // https://github.com/spring-cloud/spring-cloud-release/releases
-        springCloudVersion = 'Hoxton.SR9'
+        springCloudVersion = '2020.0.1'
         // https://github.com/alibaba/spring-cloud-alibaba/releases
         springCloudAlibabaNacosVersion = '2.2.3.RELEASE'
         // https://github.com/spring-projects/spring-security-oauth/releases
