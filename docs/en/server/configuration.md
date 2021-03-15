@@ -118,6 +118,20 @@ public GrpcServerConfigurer keepAliveServerConfigurer() {
 > Be aware that depending on your configuration there might be different types of `ServerBuilder`s in the application
 > context (e.g. the `InProcessServerBuilder`).
 
+### Other settings
+
+The grpc server can be configured via Spring Boot `application.yaml` properties, for example when you need to set `maxInboundMessageSize` you can configure it via
+
+```yaml
+grpc:
+  server:
+    max-inbound-message-size: 52428800
+```
+
+Other available settings for server you can found at `GrpcServerProperties.java` file of this repository.
+
+For client you can found settings in `GrpcChannelsProperties.java` and `GrpcChannelProperties.java` file.
+
 ## Additional Topics <!-- omit in toc -->
 
 - [Getting Started](getting-started.md)
