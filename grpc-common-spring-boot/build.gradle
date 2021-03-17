@@ -15,7 +15,7 @@ dependencies {
     api('org.springframework.boot:spring-boot-starter')
     optionalSupportImplementation('org.springframework.boot:spring-boot-starter-actuator')
     api('io.grpc:grpc-core')
-    optionalSupportImplementation('com.google.guava:guava:30.1-jre')
+    optionalSupportImplementation('com.google.guava:guava')
 
     optionalSupportImplementation('org.springframework.cloud:spring-cloud-starter-sleuth')
     optionalSupportImplementation('io.zipkin.brave:brave-instrumentation-grpc')
