@@ -21,7 +21,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
+import org.springframework.cloud.sleuth.autoconfig.brave.BraveAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -30,7 +30,7 @@ import brave.grpc.GrpcTracing;
 
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty(value = "spring.sleuth.grpc.enabled", matchIfMissing = true)
-@AutoConfigureAfter(TraceAutoConfiguration.class)
+@AutoConfigureAfter(BraveAutoConfiguration.class)
 @ConditionalOnClass(value = {Tracing.class, GrpcTracing.class})
 public class GrpcCommonTraceAutoConfiguration {
 

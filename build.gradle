@@ -9,18 +9,21 @@ buildscript {
         }
     }
     ext {
-        projectVersion = '2.11.0.RELEASE'
+        projectVersion = '2.12.0-SNAPSHOT'
 
         // https://github.com/grpc/grpc-java/releases
         grpcVersion = '1.35.0'
+
+        // https://github.com/google/guava/releases
+        guavaVersion = '30.1-jre'
         // https://github.com/protocolbuffers/protobuf/releases
         protobufVersion = '3.14.0'
         protobufGradlePluginVersion = '0.8.12'
 
         // https://github.com/spring-projects/spring-boot/releases
-        springBootVersion = '2.3.8.RELEASE'
+        springBootVersion = '2.4.3'
         // https://github.com/spring-cloud/spring-cloud-release/releases
-        springCloudVersion = 'Hoxton.SR9'
+        springCloudVersion = '2020.0.1'
         // https://github.com/alibaba/spring-cloud-alibaba/releases
         springCloudAlibabaNacosVersion = '2.2.3.RELEASE'
         // https://github.com/spring-projects/spring-security-oauth/releases
@@ -156,6 +159,7 @@ allprojects { project ->
                 mavenBom "org.springframework.boot:spring-boot-starter-parent:${springBootVersion}"
                 mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
                 mavenBom "com.google.protobuf:protobuf-bom:${protobufVersion}"
+                mavenBom "com.google.guava:guava-bom:${guavaVersion}"
                 mavenBom "io.grpc:grpc-bom:${grpcVersion}"
                 mavenBom "org.junit:junit-bom:5.7.0"
             }
