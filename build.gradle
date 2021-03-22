@@ -44,7 +44,7 @@ plugins {
     id 'com.google.protobuf' version '0.8.14'
     id 'io.franzbecker.gradle-lombok' version '4.0.0' apply false
     id 'com.github.ben-manes.versions' version '0.36.0' // gradle dependencyUpdates
-    id 'com.diffplug.spotless' version '5.9.0'
+    id 'com.diffplug.spotless' version '5.11.0'
 }
 
 // If you attempt to build without the `--scan` parameter in `gradle 6.0+` it will cause a build error that it can't find
@@ -60,7 +60,7 @@ if (hasProperty('buildScan')) {
 wrapper {
     // Update using:
     // ./gradlew wrapper --gradle-version=6.5 --distribution-type=bin
-    gradleVersion = '6.7.1'
+    gradleVersion = '6.8.3'
 }
 
 def buildTimeAndDate = OffsetDateTime.now()
@@ -98,8 +98,17 @@ allprojects {
         }
         format('misc') {
             target('**/*.gradle', '**/*.md', '**/*.yml')
+            targetExclude('**/build/**/*.*')
             trimTrailingWhitespace()
             endWithNewline()
+        }
+    }
+
+    normalization {
+        runtimeClasspath {
+            metaInf{
+                ignoreAttribute('Build-Time')
+            }
         }
     }
 
