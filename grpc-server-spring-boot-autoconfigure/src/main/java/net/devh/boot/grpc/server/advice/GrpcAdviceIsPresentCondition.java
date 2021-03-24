@@ -42,7 +42,7 @@ public class GrpcAdviceIsPresentCondition implements ConfigurationCondition {
     public boolean matches(final ConditionContext context, final AnnotatedTypeMetadata metadata) {
         final ConfigurableListableBeanFactory safeBeanFactory =
                 requireNonNull(context.getBeanFactory(), "ConfigurableListableBeanFactory is null");
-        return !safeBeanFactory.getBeansWithAnnotation(GrpcAdvice.class).isEmpty();
+        return safeBeanFactory.getBeanNamesForAnnotation(GrpcAdvice.class).length != 0;
     }
 
 }
