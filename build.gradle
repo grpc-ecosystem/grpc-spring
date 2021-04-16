@@ -1,6 +1,5 @@
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
-import io.franzbecker.gradle.lombok.task.DelombokTask
 
 buildscript {
     repositories {
@@ -29,7 +28,7 @@ buildscript {
         // https://github.com/spring-projects/spring-security-oauth/releases
         springSecurityOAuthVersion = '2.5.1.RELEASE'
 
-        lombokPluginVersion = '4.0.0'
+        lombokPluginVersion = '5.3.3.3'
         versioningPluginVersion = '2.14.0'
         versionsPluginVersion = '0.29.0'
     }
@@ -42,9 +41,9 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'net.nemerosa.versioning' version '2.14.0'
     id 'com.google.protobuf' version '0.8.15'
-    id 'io.franzbecker.gradle-lombok' version '4.0.0' apply false
+    id 'io.freefair.lombok' version '5.3.3.3' apply false
     id 'com.github.ben-manes.versions' version '0.36.0' // gradle dependencyUpdates
-    id 'com.diffplug.spotless' version '5.11.0'
+    id 'com.diffplug.spotless' version '5.12.1'
 }
 
 // If you attempt to build without the `--scan` parameter in `gradle 6.0+` it will cause a build error that it can't find
@@ -77,7 +76,7 @@ allprojects {
     apply plugin: 'eclipse'
     apply plugin: 'io.spring.dependency-management'
     apply plugin: 'com.diffplug.spotless'
-    apply plugin: 'io.franzbecker.gradle-lombok'
+    apply plugin: 'io.freefair.lombok'
 
     java {
         toolchain {
@@ -218,17 +217,6 @@ allprojects { project ->
     }
 
     if (project.name == 'grpc-common-spring-boot' || project.name == 'grpc-client-spring-boot-autoconfigure' || project.name == 'grpc-server-spring-boot-autoconfigure') {
-        // Properly generate javadocs for the important projects
-
-        task delombok(type: DelombokTask, dependsOn: compileJava) {
-            ext.outputDir = file("$buildDir/delombok")
-            outputs.dir(outputDir)
-            sourceSets.main.java.srcDirs.each {
-                inputs.dir(it)
-                args(it, '-d', outputDir)
-            }
-        }
-
         java {
             registerFeature('optionalSupport') {
                 usingSourceSet(sourceSets.main)
@@ -241,7 +229,7 @@ allprojects { project ->
             if (project.name != 'grpc-common-spring-boot') {
                 dependsOn(":grpc-common-spring-boot:javadoc")
             }
-            source = delombok.outputDir
+            source = delombok
             failOnError = false
             options.locale = 'en_US'
             options.encoding = 'UTF-8'
