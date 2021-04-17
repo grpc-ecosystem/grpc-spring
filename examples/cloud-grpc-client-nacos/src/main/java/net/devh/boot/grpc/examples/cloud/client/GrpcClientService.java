@@ -26,8 +26,6 @@ import net.devh.boot.grpc.examples.lib.HelloRequest;
 import net.devh.boot.grpc.examples.lib.SimpleGrpc;
 
 /**
- * TODO
- *
  * @author xiehui1956@gmail.com on 2021/3/5 8:01 下午
  * @version 1.0.0
  */

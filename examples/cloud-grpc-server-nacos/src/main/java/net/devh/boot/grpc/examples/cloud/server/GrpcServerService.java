@@ -24,8 +24,6 @@ import net.devh.boot.grpc.examples.lib.SimpleGrpc;
 import net.devh.boot.grpc.server.service.GrpcService;
 
 /**
- * TODO
- *
  * @author xiehui1956@gmail.com on 2021/3/5 7:44 下午
  * @version 1.0.0
  */

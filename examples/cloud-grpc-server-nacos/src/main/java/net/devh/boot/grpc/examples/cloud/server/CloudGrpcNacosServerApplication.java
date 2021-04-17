@@ -22,8 +22,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
- * TODO
- *
  * @author xiehui1956@gmail.com on 2021/3/5 7:44 下午
  * @version 1.0.0
  */
