@@ -21,13 +21,13 @@ buildscript {
         protobufGradlePluginVersion = '0.8.12'
 
         // https://github.com/spring-projects/spring-boot/releases
-        springBootVersion = '2.4.4'
+        springBootVersion = '2.4.5'
         // https://github.com/spring-cloud/spring-cloud-release/releases
-        springCloudVersion = '2020.0.1'
+        springCloudVersion = '2020.0.2'
         // https://github.com/alibaba/spring-cloud-alibaba/releases
-        springCloudAlibabaNacosVersion = '2.2.3.RELEASE'
+        springCloudAlibabaNacosVersion = '2021.1'
         // https://github.com/spring-projects/spring-security-oauth/releases
-        springSecurityOAuthVersion = '2.5.0.RELEASE'
+        springSecurityOAuthVersion = '2.5.1.RELEASE'
 
         lombokPluginVersion = '4.0.0'
         versioningPluginVersion = '2.14.0'
