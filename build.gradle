@@ -206,9 +206,6 @@ allprojects { project ->
 
     if (project.name == 'grpc-common-spring-boot' || project.name == 'grpc-client-spring-boot-autoconfigure' || project.name == 'grpc-server-spring-boot-autoconfigure') {
         // Properly generate javadocs for the important projects
-        lombok {
-            version = "1.18.20"
-        }
 
         task delombok(type: DelombokTask, dependsOn: compileJava) {
             ext.outputDir = file("$buildDir/delombok")
