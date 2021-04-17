@@ -1,0 +1,17 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: cloud-grpc-server-nacos
+  sleuth:
+    sampler:
+      probability: 1
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+
+grpc:
+  server:
+    port: 0

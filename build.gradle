@@ -167,6 +167,7 @@ allprojects { project ->
             imports {
                 mavenBom "org.springframework.boot:spring-boot-starter-parent:${springBootVersion}"
                 mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+                mavenBom "com.alibaba.cloud:spring-cloud-alibaba-dependencies:${springCloudAlibabaNacosVersion}"
                 mavenBom "com.google.protobuf:protobuf-bom:${protobufVersion}"
                 mavenBom "com.google.guava:guava-bom:${guavaVersion}"
                 mavenBom "io.grpc:grpc-bom:${grpcVersion}"
