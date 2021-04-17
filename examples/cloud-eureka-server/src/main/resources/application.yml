@@ -17,10 +17,11 @@ eureka:
     registerWithEureka: false
     fetchRegistry: false
     serviceUrl:
-            defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://localhost:8761/eureka/
   server:
     enable-self-preservation: false
 
-endpoints:
- shutdown:
-  enabled: true
+management:
+  endpoint:
+    shutdown:
+      enabled: true

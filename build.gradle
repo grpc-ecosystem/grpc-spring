@@ -9,22 +9,25 @@ buildscript {
         }
     }
     ext {
-        projectVersion = '2.11.0.RELEASE'
+        projectVersion = '2.12.0-SNAPSHOT'
 
         // https://github.com/grpc/grpc-java/releases
-        grpcVersion = '1.35.0'
+        grpcVersion = '1.37.0'
+
+        // https://github.com/google/guava/releases
+        guavaVersion = '30.1.1-jre'
         // https://github.com/protocolbuffers/protobuf/releases
-        protobufVersion = '3.14.0'
+        protobufVersion = '3.15.8'
         protobufGradlePluginVersion = '0.8.12'
 
         // https://github.com/spring-projects/spring-boot/releases
-        springBootVersion = '2.3.8.RELEASE'
+        springBootVersion = '2.4.5'
         // https://github.com/spring-cloud/spring-cloud-release/releases
-        springCloudVersion = 'Hoxton.SR9'
+        springCloudVersion = '2020.0.2'
         // https://github.com/alibaba/spring-cloud-alibaba/releases
-        springCloudAlibabaNacosVersion = '2.2.3.RELEASE'
+        springCloudAlibabaNacosVersion = '2021.1'
         // https://github.com/spring-projects/spring-security-oauth/releases
-        springSecurityOAuthVersion = '2.5.0.RELEASE'
+        springSecurityOAuthVersion = '2.5.1.RELEASE'
 
         lombokPluginVersion = '4.0.0'
         versioningPluginVersion = '2.14.0'
@@ -38,10 +41,10 @@ plugins {
     id 'org.springframework.boot' version "${springBootVersion}" apply false
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'net.nemerosa.versioning' version '2.14.0'
-    id 'com.google.protobuf' version '0.8.14'
+    id 'com.google.protobuf' version '0.8.15'
     id 'io.franzbecker.gradle-lombok' version '4.0.0' apply false
     id 'com.github.ben-manes.versions' version '0.36.0' // gradle dependencyUpdates
-    id 'com.diffplug.spotless' version '5.9.0'
+    id 'com.diffplug.spotless' version '5.11.0'
 }
 
 // If you attempt to build without the `--scan` parameter in `gradle 6.0+` it will cause a build error that it can't find
@@ -57,7 +60,7 @@ if (hasProperty('buildScan')) {
 wrapper {
     // Update using:
     // ./gradlew wrapper --gradle-version=6.5 --distribution-type=bin
-    gradleVersion = '6.7.1'
+    gradleVersion = '7.0'
 }
 
 def buildTimeAndDate = OffsetDateTime.now()
@@ -95,8 +98,17 @@ allprojects {
         }
         format('misc') {
             target('**/*.gradle', '**/*.md', '**/*.yml')
+            targetExclude('**/build/**/*.*')
             trimTrailingWhitespace()
             endWithNewline()
+        }
+    }
+
+    normalization {
+        runtimeClasspath {
+            metaInf{
+                ignoreAttribute('Build-Time')
+            }
         }
     }
 
@@ -157,6 +169,7 @@ allprojects { project ->
                 mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
                 mavenBom "com.alibaba.cloud:spring-cloud-alibaba-dependencies:${springCloudAlibabaNacosVersion}"
                 mavenBom "com.google.protobuf:protobuf-bom:${protobufVersion}"
+                mavenBom "com.google.guava:guava-bom:${guavaVersion}"
                 mavenBom "io.grpc:grpc-bom:${grpcVersion}"
                 mavenBom "org.junit:junit-bom:5.7.0"
             }

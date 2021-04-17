@@ -20,7 +20,7 @@ package net.devh.boot.grpc.server.autoconfigure;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.security.servlet.WebSecurityEnablerConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
@@ -61,7 +61,7 @@ import net.devh.boot.grpc.server.security.interceptors.ExceptionTranslatingServe
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnBean(AuthenticationManager.class)
-@AutoConfigureAfter(WebSecurityEnablerConfiguration.class)
+@AutoConfigureAfter(SecurityAutoConfiguration.class)
 public class GrpcServerSecurityAutoConfiguration {
 
     /**
