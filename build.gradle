@@ -79,6 +79,12 @@ allprojects {
     apply plugin: 'com.diffplug.spotless'
     apply plugin: 'io.franzbecker.gradle-lombok'
 
+	java {
+	    toolchain {
+	        languageVersion = JavaLanguageVersion.of(8)
+	    }
+	}
+
     compileJava {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -88,6 +94,13 @@ allprojects {
     compileJava.options*.compilerArgs = [
         '-Xlint:all', '-Xlint:-processing'
     ]
+
+    eclipse {
+        classpath {
+            downloadJavadoc = true
+            downloadSources = true
+        }
+    }
 
     spotless {
         java {

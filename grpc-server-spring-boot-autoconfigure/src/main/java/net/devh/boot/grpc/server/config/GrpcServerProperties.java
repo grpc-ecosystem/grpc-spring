@@ -181,14 +181,6 @@ public class GrpcServerProperties {
     private DataSize maxInboundMetadataSize = null;
 
     /**
-     * Whether gRPC health service is enabled or not. Defaults to {@code true}.
-     *
-     * @param healthServiceEnabled Whether gRPC health service is enabled.
-     * @return True, if the health service is enabled. False otherwise.
-     */
-    private boolean healthServiceEnabled = true;
-
-    /**
      * Whether proto reflection service is enabled or not. Defaults to {@code true}.
      *
      * @param reflectionServiceEnabled Whether gRPC reflection service is enabled.

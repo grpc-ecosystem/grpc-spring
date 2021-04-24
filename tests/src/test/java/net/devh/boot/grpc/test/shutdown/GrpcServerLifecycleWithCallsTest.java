@@ -27,7 +27,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
-import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
@@ -42,9 +41,7 @@ import com.google.protobuf.Empty;
 import io.grpc.ManagedChannel;
 import io.grpc.Status;
 import io.grpc.inprocess.InProcessChannelBuilder;
-import io.grpc.services.HealthStatusManager;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
-import net.devh.boot.grpc.server.serverfactory.AbstractGrpcServerFactory;
 import net.devh.boot.grpc.server.serverfactory.GrpcServerFactory;
 import net.devh.boot.grpc.server.serverfactory.GrpcServerLifecycle;
 import net.devh.boot.grpc.server.serverfactory.InProcessGrpcServerFactory;
@@ -157,25 +154,15 @@ class GrpcServerLifecycleWithCallsTest {
     void withServer(final Duration gracefulShutdownTimeout,
             final BiConsumer<WaitingTestService, GrpcServerLifecycle> executuable) {
         final GrpcServerFactory factory = new InProcessGrpcServerFactory("test", new GrpcServerProperties());
-        assertDoesNotThrow(() -> {
-            // TODO: Remove that field
-            final Field healthStatusManager = AbstractGrpcServerFactory.class.getDeclaredField("healthStatusManager");
-            healthStatusManager.setAccessible(true);
-            healthStatusManager.set(factory, new HealthStatusManager());
-        });
+        final WaitingTestService service = new WaitingTestService();
+
+        factory.addService(new GrpcServiceDefinition("service", WaitingTestService.class, service.bindService()));
+
+        final GrpcServerLifecycle lifecycle = new GrpcServerLifecycle(factory, gracefulShutdownTimeout);
         try {
-            final WaitingTestService service = new WaitingTestService();
-
-            factory.addService(new GrpcServiceDefinition("service", WaitingTestService.class, service.bindService()));
-
-            final GrpcServerLifecycle lifecycle = new GrpcServerLifecycle(factory, gracefulShutdownTimeout);
-            try {
-                assertDoesNotThrow(() -> executuable.accept(service, lifecycle));
-            } finally {
-                lifecycle.stop();
-            }
+            assertDoesNotThrow(() -> executuable.accept(service, lifecycle));
         } finally {
-            factory.destroy();
+            lifecycle.stop();
         }
     }
 

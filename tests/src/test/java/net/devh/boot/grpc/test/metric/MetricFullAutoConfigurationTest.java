@@ -48,15 +48,19 @@ class MetricFullAutoConfigurationTest {
     @Autowired
     private MeterRegistry meterRegistry;
 
+    private static final int REFLECTION_SERVER_METHOD_COUNT = 1;
+    private static final int TOTAL_METHOD_COUNT = REFLECTION_SERVER_METHOD_COUNT + METHOD_COUNT;
+
     @Test
     @DirtiesContext
     void testAutoDiscovery() {
         log.info("--- Starting tests with full auto discovery ---");
-        assertEquals(METHOD_COUNT * 2, this.meterRegistry.getMeters().stream()
+        MetricTestHelper.logMeters(this.meterRegistry.getMeters());
+        assertEquals(TOTAL_METHOD_COUNT * 2, this.meterRegistry.getMeters().stream()
                 .filter(Counter.class::isInstance)
                 .filter(m -> m.getId().getName().startsWith("grpc.")) // Only count grpc metrics
                 .count());
-        assertEquals(METHOD_COUNT, this.meterRegistry.getMeters().stream()
+        assertEquals(TOTAL_METHOD_COUNT, this.meterRegistry.getMeters().stream()
                 .filter(Timer.class::isInstance)
                 .filter(m -> m.getId().getName().startsWith("grpc.")) // Only count grpc metrics
                 .count());
