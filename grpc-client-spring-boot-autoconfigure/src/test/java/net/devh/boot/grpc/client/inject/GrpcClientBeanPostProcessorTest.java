@@ -141,7 +141,7 @@ class GrpcClientBeanPostProcessorTest {
         public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
                 final MethodDescriptor<ReqT, RespT> method,
                 final CallOptions callOptions, final Channel next) {
-            return next.newCall(null, callOptions);
+            return next.newCall(method, callOptions);
         }
 
     }
@@ -152,7 +152,7 @@ class GrpcClientBeanPostProcessorTest {
         public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
                 final MethodDescriptor<ReqT, RespT> method,
                 final CallOptions callOptions, final Channel next) {
-            return next.newCall(null, callOptions);
+            return next.newCall(method, callOptions);
         }
 
     }
