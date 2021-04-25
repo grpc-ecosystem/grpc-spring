@@ -13,6 +13,7 @@ This section describes how you can configure your grpc-spring-boot-starter clien
   - [ClientInterceptor](#clientinterceptor)
   - [StubFactory](#stubfactory)
   - [StubTransformer](#stubtransformer)
+- [Custom NameResolverProvider](#custom-nameresolverprovider)
 
 ## Additional Topics <!-- omit in toc -->
 
@@ -80,7 +81,8 @@ There are a number of supported schemes, that you can use to determine the targe
   You can define custom
   [`NameResolverProvider`s](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/NameResolverProvider.html) those
   will be picked up, by either via Java's `ServiceLoader` or from spring's application context and registered in
-  the `NameResolverRegistry`.
+  the `NameResolverRegistry`. \
+  See also [Custom NameResolverProvider](#custom-nameresolverprovider)
 
 If you don't define an address it will be guessed:
 
@@ -242,6 +244,23 @@ public StubTransformer call() {
 You can also use `StubTransformer`s to add custom `ClientInterceptor`s to your stub.
 
 > **Note**: The `StubTransformer`s are applied after the  `@GrpcClient#interceptors(Names)` have been added.
+
+## Custom NameResolverProvider
+
+Sometimes you might have some custom logic that decides which server you wish to connect to, you can achieve this
+using a custom `NameResolverProvider`.
+
+> **Note:** This can only be used to decide this on an application level and not on a per request level.
+
+This library provides some `NameResolverProvider`s itself so you can use them as a
+[reference](https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/nameresolver).
+
+You can register your `NameResolverProvider` by adding it to `META-INF/services/io.grpc.NameResolverProvider` for Java's
+`ServiceLoader` or adding it your spring context. If you wish to use some spring beans inside your `NameResolver`, then
+you have to define it via spring context (unless you wish to use `static`).
+
+> **Note:** `NameResolverProvider`s are registered gloablly, so might run into issues if you boot up two or more
+> applications simulataneosly in the same JVM (e.g. during tests).
 
 ## Additional Topics <!-- omit in toc -->
 

@@ -15,29 +15,27 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.common.autoconfigure;
+package net.devh.boot.grpc.examples.cloud.client;
 
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cloud.sleuth.autoconfig.brave.BraveAutoConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import javax.annotation.Resource;
 
-import brave.Tracing;
-import brave.grpc.GrpcTracing;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-@Configuration(proxyBeanMethods = false)
-@ConditionalOnProperty(value = "spring.sleuth.grpc.enabled", matchIfMissing = true)
-@AutoConfigureAfter(BraveAutoConfiguration.class)
-@ConditionalOnClass(value = {Tracing.class, GrpcTracing.class})
-public class GrpcCommonTraceAutoConfiguration {
+/**
+ * @author xiehui1956@gmail.com on 2021/3/5 8:00 下午
+ * @version 1.0.0
+ */
+@RestController
+public class GrpcClientController {
 
-    @Bean
-    @ConditionalOnMissingBean
-    public GrpcTracing grpcTracing(final Tracing tracing) {
-        return GrpcTracing.create(tracing);
+    @Resource
+    private GrpcClientService clientService;
+
+    @GetMapping("/")
+    public String msg(@RequestParam(defaultValue = "Michael") String name) {
+        return clientService.sendMessage(name);
     }
 
 }

@@ -15,29 +15,32 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.common.autoconfigure;
+package net.devh.boot.grpc.examples.cloud.client;
 
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cloud.sleuth.autoconfig.brave.BraveAutoConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Service;
 
-import brave.Tracing;
-import brave.grpc.GrpcTracing;
+import io.grpc.StatusRuntimeException;
+import net.devh.boot.grpc.client.inject.GrpcClient;
+import net.devh.boot.grpc.examples.lib.HelloReply;
+import net.devh.boot.grpc.examples.lib.HelloRequest;
+import net.devh.boot.grpc.examples.lib.SimpleGrpc;
 
-@Configuration(proxyBeanMethods = false)
-@ConditionalOnProperty(value = "spring.sleuth.grpc.enabled", matchIfMissing = true)
-@AutoConfigureAfter(BraveAutoConfiguration.class)
-@ConditionalOnClass(value = {Tracing.class, GrpcTracing.class})
-public class GrpcCommonTraceAutoConfiguration {
+/**
+ * @author xiehui1956@gmail.com on 2021/3/5 8:01 下午
+ * @version 1.0.0
+ */
+@Service
+public class GrpcClientService {
 
-    @Bean
-    @ConditionalOnMissingBean
-    public GrpcTracing grpcTracing(final Tracing tracing) {
-        return GrpcTracing.create(tracing);
+    @GrpcClient("cloud-grpc-server-nacos")
+    private SimpleGrpc.SimpleBlockingStub blockingStub;
+
+    public String sendMessage(final String name) {
+        try {
+            final HelloReply response = this.blockingStub.sayHello(HelloRequest.newBuilder().setName(name).build());
+            return response.getMessage();
+        } catch (final StatusRuntimeException e) {
+            return "FAILED with " + e.getStatus().getCode().name();
+        }
     }
-
 }

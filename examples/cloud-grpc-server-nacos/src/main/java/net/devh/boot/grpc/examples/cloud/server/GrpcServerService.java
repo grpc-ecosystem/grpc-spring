@@ -15,34 +15,25 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.server.advice;
+package net.devh.boot.grpc.examples.cloud.server;
 
-import static java.util.Objects.requireNonNull;
-
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.context.annotation.ConditionContext;
-import org.springframework.context.annotation.ConfigurationCondition;
-import org.springframework.core.type.AnnotatedTypeMetadata;
+import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.examples.lib.HelloReply;
+import net.devh.boot.grpc.examples.lib.HelloRequest;
+import net.devh.boot.grpc.examples.lib.SimpleGrpc;
+import net.devh.boot.grpc.server.service.GrpcService;
 
 /**
- * Condition to check if {@link GrpcAdvice @GrpcAdvice} is present. Mainly checking if {@link GrpcAdviceDiscoverer}
- * should be a instantiated.
- *
- * @author Andjelko Perisic (andjelko.perisic@gmail.com)
- * @see GrpcAdviceDiscoverer
+ * @author xiehui1956@gmail.com on 2021/3/5 7:44 下午
+ * @version 1.0.0
  */
-public class GrpcAdviceIsPresentCondition implements ConfigurationCondition {
+@GrpcService
+public class GrpcServerService extends SimpleGrpc.SimpleImplBase {
 
     @Override
-    public ConfigurationPhase getConfigurationPhase() {
-        return ConfigurationPhase.REGISTER_BEAN;
+    public void sayHello(HelloRequest request, StreamObserver<HelloReply> responseObserver) {
+        HelloReply reply = HelloReply.newBuilder().setMessage("Hello ==> " + request.getName()).build();
+        responseObserver.onNext(reply);
+        responseObserver.onCompleted();
     }
-
-    @Override
-    public boolean matches(final ConditionContext context, final AnnotatedTypeMetadata metadata) {
-        final ConfigurableListableBeanFactory safeBeanFactory =
-                requireNonNull(context.getBeanFactory(), "ConfigurableListableBeanFactory is null");
-        return safeBeanFactory.getBeanNamesForAnnotation(GrpcAdvice.class).length != 0;
-    }
-
 }
