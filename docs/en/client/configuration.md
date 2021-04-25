@@ -154,7 +154,7 @@ The following examples demonstrate how to use annotations to create a global cli
 public class ThirdPartyInterceptorConfig {}
 
     @GrpcGlobalServerInterceptor
-    ServerInterceptor logServerInterceptor() {
+    LogGrpcInterceptor logServerInterceptor() {
         return new LogGrpcInterceptor();
     }
 
