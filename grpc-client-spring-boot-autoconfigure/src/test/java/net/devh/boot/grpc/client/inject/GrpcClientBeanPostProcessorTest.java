@@ -125,7 +125,7 @@ class GrpcClientBeanPostProcessorTest {
         assertThat(beans).hasSize(1).doesNotContain(this.interceptor1);
     }
 
-    private static class TestConfig {
+    static class TestConfig {
 
         @Bean
         Interceptor1 interceptor1() {
