@@ -128,7 +128,8 @@ public class GrpcServerAutoConfiguration {
     @ConditionalOnMissingBean
     @ConditionalOnBean(GrpcServerFactory.class)
     @Bean
-    public GrpcServerLifecycle grpcServerLifecycle(final GrpcServerFactory factory,
+    public GrpcServerLifecycle grpcServerLifecycle(
+            final GrpcServerFactory factory,
             final GrpcServerProperties properties) {
         return new GrpcServerLifecycle(factory, properties.getShutdownGracePeriod());
     }

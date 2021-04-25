@@ -79,11 +79,11 @@ allprojects {
     apply plugin: 'com.diffplug.spotless'
     apply plugin: 'io.franzbecker.gradle-lombok'
 
-	java {
-	    toolchain {
-	        languageVersion = JavaLanguageVersion.of(8)
-	    }
-	}
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(8)
+        }
+    }
 
     compileJava {
         sourceCompatibility = JavaVersion.VERSION_1_8
