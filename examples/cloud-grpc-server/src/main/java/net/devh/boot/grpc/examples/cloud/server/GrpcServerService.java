@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -23,18 +23,14 @@ import net.devh.boot.grpc.examples.lib.HelloRequest;
 import net.devh.boot.grpc.examples.lib.SimpleGrpc;
 import net.devh.boot.grpc.server.service.GrpcService;
 
-/**
- * @author Michael (yidongnan@gmail.com)
- * @since 2016/11/8
- */
-
 @GrpcService
 public class GrpcServerService extends SimpleGrpc.SimpleImplBase {
 
     @Override
-    public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
-        HelloReply reply = HelloReply.newBuilder().setMessage("Hello ==> " + req.getName()).build();
+    public void sayHello(final HelloRequest req, final StreamObserver<HelloReply> responseObserver) {
+        final HelloReply reply = HelloReply.newBuilder().setMessage("Hello ==> " + req.getName()).build();
         responseObserver.onNext(reply);
         responseObserver.onCompleted();
     }
+
 }

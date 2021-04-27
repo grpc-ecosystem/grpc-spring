@@ -19,9 +19,3 @@ include "examples:security-grpc-client"
 include "examples:security-grpc-server"
 include "examples:security-grpc-bearerAuth-server"
 include "examples:security-grpc-bearerAuth-client"
-include 'examples:cloud-grpc-server-consul'
-include 'examples:cloud-grpc-client-consul'
-include 'examples:cloud-grpc-server-zookeeper'
-include 'examples:cloud-grpc-client-zookeeper'
-include 'examples:cloud-grpc-server-nacos'
-include 'examples:cloud-grpc-client-nacos'
