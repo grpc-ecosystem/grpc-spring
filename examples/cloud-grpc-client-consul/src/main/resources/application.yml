@@ -1,17 +1,12 @@
 server:
-  port: 8082
+  port: 8080
 spring:
   application:
-    name: cloud-grpc-client-consul
-  cloud:
-    consul:
-      discovery:
-        registry: false
-        port: 8500
-        hostname: 127.0.0.1
+    name: cloud-grpc-client
 grpc:
   client:
-    cloud-grpc-server-consul:
+    cloud-grpc-server:
+      address: 'discovery:///cloud-grpc-server'
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiationType: plaintext

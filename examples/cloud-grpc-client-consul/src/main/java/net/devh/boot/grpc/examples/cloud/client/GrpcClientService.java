@@ -26,15 +26,11 @@ import net.devh.boot.grpc.examples.lib.HelloReply;
 import net.devh.boot.grpc.examples.lib.HelloRequest;
 import net.devh.boot.grpc.examples.lib.SimpleGrpc.SimpleBlockingStub;
 
-/**
- * @author zhaochunlin (946599275@qq.com)
- * @since 2021/1/9
- */
 @Service
 @Slf4j
 public class GrpcClientService {
 
-    @GrpcClient("cloud-grpc-server-consul")
+    @GrpcClient("cloud-grpc-server")
     private SimpleBlockingStub simpleStub;
 
     public String sendMessage(final String name) {
@@ -42,7 +38,7 @@ public class GrpcClientService {
             final HelloReply response = this.simpleStub.sayHello(HelloRequest.newBuilder().setName(name).build());
             return response.getMessage();
         } catch (final StatusRuntimeException e) {
-            log.error(e.getMessage());
+            log.error("Request failed", e);
             return "FAILED with " + e.getStatus().getCode();
         }
     }

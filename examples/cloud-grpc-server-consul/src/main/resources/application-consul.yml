@@ -1,0 +1,7 @@
+#spring:
+#  cloud:
+#    consul:
+#      discovery:
+#        register: true
+#        hostname: localhost
+#        port: 8500

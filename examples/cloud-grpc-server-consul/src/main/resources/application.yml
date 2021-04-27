@@ -1,16 +1,10 @@
 server:
-  port: 8081
+  port: 58080
 
 spring:
   application:
-    name: cloud-grpc-server-consul
-  cloud:
-    consul:
-      discovery:
-        registry: true
-        port: 8500
-        hostname: 127.0.0.1
+    name: cloud-grpc-server
 
 grpc:
   server:
-    port: 9999
+    port: 58081

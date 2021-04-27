@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -15,22 +15,18 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.examples.cloud.client;
+package net.devh.boot.grpc.examples.cloud.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
-/**
- * @author xiehui1956@gmail.com on 2021/3/5 8:00 下午
- * @version 1.0.0
- */
 @EnableDiscoveryClient
 @SpringBootApplication
-public class CloudGrpcNacosClientApplication {
+public class CloudServerApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(CloudGrpcNacosClientApplication.class, args);
+    public static void main(final String... args) {
+        SpringApplication.run(CloudServerApplication.class, args);
     }
 
 }
