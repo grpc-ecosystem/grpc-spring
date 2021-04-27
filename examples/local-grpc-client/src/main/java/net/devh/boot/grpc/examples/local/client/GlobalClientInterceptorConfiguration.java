@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
-import io.grpc.ClientInterceptor;
 import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
 
 @Order(Ordered.LOWEST_PRECEDENCE)
@@ -29,7 +28,7 @@ import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
 public class GlobalClientInterceptorConfiguration {
 
     @GrpcGlobalClientInterceptor
-    ClientInterceptor logClientInterceptor() {
+    LogGrpcInterceptor logClientInterceptor() {
         return new LogGrpcInterceptor();
     }
 
