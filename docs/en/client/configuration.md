@@ -65,7 +65,7 @@ There are a number of supported schemes, that you can use to determine the targe
   one and also supports `SVC` lookups. See also [Kubernetes Setup](../kubernetes.md).
 - `discovery` (Prio 6): \
   (Optional) Uses spring-cloud's `DiscoveryClient` to lookup appropriate targets. The connections will be refreshed
-  automatically during `HeartbeatEvent`s. Uses the `gRPC.port` metadata to determine the port, otherwise uses the
+  automatically during `HeartbeatEvent`s. Uses the `gRPC_port` metadata to determine the port, otherwise uses the
   service port. \
   Example: `discovery:///service-name`
 - `self` (Prio 0): \
@@ -154,7 +154,7 @@ The following examples demonstrate how to use annotations to create a global cli
 public class ThirdPartyInterceptorConfig {}
 
     @GrpcGlobalServerInterceptor
-    ServerInterceptor logServerInterceptor() {
+    LogGrpcInterceptor logServerInterceptor() {
         return new LogGrpcInterceptor();
     }
 

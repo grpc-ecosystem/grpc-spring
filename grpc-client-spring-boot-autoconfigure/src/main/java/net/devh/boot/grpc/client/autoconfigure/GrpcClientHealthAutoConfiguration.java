@@ -55,7 +55,7 @@ public class GrpcClientHealthAutoConfiguration {
             final ImmutableMap<String, ConnectivityState> states = ImmutableMap.copyOf(factory.getConnectivityState());
             final Health.Builder health;
             if (states.containsValue(ConnectivityState.TRANSIENT_FAILURE)) {
-                health = Health.down();
+                health = Health.outOfService();
             } else {
                 health = Health.up();
             }

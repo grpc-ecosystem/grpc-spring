@@ -180,7 +180,7 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
         final List<ClientInterceptor> list = Lists.newArrayList();
         for (final Class<? extends ClientInterceptor> interceptorClass : annotation.interceptors()) {
             final ClientInterceptor clientInterceptor;
-            if (this.applicationContext.getBeanNamesForType(ClientInterceptor.class).length > 0) {
+            if (this.applicationContext.getBeanNamesForType(interceptorClass).length > 0) {
                 clientInterceptor = this.applicationContext.getBean(interceptorClass);
             } else {
                 try {
