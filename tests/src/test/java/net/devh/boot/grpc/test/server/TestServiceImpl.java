@@ -36,13 +36,14 @@ import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.security.interceptors.AuthenticatingServerInterceptor;
 import net.devh.boot.grpc.server.service.GrpcService;
 import net.devh.boot.grpc.test.proto.SomeType;
+import net.devh.boot.grpc.test.proto.TestServiceGrpc;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceImplBase;
 
 @Slf4j
 @GrpcService
 public class TestServiceImpl extends TestServiceImplBase {
 
-    public static final int METHOD_COUNT = 8;
+    public static final int METHOD_COUNT = TestServiceGrpc.getServiceDescriptor().getMethods().size();
 
     public TestServiceImpl() {
         log.info("Created TestServiceImpl");

@@ -27,6 +27,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import io.grpc.health.v1.HealthGrpc;
+import io.grpc.reflection.v1alpha.ServerReflectionGrpc;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -48,8 +50,12 @@ class MetricFullAutoConfigurationTest {
     @Autowired
     private MeterRegistry meterRegistry;
 
-    private static final int REFLECTION_SERVER_METHOD_COUNT = 1;
-    private static final int TOTAL_METHOD_COUNT = REFLECTION_SERVER_METHOD_COUNT + METHOD_COUNT;
+    private static final int HEALTH_SERVICE_METHOD_COUNT =
+            HealthGrpc.getServiceDescriptor().getMethods().size();
+    private static final int REFLECTION_SERVICE_METHOD_COUNT =
+            ServerReflectionGrpc.getServiceDescriptor().getMethods().size();
+    private static final int TOTAL_METHOD_COUNT =
+            HEALTH_SERVICE_METHOD_COUNT + REFLECTION_SERVICE_METHOD_COUNT + METHOD_COUNT;
 
     @Test
     @DirtiesContext

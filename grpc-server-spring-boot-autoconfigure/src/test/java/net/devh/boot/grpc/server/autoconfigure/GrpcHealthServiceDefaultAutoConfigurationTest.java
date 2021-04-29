@@ -27,42 +27,39 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.reflection.v1alpha.ServerReflectionGrpc;
-import io.grpc.reflection.v1alpha.ServerReflectionGrpc.ServerReflectionStub;
-import io.grpc.reflection.v1alpha.ServerReflectionRequest;
-import io.grpc.reflection.v1alpha.ServerReflectionResponse;
-import io.grpc.stub.StreamObserver;
+import io.grpc.health.v1.HealthCheckRequest;
+import io.grpc.health.v1.HealthCheckResponse;
+import io.grpc.health.v1.HealthCheckResponse.ServingStatus;
+import io.grpc.health.v1.HealthGrpc;
+import io.grpc.health.v1.HealthGrpc.HealthStub;
 
-@SpringBootTest(classes = GrpcReflectionServiceDefaultAutoConfigurationTest.TestConfig.class)
+@SpringBootTest(classes = GrpcHealthServiceDefaultAutoConfigurationTest.TestConfig.class)
 @ImportAutoConfiguration({
         GrpcServerAutoConfiguration.class,
         GrpcServerFactoryAutoConfiguration.class,
-        GrpcReflectionServiceAutoConfiguration.class})
+        GrpcHealthServiceAutoConfiguration.class})
 @DirtiesContext
-class GrpcReflectionServiceDefaultAutoConfigurationTest {
+class GrpcHealthServiceDefaultAutoConfigurationTest {
+
+    private static final HealthCheckRequest HEALTH_CHECK_REQUEST = HealthCheckRequest.getDefaultInstance();
 
     @Test
-    void testReflectionService() {
+    void testHealthService() {
         final ManagedChannel channel = ManagedChannelBuilder.forTarget("localhost:9090").usePlaintext().build();
         try {
-            final ServerReflectionStub stub = ServerReflectionGrpc.newStub(channel);
+            final HealthStub stub = HealthGrpc.newStub(channel);
 
-            final AwaitableStreamObserver<ServerReflectionResponse> resultObserver = new AwaitableStreamObserver<>();
-            final StreamObserver<ServerReflectionRequest> requestObserver = stub.serverReflectionInfo(resultObserver);
-            requestObserver.onNext(ServerReflectionRequest.newBuilder()
-                    .setListServices("")
-                    .build());
-            requestObserver.onCompleted();
+            final AwaitableStreamObserver<HealthCheckResponse> resultObserver = new AwaitableStreamObserver<>();
+            stub.check(HEALTH_CHECK_REQUEST, resultObserver);
             checkResult(resultObserver);
         } finally {
             channel.shutdown();
         }
     }
 
-    void checkResult(final AwaitableStreamObserver<ServerReflectionResponse> resultObserver) {
-        final ServerReflectionResponse response = assertDoesNotThrow(resultObserver::getSingle);
-        assertEquals("grpc.reflection.v1alpha.ServerReflection",
-                response.getListServicesResponse().getServiceList().get(0).getName());
+    void checkResult(final AwaitableStreamObserver<HealthCheckResponse> resultObserver) {
+        final HealthCheckResponse response = assertDoesNotThrow(resultObserver::getSingle);
+        assertEquals(ServingStatus.SERVING, response.getStatus());
     }
 
     static class TestConfig {
