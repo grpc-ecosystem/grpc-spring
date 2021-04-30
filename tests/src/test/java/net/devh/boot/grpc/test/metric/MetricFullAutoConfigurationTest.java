@@ -27,6 +27,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import io.grpc.health.v1.HealthGrpc;
+import io.grpc.reflection.v1alpha.ServerReflectionGrpc;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -48,15 +50,23 @@ class MetricFullAutoConfigurationTest {
     @Autowired
     private MeterRegistry meterRegistry;
 
+    private static final int HEALTH_SERVICE_METHOD_COUNT =
+            HealthGrpc.getServiceDescriptor().getMethods().size();
+    private static final int REFLECTION_SERVICE_METHOD_COUNT =
+            ServerReflectionGrpc.getServiceDescriptor().getMethods().size();
+    private static final int TOTAL_METHOD_COUNT =
+            HEALTH_SERVICE_METHOD_COUNT + REFLECTION_SERVICE_METHOD_COUNT + METHOD_COUNT;
+
     @Test
     @DirtiesContext
     void testAutoDiscovery() {
         log.info("--- Starting tests with full auto discovery ---");
-        assertEquals(METHOD_COUNT * 2, this.meterRegistry.getMeters().stream()
+        MetricTestHelper.logMeters(this.meterRegistry.getMeters());
+        assertEquals(TOTAL_METHOD_COUNT * 2, this.meterRegistry.getMeters().stream()
                 .filter(Counter.class::isInstance)
                 .filter(m -> m.getId().getName().startsWith("grpc.")) // Only count grpc metrics
                 .count());
-        assertEquals(METHOD_COUNT, this.meterRegistry.getMeters().stream()
+        assertEquals(TOTAL_METHOD_COUNT, this.meterRegistry.getMeters().stream()
                 .filter(Timer.class::isInstance)
                 .filter(m -> m.getId().getName().startsWith("grpc.")) // Only count grpc metrics
                 .count());

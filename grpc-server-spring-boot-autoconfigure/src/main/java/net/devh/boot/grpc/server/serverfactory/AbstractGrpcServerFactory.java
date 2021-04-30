@@ -23,19 +23,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.unit.DataSize;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
-import io.grpc.health.v1.HealthCheckResponse;
-import io.grpc.health.v1.HealthGrpc;
-import io.grpc.protobuf.services.ProtoReflectionService;
-import io.grpc.reflection.v1alpha.ServerReflectionGrpc;
-import io.grpc.services.HealthStatusManager;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import net.devh.boot.grpc.server.service.GrpcServiceDefinition;
@@ -56,17 +49,13 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
     protected final GrpcServerProperties properties;
     protected final List<GrpcServerConfigurer> serverConfigurers;
 
-    @Autowired
-    @VisibleForTesting
-    HealthStatusManager healthStatusManager;
-
     /**
      * Creates a new server factory with the given properties.
      *
      * @param properties The properties used to configure the server.
      * @param serverConfigurers The server configurers to use. Can be empty.
      */
-    public AbstractGrpcServerFactory(final GrpcServerProperties properties,
+    protected AbstractGrpcServerFactory(final GrpcServerProperties properties,
             final List<GrpcServerConfigurer> serverConfigurers) {
         this.properties = requireNonNull(properties, "properties");
         this.serverConfigurers = requireNonNull(serverConfigurers, "serverConfigurers");
@@ -110,17 +99,6 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
     protected void configureServices(final T builder) {
         final Set<String> serviceNames = new LinkedHashSet<>();
 
-        // support health check
-        if (this.properties.isHealthServiceEnabled()) {
-            builder.addService(this.healthStatusManager.getHealthService());
-            serviceNames.add(HealthGrpc.getServiceDescriptor().getName());
-        }
-        // gRPC reflection
-        if (this.properties.isReflectionServiceEnabled()) {
-            builder.addService(ProtoReflectionService.newInstance());
-            serviceNames.add(ServerReflectionGrpc.getServiceDescriptor().getName());
-        }
-
         for (final GrpcServiceDefinition service : this.serviceList) {
             final String serviceName = service.getDefinition().getServiceDescriptor().getName();
             if (!serviceNames.add(serviceName)) {
@@ -129,7 +107,6 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
             log.info("Registered gRPC service: " + serviceName + ", bean: " + service.getBeanName() + ", class: "
                     + service.getBeanClazz().getName());
             builder.addService(service.getDefinition());
-            this.healthStatusManager.setStatus(serviceName, HealthCheckResponse.ServingStatus.SERVING);
         }
     }
 
@@ -184,14 +161,6 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
     @Override
     public void addService(final GrpcServiceDefinition service) {
         this.serviceList.add(service);
-    }
-
-    @Override
-    public void destroy() {
-        for (final GrpcServiceDefinition grpcServiceDefinition : this.serviceList) {
-            final String serviceName = grpcServiceDefinition.getDefinition().getServiceDescriptor().getName();
-            this.healthStatusManager.clearStatus(serviceName);
-        }
     }
 
 }

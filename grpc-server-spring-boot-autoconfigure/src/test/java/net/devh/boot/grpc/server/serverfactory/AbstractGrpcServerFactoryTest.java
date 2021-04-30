@@ -27,7 +27,6 @@ import io.grpc.ServerBuilder;
 import io.grpc.netty.NettyServerBuilder;
 import io.grpc.protobuf.services.ProtoReflectionService;
 import io.grpc.reflection.v1alpha.ServerReflectionGrpc;
-import io.grpc.services.HealthStatusManager;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import net.devh.boot.grpc.server.service.GrpcServiceDefinition;
 
@@ -45,7 +44,6 @@ class AbstractGrpcServerFactoryTest {
         properties.setReflectionServiceEnabled(false);
 
         final NettyGrpcServerFactory serverFactory = new NettyGrpcServerFactory(properties, emptyList());
-        serverFactory.healthStatusManager = new HealthStatusManager();
 
         serverFactory.addService(new GrpcServiceDefinition("test1", ProtoReflectionService.class,
                 ProtoReflectionService.newInstance().bindService()));
