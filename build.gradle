@@ -155,7 +155,6 @@ allprojects {
 
     repositories {
         mavenCentral()
-        jcenter()
     }
 
     buildscript {
