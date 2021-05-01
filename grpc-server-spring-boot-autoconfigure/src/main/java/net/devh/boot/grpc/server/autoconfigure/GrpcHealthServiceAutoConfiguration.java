@@ -25,7 +25,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import io.grpc.BindableService;
-import io.grpc.protobuf.services.ProtoReflectionService;
 import io.grpc.services.HealthStatusManager;
 import net.devh.boot.grpc.server.service.GrpcService;
 
@@ -35,7 +34,7 @@ import net.devh.boot.grpc.server.service.GrpcService;
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @Configuration
-@ConditionalOnClass(ProtoReflectionService.class)
+@ConditionalOnClass(HealthStatusManager.class)
 @ConditionalOnProperty(prefix = "grpc.server", name = "health-service-enabled", matchIfMissing = true)
 @AutoConfigureBefore(GrpcServerFactoryAutoConfiguration.class)
 public class GrpcHealthServiceAutoConfiguration {
