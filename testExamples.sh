@@ -198,46 +198,6 @@ securityBasicAuthTest() {
 	fi
 }
 
-## Security Bearer Auth
-securityBearerAuthTest() {
-	echo "Starting Security Bearer Auth test"
-
-	# Run environment
-	./gradlew :example:security-grpc-bearerAuth-server:bootRun -x jar -x classes --console=plain &
-	LOCAL_SERVER=$!
-	sleep 10s # Wait for the server to start
-	./gradlew :example:security-grpc-bearerAuth-client:bootRun -x jar -x classes --console=plain &
-	LOCAL_CLIENT=$!
-	sleep 30s # Wait for the client to start and the server to be ready
-
-	# Test
-	RESPONSE=$(curl -s localhost:8080/)
-	echo "Response:"
-	echo "$RESPONSE"
-	EXPECTED=$(echo -e "Input:\nMessage: test, Bearer Token is configured in SecurityConfiguration Class\nResponse:\nHello ==> test")
-	echo "Expected:"
-	echo "$EXPECTED"
-	sleep 1s # Give the user a chance to look at the result
-
-	# Shutdown
-	echo "Triggering shutdown"
-	kill -s TERM $LOCAL_SERVER
-	kill -s TERM $LOCAL_CLIENT
-	sleep 1s # Wait for the shutdown logs to pass
-
-	# Verify
-	if [ "$RESPONSE" = "$EXPECTED" ]; then
-		echo "#-------------------------------------#"
-		echo "| Security Bearer Auth example works! |"
-		echo "#-------------------------------------#"
-	else
-		echo "#--------------------------------------#"
-		echo "| Security Bearer Auth example failed! |"
-		echo "#--------------------------------------#"
-		exit 1
-	fi
-}
-
 ## Tests
 build
 localTest
@@ -245,4 +205,3 @@ localTest
 cloudTest eureka
 cloudTest nacos
 securityBasicAuthTest
-#securityBearerAuthTest
