@@ -201,7 +201,7 @@ securityBasicAuthTest() {
 ## Tests
 build
 localTest
-#cloudTest consul
+cloudTest consul
 cloudTest eureka
 cloudTest nacos
 securityBasicAuthTest
