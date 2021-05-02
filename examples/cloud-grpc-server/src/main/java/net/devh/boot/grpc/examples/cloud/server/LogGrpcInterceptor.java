@@ -15,21 +15,35 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.examples.cloud.client;
+package net.devh.boot.grpc.examples.cloud.server;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
+import io.grpc.Metadata;
+import io.grpc.ServerCall;
+import io.grpc.ServerCallHandler;
+import io.grpc.ServerInterceptor;
+import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 
-@Order(Ordered.LOWEST_PRECEDENCE)
-@Configuration(proxyBeanMethods = false)
-public class GlobalClientInterceptorConfiguration {
+/**
+ * Example {@link ServerInterceptor} that logs all called methods. In this example it is added to Spring's application
+ * context via {@link GlobalInterceptorConfiguration}, but is also possible to directly annotate this class with
+ * {@link GrpcGlobalServerInterceptor}.
+ */
+// @GrpcGlobalServerInterceptor
+public class LogGrpcInterceptor implements ServerInterceptor {
 
-    @GrpcGlobalClientInterceptor
-    LogGrpcInterceptor logClientInterceptor() {
-        return new LogGrpcInterceptor();
+    private static final Logger log = LoggerFactory.getLogger(LogGrpcInterceptor.class);
+
+    @Override
+    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
+            ServerCall<ReqT, RespT> serverCall,
+            Metadata metadata,
+            ServerCallHandler<ReqT, RespT> serverCallHandler) {
+
+        log.info(serverCall.getMethodDescriptor().getFullMethodName());
+        return serverCallHandler.startCall(serverCall, metadata);
     }
 
 }

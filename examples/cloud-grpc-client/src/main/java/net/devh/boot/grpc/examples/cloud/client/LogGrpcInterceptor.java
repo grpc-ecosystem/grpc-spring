@@ -15,29 +15,36 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.examples.cloud.server;
+package net.devh.boot.grpc.examples.cloud.client;
 
-import org.springframework.context.annotation.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import io.grpc.ServerInterceptor;
-import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
+import io.grpc.CallOptions;
+import io.grpc.Channel;
+import io.grpc.ClientCall;
+import io.grpc.ClientInterceptor;
+import io.grpc.MethodDescriptor;
+import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
 
 /**
- * Example configuration class that adds a {@link ServerInterceptor} to the global interceptor list.
+ * Example {@link ClientInterceptor} that logs all called methods. In this example it is added to Spring's application
+ * context via {@link GlobalInterceptorConfiguration}, but is also possible to directly annotate this class with
+ * {@link GrpcGlobalClientInterceptor}.
  */
-@Configuration(proxyBeanMethods = false)
-public class GlobalInterceptorConfiguration {
+// @GrpcGlobalClientInterceptor
+public class LogGrpcInterceptor implements ClientInterceptor {
 
-    /**
-     * Creates a new {@link LogGrpcInterceptor} bean and adds it to the global interceptor list. As an alternative you
-     * can directly annotate the {@code LogGrpcInterceptor} class and it will automatically be picked up by spring's
-     * classpath scanning.
-     *
-     * @return The newly created bean.
-     */
-    @GrpcGlobalServerInterceptor
-    LogGrpcInterceptor logServerInterceptor() {
-        return new LogGrpcInterceptor();
+    private static final Logger log = LoggerFactory.getLogger(LogGrpcInterceptor.class);
+
+    @Override
+    public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+            final MethodDescriptor<ReqT, RespT> method,
+            final CallOptions callOptions,
+            final Channel next) {
+
+        log.info(method.getFullMethodName());
+        return next.newCall(method, callOptions);
     }
 
 }

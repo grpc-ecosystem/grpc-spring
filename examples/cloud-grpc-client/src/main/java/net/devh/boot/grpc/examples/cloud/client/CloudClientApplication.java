@@ -21,10 +21,18 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
+/**
+ * Example grpc client application using cloud discovery.
+ */
 @EnableDiscoveryClient
 @SpringBootApplication
 public class CloudClientApplication {
 
+    /**
+     * Starts the grpc cloud discovery client application.
+     *
+     * @param args The arguments to pass to the application.
+     */
     public static void main(final String... args) {
         SpringApplication.run(CloudClientApplication.class, args);
     }

@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Optional demo controller making the grpc service accessible via browser.
+ * Optional demo controller making the grpc service accessible via browser requests.
  */
 @RestController
 public class GrpcClientController {

@@ -26,6 +26,9 @@ import net.devh.boot.grpc.examples.lib.HelloReply;
 import net.devh.boot.grpc.examples.lib.HelloRequest;
 import net.devh.boot.grpc.examples.lib.SimpleGrpc.SimpleBlockingStub;
 
+/**
+ * Example class demonstrating the usage of {@link GrpcClient}s inside an application.
+ */
 @Service
 @Slf4j
 public class GrpcClientService {

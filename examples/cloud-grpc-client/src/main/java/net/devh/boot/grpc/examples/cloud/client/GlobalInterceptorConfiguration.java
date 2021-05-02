@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -15,25 +15,29 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.examples.cloud.server;
+package net.devh.boot.grpc.examples.cloud.client;
 
-import io.grpc.stub.StreamObserver;
-import net.devh.boot.grpc.examples.lib.HelloReply;
-import net.devh.boot.grpc.examples.lib.HelloRequest;
-import net.devh.boot.grpc.examples.lib.SimpleGrpc;
-import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.context.annotation.Configuration;
+
+import io.grpc.ClientInterceptor;
+import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
 
 /**
- * Example grpc server service implementation class.
+ * Example configuration class that adds a {@link ClientInterceptor} to the global interceptor list.
  */
-@GrpcService
-public class GrpcServerService extends SimpleGrpc.SimpleImplBase {
+@Configuration(proxyBeanMethods = false)
+public class GlobalInterceptorConfiguration {
 
-    @Override
-    public void sayHello(final HelloRequest req, final StreamObserver<HelloReply> responseObserver) {
-        final HelloReply reply = HelloReply.newBuilder().setMessage("Hello ==> " + req.getName()).build();
-        responseObserver.onNext(reply);
-        responseObserver.onCompleted();
+    /**
+     * Creates a new {@link LogGrpcInterceptor} bean and adds it to the global interceptor list. As an alternative you
+     * can directly annotate the {@code LogGrpcInterceptor} class and it will automatically be picked up by spring's
+     * classpath scanning.
+     *
+     * @return The newly created bean.
+     */
+    @GrpcGlobalClientInterceptor
+    LogGrpcInterceptor logClientInterceptor() {
+        return new LogGrpcInterceptor();
     }
 
 }
