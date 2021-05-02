@@ -2,5 +2,5 @@
 #  cloud:
 #    nacos:
 #      discovery:
-#        register-enabled: false
+#        register-enabled: true
 #        server-addr: localhost:8848
