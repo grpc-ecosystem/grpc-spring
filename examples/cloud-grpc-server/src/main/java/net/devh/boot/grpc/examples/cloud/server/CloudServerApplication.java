@@ -15,35 +15,26 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.examples.cloud.client;
+package net.devh.boot.grpc.examples.cloud.server;
 
-import org.springframework.stereotype.Service;
-
-import io.grpc.StatusRuntimeException;
-import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.client.inject.GrpcClient;
-import net.devh.boot.grpc.examples.lib.HelloReply;
-import net.devh.boot.grpc.examples.lib.HelloRequest;
-import net.devh.boot.grpc.examples.lib.SimpleGrpc.SimpleBlockingStub;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
- * Example class demonstrating the usage of {@link GrpcClient}s inside an application.
+ * Example grpc service application supporting cloud discovery.
  */
-@Service
-@Slf4j
-public class GrpcClientService {
+@EnableDiscoveryClient
+@SpringBootApplication
+public class CloudServerApplication {
 
-    @GrpcClient("cloud-grpc-server")
-    private SimpleBlockingStub simpleStub;
-
-    public String sendMessage(final String name) {
-        try {
-            final HelloReply response = this.simpleStub.sayHello(HelloRequest.newBuilder().setName(name).build());
-            return response.getMessage();
-        } catch (final StatusRuntimeException e) {
-            log.error("Request failed", e);
-            return "FAILED with " + e.getStatus().getCode();
-        }
+    /**
+     * Starts the grpc cloud server application.
+     *
+     * @param args The arguments to pass to the application.
+     */
+    public static void main(final String... args) {
+        SpringApplication.run(CloudServerApplication.class, args);
     }
 
 }

@@ -1,0 +1,6 @@
+#spring:
+#  cloud:
+#    nacos:
+#      discovery:
+#        register-enabled: true
+#        server-addr: localhost:8848

@@ -17,33 +17,27 @@
 
 package net.devh.boot.grpc.examples.cloud.client;
 
-import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Configuration;
 
-import io.grpc.StatusRuntimeException;
-import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.client.inject.GrpcClient;
-import net.devh.boot.grpc.examples.lib.HelloReply;
-import net.devh.boot.grpc.examples.lib.HelloRequest;
-import net.devh.boot.grpc.examples.lib.SimpleGrpc.SimpleBlockingStub;
+import io.grpc.ClientInterceptor;
+import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
 
 /**
- * Example class demonstrating the usage of {@link GrpcClient}s inside an application.
+ * Example configuration class that adds a {@link ClientInterceptor} to the global interceptor list.
  */
-@Service
-@Slf4j
-public class GrpcClientService {
+@Configuration(proxyBeanMethods = false)
+public class GlobalInterceptorConfiguration {
 
-    @GrpcClient("cloud-grpc-server")
-    private SimpleBlockingStub simpleStub;
-
-    public String sendMessage(final String name) {
-        try {
-            final HelloReply response = this.simpleStub.sayHello(HelloRequest.newBuilder().setName(name).build());
-            return response.getMessage();
-        } catch (final StatusRuntimeException e) {
-            log.error("Request failed", e);
-            return "FAILED with " + e.getStatus().getCode();
-        }
+    /**
+     * Creates a new {@link LogGrpcInterceptor} bean and adds it to the global interceptor list. As an alternative you
+     * can directly annotate the {@code LogGrpcInterceptor} class and it will automatically be picked up by spring's
+     * classpath scanning.
+     *
+     * @return The newly created bean.
+     */
+    @GrpcGlobalClientInterceptor
+    LogGrpcInterceptor logClientInterceptor() {
+        return new LogGrpcInterceptor();
     }
 
 }

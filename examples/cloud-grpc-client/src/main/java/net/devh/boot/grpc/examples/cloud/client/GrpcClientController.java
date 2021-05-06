@@ -23,8 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @author Michael (yidongnan@gmail.com)
- * @since 2016/12/4
+ * Optional demo controller making the grpc service accessible via browser requests.
  */
 @RestController
 public class GrpcClientController {
@@ -33,8 +32,8 @@ public class GrpcClientController {
     private GrpcClientService grpcClientService;
 
     @RequestMapping("/")
-    public String printMessage(@RequestParam(defaultValue = "Michael") String name) {
-        return grpcClientService.sendMessage(name);
+    public String printMessage(@RequestParam(defaultValue = "Michael") final String name) {
+        return this.grpcClientService.sendMessage(name);
     }
 
 }

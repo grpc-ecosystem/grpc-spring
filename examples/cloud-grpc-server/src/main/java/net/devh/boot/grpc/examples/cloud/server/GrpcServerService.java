@@ -24,17 +24,16 @@ import net.devh.boot.grpc.examples.lib.SimpleGrpc;
 import net.devh.boot.grpc.server.service.GrpcService;
 
 /**
- * @author Michael (yidongnan@gmail.com)
- * @since 2016/11/8
+ * Example grpc server service implementation class.
  */
-
 @GrpcService
 public class GrpcServerService extends SimpleGrpc.SimpleImplBase {
 
     @Override
-    public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
-        HelloReply reply = HelloReply.newBuilder().setMessage("Hello ==> " + req.getName()).build();
+    public void sayHello(final HelloRequest req, final StreamObserver<HelloReply> responseObserver) {
+        final HelloReply reply = HelloReply.newBuilder().setMessage("Hello ==> " + req.getName()).build();
         responseObserver.onNext(reply);
         responseObserver.onCompleted();
     }
+
 }
