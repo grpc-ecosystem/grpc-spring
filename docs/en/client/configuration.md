@@ -13,6 +13,7 @@ This section describes how you can configure your grpc-spring-boot-starter clien
   - [ClientInterceptor](#clientinterceptor)
   - [StubFactory](#stubfactory)
   - [StubTransformer](#stubtransformer)
+- [Custom NameResolverProvider](#custom-nameresolverprovider)
 
 ## Additional Topics <!-- omit in toc -->
 
@@ -64,7 +65,7 @@ There are a number of supported schemes, that you can use to determine the targe
   one and also supports `SVC` lookups. See also [Kubernetes Setup](../kubernetes.md).
 - `discovery` (Prio 6): \
   (Optional) Uses spring-cloud's `DiscoveryClient` to lookup appropriate targets. The connections will be refreshed
-  automatically during `HeartbeatEvent`s. Uses the `gRPC.port` metadata to determine the port, otherwise uses the
+  automatically during `HeartbeatEvent`s. Uses the `gRPC_port` metadata to determine the port, otherwise uses the
   service port. \
   Example: `discovery:///service-name`
 - `self` (Prio 0): \
@@ -80,7 +81,8 @@ There are a number of supported schemes, that you can use to determine the targe
   You can define custom
   [`NameResolverProvider`s](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/NameResolverProvider.html) those
   will be picked up, by either via Java's `ServiceLoader` or from spring's application context and registered in
-  the `NameResolverRegistry`.
+  the `NameResolverRegistry`. \
+  See also [Custom NameResolverProvider](#custom-nameresolverprovider)
 
 If you don't define an address it will be guessed:
 
@@ -128,12 +130,59 @@ public GrpcChannelConfigurer keepAliveClientConfigurer() {
 
 ### ClientInterceptor
 
+`ClientInterceptor`s can be used for various tasks, including:
+
+- Authentication/Authorization
+- Request validation
+- Response filtering
+- Attaching additional context to the call (e.g. tracing ids)
+- Exception to error `Status` response mapping
+- Logging
+- ...
+
 There are three ways to add a `ClientInterceptor` to your channel.
 
 - Define the `ClientInterceptor` as a global interceptor using either the `@GrpcGlobalClientInterceptor` annotation,
   or a `GlobalClientInterceptorConfigurer`
 - Explicitly list them in the `@GrpcClient#interceptors` or `@GrpcClient#interceptorNames` field
 - Use a `StubTransformer` and call `stub.withInterceptors(ClientInterceptor... interceptors)`
+
+The following examples demonstrate how to use annotations to create a global client interceptor:
+
+````java
+@Configuration
+public class ThirdPartyInterceptorConfig {}
+
+    @GrpcGlobalServerInterceptor
+    LogGrpcInterceptor logServerInterceptor() {
+        return new LogGrpcInterceptor();
+    }
+
+}
+````
+
+This variant is very handy if you wish to add third-party interceptors to the global scope.
+
+For your own interceptor implementations you can achieve the same result by adding the annotation to the class itself:
+
+````java
+@GrpcGlobalServerInterceptor
+public class LogGrpcInterceptor implements ServerInterceptor {
+
+    private static final Logger log = LoggerFactory.getLogger(LogGrpcInterceptor.class);
+
+    @Override
+    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
+            ServerCall<ReqT, RespT> serverCall,
+            Metadata metadata,
+            ServerCallHandler<ReqT, RespT> serverCallHandler) {
+
+        log.info(serverCall.getMethodDescriptor().getFullMethodName());
+        return serverCallHandler.startCall(serverCall, metadata);
+    }
+
+}
+````
 
 ### StubFactory
 
@@ -195,6 +244,23 @@ public StubTransformer call() {
 You can also use `StubTransformer`s to add custom `ClientInterceptor`s to your stub.
 
 > **Note**: The `StubTransformer`s are applied after the  `@GrpcClient#interceptors(Names)` have been added.
+
+## Custom NameResolverProvider
+
+Sometimes you might have some custom logic that decides which server you wish to connect to, you can achieve this
+using a custom `NameResolverProvider`.
+
+> **Note:** This can only be used to decide this on an application level and not on a per request level.
+
+This library provides some `NameResolverProvider`s itself so you can use them as a
+[reference](https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/nameresolver).
+
+You can register your `NameResolverProvider` by adding it to `META-INF/services/io.grpc.NameResolverProvider` for Java's
+`ServiceLoader` or adding it your spring context. If you wish to use some spring beans inside your `NameResolver`, then
+you have to define it via spring context (unless you wish to use `static`).
+
+> **Note:** `NameResolverProvider`s are registered gloablly, so might run into issues if you boot up two or more
+> applications simulataneosly in the same JVM (e.g. during tests).
 
 ## Additional Topics <!-- omit in toc -->
 

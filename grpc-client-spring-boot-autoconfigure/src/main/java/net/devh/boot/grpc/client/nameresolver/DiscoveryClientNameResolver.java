@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -44,7 +44,7 @@ import net.devh.boot.grpc.common.util.GrpcUtils;
 
 /**
  * The DiscoveryClientNameResolver resolves the service hosts and their associated gRPC port using the channel's name
- * and spring's cloud {@link DiscoveryClient}. The ports are extracted from the {@code gRPC.port} metadata.
+ * and spring's cloud {@link DiscoveryClient}. The ports are extracted from the {@code gRPC_port} metadata.
  *
  * @author Michael (yidongnan@gmail.com)
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
@@ -52,6 +52,8 @@ import net.devh.boot.grpc.common.util.GrpcUtils;
 @Slf4j
 public class DiscoveryClientNameResolver extends NameResolver {
 
+    @Deprecated
+    private static final String LEGACY_CLOUD_DISCOVERY_METADATA_PORT = "gRPC.port";
     private static final List<ServiceInstance> KEEP_PREVIOUS = null;
 
     private final String name;
@@ -243,9 +245,16 @@ public class DiscoveryClientNameResolver extends NameResolver {
             if (metadata == null) {
                 return instance.getPort();
             }
-            final String portString = metadata.get(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT);
+            String portString = metadata.get(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT);
             if (portString == null) {
-                return instance.getPort();
+                portString = metadata.get(LEGACY_CLOUD_DISCOVERY_METADATA_PORT);
+                if (portString == null) {
+                    return instance.getPort();
+                } else {
+                    log.warn("Found legacy grpc port metadata '{}' for client '{}' use '{}' instead",
+                            LEGACY_CLOUD_DISCOVERY_METADATA_PORT, DiscoveryClientNameResolver.this.name,
+                            GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT);
+                }
             }
             try {
                 return Integer.parseInt(portString);

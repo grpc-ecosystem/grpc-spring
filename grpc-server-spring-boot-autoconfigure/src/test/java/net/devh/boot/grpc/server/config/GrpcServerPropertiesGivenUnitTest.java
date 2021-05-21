@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -29,7 +29,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.unit.DataSize;
 
 /**
- * Tests whether the property resolution using suffixes works.
+ * Tests whether the property resolution works when using suffixes.
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties = {

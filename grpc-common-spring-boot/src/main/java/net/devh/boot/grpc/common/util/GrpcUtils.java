@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -29,7 +29,12 @@ public final class GrpcUtils {
     /**
      * The cloud discovery metadata key used to identify the grpc port.
      */
-    public static final String CLOUD_DISCOVERY_METADATA_PORT = "gRPC.port";
+    public static final String CLOUD_DISCOVERY_METADATA_PORT = "gRPC_port";
+
+    /**
+     * The constant for the grpc server port, -1 represents don't start an inter process server.
+     */
+    public static final int INTER_PROCESS_DISABLE = -1;
 
     /**
      * Extracts the service name from the given method.

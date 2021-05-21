@@ -1,6 +1,0 @@
-spring:
-  application:
-    name: security-grpc-server
-grpc:
-  server:
-    port: 9090

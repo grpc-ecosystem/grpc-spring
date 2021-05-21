@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
-import io.grpc.ClientInterceptor;
 import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
 
 @Order(Ordered.LOWEST_PRECEDENCE)
@@ -29,7 +28,7 @@ import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
 public class GlobalClientInterceptorConfiguration {
 
     @GrpcGlobalClientInterceptor
-    ClientInterceptor logClientInterceptor() {
+    LogGrpcInterceptor logClientInterceptor() {
         return new LogGrpcInterceptor();
     }
 

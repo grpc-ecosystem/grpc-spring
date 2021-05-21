@@ -9,6 +9,7 @@ are also affected. If there is no such topic, feel free to open a new one as des
 
 ## Table of Contents
 
+- [NoClassDefFoundError, ClassNotFoundException, NoSuchMethodError, AbstractMethodError](#noclassdeffounderror-classnotfoundexception-nosuchmethoderror-abstractmethoderror)
 - [Transport failed](#transport-failed)
 - [Network closed for unknown reason](#network-closed-for-unknown-reason)
 - [Could not find TLS ALPN provider](#could-not-find-tls-alpn-provider)
@@ -17,6 +18,52 @@ are also affected. If there is no such topic, feel free to open a new one as des
 - [Server port already in use](#server-port-already-in-use)
 - [Client fails to resolve domain name](#client-fails-to-resolve-domain-name)
 - [Creating issues / asking questions](#creating-issues)
+
+## NoClassDefFoundError, ClassNotFoundException, NoSuchMethodError, AbstractMethodError
+
+### Example
+
+````txt
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'client' defined in file [~/.../MyGrpcClient.class]: Initialization of bean failed; nested exception is java.lang.NoClassDefFoundError: io/grpc/TlsChannelCredentials$Feature
+    at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:602)
+    [...]
+Caused by: java.lang.NoClassDefFoundError: io/grpc/TlsChannelCredentials$Feature
+    at io.grpc.netty.ProtocolNegotiators.<clinit>(ProtocolNegotiators.java:92)
+````
+
+### The Problem
+
+The server/client does not start because some class or method is missing. \
+This is usually the case if the grpc-libraries use slightly different versions.
+
+### The solution
+
+Make sure to use exactly the same version for all `grpc-java` versions.
+
+Add the following entry to your `dependencyManagement` section of your project:
+
+````xml
+<dependency>
+    <groupId>io.grpc</groupId>
+    <artifactId>grpc-bom</artifactId>
+    <version>${grpcVersion}</version>
+    <type>pom</type>
+    <scope>import</scope>
+</dependency>
+````
+
+You can use a similar approach for gradle:
+
+````groovy
+dependencyManagement {
+    imports {
+        mavenBom "io.grpc:grpc-bom:${grpcVersion}"
+````
+
+> **Note:** grpc-spring-boot-starter isn't strictly bound to a specific version of grpc-java, so you can also use this
+> to change the version of grpc-java you are using in your project.
+
+See also [Could not find TLS ALPN provider](#could-not-find-tls-alpn-provider)
 
 ## Transport failed
 

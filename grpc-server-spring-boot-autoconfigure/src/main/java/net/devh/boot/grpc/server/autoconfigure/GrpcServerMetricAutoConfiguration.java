@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -40,8 +40,6 @@ import org.springframework.context.annotation.Lazy;
 import io.grpc.BindableService;
 import io.grpc.MethodDescriptor;
 import io.grpc.ServiceDescriptor;
-import io.grpc.protobuf.services.ProtoReflectionService;
-import io.grpc.services.HealthStatusManager;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
@@ -75,7 +73,7 @@ public class GrpcServerMetricAutoConfiguration {
     @Bean
     @Lazy
     InfoContributor grpcInfoContributor(final GrpcServerProperties properties,
-            final Collection<BindableService> grpcServices, final HealthStatusManager healthStatusManager) {
+            final Collection<BindableService> grpcServices) {
         final Map<String, Object> details = new LinkedHashMap<>();
         details.put("port", properties.getPort());
 
@@ -83,12 +81,7 @@ public class GrpcServerMetricAutoConfiguration {
             // Only expose services via web-info if we do the same via grpc.
             final Map<String, List<String>> services = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
             details.put("services", services);
-            final List<BindableService> mutableGrpcServiceList = new ArrayList<>(grpcServices);
-            mutableGrpcServiceList.add(ProtoReflectionService.newInstance());
-            if (properties.isHealthServiceEnabled()) {
-                mutableGrpcServiceList.add(healthStatusManager.getHealthService());
-            }
-            for (final BindableService grpcService : mutableGrpcServiceList) {
+            for (final BindableService grpcService : grpcServices) {
                 final ServiceDescriptor serviceDescriptor = grpcService.bindService().getServiceDescriptor();
 
                 final List<String> methods = collectMethodNamesForService(serviceDescriptor);

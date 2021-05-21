@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -25,18 +25,24 @@ import io.grpc.Channel;
 import io.grpc.ClientCall;
 import io.grpc.ClientInterceptor;
 import io.grpc.MethodDescriptor;
+import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
 
 /**
- * @author Michael (yidongnan@gmail.com)
- * @since 2016/12/8
+ * Example {@link ClientInterceptor} that logs all called methods. In this example it is added to Spring's application
+ * context via {@link GlobalInterceptorConfiguration}, but is also possible to directly annotate this class with
+ * {@link GrpcGlobalClientInterceptor}.
  */
+// @GrpcGlobalClientInterceptor
 public class LogGrpcInterceptor implements ClientInterceptor {
 
     private static final Logger log = LoggerFactory.getLogger(LogGrpcInterceptor.class);
 
     @Override
-    public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method,
-            CallOptions callOptions, Channel next) {
+    public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+            final MethodDescriptor<ReqT, RespT> method,
+            final CallOptions callOptions,
+            final Channel next) {
+
         log.info(method.getFullMethodName());
         return next.newCall(method, callOptions);
     }

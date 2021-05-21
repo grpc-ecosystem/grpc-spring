@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -21,11 +21,19 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 
+/**
+ * Eureka cloud discovery server application.
+ */
 @EnableEurekaServer
 @SpringBootApplication
 public class EurekaServerApplication {
 
-    public static void main(String[] args) {
+    /**
+     * Starts the Eureka cloud discovery server application.
+     *
+     * @param args The arguments to pass to the application.
+     */
+    public static void main(final String... args) {
         SpringApplication.run(EurekaServerApplication.class, args);
     }
 

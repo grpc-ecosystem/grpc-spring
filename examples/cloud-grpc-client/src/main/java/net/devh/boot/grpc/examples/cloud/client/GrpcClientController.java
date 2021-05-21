@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -23,8 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @author Michael (yidongnan@gmail.com)
- * @since 2016/12/4
+ * Optional demo controller making the grpc service accessible via browser requests.
  */
 @RestController
 public class GrpcClientController {
@@ -33,8 +32,8 @@ public class GrpcClientController {
     private GrpcClientService grpcClientService;
 
     @RequestMapping("/")
-    public String printMessage(@RequestParam(defaultValue = "Michael") String name) {
-        return grpcClientService.sendMessage(name);
+    public String printMessage(@RequestParam(defaultValue = "Michael") final String name) {
+        return this.grpcClientService.sendMessage(name);
     }
 
 }

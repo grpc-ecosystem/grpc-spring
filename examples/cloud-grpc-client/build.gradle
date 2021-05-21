@@ -2,12 +2,36 @@ plugins {
     id 'org.springframework.boot'
 }
 
+def discoveryProvider = project.findProperty('discovery') ?: 'consul';
+
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+	switch (discoveryProvider) {
+		case "nacos": {
+			implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery'
+			break;
+		}
+		case "consul": {
+			implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
+			break;
+		}
+		case "eureka": {
+			implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+			break;
+		}
+		case "zookeeper": {
+			implementation 'org.springframework.cloud:spring-cloud-starter-zookeeper-discovery'
+			break;
+		}
+	}
+
+    implementation project(':grpc-client-spring-boot-starter') // Replace with actual dependency "net.devh:grpc-client-spring-boot-starter:${springBootGrpcVersion}"
+    implementation project(':examples:grpc-lib') // Replace with your grpc interface spec
+
+	// For demonstration only
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.cloud:spring-cloud-starter-zipkin'
-    implementation 'io.zipkin.brave:brave-instrumentation-grpc'
-    implementation project(':grpc-client-spring-boot-starter') // replace to implementation("net.devh:grpc-client-spring-boot-starter:${springBootGrpcVersion}")
-    implementation project(':examples:grpc-lib')
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+}
+
+bootRun {
+    args = ["--spring.profiles.active=" + discoveryProvider]
 }

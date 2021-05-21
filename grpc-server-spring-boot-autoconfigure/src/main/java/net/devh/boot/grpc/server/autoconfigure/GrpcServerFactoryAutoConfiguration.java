@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -82,12 +82,16 @@ public class GrpcServerFactoryAutoConfiguration {
      * The server lifecycle bean for a shaded netty based server.
      *
      * @param factory The factory used to create the lifecycle.
+     * @param properties The server properties to use.
      * @return The inter-process server lifecycle bean.
      */
     @ConditionalOnBean(ShadedNettyGrpcServerFactory.class)
     @Bean
-    public GrpcServerLifecycle shadedNettyGrpcServerLifecycle(final ShadedNettyGrpcServerFactory factory) {
-        return new GrpcServerLifecycle(factory);
+    public GrpcServerLifecycle shadedNettyGrpcServerLifecycle(
+            final ShadedNettyGrpcServerFactory factory,
+            final GrpcServerProperties properties) {
+
+        return new GrpcServerLifecycle(factory, properties.getShutdownGracePeriod());
     }
 
     // Then try the normal netty server
@@ -120,12 +124,16 @@ public class GrpcServerFactoryAutoConfiguration {
      * The server lifecycle bean for netty based server.
      *
      * @param factory The factory used to create the lifecycle.
+     * @param properties The server properties to use.
      * @return The inter-process server lifecycle bean.
      */
     @ConditionalOnBean(NettyGrpcServerFactory.class)
     @Bean
-    public GrpcServerLifecycle nettyGrpcServerLifecycle(final NettyGrpcServerFactory factory) {
-        return new GrpcServerLifecycle(factory);
+    public GrpcServerLifecycle nettyGrpcServerLifecycle(
+            final NettyGrpcServerFactory factory,
+            final GrpcServerProperties properties) {
+
+        return new GrpcServerLifecycle(factory, properties.getShutdownGracePeriod());
     }
 
     /**
@@ -153,12 +161,16 @@ public class GrpcServerFactoryAutoConfiguration {
      * The server lifecycle bean for the in-process-server.
      *
      * @param factory The factory used to create the lifecycle.
+     * @param properties The server properties to use.
      * @return The in-process server lifecycle bean.
      */
     @ConditionalOnBean(InProcessGrpcServerFactory.class)
     @Bean
-    public GrpcServerLifecycle inProcessGrpcServerLifecycle(final InProcessGrpcServerFactory factory) {
-        return new GrpcServerLifecycle(factory);
+    public GrpcServerLifecycle inProcessGrpcServerLifecycle(
+            final InProcessGrpcServerFactory factory,
+            final GrpcServerProperties properties) {
+
+        return new GrpcServerLifecycle(factory, properties.getShutdownGracePeriod());
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -55,7 +55,7 @@ public class GrpcClientHealthAutoConfiguration {
             final ImmutableMap<String, ConnectivityState> states = ImmutableMap.copyOf(factory.getConnectivityState());
             final Health.Builder health;
             if (states.containsValue(ConnectivityState.TRANSIENT_FAILURE)) {
-                health = Health.down();
+                health = Health.outOfService();
             } else {
                 health = Health.up();
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -97,6 +97,17 @@ public class GrpcServerProperties {
      * @return The name of the in-process server or null if isn't configured.
      */
     private String inProcessName;
+
+    /**
+     * The time to wait for the server to gracefully shutdown (completing all requests after the server started to
+     * shutdown). If set to a negative value, the server waits forever. If set to {@code 0} the server will force
+     * shutdown immediately. Defaults to {@code 30s}.
+     * 
+     * @param gracefullShutdownTimeout The time to wait for a graceful shutdown.
+     * @return The time to wait for a graceful shutdown.
+     */
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration shutdownGracePeriod = Duration.of(30, ChronoUnit.SECONDS);
 
     /**
      * Setting to enable keepAlive. Default to {@code false}.

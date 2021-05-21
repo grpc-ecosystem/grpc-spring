@@ -17,6 +17,7 @@ This section describes how you can configure your grpc-spring-boot-starter appli
 
 - [Getting Started](getting-started.md)
 - *Configuration*
+- [Exception Handling](exception-handling.md)
 - [Contextual Data / Scoped Beans](contextual-data.md)
 - [Testing the Service](testing.md)
 - [Security](security.md)
@@ -121,6 +122,7 @@ public GrpcServerConfigurer keepAliveServerConfigurer() {
 
 - [Getting Started](getting-started.md)
 - *Configuration*
+- [Exception Handling](exception-handling.md)
 - [Contextual Data / Scoped Beans](contextual-data.md)
 - [Testing the Service](testing.md)
 - [Security](security.md)

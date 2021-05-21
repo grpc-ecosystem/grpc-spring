@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -33,7 +33,6 @@ import org.springframework.context.annotation.Lazy;
 import io.grpc.CompressorRegistry;
 import io.grpc.DecompressorRegistry;
 import io.grpc.Server;
-import io.grpc.services.HealthStatusManager;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import net.devh.boot.grpc.server.interceptor.AnnotationGlobalServerInterceptorConfigurer;
@@ -108,12 +107,6 @@ public class GrpcServerAutoConfiguration {
         return new AnnotationGrpcServiceDiscoverer();
     }
 
-    @ConditionalOnMissingBean
-    @Bean
-    public HealthStatusManager healthStatusManager() {
-        return new HealthStatusManager();
-    }
-
     @ConditionalOnBean(CompressorRegistry.class)
     @Bean
     public GrpcServerConfigurer compressionServerConfigurer(final CompressorRegistry registry) {
@@ -135,8 +128,10 @@ public class GrpcServerAutoConfiguration {
     @ConditionalOnMissingBean
     @ConditionalOnBean(GrpcServerFactory.class)
     @Bean
-    public GrpcServerLifecycle grpcServerLifecycle(final GrpcServerFactory factory) {
-        return new GrpcServerLifecycle(factory);
+    public GrpcServerLifecycle grpcServerLifecycle(
+            final GrpcServerFactory factory,
+            final GrpcServerProperties properties) {
+        return new GrpcServerLifecycle(factory, properties.getShutdownGracePeriod());
     }
 
 }

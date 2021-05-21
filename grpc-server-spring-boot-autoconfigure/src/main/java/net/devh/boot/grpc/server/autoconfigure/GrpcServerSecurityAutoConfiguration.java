@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -20,7 +20,7 @@ package net.devh.boot.grpc.server.autoconfigure;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.security.servlet.WebSecurityEnablerConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
@@ -61,7 +61,7 @@ import net.devh.boot.grpc.server.security.interceptors.ExceptionTranslatingServe
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnBean(AuthenticationManager.class)
-@AutoConfigureAfter(WebSecurityEnablerConfiguration.class)
+@AutoConfigureAfter(SecurityAutoConfiguration.class)
 public class GrpcServerSecurityAutoConfiguration {
 
     /**

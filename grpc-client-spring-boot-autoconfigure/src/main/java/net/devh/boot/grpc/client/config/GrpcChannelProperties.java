@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -264,6 +264,33 @@ public class GrpcChannelProperties {
     }
 
     // --------------------------------------------------
+
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration shutdownGracePeriod;
+    private static final Duration DEFAULT_SHUTDOWN_GRACE_PERIOD = Duration.ofSeconds(30);
+
+    /**
+     * Gets the time to wait for the channel to gracefully shutdown. If set to a negative value, the channel waits
+     * forever. If set to {@code 0} the channel will force shutdown immediately. Defaults to {@code 30s}.
+     *
+     * @return The time to wait for a graceful shutdown.
+     */
+    public Duration getShutdownGracePeriod() {
+        return this.shutdownGracePeriod == null ? DEFAULT_SHUTDOWN_GRACE_PERIOD : this.shutdownGracePeriod;
+    }
+
+    /**
+     * Sets the time to wait for the channel to gracefully shutdown (completing all requests). If set to a negative
+     * value, the channel waits forever. If set to {@code 0} the channel will force shutdown immediately. Defaults to
+     * {@code 30s}.
+     *
+     * @param shutdownGracePeriod The time to wait for a graceful shutdown.
+     */
+    public void setShutdownGracePeriod(final Duration shutdownGracePeriod) {
+        this.shutdownGracePeriod = shutdownGracePeriod;
+    }
+
+    // --------------------------------------------------
     // Message Transfer
     // --------------------------------------------------
 
@@ -376,11 +403,10 @@ public class GrpcChannelProperties {
     }
 
     /**
-     * If set to a positive duration instructs a client to connect to GRPC-endpoint when GRPC stub is created. If it's
-     * set to a positive timeout application startup will be slower due to connection process will be executed
-     * synchronously with maximum to connection timeout. If connection fails stub will fail to create with an exception
-     * which in turn causes context startup to If connection fails stub will fail to create with an exception which in
-     * turn causes context fail. Defaults to false.
+     * If set to a positive duration instructs the client to connect to the gRPC endpoint when the GRPC stub is created.
+     * As a result the application startup will be slightly slower due to connection process being executed
+     * synchronously up to the maximum to connection timeout. If the connection fails, the stub will fail to create with
+     * an exception which in turn causes the application context startup to fail. Defaults to {@code 0}.
      *
      * @param immediateConnectTimeout Connection timeout at application startup.
      */
@@ -431,6 +457,9 @@ public class GrpcChannelProperties {
         }
         if (this.keepAliveWithoutCalls == null) {
             this.keepAliveWithoutCalls = config.keepAliveWithoutCalls;
+        }
+        if (this.shutdownGracePeriod == null) {
+            this.shutdownGracePeriod = config.shutdownGracePeriod;
         }
         if (this.maxInboundMessageSize == null) {
             this.maxInboundMessageSize = config.maxInboundMessageSize;

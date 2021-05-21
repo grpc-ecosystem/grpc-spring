@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -23,6 +23,7 @@ import static net.devh.boot.grpc.common.metric.MetricConstants.METRIC_NAME_SERVE
 import static net.devh.boot.grpc.common.metric.MetricUtils.prepareCounterFor;
 import static net.devh.boot.grpc.common.metric.MetricUtils.prepareTimerFor;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
@@ -36,6 +37,7 @@ import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServiceDescriptor;
+import io.grpc.Status;
 import io.grpc.Status.Code;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -131,11 +133,18 @@ public class MetricCollectingServerInterceptor extends AbstractMetricCollectingI
             final ServerCall<Q, A> call,
             final Metadata requestHeaders,
             final ServerCallHandler<Q, A> next) {
+
         final MetricSet metrics = metricsFor(call.getMethodDescriptor());
-        final ServerCall<Q, A> monitoringCall = new MetricCollectingServerCall<>(call, this.registry,
-                metrics.getResponseCounter(), metrics.getTimerFunction());
+        final Consumer<Status.Code> responseStatusTiming = metrics.newProcessingDurationTiming(this.registry);
+
+        final MetricCollectingServerCall<Q, A> monitoringCall =
+                new MetricCollectingServerCall<>(call, metrics.getResponseCounter());
+
         return new MetricCollectingServerCallListener<>(
-                next.startCall(monitoringCall, requestHeaders), metrics.getRequestCounter());
+                next.startCall(monitoringCall, requestHeaders),
+                metrics.getRequestCounter(),
+                monitoringCall::getResponseCode,
+                responseStatusTiming);
     }
 
 }

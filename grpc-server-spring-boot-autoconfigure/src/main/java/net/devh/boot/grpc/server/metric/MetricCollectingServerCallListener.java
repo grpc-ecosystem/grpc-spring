@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -17,8 +17,12 @@
 
 package net.devh.boot.grpc.server.metric;
 
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 import io.grpc.ForwardingServerCallListener.SimpleForwardingServerCallListener;
-import io.grpc.ServerCall;
+import io.grpc.ServerCall.Listener;
+import io.grpc.Status;
 import io.micrometer.core.instrument.Counter;
 
 /**
@@ -30,22 +34,50 @@ import io.micrometer.core.instrument.Counter;
 class MetricCollectingServerCallListener<Q> extends SimpleForwardingServerCallListener<Q> {
 
     private final Counter requestCounter;
+    private final Supplier<Status.Code> responseCodeSupplier;
+    private final Consumer<Status.Code> responseStatusTiming;
 
     /**
      * Creates a new delegating ServerCallListener that will wrap the given server call listener to collect metrics.
      *
      * @param delegate The original listener to wrap.
      * @param requestCounter The counter for incoming requests.
+     * @param responseCodeSupplier The supplier of the response code.
+     * @param responseStatusTiming The consumer used to time the processing duration along with a response status.
      */
-    public MetricCollectingServerCallListener(final ServerCall.Listener<Q> delegate, final Counter requestCounter) {
+
+    public MetricCollectingServerCallListener(
+            final Listener<Q> delegate,
+            final Counter requestCounter,
+            final Supplier<Status.Code> responseCodeSupplier,
+            final Consumer<Status.Code> responseStatusTiming) {
+
         super(delegate);
         this.requestCounter = requestCounter;
+        this.responseCodeSupplier = responseCodeSupplier;
+        this.responseStatusTiming = responseStatusTiming;
     }
 
     @Override
     public void onMessage(final Q requestMessage) {
         this.requestCounter.increment();
         super.onMessage(requestMessage);
+    }
+
+    @Override
+    public void onComplete() {
+        report(this.responseCodeSupplier.get());
+        super.onComplete();
+    }
+
+    @Override
+    public void onCancel() {
+        report(Status.Code.CANCELLED);
+        super.onCancel();
+    }
+
+    private void report(final Status.Code code) {
+        this.responseStatusTiming.accept(code);
     }
 
 }

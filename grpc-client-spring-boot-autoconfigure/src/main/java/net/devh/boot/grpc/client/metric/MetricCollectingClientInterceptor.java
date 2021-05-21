@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -23,6 +23,7 @@ import static net.devh.boot.grpc.common.metric.MetricConstants.METRIC_NAME_CLIEN
 import static net.devh.boot.grpc.common.metric.MetricUtils.prepareCounterFor;
 import static net.devh.boot.grpc.common.metric.MetricUtils.prepareTimerFor;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
@@ -104,15 +105,19 @@ public class MetricCollectingClientInterceptor extends AbstractMetricCollectingI
     }
 
     @Override
-    public <Q, A> ClientCall<Q, A> interceptCall(final MethodDescriptor<Q, A> methodDescriptor,
-            final CallOptions callOptions, final Channel channel) {
+    public <Q, A> ClientCall<Q, A> interceptCall(
+            final MethodDescriptor<Q, A> methodDescriptor,
+            final CallOptions callOptions,
+            final Channel channel) {
+
         final MetricSet metrics = metricsFor(methodDescriptor);
+        final Consumer<Code> processingDurationTiming = metrics.newProcessingDurationTiming(this.registry);
+
         return new MetricCollectingClientCall<>(
                 channel.newCall(methodDescriptor, callOptions),
-                this.registry,
                 metrics.getRequestCounter(),
                 metrics.getResponseCounter(),
-                metrics.getTimerFunction());
+                processingDurationTiming);
     }
 
 }

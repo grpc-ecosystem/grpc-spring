@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -80,6 +80,12 @@ public class InProcessGrpcServerFactory extends AbstractGrpcServerFactory<InProc
     @Override
     protected InProcessServerBuilder newServerBuilder() {
         return InProcessServerBuilder.forName(this.name);
+    }
+
+    @Override
+    protected void configureSecurity(final InProcessServerBuilder builder) {
+        // No need to configure security as we are in process only.
+        // There is also no need to throw exceptions if transport security is configured.
     }
 
     @Override

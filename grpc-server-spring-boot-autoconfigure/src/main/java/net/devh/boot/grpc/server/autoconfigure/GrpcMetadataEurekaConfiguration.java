@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -22,11 +22,8 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
+import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaRegistration;
 import org.springframework.context.annotation.Configuration;
-
-import com.netflix.appinfo.EurekaInstanceConfig;
-import com.netflix.discovery.EurekaClient;
 
 import net.devh.boot.grpc.common.util.GrpcUtils;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
@@ -39,23 +36,23 @@ import net.devh.boot.grpc.server.config.GrpcServerProperties;
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
-@ConditionalOnClass({EurekaInstanceConfigBean.class, EurekaClient.class})
+@ConditionalOnClass({EurekaRegistration.class})
 public class GrpcMetadataEurekaConfiguration {
 
     @Autowired(required = false)
-    private EurekaInstanceConfig instance;
+    private EurekaRegistration eurekaRegistration;
 
     @Autowired
     private GrpcServerProperties grpcProperties;
 
     @PostConstruct
     public void init() {
-        if (this.instance == null) {
-            return;
-        }
-        final int port = this.grpcProperties.getPort();
-        if (port != -1) {
-            this.instance.getMetadataMap().put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT, Integer.toString(port));
+        if (eurekaRegistration != null) {
+            final int port = grpcProperties.getPort();
+            if (GrpcUtils.INTER_PROCESS_DISABLE != port) {
+                eurekaRegistration.getInstanceConfig().getMetadataMap()
+                        .put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT, Integer.toString(port));
+            }
         }
     }
 

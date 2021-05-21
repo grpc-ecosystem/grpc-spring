@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -20,16 +20,17 @@ package net.devh.boot.grpc.examples.cloud.client;
 import org.springframework.stereotype.Service;
 
 import io.grpc.StatusRuntimeException;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.examples.lib.HelloReply;
 import net.devh.boot.grpc.examples.lib.HelloRequest;
 import net.devh.boot.grpc.examples.lib.SimpleGrpc.SimpleBlockingStub;
 
 /**
- * @author Michael (yidongnan@gmail.com)
- * @since 2016/11/8
+ * Example class demonstrating the usage of {@link GrpcClient}s inside an application.
  */
 @Service
+@Slf4j
 public class GrpcClientService {
 
     @GrpcClient("cloud-grpc-server")
@@ -40,6 +41,7 @@ public class GrpcClientService {
             final HelloReply response = this.simpleStub.sayHello(HelloRequest.newBuilder().setName(name).build());
             return response.getMessage();
         } catch (final StatusRuntimeException e) {
+            log.error("Request failed", e);
             return "FAILED with " + e.getStatus().getCode();
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -17,17 +17,18 @@
 
 package net.devh.boot.grpc.server.autoconfigure;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.consul.discovery.ConsulDiscoveryProperties;
-import org.springframework.cloud.consul.serviceregistry.ConsulRegistrationCustomizer;
-import org.springframework.context.annotation.Bean;
+import org.springframework.cloud.consul.serviceregistry.ConsulRegistration;
 import org.springframework.context.annotation.Configuration;
 
-import com.ecwid.consul.v1.ConsulClient;
-
-import net.devh.boot.grpc.server.cloud.ConsulGrpcRegistrationCustomizer;
+import net.devh.boot.grpc.common.util.GrpcUtils;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 
 /**
@@ -38,20 +39,27 @@ import net.devh.boot.grpc.server.config.GrpcServerProperties;
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
-@ConditionalOnClass({ConsulDiscoveryProperties.class, ConsulClient.class, GrpcServerProperties.class})
+@ConditionalOnClass({ConsulRegistration.class})
 public class GrpcMetadataConsulConfiguration {
 
-    /**
-     * Creates a bean that registers the gRPC endpoint via consul.
-     *
-     * @param grpcServerProperties The server properties used to fill in the blanks.
-     * @return The newly created consulGrpcRegistrationCustomizer bean.
-     */
-    @ConditionalOnMissingBean
-    @Bean
-    public ConsulRegistrationCustomizer consulGrpcRegistrationCustomizer(
-            final GrpcServerProperties grpcServerProperties) {
-        return new ConsulGrpcRegistrationCustomizer(grpcServerProperties);
-    }
+    @Autowired(required = false)
+    private ConsulRegistration consulRegistration;
 
+    @Autowired
+    private GrpcServerProperties grpcProperties;
+
+    @PostConstruct
+    public void init() {
+        if (consulRegistration != null) {
+            final int port = grpcProperties.getPort();
+            Map<String, String> meta = consulRegistration.getService().getMeta();
+            if (meta == null) {
+                meta = new HashMap<>();
+            }
+            if (GrpcUtils.INTER_PROCESS_DISABLE != port) {
+                meta.put(GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT, Integer.toString(port));
+                consulRegistration.getService().setMeta(meta);
+            }
+        }
+    }
 }

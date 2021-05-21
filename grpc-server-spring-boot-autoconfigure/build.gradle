@@ -19,8 +19,9 @@ dependencies {
     optionalSupportImplementation 'org.springframework.security:spring-security-core'
     optionalSupportImplementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
     optionalSupportImplementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
+    optionalSupportImplementation 'org.springframework.cloud:spring-cloud-starter-zookeeper-discovery'
     optionalSupportImplementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-    optionalSupportImplementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:${springCloudAlibabaNacosVersion}"
+    optionalSupportImplementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery"
     optionalSupportImplementation 'com.google.inject:guice:4.2.3' // Only needed to avoid some warnings during compilation (for eureka)
     optionalSupportImplementation 'io.zipkin.brave:brave-instrumentation-grpc'
     optionalSupportApi 'io.grpc:grpc-netty'

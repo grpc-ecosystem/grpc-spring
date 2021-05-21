@@ -99,6 +99,17 @@ This section assumes that you have already defined and generated your [Protobuf 
 
 ### Explaining the Client Components
 
+The following list contains all features that you might encounter on the client side.
+If you don't wish to use any advanced features, then the first element is probably all you need to use.
+
+- [`@GrpcClient`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/GrpcClient.html):
+  The annotation that marks fields and setters for auto injection of clients.
+  Supports `Channel`s, and all kinds of `Stub`s.
+  Do not use `@GrpcClient` in conjunction with `@Autowired` or `@Inject`.
+  Currently it isn't supported for constructor and `@Bean` method parameters. \
+  **Note:** Services provided by the same application can only be accessed/called in/after the
+  `ApplicationStartedEvent`. Stubs connecting to services outside of the application can be used earlier; starting with
+  `@PostConstruct` / `InitializingBean#afterPropertiesSet()`.
 - [`Channel`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/Channel.html):
   The Channel is a connection pool for a single address. The target servers might serve multiple grpc-services though.
   The address will be resolved using a `NameResolver` and might point to a fixed or dynamic number of servers.
@@ -132,9 +143,6 @@ This section assumes that you have already defined and generated your [Protobuf 
 - [`StubTransformer`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/StubTransformer.html):
   A transformer that will be applied to all client `Stub`s before they are injected.
   See also [Configuration -> StubTransformer](configuration.md#stubtransformer).
-- [`@GrpcClient`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/GrpcClient.html):
-  The annotation that marks fields and setters for auto injection of clients. Supports `Channel`s, and all kind of
-  `Stub`s. Do not use `@GrpcClient` in conjunction with `@Autowired` or `@Inject`.
 
 ### Accessing the Client
 
@@ -143,13 +151,12 @@ We recommended to inject (`@GrpcClient`) `Stub`s instead of plain `Channel`s.
 > **Note:** There are different types of `Stub`s. Not all of them support all request types (streaming calls).
 
 ````java
-import example.HelloReply;
 import example.HelloRequest;
-import example.MyServiceGrpc;
+import example.MyServiceGrpc.MyServiceBlockingStub;
 
-import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 
-import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.stereotype.Service;
 
 @Service
 public class FoobarService {

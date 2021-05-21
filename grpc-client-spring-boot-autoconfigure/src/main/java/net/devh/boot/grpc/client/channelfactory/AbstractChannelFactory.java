@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -17,12 +17,16 @@
 
 package net.devh.boot.grpc.client.channelfactory;
 
+import static java.util.Comparator.comparingLong;
 import static java.util.Objects.requireNonNull;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -134,7 +138,7 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         final T builder = newChannelBuilder(name);
         configure(builder, name);
         final ManagedChannel channel = builder.build();
-        final Duration timeout = properties.getChannel(name).getImmediateConnectTimeout();
+        final Duration timeout = this.properties.getChannel(name).getImmediateConnectTimeout();
         if (!timeout.isZero()) {
             connectOnStartup(name, channel, timeout);
         }
@@ -260,7 +264,7 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         }
     }
 
-    private void connectOnStartup(String name, ManagedChannel channel, Duration timeout) {
+    private void connectOnStartup(final String name, final ManagedChannel channel, final Duration timeout) {
         log.debug("Initiating connection to channel {}", name);
         channel.getState(true);
 
@@ -270,7 +274,7 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         try {
             log.debug("Waiting for connection to channel {}", name);
             connected = !readyLatch.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             connected = false;
         }
@@ -280,7 +284,7 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         log.info("Successfully connected to channel {}", name);
     }
 
-    private void waitForReady(ManagedChannel channel, CountDownLatch readySignal) {
+    private void waitForReady(final ManagedChannel channel, final CountDownLatch readySignal) {
         final ConnectivityState state = channel.getState(false);
         log.debug("Waiting for ready state. Currently in {}", state);
         if (state == ConnectivityState.READY) {
@@ -302,16 +306,30 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
             return;
         }
         this.shutdown = true;
-        for (final ManagedChannel channel : this.channels.values()) {
+        final List<ShutdownRecord> shutdownEntries = new ArrayList<>();
+        for (final Entry<String, ManagedChannel> entry : this.channels.entrySet()) {
+            final ManagedChannel channel = entry.getValue();
             channel.shutdown();
+            final long gracePeriod = this.properties.getChannel(entry.getKey()).getShutdownGracePeriod().toMillis();
+            shutdownEntries.add(new ShutdownRecord(entry.getKey(), channel, gracePeriod));
         }
         try {
-            final long waitLimit = System.currentTimeMillis() + 60_000; // wait 60 seconds at max
-            for (final ManagedChannel channel : this.channels.values()) {
-                int i = 0;
-                do {
-                    log.debug("Awaiting channel shutdown: {} ({}s)", channel, i++);
-                } while (System.currentTimeMillis() < waitLimit && !channel.awaitTermination(1, TimeUnit.SECONDS));
+            final long start = System.currentTimeMillis();
+            shutdownEntries.sort(comparingLong(ShutdownRecord::getGracePeriod));
+
+            for (final ShutdownRecord entry : shutdownEntries) {
+                if (!entry.channel.isTerminated()) {
+                    log.debug("Awaiting channel termination: {}", entry.name);
+
+                    final long waitedTime = System.currentTimeMillis() - start;
+                    final long waitTime = entry.gracePeriod - waitedTime;
+
+                    if (waitTime > 0) {
+                        entry.channel.awaitTermination(waitTime, MILLISECONDS);
+                    }
+                    entry.channel.shutdownNow();
+                }
+                log.debug("Completed channel termination: {}", entry.name);
             }
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -327,7 +345,26 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         final int channelCount = this.channels.size();
         this.channels.clear();
         this.channelStates.clear();
-        log.debug("GrpcCannelFactory closed (including {} channels)", channelCount);
+        log.debug("GrpcChannelFactory closed (including {} channels)", channelCount);
+    }
+
+    private static class ShutdownRecord {
+
+        private final String name;
+        private final ManagedChannel channel;
+        private final long gracePeriod;
+
+        public ShutdownRecord(final String name, final ManagedChannel channel, final long gracePeriod) {
+            this.name = name;
+            this.channel = channel;
+            // gracePeriod < 0 => Infinite
+            this.gracePeriod = gracePeriod < 0 ? Long.MAX_VALUE : gracePeriod;
+        }
+
+        long getGracePeriod() {
+            return this.gracePeriod;
+        }
+
     }
 
 }

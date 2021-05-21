@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -17,16 +17,13 @@
 
 package net.devh.boot.grpc.client.metric;
 
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 import io.grpc.ClientCall;
 import io.grpc.ForwardingClientCallListener.SimpleForwardingClientCallListener;
 import io.grpc.Metadata;
 import io.grpc.Status;
-import io.grpc.Status.Code;
 import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
 
 /**
  * A simple forwarding client call listener that collects metrics for micrometer.
@@ -36,32 +33,29 @@ import io.micrometer.core.instrument.Timer;
  */
 class MetricCollectingClientCallListener<A> extends SimpleForwardingClientCallListener<A> {
 
-    private final Timer.Sample timerSample;
     private final Counter responseCounter;
-    private final Function<Code, Timer> timerFunction;
+    private final Consumer<Status.Code> processingDurationTiming;
 
     /**
      * Creates a new delegating ClientCallListener that will wrap the given client call listener to collect metrics.
      *
      * @param delegate The original call to wrap.
-     * @param registry The registry to save the metrics to.
      * @param responseCounter The counter for incoming responses.
-     * @param timerFunction A function that will return a timer for a given status code.
+     * @param processingDurationTiming The consumer used to time the processing duration along with a response status.
      */
     public MetricCollectingClientCallListener(
             final ClientCall.Listener<A> delegate,
-            final MeterRegistry registry,
             final Counter responseCounter,
-            final Function<Code, Timer> timerFunction) {
+            final Consumer<Status.Code> processingDurationTiming) {
+
         super(delegate);
         this.responseCounter = responseCounter;
-        this.timerFunction = timerFunction;
-        this.timerSample = Timer.start(registry);
+        this.processingDurationTiming = processingDurationTiming;
     }
 
     @Override
     public void onClose(final Status status, final Metadata metadata) {
-        this.timerSample.stop(this.timerFunction.apply(status.getCode()));
+        this.processingDurationTiming.accept(status.getCode());
         super.onClose(status, metadata);
     }
 

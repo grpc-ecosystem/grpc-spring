@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -22,16 +22,19 @@ import static net.devh.boot.grpc.common.metric.MetricConstants.TAG_STATUS_CODE;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import io.grpc.MethodDescriptor;
 import io.grpc.ServiceDescriptor;
+import io.grpc.Status;
 import io.grpc.Status.Code;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.instrument.Timer.Sample;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -185,11 +188,27 @@ public abstract class AbstractMetricCollectingInterceptor {
          * @param responseCounter The response counter to use.
          * @param timerFunction The timer function to use.
          */
-        public MetricSet(final Counter requestCounter, final Counter responseCounter,
+        public MetricSet(
+                final Counter requestCounter,
+                final Counter responseCounter,
                 final Function<Code, Timer> timerFunction) {
+
             this.requestCounter = requestCounter;
             this.responseCounter = responseCounter;
             this.timerFunction = timerFunction;
+        }
+
+        /**
+         * Uses the given registry to create a {@link Sample Timer.Sample} that will be reported if the returned
+         * consumer is invoked.
+         *
+         * @param registry The registry used to create the sample.
+         * @return The newly created consumer that will report the processing duration since calling this method and
+         *         invoking the returned consumer along with the status code.
+         */
+        public Consumer<Status.Code> newProcessingDurationTiming(final MeterRegistry registry) {
+            final Timer.Sample timerSample = Timer.start(registry);
+            return code -> timerSample.stop(this.timerFunction.apply(code));
         }
 
     }

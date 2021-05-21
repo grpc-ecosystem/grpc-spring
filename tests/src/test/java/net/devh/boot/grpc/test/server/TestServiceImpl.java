@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -30,18 +30,20 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.Empty;
 
 import io.grpc.Context;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.security.interceptors.AuthenticatingServerInterceptor;
 import net.devh.boot.grpc.server.service.GrpcService;
 import net.devh.boot.grpc.test.proto.SomeType;
+import net.devh.boot.grpc.test.proto.TestServiceGrpc;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceImplBase;
 
 @Slf4j
 @GrpcService
 public class TestServiceImpl extends TestServiceImplBase {
 
-    public static final int METHOD_COUNT = 6;
+    public static final int METHOD_COUNT = TestServiceGrpc.getServiceDescriptor().getMethods().size();
 
     public TestServiceImpl() {
         log.info("Created TestServiceImpl");
@@ -60,6 +62,18 @@ public class TestServiceImpl extends TestServiceImplBase {
         log.debug("unimplemented");
         // Not implemented (on purpose)
         super.unimplemented(request, responseObserver);
+    }
+
+    @Override
+    public void error(final Empty request, final StreamObserver<Empty> responseObserver) {
+        log.debug("error");
+        responseObserver.onError(Status.INTERNAL.asRuntimeException());
+    }
+
+    @Override
+    public StreamObserver<SomeType> echo(final StreamObserver<SomeType> responseObserver) {
+        log.debug("echo");
+        return responseObserver;
     }
 
     @Override
