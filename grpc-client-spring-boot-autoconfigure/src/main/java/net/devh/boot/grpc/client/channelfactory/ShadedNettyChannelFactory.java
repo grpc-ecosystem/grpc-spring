@@ -30,6 +30,9 @@ import org.springframework.core.io.Resource;
 
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
+import io.grpc.netty.shaded.io.netty.channel.epoll.EpollDomainSocketChannel;
+import io.grpc.netty.shaded.io.netty.channel.epoll.EpollEventLoopGroup;
+import io.grpc.netty.shaded.io.netty.channel.unix.DomainSocketAddress;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
@@ -69,8 +72,15 @@ public class ShadedNettyChannelFactory extends AbstractChannelFactory<NettyChann
         if (address == null) {
             address = URI.create(name);
         }
-        return NettyChannelBuilder.forTarget(address.toString())
-                .defaultLoadBalancingPolicy(properties.getDefaultLoadBalancingPolicy());
+        NettyChannelBuilder builder;
+        if (address.getScheme().equals(GrpcChannelProperties.DOMAIN_SOCKET_ADDRESS_SCHEME)) {
+            builder =  NettyChannelBuilder.forAddress(new DomainSocketAddress(address.getPath()))
+                    .channelType(EpollDomainSocketChannel.class)
+                    .eventLoopGroup(new EpollEventLoopGroup());
+        } else {
+            builder = NettyChannelBuilder.forTarget(address.toString());
+        }
+        return builder.defaultLoadBalancingPolicy(properties.getDefaultLoadBalancingPolicy());
     }
 
     @Override

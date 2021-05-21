@@ -53,6 +53,11 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class GrpcChannelProperties {
 
+    /**
+     * A constant that defines, the scheme of a Unix domain socket address.
+     */
+    public static final String DOMAIN_SOCKET_ADDRESS_SCHEME = "unix";
+
     // --------------------------------------------------
     // Target Address
     // --------------------------------------------------
