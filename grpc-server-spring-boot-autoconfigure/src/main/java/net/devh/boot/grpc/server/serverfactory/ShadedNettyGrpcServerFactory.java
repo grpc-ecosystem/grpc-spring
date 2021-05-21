@@ -33,6 +33,7 @@ import com.google.common.net.InetAddresses;
 
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
+import io.grpc.netty.shaded.io.netty.channel.epoll.EpollEventLoopGroup;
 import io.grpc.netty.shaded.io.netty.channel.epoll.EpollServerDomainSocketChannel;
 import io.grpc.netty.shaded.io.netty.channel.unix.DomainSocketAddress;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
@@ -67,7 +68,9 @@ public class ShadedNettyGrpcServerFactory
         if (address.startsWith(GrpcServerProperties.DOMAIN_SOCKET_ADDRESS_PREFIX)) {
             return NettyServerBuilder
                     .forAddress(new DomainSocketAddress(address.substring(GrpcServerProperties.DOMAIN_SOCKET_ADDRESS_PREFIX.length())))
-                    .channelType(EpollServerDomainSocketChannel.class);
+                    .channelType(EpollServerDomainSocketChannel.class)
+                    .bossEventLoopGroup(new EpollEventLoopGroup(1))
+                    .workerEventLoopGroup(new EpollEventLoopGroup());
         } else if (GrpcServerProperties.ANY_IP_ADDRESS.equals(address)) {
             return NettyServerBuilder.forPort(port);
         } else {
