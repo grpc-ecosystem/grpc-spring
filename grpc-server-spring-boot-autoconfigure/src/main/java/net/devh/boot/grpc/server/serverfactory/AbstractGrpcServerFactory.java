@@ -84,6 +84,7 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
     protected void configure(final T builder) {
         configureServices(builder);
         configureKeepAlive(builder);
+        configureConnectionLimits(builder);
         configureSecurity(builder);
         configureLimits(builder);
         for (final GrpcServerConfigurer serverConfigurer : this.serverConfigurers) {
@@ -118,6 +119,23 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
     protected void configureKeepAlive(final T builder) {
         if (this.properties.isEnableKeepAlive()) {
             throw new IllegalStateException("KeepAlive is enabled but this implementation does not support keepAlive!");
+        }
+    }
+
+    /**
+     * Configures the keep alive options that should be used by the server.
+     *
+     * @param builder The server builder to configure.
+     */
+    protected void configureConnectionLimits(final T builder) {
+        if (this.properties.getMaxConnectionIdle() != null) {
+            throw new IllegalStateException("MaxConnectionIdle is set but this implementation does not support maxConnectionIdle!");
+        }
+        if (this.properties.getMaxConnectionAge() != null) {
+            throw new IllegalStateException("MaxConnectionAge is set but this implementation does not support maxConnectionAge!");
+        }
+        if (this.properties.getMaxConnectionAgeGrace() != null) {
+            throw new IllegalStateException("MaxConnectionAgeGrace is set but this implementation does not support maxConnectionAgeGrace!");
         }
     }
 

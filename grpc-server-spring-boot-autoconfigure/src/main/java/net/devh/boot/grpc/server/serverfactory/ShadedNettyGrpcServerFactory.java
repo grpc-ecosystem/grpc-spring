@@ -70,6 +70,20 @@ public class ShadedNettyGrpcServerFactory
     }
 
     @Override
+    // Keep this in sync with NettyGrpcServerFactory#configureConnectionLimits
+    protected void configureConnectionLimits(final NettyServerBuilder builder) {
+        if (this.properties.getMaxConnectionIdle() != null) {
+            builder.maxConnectionIdle(this.properties.getMaxConnectionIdle().toNanos(), TimeUnit.NANOSECONDS);
+        }
+        if (this.properties.getMaxConnectionAge() != null) {
+            builder.maxConnectionAge(this.properties.getMaxConnectionAge().toNanos(), TimeUnit.NANOSECONDS);
+        }
+        if (this.properties.getMaxConnectionAgeGrace() != null) {
+            builder.maxConnectionAgeGrace(this.properties.getMaxConnectionAgeGrace().toNanos(), TimeUnit.NANOSECONDS);
+        }
+    }
+
+    @Override
     // Keep this in sync with NettyGrpcServerFactory#configureKeepAlive
     protected void configureKeepAlive(final NettyServerBuilder builder) {
         if (this.properties.isEnableKeepAlive()) {
