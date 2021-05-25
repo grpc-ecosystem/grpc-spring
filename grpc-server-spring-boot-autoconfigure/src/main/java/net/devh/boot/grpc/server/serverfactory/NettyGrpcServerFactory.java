@@ -80,6 +80,20 @@ public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServe
     }
 
     @Override
+    // Keep this in sync with ShadedNettyGrpcServerFactory#configureConnectionLimits
+    protected void configureConnectionLimits(final NettyServerBuilder builder) {
+        if (this.properties.getMaxConnectionIdle() != null) {
+            builder.maxConnectionIdle(this.properties.getMaxConnectionIdle().toNanos(), TimeUnit.NANOSECONDS);
+        }
+        if (this.properties.getMaxConnectionAge() != null) {
+            builder.maxConnectionAge(this.properties.getMaxConnectionAge().toNanos(), TimeUnit.NANOSECONDS);
+        }
+        if (this.properties.getMaxConnectionAgeGrace() != null) {
+            builder.maxConnectionAgeGrace(this.properties.getMaxConnectionAgeGrace().toNanos(), TimeUnit.NANOSECONDS);
+        }
+    }
+
+    @Override
     // Keep this in sync with ShadedNettyGrpcServerFactory#configureSecurity
     protected void configureSecurity(final NettyServerBuilder builder) {
         final Security security = this.properties.getSecurity();

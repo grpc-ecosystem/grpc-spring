@@ -163,6 +163,40 @@ public class GrpcServerProperties {
     private boolean permitKeepAliveWithoutCalls = false;
 
     /**
+     * Specify a max connection idle time. Defaults to disabled. Default unit {@link ChronoUnit#SECONDS SECONDS}.
+     *
+     * @see NettyServerBuilder#maxConnectionIdle(long, TimeUnit)
+     *
+     * @param maxConnectionIdle The max connection idle time.
+     * @return The max connection idle time.
+     */
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration maxConnectionIdle = null;
+
+    /**
+     * Specify a max connection age. Defaults to disabled. Default unit {@link ChronoUnit#SECONDS SECONDS}.
+     *
+     * @see NettyServerBuilder#maxConnectionAge(long, TimeUnit)
+     *
+     * @param maxConnectionAge The max connection age.
+     * @return The max connection age.
+     */
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration maxConnectionAge = null;
+
+    /**
+     * Specify a grace time for the graceful max connection age termination. Defaults to disabled. Default unit
+     * {@link ChronoUnit#SECONDS SECONDS}.
+     *
+     * @see NettyServerBuilder#maxConnectionAgeGrace(long, TimeUnit)
+     *
+     * @param maxConnectionAgeGrace The max connection age grace time.
+     * @return The max connection age grace time.
+     */
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration maxConnectionAgeGrace = null;
+
+    /**
      * The maximum message size allowed to be received by the server. If not set ({@code null}) then
      * {@link GrpcUtil#DEFAULT_MAX_MESSAGE_SIZE gRPC's default} should be used.
      *
