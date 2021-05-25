@@ -113,7 +113,7 @@ public class GrpcServerProperties {
     private boolean enableKeepAlive = false;
 
     /**
-     * The default delay before we send a keepAlives. Defaults to {@code 60s}. Default unit {@link ChronoUnit#SECONDS
+     * The default delay before we send a keepAlives. Defaults to {@code 2h}. Default unit {@link ChronoUnit#SECONDS
      * SECONDS}.
      *
      * @see #setEnableKeepAlive(boolean)
@@ -123,7 +123,7 @@ public class GrpcServerProperties {
      * @return The default delay before sending keepAlives.
      */
     @DurationUnit(ChronoUnit.SECONDS)
-    private Duration keepAliveTime = Duration.of(60, ChronoUnit.SECONDS);
+    private Duration keepAliveTime = Duration.of(2, ChronoUnit.HOURS);
 
     /**
      * The default timeout for a keepAlives ping request. Defaults to {@code 20s}. Default unit
