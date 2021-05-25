@@ -130,15 +130,15 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
     protected void configureConnectionLimits(final T builder) {
         if (this.properties.getMaxConnectionIdle() != null) {
             throw new IllegalStateException(
-                "MaxConnectionIdle is set but this implementation does not support maxConnectionIdle!");
+                    "MaxConnectionIdle is set but this implementation does not support maxConnectionIdle!");
         }
         if (this.properties.getMaxConnectionAge() != null) {
             throw new IllegalStateException(
-                "MaxConnectionAge is set but this implementation does not support maxConnectionAge!");
+                    "MaxConnectionAge is set but this implementation does not support maxConnectionAge!");
         }
         if (this.properties.getMaxConnectionAgeGrace() != null) {
             throw new IllegalStateException(
-                "MaxConnectionAgeGrace is set but this implementation does not support maxConnectionAgeGrace!");
+                    "MaxConnectionAgeGrace is set but this implementation does not support maxConnectionAgeGrace!");
         }
     }
 
