@@ -75,6 +75,21 @@ grpc.client.inProcess.address=in-process:<SomeName>
 This is especially useful for tests as they don't need to open a specific port and thus can run concurrently (on a build
 server).
 
+### Using Unix's Domain Sockets
+
+On Unix based systems you can also use domain sockets to locally communicate between server and clients.
+
+Simply configure the address like this:
+
+````properties
+grpc.server.address=unix:/run/grpc-server
+````
+
+Clients can then connect to the server using the same address.
+
+If you are using `grpc-netty` you also need the `netty-transport-native-epoll` dependency.
+`grpc-netty-shaded` already contains that dependency, so there is no need to add anything for it to work.
+
 ## Configuration via Beans
 
 While this library intents to provide most of the features as configuration option, sometimes the overhead for adding it
