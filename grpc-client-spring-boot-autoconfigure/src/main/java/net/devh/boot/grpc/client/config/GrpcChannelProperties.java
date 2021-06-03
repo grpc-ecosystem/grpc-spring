@@ -37,7 +37,6 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.NameResolverProvider;
 import io.grpc.internal.GrpcUtil;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
-import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -182,7 +181,7 @@ public class GrpcChannelProperties {
 
     @DurationUnit(ChronoUnit.SECONDS)
     private Duration keepAliveTime;
-    private static final Duration DEFAULT_KEEP_ALIVE_TIME = Duration.of(60, ChronoUnit.SECONDS);
+    private static final Duration DEFAULT_KEEP_ALIVE_TIME = Duration.of(5, ChronoUnit.MINUTES);
 
     /**
      * Gets the default delay before we send a keepAlive.
@@ -196,13 +195,14 @@ public class GrpcChannelProperties {
     }
 
     /**
-     * The default delay before we send a keepAlives. Defaults to {@code 60s}. Default unit {@link ChronoUnit#SECONDS
-     * SECONDS}. Please note that shorter intervals increase the network burden for the server.
+     * The default delay before we send a keepAlives. Defaults to {@code 5min}. Default unit {@link ChronoUnit#SECONDS
+     * SECONDS}. Please note that shorter intervals increase the network burden for the server. Cannot be lower than
+     * permitKeepAliveTime on server (default 5min).
      *
      * @param keepAliveTime The new default delay before sending keepAlives, or null to use the fallback.
      *
      * @see #setEnableKeepAlive(Boolean)
-     * @see NettyServerBuilder#keepAliveTime(long, TimeUnit)
+     * @see NettyChannelBuilder#keepAliveTime(long, TimeUnit)
      */
     public void setKeepAliveTime(final Duration keepAliveTime) {
         this.keepAliveTime = keepAliveTime;
@@ -232,7 +232,7 @@ public class GrpcChannelProperties {
      * @param keepAliveTimeout The default timeout for a keepAlives ping request.
      *
      * @see #setEnableKeepAlive(Boolean)
-     * @see NettyServerBuilder#keepAliveTimeout(long, TimeUnit)
+     * @see NettyChannelBuilder#keepAliveTimeout(long, TimeUnit)
      */
     public void setKeepAliveTimeout(final Duration keepAliveTimeout) {
         this.keepAliveTimeout = keepAliveTimeout;

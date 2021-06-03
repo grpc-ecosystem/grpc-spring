@@ -118,7 +118,7 @@ public class GrpcServerProperties {
     private boolean enableKeepAlive = false;
 
     /**
-     * The default delay before we send a keepAlives. Defaults to {@code 60s}. Default unit {@link ChronoUnit#SECONDS
+     * The default delay before we send a keepAlives. Defaults to {@code 2h}. Default unit {@link ChronoUnit#SECONDS
      * SECONDS}.
      *
      * @see #setEnableKeepAlive(boolean)
@@ -128,7 +128,7 @@ public class GrpcServerProperties {
      * @return The default delay before sending keepAlives.
      */
     @DurationUnit(ChronoUnit.SECONDS)
-    private Duration keepAliveTime = Duration.of(60, ChronoUnit.SECONDS);
+    private Duration keepAliveTime = Duration.of(2, ChronoUnit.HOURS);
 
     /**
      * The default timeout for a keepAlives ping request. Defaults to {@code 20s}. Default unit
@@ -166,6 +166,40 @@ public class GrpcServerProperties {
      */
     @DurationUnit(ChronoUnit.SECONDS)
     private boolean permitKeepAliveWithoutCalls = false;
+
+    /**
+     * Specify a max connection idle time. Defaults to disabled. Default unit {@link ChronoUnit#SECONDS SECONDS}.
+     *
+     * @see NettyServerBuilder#maxConnectionIdle(long, TimeUnit)
+     *
+     * @param maxConnectionIdle The max connection idle time.
+     * @return The max connection idle time.
+     */
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration maxConnectionIdle = null;
+
+    /**
+     * Specify a max connection age. Defaults to disabled. Default unit {@link ChronoUnit#SECONDS SECONDS}.
+     *
+     * @see NettyServerBuilder#maxConnectionAge(long, TimeUnit)
+     *
+     * @param maxConnectionAge The max connection age.
+     * @return The max connection age.
+     */
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration maxConnectionAge = null;
+
+    /**
+     * Specify a grace time for the graceful max connection age termination. Defaults to disabled. Default unit
+     * {@link ChronoUnit#SECONDS SECONDS}.
+     *
+     * @see NettyServerBuilder#maxConnectionAgeGrace(long, TimeUnit)
+     *
+     * @param maxConnectionAgeGrace The max connection age grace time.
+     * @return The max connection age grace time.
+     */
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration maxConnectionAgeGrace = null;
 
     /**
      * The maximum message size allowed to be received by the server. If not set ({@code null}) then
