@@ -18,6 +18,8 @@
 package net.devh.boot.grpc.server.serverfactory;
 
 import static java.util.Objects.requireNonNull;
+import static net.devh.boot.grpc.common.util.GrpcUtils.DOMAIN_SOCKET_ADDRESS_PREFIX;
+import static net.devh.boot.grpc.server.config.GrpcServerProperties.ANY_IP_ADDRESS;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +39,7 @@ import io.grpc.netty.shaded.io.netty.channel.epoll.EpollEventLoopGroup;
 import io.grpc.netty.shaded.io.netty.channel.epoll.EpollServerDomainSocketChannel;
 import io.grpc.netty.shaded.io.netty.channel.unix.DomainSocketAddress;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
+import net.devh.boot.grpc.common.util.GrpcUtils;
 import net.devh.boot.grpc.server.config.ClientAuth;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import net.devh.boot.grpc.server.config.GrpcServerProperties.Security;
@@ -65,13 +68,13 @@ public class ShadedNettyGrpcServerFactory
     protected NettyServerBuilder newServerBuilder() {
         final String address = getAddress();
         final int port = getPort();
-        if (address.startsWith(GrpcServerProperties.DOMAIN_SOCKET_ADDRESS_PREFIX)) {
-            final String path = address.substring(GrpcServerProperties.DOMAIN_SOCKET_ADDRESS_PREFIX.length());
+        if (address.startsWith(DOMAIN_SOCKET_ADDRESS_PREFIX)) {
+            final String path = GrpcUtils.extractDomainSocketAddressPath(address);
             return NettyServerBuilder.forAddress(new DomainSocketAddress(path))
                     .channelType(EpollServerDomainSocketChannel.class)
                     .bossEventLoopGroup(new EpollEventLoopGroup(1))
                     .workerEventLoopGroup(new EpollEventLoopGroup());
-        } else if (GrpcServerProperties.ANY_IP_ADDRESS.equals(address)) {
+        } else if (ANY_IP_ADDRESS.equals(address)) {
             return NettyServerBuilder.forPort(port);
         } else {
             return NettyServerBuilder.forAddress(new InetSocketAddress(InetAddresses.forString(address), port));

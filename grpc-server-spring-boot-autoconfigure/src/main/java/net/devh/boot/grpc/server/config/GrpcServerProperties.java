@@ -67,11 +67,6 @@ public class GrpcServerProperties {
     public static final String ANY_IPv6_ADDRESS = "::";
 
     /**
-     * A constant that defines, the prefix of a Unix domain socket address.
-     */
-    public static final String DOMAIN_SOCKET_ADDRESS_PREFIX = "unix:";
-
-    /**
      * Bind address for the server. Defaults to {@link #ANY_IP_ADDRESS "*"}. Alternatively you can restrict this to
      * {@link #ANY_IPv4_ADDRESS "0.0.0.0"} or {@link #ANY_IPv6_ADDRESS "::"}. Or restrict it to exactly one IP address.
      *

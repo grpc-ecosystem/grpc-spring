@@ -18,6 +18,7 @@
 package net.devh.boot.grpc.client.channelfactory;
 
 import static java.util.Objects.requireNonNull;
+import static net.devh.boot.grpc.common.util.GrpcUtils.DOMAIN_SOCKET_ADDRESS_SCHEME;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +40,7 @@ import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 import net.devh.boot.grpc.client.config.NegotiationType;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
+import net.devh.boot.grpc.common.util.GrpcUtils;
 
 /**
  * This channel factory creates and manages netty based {@link GrpcChannelFactory}s.
@@ -74,8 +76,8 @@ public class NettyChannelFactory extends AbstractChannelFactory<NettyChannelBuil
         if (address == null) {
             address = URI.create(name);
         }
-        if (GrpcChannelProperties.DOMAIN_SOCKET_ADDRESS_SCHEME.equals(address.getScheme())) {
-            String path = address.getSchemeSpecificPart();
+        if (DOMAIN_SOCKET_ADDRESS_SCHEME.equals(address.getScheme())) {
+            final String path = GrpcUtils.extractDomainSocketAddressPath(address.toString());
             return NettyChannelBuilder.forAddress(new DomainSocketAddress(path))
                     .channelType(EpollDomainSocketChannel.class)
                     .eventLoopGroup(new EpollEventLoopGroup());
