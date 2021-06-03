@@ -74,15 +74,15 @@ public class NettyChannelFactory extends AbstractChannelFactory<NettyChannelBuil
         if (address == null) {
             address = URI.create(name);
         }
-        NettyChannelBuilder builder;
-        if (address.getScheme().equals(GrpcChannelProperties.DOMAIN_SOCKET_ADDRESS_SCHEME)) {
-            builder =  NettyChannelBuilder.forAddress(new DomainSocketAddress(address.getPath()))
+        if (GrpcChannelProperties.DOMAIN_SOCKET_ADDRESS_SCHEME.equals(address.getScheme())) {
+            String path = address.getSchemeSpecificPart();
+            return NettyChannelBuilder.forAddress(new DomainSocketAddress(path))
                     .channelType(EpollDomainSocketChannel.class)
                     .eventLoopGroup(new EpollEventLoopGroup());
         } else {
-            builder = NettyChannelBuilder.forTarget(address.toString());
+            return NettyChannelBuilder.forTarget(address.toString())
+                    .defaultLoadBalancingPolicy(properties.getDefaultLoadBalancingPolicy());
         }
-        return builder.defaultLoadBalancingPolicy(properties.getDefaultLoadBalancingPolicy());
     }
 
     @Override

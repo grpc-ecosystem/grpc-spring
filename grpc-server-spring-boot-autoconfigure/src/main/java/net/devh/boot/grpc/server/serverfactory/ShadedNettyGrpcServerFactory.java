@@ -66,8 +66,8 @@ public class ShadedNettyGrpcServerFactory
         final String address = getAddress();
         final int port = getPort();
         if (address.startsWith(GrpcServerProperties.DOMAIN_SOCKET_ADDRESS_PREFIX)) {
-            return NettyServerBuilder
-                    .forAddress(new DomainSocketAddress(address.substring(GrpcServerProperties.DOMAIN_SOCKET_ADDRESS_PREFIX.length())))
+            final String path = address.substring(GrpcServerProperties.DOMAIN_SOCKET_ADDRESS_PREFIX.length());
+            return NettyServerBuilder.forAddress(new DomainSocketAddress(path))
                     .channelType(EpollServerDomainSocketChannel.class)
                     .bossEventLoopGroup(new EpollEventLoopGroup(1))
                     .workerEventLoopGroup(new EpollEventLoopGroup());
