@@ -18,6 +18,7 @@
 package net.devh.boot.grpc.client.channelfactory;
 
 import static java.util.Objects.requireNonNull;
+import static net.devh.boot.grpc.common.util.GrpcUtils.DOMAIN_SOCKET_ADDRESS_SCHEME;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,12 +31,16 @@ import org.springframework.core.io.Resource;
 
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
+import io.grpc.netty.shaded.io.netty.channel.epoll.EpollDomainSocketChannel;
+import io.grpc.netty.shaded.io.netty.channel.epoll.EpollEventLoopGroup;
+import io.grpc.netty.shaded.io.netty.channel.unix.DomainSocketAddress;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 import net.devh.boot.grpc.client.config.NegotiationType;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
+import net.devh.boot.grpc.common.util.GrpcUtils;
 
 /**
  * This channel factory creates and manages shaded netty based {@link GrpcChannelFactory}s.
@@ -69,8 +74,15 @@ public class ShadedNettyChannelFactory extends AbstractChannelFactory<NettyChann
         if (address == null) {
             address = URI.create(name);
         }
-        return NettyChannelBuilder.forTarget(address.toString())
-                .defaultLoadBalancingPolicy(properties.getDefaultLoadBalancingPolicy());
+        if (DOMAIN_SOCKET_ADDRESS_SCHEME.equals(address.getScheme())) {
+            final String path = GrpcUtils.extractDomainSocketAddressPath(address.toString());
+            return NettyChannelBuilder.forAddress(new DomainSocketAddress(path))
+                    .channelType(EpollDomainSocketChannel.class)
+                    .eventLoopGroup(new EpollEventLoopGroup());
+        } else {
+            return NettyChannelBuilder.forTarget(address.toString())
+                    .defaultLoadBalancingPolicy(properties.getDefaultLoadBalancingPolicy());
+        }
     }
 
     @Override

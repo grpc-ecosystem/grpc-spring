@@ -38,9 +38,10 @@ If you prefer to read the sources instead, you can do so
 [here](https://github.com/yidongnan/grpc-spring-boot-starter/blob/master/grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/config/GrpcChannelProperties.java#L58).
 
 The properties for the channels are all prefixed with `grpc.client.__name__.` and `grpc.client.__name__.security.`
-respectively. The channel name is taken from the `@GrpcClient` annotation. If you wish to configure some options such as
-trusted certificates for all servers at once you can do so using `GLOBAL` as name. Properties that are defined for a
-name channel take precedence over global once.
+respectively. The channel name is taken from the `@GrpcClient("__name__")` annotation.
+If you wish to configure some options such as trusted certificates for all servers at once,
+you can do so using `GLOBAL` as name.
+Properties that are defined for a specific/named channel take precedence over `GLOBAL` ones.
 
 ### Choosing the Target
 
@@ -55,6 +56,7 @@ There are a number of supported schemes, that you can use to determine the targe
 
 - `static` (Prio 4): \
   A simple static list of IPs (both v4 and v6), that can be use connect to the server (Supports `localhost`). \
+  For resolvable hostnames please use `dns` instead. \
   Example: `static://192.168.1.1:8080,10.0.0.1:1337`
 - [`dns`](https://github.com/grpc/grpc-java/blob/master/core/src/main/java/io/grpc/internal/DnsNameResolver.java#L66)
   (Prio 5): \
@@ -77,6 +79,11 @@ There are a number of supported schemes, that you can use to determine the targe
   This is a special scheme that will bypass the normal channel factory and will use the `InProcessChannelFactory`
   instead. Use it to connect to the [`InProcessServer`](../server/configuration.md#enabling-the-inprocessserver). \
   Example: `in-process:foobar`
+- `unix` (Available on Unix based systems only): \
+  This is a special scheme that uses unix's domain socket addresses to connect to a server. \
+  If you are using `grpc-netty` you also need the `netty-transport-native-epoll` dependency.
+  `grpc-netty-shaded` already contains that dependency, so there is no need to add anything for it to work. \
+  Example: `unix:/run/grpc-server`
 - *custom*: \
   You can define custom
   [`NameResolverProvider`s](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/NameResolverProvider.html) those
@@ -267,6 +274,7 @@ you have to define it via spring context (unless you wish to use `static`).
 - [Getting Started](getting-started.md)
 - *Configuration*
 - [Security](security.md)
+- [Tests with Grpc-Stubs](testing.md)
 
 ----------
 

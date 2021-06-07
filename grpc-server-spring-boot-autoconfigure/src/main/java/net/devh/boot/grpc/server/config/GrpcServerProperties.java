@@ -39,6 +39,7 @@ import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import lombok.Data;
+import net.devh.boot.grpc.common.util.GrpcUtils;
 
 /**
  * The properties for the gRPC server that will be started as part of the application.
@@ -69,6 +70,8 @@ public class GrpcServerProperties {
     /**
      * Bind address for the server. Defaults to {@link #ANY_IP_ADDRESS "*"}. Alternatively you can restrict this to
      * {@link #ANY_IPv4_ADDRESS "0.0.0.0"} or {@link #ANY_IPv6_ADDRESS "::"}. Or restrict it to exactly one IP address.
+     * On unix systems it is also possible to prefix it with {@link GrpcUtils#DOMAIN_SOCKET_ADDRESS_PREFIX unix:} to use
+     * domain socket addresses/paths (Additional dependencies may be required).
      *
      * @param address The address to bind to.
      * @return The address the server should bind to.

@@ -104,6 +104,8 @@ public class GrpcChannelProperties {
      * <li>{@code dns:///example.com:9090}</li>
      * <li>{@code discovery:/foo-service}</li>
      * <li>{@code discovery:///foo-service}</li>
+     * <li>{@code unix:<relative-path>} (Additional dependencies may be required)</li>
+     * <li>{@code unix://</absolute-path>} (Additional dependencies may be required)</li>
      * </ul>
      *
      * @param address The string representation of an uri to use as target address or null to use a fallback.
