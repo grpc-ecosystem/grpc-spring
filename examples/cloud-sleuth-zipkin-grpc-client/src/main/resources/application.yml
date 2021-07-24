@@ -1,0 +1,19 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: cloud-sleuth-zipkin-grpc-client
+  zipkin:
+    base-url: http://localhost:9411
+    enabled: true
+  sleuth:
+    sampler:
+      probability: 1
+
+grpc:
+  client:
+    cloud-grpc-server:
+      address: 'discovery:///cloud-sleuth-zipkin-grpc-server'
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: plaintext

@@ -1,0 +1,280 @@
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
+import io.franzbecker.gradle.lombok.task.DelombokTask
+
+buildscript {
+    repositories {
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+//            allowInsecureProtocol = true
+//            url 'http://maven.aliyun.com/nexus/content/groups/public/'
+        }
+    }
+    ext {
+        projectVersion = '2.13.0-SNAPSHOT'
+
+        // https://github.com/grpc/grpc-java/releases
+        grpcVersion = '1.37.0'
+
+        // https://github.com/google/guava/releases
+        guavaVersion = '30.1.1-jre'
+        // https://github.com/protocolbuffers/protobuf/releases
+        protobufVersion = '3.15.8'
+        protobufGradlePluginVersion = '0.8.12'
+
+        // https://github.com/spring-projects/spring-boot/releases
+        springBootVersion = '2.4.5'
+        // https://github.com/spring-cloud/spring-cloud-release/releases
+        springCloudVersion = '2020.0.2'
+        // https://github.com/alibaba/spring-cloud-alibaba/releases
+        springCloudAlibabaNacosVersion = '2021.1'
+        // https://github.com/spring-projects/spring-security-oauth/releases
+        springSecurityOAuthVersion = '2.5.1.RELEASE'
+
+        lombokPluginVersion = '4.0.0'
+        versioningPluginVersion = '2.14.0'
+        versionsPluginVersion = '0.29.0'
+    }
+}
+
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'org.springframework.boot' version "${springBootVersion}" apply false
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'net.nemerosa.versioning' version '2.14.0'
+    id 'com.google.protobuf' version '0.8.15'
+    id 'io.franzbecker.gradle-lombok' version '4.0.0' apply false
+    id 'com.github.ben-manes.versions' version '0.36.0' // gradle dependencyUpdates
+    id 'com.diffplug.spotless' version '5.11.0'
+}
+
+// If you attempt to build without the `--scan` parameter in `gradle 6.0+` it will cause a build error that it can't find
+// a buildScan property to change. This avoids that problem.
+if (hasProperty('buildScan')) {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
+    }
+}
+
+// you may use IntelliJ's project configuration to make it use the gradle version defined in the gradle script's wrapper section
+wrapper {
+    // Update using:
+    // ./gradlew wrapper --gradle-version=6.5 --distribution-type=bin
+    gradleVersion = '7.0'
+}
+
+def buildTimeAndDate = OffsetDateTime.now()
+
+ext {
+    buildDate = DateTimeFormatter.ISO_LOCAL_DATE.format(buildTimeAndDate)
+    buildTime = DateTimeFormatter.ofPattern('HH:mm:ss.SSSZ').format(buildTimeAndDate)
+    buildRevision = versioning.info.commit
+}
+
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'eclipse'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'com.diffplug.spotless'
+    apply plugin: 'io.franzbecker.gradle-lombok'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(8)
+        }
+    }
+
+    compileJava {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+        options.encoding = 'UTF-8'
+    }
+
+    compileJava.options*.compilerArgs = [
+        '-Xlint:all', '-Xlint:-processing'
+    ]
+
+    eclipse {
+        classpath {
+            downloadJavadoc = true
+            downloadSources = true
+        }
+    }
+
+    spotless {
+        java {
+            licenseHeaderFile rootProject.file('extra/spotless/mit-license.java')
+            removeUnusedImports()
+            importOrderFile rootProject.file('extra/eclipse/eclipse.importorder')
+            eclipse().configFile rootProject.file('extra/eclipse/eclipse-formatter.xml')
+        }
+        format('misc') {
+            target('**/*.gradle', '**/*.md', '**/*.yml')
+            targetExclude('**/build/**/*.*')
+            trimTrailingWhitespace()
+            endWithNewline()
+        }
+    }
+
+    normalization {
+        runtimeClasspath {
+            metaInf{
+                ignoreAttribute('Build-Time')
+            }
+        }
+    }
+
+    // Copy LICENSE
+    tasks.withType(Jar) {
+        from(project.rootDir) {
+            include 'LICENSE'
+            into 'META-INF'
+        }
+    }
+
+    // Generate MANIFEST.MF
+    jar {
+        manifest {
+            attributes(
+                'Created-By': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})".toString(),
+                'Built-By': 'travis',
+                'Build-Date': buildDate,
+                'Build-Time': buildTime,
+                'Built-OS': "${System.properties['os.name']}",
+                'Build-Revision': buildRevision,
+                'Specification-Title': project.name,
+                'Specification-Version': projectVersion,
+                'Specification-Vendor': 'Michael Zhang',
+                'Implementation-Title': project.name,
+                'Implementation-Version': projectVersion,
+                'Implementation-Vendor': 'Michael Zhang'
+            )
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    buildscript {
+        repositories {
+            maven { url 'https://plugins.gradle.org/m2/' }
+        }
+    }
+}
+
+Project commonProject = project(':grpc-common-spring-boot')
+
+String javaAPIdoc
+if (JavaVersion.current().isJava9Compatible()) {
+    javaAPIdoc = 'https://docs.oracle.com/en/java/javase/11/docs/api'
+} else {
+    javaAPIdoc = 'https://docs.oracle.com/javase/8/docs/api/'
+}
+
+allprojects { project ->
+    buildscript {
+        dependencyManagement {
+            imports {
+                mavenBom "org.springframework.boot:spring-boot-starter-parent:${springBootVersion}"
+                mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+                mavenBom "com.alibaba.cloud:spring-cloud-alibaba-dependencies:${springCloudAlibabaNacosVersion}"
+                mavenBom "com.google.protobuf:protobuf-bom:${protobufVersion}"
+                mavenBom "com.google.guava:guava-bom:${guavaVersion}"
+                mavenBom "io.grpc:grpc-bom:${grpcVersion}"
+                mavenBom "org.junit:junit-bom:5.7.0"
+            }
+        }
+
+        ext {
+            micrometerVersion = dependencyManagement.importedProperties['micrometer.version']
+            // not explicitly needed in subprojects, as the BOM for Sprint Boot sets this version
+            springFrameworkVersion = dependencyManagement.importedProperties['spring-framework.version']
+            springSecurityVersion = dependencyManagement.importedProperties['spring-security.version']
+            springCloudCommonsVersion = dependencyManagement.importedProperties['spring-cloud-commons.version']
+        }
+    }
+
+    test {
+        useJUnitPlatform()
+        testLogging {
+            // failFast = true
+            // showStandardStreams = true
+            exceptionFormat = 'full'
+            showCauses = true
+            showExceptions = true
+            showStackTraces = true
+            // prints out individual test progress by hooking into junit engine events
+            // it.events('passed', 'skipped', 'failed', 'standard_out')
+            it.events('passed', 'skipped', 'failed')
+
+            it.debug { dbg ->
+                // prints out individual test progress when run under the debugger
+                // dbg.events('started', 'failed', 'passed', 'skipped', 'standard_error', 'standard_out')
+                dbg.events('started', 'failed', 'passed', 'skipped')
+            }
+        }
+    }
+
+    if (project.name == 'grpc-common-spring-boot' || project.name == 'grpc-client-spring-boot-autoconfigure' || project.name == 'grpc-server-spring-boot-autoconfigure') {
+        // Properly generate javadocs for the important projects
+
+        task delombok(type: DelombokTask, dependsOn: compileJava) {
+            ext.outputDir = file("$buildDir/delombok")
+            outputs.dir(outputDir)
+            sourceSets.main.java.srcDirs.each {
+                inputs.dir(it)
+                args(it, '-d', outputDir)
+            }
+        }
+
+        java {
+            registerFeature('optionalSupport') {
+                usingSourceSet(sourceSets.main)
+            }
+        }
+
+        // Javadoc Task
+        javadoc {
+            dependsOn delombok
+            if (project.name != 'grpc-common-spring-boot') {
+                dependsOn(":grpc-common-spring-boot:javadoc")
+            }
+            source = delombok.outputDir
+            failOnError = false
+            options.locale = 'en_US'
+            options.encoding = 'UTF-8'
+            options.jFlags('-Dhttp.agent=gradle-javadoc') // Required for javadoc.io
+            if (project.name != 'grpc-common-spring-boot') {
+                options.linksOffline('https://static.javadoc.io/net.devh/grpc-common-spring-boot/' + projectVersion, commonProject.buildDir.getPath() + '/docs/javadoc')
+            }
+            options.links = [
+                    javaAPIdoc,
+                    'https://grpc.io/grpc-java/javadoc/',
+                    'https://static.javadoc.io/io.micrometer/micrometer-core/' + micrometerVersion + '/',
+                    'https://docs.spring.io/spring-framework/docs/' + springFrameworkVersion + '/javadoc-api/',
+                    'https://docs.spring.io/spring-security/site/docs/' + springSecurityVersion + '/api/',
+                    'https://docs.spring.io/spring-boot/docs/' + springBootVersion + '/api/',
+                    'https://static.javadoc.io/org.springframework.cloud/spring-cloud-commons/' + springCloudCommonsVersion + '/',
+                    // 'https://static.javadoc.io/io.zipkin.brave/brave/' + braveInstrumentationGrpc + '/', // Requires javadoc 11
+                    // 'https://static.javadoc.io/io.zipkin.brave/brave-instrumentation-grpc/' + braveInstrumentationGrpc + '/', // Requires javadoc 11
+                    'https://google.github.io/guava/releases/29.0-android/api/docs/'
+            ]
+        }
+    }
+}
+
+apply from: './deploy.gradle'
+
+group = 'net.devh'
+version = projectVersion
+
+dependencies {
+    api project(':grpc-server-spring-boot-starter')
+    api project(':grpc-client-spring-boot-starter')
+
+    testImplementation project(':tests')
+}

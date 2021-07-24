@@ -1,0 +1,10 @@
+server:
+  port: 58080
+
+spring:
+  application:
+    name: cloud-grpc-server
+
+grpc:
+  server:
+    port: 0

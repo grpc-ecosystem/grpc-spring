@@ -1,0 +1,24 @@
+build
+**/generated
+classes
+.gradle
+
+.DS_Store
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+**/out
+
+### Eclipse ###
+target/
+bin/
+.classpath
+.project
+.settings/
+.factorypath
+.checkstyle

@@ -1,0 +1,9 @@
+files:
+  - source: /docs/en/client
+    translation: /docs/%locale%/client/%original_file_name%
+  - source: /README.md
+    translation: /README-%locale%.md
+  - source: /docs/en/server
+    translation: /docs/%locale%/server/%original_file_name%
+  - source: /docs/en/*.md
+    translation: /docs/%locale%/%original_file_name%
