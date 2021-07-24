@@ -6,8 +6,6 @@ buildscript {
     repositories {
         maven {
             url 'https://plugins.gradle.org/m2/'
-//            allowInsecureProtocol = true
-//            url 'http://maven.aliyun.com/nexus/content/groups/public/'
         }
     }
     ext {
