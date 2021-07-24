@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option java_multiple_files = true;
+option java_package = "net.devh.boot.grpc.test.proto";
+option java_outer_classname = "TestServiceProto";
+
+service TestService {
+
+    // Returns version information
+    rpc normal(google.protobuf.Empty) returns (SomeType) {}
+    
+    // Fails with an error
+    rpc error(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+    // Unimplemented method
+    rpc unimplemented(google.protobuf.Empty) returns (SomeType) {}
+
+    // Returns the incoming requests as is.
+    rpc echo(stream SomeType) returns (stream SomeType) {}
+
+    // Secured method
+    rpc secure(google.protobuf.Empty) returns (SomeType) {}
+
+    // Secured method with only multiple requests
+    rpc secureDrain(stream SomeType) returns (google.protobuf.Empty) {}
+
+    // Secured method with only multiple answers
+    rpc secureSupply(google.protobuf.Empty) returns (stream SomeType) {}
+
+    // Secured method with both multiple requests and answers
+    rpc secureBidi(stream SomeType) returns (stream SomeType) {}
+
+}
+
+message SomeType {
+    string version = 1;
+}

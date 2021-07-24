@@ -1,0 +1,83 @@
+plugins {
+    id 'eclipse'
+    id 'com.google.protobuf'
+}
+
+group = 'net.devh'
+version = projectVersion
+
+eclipse {
+    project {
+        name = 'grpc-spring-boot-tests'
+    }
+    classpath {
+        file.beforeMerged { cp ->
+            def generatedGrpcFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder('src/generated/test/grpc', null);
+            generatedGrpcFolder.entryAttributes['ignore_optional_problems'] = 'true';
+            cp.entries.add( generatedGrpcFolder );
+            def generatedJavaFolder = new org.gradle.plugins.ide.eclipse.model.SourceFolder('src/generated/test/java', null);
+            generatedJavaFolder.entryAttributes['ignore_optional_problems'] = 'true';
+            cp.entries.add( generatedJavaFolder );
+        }
+    }
+}
+
+compileTestJava.dependsOn(processTestResources)
+
+dependencies {
+    // compile 'io.grpc:grpc-netty'
+    implementation 'io.grpc:grpc-netty-shaded'
+    implementation 'io.grpc:grpc-protobuf'
+    implementation 'io.grpc:grpc-stub'
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
+    generatedFilesBaseDir = "$projectDir/src/generated"
+    clean {
+        delete generatedFilesBaseDir
+    }
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java'
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+idea {
+    module {
+        sourceDirs += file('src/generated/test/java')
+        sourceDirs += file('src/generated/test/grpc')
+        generatedSourceDirs += file('src/generated/test/java')
+        generatedSourceDirs += file('src/generated/test/grpc')
+    }
+}
+
+dependencies {
+    implementation project(':grpc-common-spring-boot')
+    implementation project(':grpc-server-spring-boot-starter') // exclude group: 'io.grpc', module: 'grpc-netty-shaded'
+    implementation project(':grpc-client-spring-boot-starter') // exclude group: 'io.grpc', module: 'grpc-netty-shaded'
+    if (JavaVersion.current().isJava9Compatible()) {
+        // Workaround for @javax.annotation.Generated
+        // see: https://github.com/grpc/grpc-java/issues/3633
+        implementation 'jakarta.annotation:jakarta.annotation-api'
+    }
+    testImplementation 'io.grpc:grpc-testing'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude module: 'junit-vintage-engine'
+        exclude module: 'junit'
+    }
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-actuator'
+    testImplementation 'org.springframework.security:spring-security-config'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}

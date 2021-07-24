@@ -1,0 +1,22 @@
+plugins {
+    id 'java-library'
+}
+
+apply from: '../deploy.gradle'
+
+group = 'net.devh'
+version = projectVersion
+
+compileJava.dependsOn(processResources)
+
+dependencies {
+    annotationProcessor('org.springframework.boot:spring-boot-autoconfigure-processor')
+
+    api('org.springframework.boot:spring-boot-starter')
+    optionalSupportImplementation('org.springframework.boot:spring-boot-starter-actuator')
+    api('io.grpc:grpc-core')
+    optionalSupportImplementation('com.google.guava:guava')
+
+    optionalSupportImplementation('org.springframework.cloud:spring-cloud-starter-sleuth')
+    optionalSupportImplementation('io.zipkin.brave:brave-instrumentation-grpc')
+}
