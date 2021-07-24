@@ -30,10 +30,8 @@ import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorConfigurer;
 import zipkin2.reporter.Reporter;
 
 /**
- * @description:
- * @author: haochencheng
- * @create: 2021-07-24 16:38
- **/
+ * Example configuration class that add grpc server sleuth/brave and zipkin integration
+ */
 @ConditionalOnProperty(value = {"spring.sleuth.enabled", "spring.zipkin.enabled"}, havingValue = "true")
 @Configuration
 @Slf4j
