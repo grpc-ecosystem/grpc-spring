@@ -15,29 +15,26 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.examples.cloud.server;
+package net.devh.boot.grpc.examples.cloud.client;
 
-import org.springframework.context.annotation.Configuration;
-
-import io.grpc.ServerInterceptor;
-import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
- * Example configuration class that adds a {@link ServerInterceptor} to the global interceptor list.
+ * Example grpc client application using cloud discovery.
  */
-@Configuration(proxyBeanMethods = false)
-public class GlobalInterceptorConfiguration {
+@EnableDiscoveryClient
+@SpringBootApplication
+public class CloudSleuthClientApplication {
 
     /**
-     * Creates a new {@link LogGrpcInterceptor} bean and adds it to the global interceptor list. As an alternative you
-     * can directly annotate the {@code LogGrpcInterceptor} class and it will automatically be picked up by spring's
-     * classpath scanning.
+     * Starts the grpc cloud discovery client application.
      *
-     * @return The newly created bean.
+     * @param args The arguments to pass to the application.
      */
-    @GrpcGlobalServerInterceptor
-    LogGrpcInterceptor logServerInterceptor() {
-        return new LogGrpcInterceptor();
+    public static void main(final String... args) {
+        SpringApplication.run(CloudSleuthClientApplication.class, args);
     }
 
 }

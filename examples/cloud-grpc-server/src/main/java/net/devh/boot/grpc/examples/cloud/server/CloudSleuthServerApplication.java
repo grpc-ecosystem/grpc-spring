@@ -17,33 +17,24 @@
 
 package net.devh.boot.grpc.examples.cloud.server;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.grpc.Metadata;
-import io.grpc.ServerCall;
-import io.grpc.ServerCallHandler;
-import io.grpc.ServerInterceptor;
-import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
- * Example {@link ServerInterceptor} that logs all called methods. In this example it is added to Spring's application
- * context via {@link GlobalInterceptorConfiguration}, but is also possible to directly annotate this class with
- * {@link GrpcGlobalServerInterceptor}.
+ * Example grpc service application supporting cloud discovery.
  */
-// @GrpcGlobalServerInterceptor
-public class LogGrpcInterceptor implements ServerInterceptor {
+@EnableDiscoveryClient
+@SpringBootApplication
+public class CloudSleuthServerApplication {
 
-    private static final Logger log = LoggerFactory.getLogger(LogGrpcInterceptor.class);
-
-    @Override
-    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
-            ServerCall<ReqT, RespT> serverCall,
-            Metadata metadata,
-            ServerCallHandler<ReqT, RespT> serverCallHandler) {
-
-        log.info(serverCall.getMethodDescriptor().getFullMethodName());
-        return serverCallHandler.startCall(serverCall, metadata);
+    /**
+     * Starts the grpc cloud server application.
+     *
+     * @param args The arguments to pass to the application.
+     */
+    public static void main(final String... args) {
+        SpringApplication.run(CloudSleuthServerApplication.class, args);
     }
 
 }

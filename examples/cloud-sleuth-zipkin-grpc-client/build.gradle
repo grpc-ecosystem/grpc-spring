@@ -2,7 +2,7 @@ plugins {
     id 'org.springframework.boot'
 }
 
-def discoveryProvider = project.findProperty('discovery') ?: 'consul';
+def discoveryProvider = project.findProperty('discovery') ?: 'nacos';
 
 dependencies {
 	switch (discoveryProvider) {
@@ -30,6 +30,11 @@ dependencies {
 	// For demonstration only
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// zipkin and sleuth
+	implementation "org.springframework.cloud:spring-cloud-starter-zipkin:2.2.7.RELEASE"
+	implementation "org.springframework.cloud:spring-cloud-starter-sleuth"
+	implementation "io.zipkin.brave:brave-instrumentation-grpc:5.13.2"
 }
 
 bootRun {

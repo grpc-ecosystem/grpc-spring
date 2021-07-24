@@ -26,7 +26,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  */
 @EnableDiscoveryClient
 @SpringBootApplication
-public class CloudServerApplication {
+public class CloudSleuthServerApplication {
 
     /**
      * Starts the grpc cloud server application.
@@ -34,7 +34,7 @@ public class CloudServerApplication {
      * @param args The arguments to pass to the application.
      */
     public static void main(final String... args) {
-        SpringApplication.run(CloudServerApplication.class, args);
+        SpringApplication.run(CloudSleuthServerApplication.class, args);
     }
 
 }
