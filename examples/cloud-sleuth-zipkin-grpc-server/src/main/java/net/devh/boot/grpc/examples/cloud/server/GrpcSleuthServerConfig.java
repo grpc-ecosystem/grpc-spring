@@ -53,7 +53,6 @@ public class GrpcSleuthServerConfig {
      * @return
      */
     @Bean
-    @ConditionalOnProperty(value = "sample.zipkin.enabled", havingValue = "false")
     public Reporter<Span> spanReporter() {
         return span -> {
             if (log.isDebugEnabled()) {
