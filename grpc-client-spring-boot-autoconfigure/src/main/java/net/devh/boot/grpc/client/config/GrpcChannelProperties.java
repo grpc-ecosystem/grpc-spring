@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -421,6 +422,47 @@ public class GrpcChannelProperties {
 
     // --------------------------------------------------
 
+    private Boolean retryEnabled;
+    private static final boolean DEFAULT_RETRY_ENABLED = false;
+
+    /**
+     * Gets whether retry should be enabled.
+     *
+     * @return True, if retry should be enabled. False otherwise.
+     * @see #setRetryEnabled(Boolean)
+     */
+    public boolean isRetryEnabled() {
+        return this.retryEnabled == null ? DEFAULT_RETRY_ENABLED : this.retryEnabled;
+    }
+
+    /**
+     * Set Retry enable
+     *
+     * @param retryEnabled Whether retry enabled or null to use the fallback.
+     * @see ManagedChannelBuilder#enableRetry()
+     */
+    public void setRetryEnabled(final Boolean retryEnabled) {
+        this.retryEnabled = retryEnabled;
+    }
+
+    public Boolean getRetryEnabled() {
+        return retryEnabled;
+    }
+
+    // --------------------------------------------------
+
+    private List<MethodConfig> methodConfig;
+
+    public List<MethodConfig> getMethodConfig() {
+        return methodConfig;
+    }
+
+    public void setMethodConfig(List<MethodConfig> methodConfig) {
+        this.methodConfig = methodConfig;
+    }
+
+    // --------------------------------------------------
+
     private final Security security = new Security();
 
     /**
@@ -474,6 +516,19 @@ public class GrpcChannelProperties {
         }
         if (this.immediateConnectTimeout == null) {
             this.immediateConnectTimeout = config.immediateConnectTimeout;
+        }
+        if (this.retryEnabled == null) {
+            this.retryEnabled = config.retryEnabled;
+        }
+        if (this.methodConfig == null || this.methodConfig.isEmpty()) {
+            this.methodConfig = new ArrayList<>();
+            if (config.getMethodConfig() != null && !config.getMethodConfig().isEmpty()) {
+                config.getMethodConfig().forEach(cf -> {
+                    MethodConfig newMethodConfig = new MethodConfig();
+                    newMethodConfig.copyDefaultsFrom(cf);
+                    this.methodConfig.add(newMethodConfig);
+                });
+            }
         }
         this.security.copyDefaultsFrom(config.security);
     }

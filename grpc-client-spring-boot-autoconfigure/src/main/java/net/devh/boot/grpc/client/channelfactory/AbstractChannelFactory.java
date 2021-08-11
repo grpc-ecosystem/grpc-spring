@@ -22,10 +22,7 @@ import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -34,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
 import javax.annotation.concurrent.GuardedBy;
 
+import net.devh.boot.grpc.client.config.*;
 import org.springframework.util.unit.DataSize;
 
 import com.google.common.collect.Lists;
@@ -45,10 +43,7 @@ import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
-import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
-import net.devh.boot.grpc.client.config.NegotiationType;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 
 /**
@@ -168,9 +163,57 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         configureSecurity(builder, name);
         configureLimits(builder, name);
         configureCompression(builder, name);
+        configureRetryEnabled(builder, name);
         for (final GrpcChannelConfigurer channelConfigurer : this.channelConfigurers) {
             channelConfigurer.accept(builder, name);
         }
+    }
+
+    /**
+     * Configures the retry options that should be used by the channel.
+     *
+     * @param builder The channel builder to configure.
+     * @param name    The name of the client to configure.
+     */
+    protected void configureRetryEnabled(final T builder, final String name) {
+        final GrpcChannelProperties properties = getPropertiesFor(name);
+        if (properties.isRetryEnabled()) {
+            builder.enableRetry();
+            //build retry policy by default service config
+            builder.defaultServiceConfig(buildDefaultServiceConfig(properties));
+        }
+    }
+
+    /**
+     * build service config object
+     *
+     * @param properties The properties of
+     */
+    protected Map<String, Object> buildDefaultServiceConfig(final GrpcChannelProperties properties) {
+        Map<String, Object> serviceConfig = new HashMap<>();
+        List<MethodConfig> methodConfigList = properties.getMethodConfig();
+        if (null == methodConfigList || methodConfigList.isEmpty()) {
+            return serviceConfig;
+        }
+        List<Map<String, Object>> methodConfigJsonList = new ArrayList<>();
+        methodConfigList.forEach(methodConfig -> {
+            Map<String, Object> methodConfigMap = new HashMap<>();
+            //set method config
+            List<NameConfig> nameConfigList = methodConfig.getName();
+            if (null != nameConfigList && !nameConfigList.isEmpty()) {
+                List<Map<String, Object>> list = new ArrayList<>();
+                nameConfigList.forEach(nameConfig -> list.add(nameConfig.buildMap()));
+                methodConfigMap.put("name", list);
+            }
+            //set retry policy
+            RetryPolicyConfig retryConfig = methodConfig.getRetryPolicy();
+            if (retryConfig != null) {
+                methodConfigMap.put("retryPolicy", retryConfig.buildMap());
+            }
+            methodConfigJsonList.add(methodConfigMap);
+        });
+        serviceConfig.put("methodConfig", methodConfigJsonList);
+        return serviceConfig;
     }
 
     /**
