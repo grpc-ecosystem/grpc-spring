@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -520,16 +519,7 @@ public class GrpcChannelProperties {
         if (this.retryEnabled == null) {
             this.retryEnabled = config.retryEnabled;
         }
-        if (this.methodConfig == null || this.methodConfig.isEmpty()) {
-            this.methodConfig = new ArrayList<>();
-            if (config.getMethodConfig() != null && !config.getMethodConfig().isEmpty()) {
-                config.getMethodConfig().forEach(cf -> {
-                    MethodConfig newMethodConfig = new MethodConfig();
-                    newMethodConfig.copyDefaultsFrom(cf);
-                    this.methodConfig.add(newMethodConfig);
-                });
-            }
-        }
+        MethodConfig.copyDefaultsFrom(this.methodConfig, config.methodConfig);
         this.security.copyDefaultsFrom(config.security);
     }
 
