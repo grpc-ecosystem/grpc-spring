@@ -33,7 +33,7 @@ import net.devh.boot.grpc.server.config.GrpcServerProperties;
 @EnableConfigurationProperties
 @ConditionalOnClass({Registration.class})
 @Slf4j
-public class GrpcMetadataConfiguration {
+public class GrpcDiscoveryMetadataConfiguration {
 
     @Autowired(required = false)
     private GrpcServerProperties grpcProperties;

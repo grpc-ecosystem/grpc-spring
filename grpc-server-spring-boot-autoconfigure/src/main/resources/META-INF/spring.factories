@@ -2,7 +2,7 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 net.devh.boot.grpc.server.autoconfigure.GrpcAdviceAutoConfiguration,\
 net.devh.boot.grpc.server.autoconfigure.GrpcHealthServiceAutoConfiguration,\
-net.devh.boot.grpc.server.autoconfigure.GrpcMetadataConfiguration,\
+net.devh.boot.grpc.server.autoconfigure.GrpcDiscoveryMetadataConfiguration,\
 net.devh.boot.grpc.server.autoconfigure.GrpcReflectionServiceAutoConfiguration,\
 net.devh.boot.grpc.server.autoconfigure.GrpcServerAutoConfiguration,\
 net.devh.boot.grpc.server.autoconfigure.GrpcServerFactoryAutoConfiguration,\
