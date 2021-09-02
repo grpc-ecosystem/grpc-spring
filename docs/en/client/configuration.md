@@ -158,34 +158,48 @@ The following examples demonstrate how to use annotations to create a global cli
 
 ````java
 @Configuration
-public class ThirdPartyInterceptorConfig {}
+public class GlobalInterceptorConfiguration {
 
-    @GrpcGlobalServerInterceptor
-    LogGrpcInterceptor logServerInterceptor() {
+    @GrpcGlobalClientInterceptor
+    LogGrpcInterceptor logClientInterceptor() {
         return new LogGrpcInterceptor();
     }
 
 }
 ````
 
-This variant is very handy if you wish to add third-party interceptors to the global scope.
+The following example demonstrates creation via `GlobalClientInterceptorConfigurer`
+
+````java
+@Configuration
+public class GlobalInterceptorConfiguration {
+
+    @Bean
+    GlobalClientInterceptorConfigurer globalClientInterceptorConfigurer() {
+        interceptors -> interceptors.add(new LogGrpcInterceptor());
+    }
+
+}
+````
+
+These variant are very handy if you wish to add third-party interceptors to the global scope.
 
 For your own interceptor implementations you can achieve the same result by adding the annotation to the class itself:
 
 ````java
-@GrpcGlobalServerInterceptor
-public class LogGrpcInterceptor implements ServerInterceptor {
+@GrpcGlobalClientInterceptor
+public class LogGrpcInterceptor implements ClientInterceptor {
 
     private static final Logger log = LoggerFactory.getLogger(LogGrpcInterceptor.class);
 
     @Override
-    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
-            ServerCall<ReqT, RespT> serverCall,
-            Metadata metadata,
-            ServerCallHandler<ReqT, RespT> serverCallHandler) {
+    public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+            final MethodDescriptor<ReqT, RespT> method,
+            final CallOptions callOptions,
+            final Channel next) {
 
-        log.info(serverCall.getMethodDescriptor().getFullMethodName());
-        return serverCallHandler.startCall(serverCall, metadata);
+        log.info(method.getFullMethodName());
+        return next.newCall(method, callOptions);
     }
 
 }
