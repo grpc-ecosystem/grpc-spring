@@ -17,22 +17,29 @@
 
 package net.devh.boot.grpc.client.config;
 
-import java.util.ArrayList;
-import java.util.List;
+import static java.util.Objects.requireNonNull;
 
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import lombok.Data;
 
 
 /**
  * The method config for retry policy config.
  *
+ * <p>
+ * For the exact specification refer to:
+ * <a href="https://github.com/grpc/proposal/blob/master/A6-client-retries.md">A6-client-retries</a>
+ * </p>
+ *
  * @author wushengju
- * @since 8/12/2021
  */
-@ToString
-@EqualsAndHashCode
+@Data
 public class MethodConfig {
+
     /**
      * retry policy config
      */
@@ -42,41 +49,57 @@ public class MethodConfig {
      */
     private List<NameConfig> name;
 
-    public RetryPolicyConfig getRetryPolicy() {
-        return retryPolicy;
+
+    /**
+     * Creates a copy of this instance.
+     *
+     * @return The newly created copy.
+     */
+    public MethodConfig copy() {
+        final MethodConfig copy = new MethodConfig();
+        copy.retryPolicy = requireNonNull(this.retryPolicy, "retryPolicy").copy();
+        copy.name = NameConfig.copy(this.name);
+        return copy;
     }
 
-    public void setRetryPolicy(RetryPolicyConfig retryPolicy) {
-        this.retryPolicy = retryPolicy;
+    /**
+     * Creates a copy of the given instances.
+     *
+     * @param configs The configs to copy.
+     * @return The copied instances.
+     */
+    public static List<MethodConfig> copy(final List<MethodConfig> configs) {
+        return requireNonNull(configs, "configs").stream()
+                .map(MethodConfig::copy)
+                .collect(Collectors.toList());
     }
 
-    public List<NameConfig> getName() {
-        return name;
-    }
-
-    public void setName(List<NameConfig> name) {
-        this.name = name;
-    }
-
-    public void copyDefaultsFrom(MethodConfig config) {
-        if (this == config) {
-            return;
+    /**
+     * Builds a json like map from this instance.
+     *
+     * @return The json like map representation of this instance.
+     */
+    public Map<String, Object> buildMap() {
+        final Map<String, Object> map = new LinkedHashMap<>();
+        if (this.name != null && !this.name.isEmpty()) {
+            map.put("name", NameConfig.buildMaps(this.name));
         }
-        this.retryPolicy.copyDefaultsFrom(config.retryPolicy);
-        NameConfig.copyDefaultsFrom(this.name, config.getName());
+        if (this.retryPolicy != null) {
+            map.put("retryPolicy", this.retryPolicy.buildMap());
+        }
+        return map;
     }
 
-    public static void copyDefaultsFrom(List<MethodConfig> methodConfig, final List<MethodConfig> config) {
-        if (methodConfig == null || methodConfig.isEmpty()) {
-            methodConfig = new ArrayList<>();
-            if (config != null && !config.isEmpty()) {
-                List<MethodConfig> finalMethodConfig = methodConfig;
-                config.forEach(conf -> {
-                    MethodConfig newMethodConfig = new MethodConfig();
-                    newMethodConfig.copyDefaultsFrom(conf);
-                    finalMethodConfig.add(newMethodConfig);
-                });
-            }
-        }
+    /**
+     * Builds a json like map from the given instances.
+     *
+     * @param configs The configs to convert.
+     * @return The json like array of maps representation of the instances.
+     */
+    public static List<Map<String, Object>> buildMaps(final List<MethodConfig> configs) {
+        return requireNonNull(configs, "configs").stream()
+                .map(MethodConfig::buildMap)
+                .collect(Collectors.toList());
     }
+
 }

@@ -17,78 +17,91 @@
 
 package net.devh.boot.grpc.client.config;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import static java.util.Objects.requireNonNull;
+
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.Data;
 
 /**
  * The name config for service and method.
  *
+ * <p>
+ * If both the service and method name are empty, then this applies to all requests.
+ * </p>
+ *
+ * <p>
+ * If only the method name is empty, then this applies to all methods in the given service.
+ * </p>
+ *
+ * <p>
+ * For the exact specification refer to:
+ * <a href="https://github.com/grpc/proposal/blob/master/A6-client-retries.md">A6-client-retries</a>
+ * </p>
+ *
  * @author wushengju
- * @since 8/12/2021
  */
-@ToString
-@EqualsAndHashCode
+@Data
 public class NameConfig {
-    /**
-     * the service name which defined in xx.proto
-     */
-    private String service;
-    /**
-     * the method name which you will call
-     */
-    private String method;
 
+    /**
+     * The service name as defined in your proto file. May be empty to match all services, but may never be null.
+     */
+    private String service = "";
+    /**
+     * The method name which you will call. May be empty to match all method within the service, but may never be null.
+     */
+    private String method = "";
+
+    /**
+     * Creates a copy of this instance.
+     *
+     * @return The newly created copy.
+     */
+    public NameConfig copy() {
+        final NameConfig copy = new NameConfig();
+        copy.service = this.service;
+        copy.method = this.method;
+        return copy;
+    }
+
+    /**
+     * Creates a copy of the given instances.
+     *
+     * @param configs The configs to copy.
+     * @return The copied instances.
+     */
+    public static List<NameConfig> copy(final List<NameConfig> configs) {
+        return requireNonNull(configs, "configs").stream()
+                .map(NameConfig::copy)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Builds a json like map from this instance.
+     *
+     * @return The json like map representation of this instance.
+     */
     public Map<String, Object> buildMap() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("service", this.getService());
-        map.put("method", this.getMethod());
+        final Map<String, Object> map = new LinkedHashMap<>();
+        map.put("service", this.service);
+        map.put("method", this.method);
         return map;
     }
 
-    public void copyDefaultsFrom(final NameConfig config) {
-        if (this == config) {
-            return;
-        }
-        if (this.service == null) {
-            this.service = config.service;
-        }
-        if (this.method == null) {
-            this.method = config.method;
-        }
+    /**
+     * Builds a json like map from the given instances.
+     *
+     * @param configs The configs to convert.
+     * @return The json like array of maps representation of the instances.
+     */
+    public static List<Map<String, Object>> buildMaps(final List<NameConfig> configs) {
+        return requireNonNull(configs, "configs").stream()
+                .map(NameConfig::buildMap)
+                .collect(Collectors.toList());
     }
 
-    public static void copyDefaultsFrom(List<NameConfig> nameConfigs, final List<NameConfig> config) {
-        if (nameConfigs == null || nameConfigs.isEmpty()) {
-            nameConfigs = new ArrayList<>();
-            if (config != null && !config.isEmpty()) {
-                List<NameConfig> finalNameConfigs = nameConfigs;
-                config.forEach(nameConfig -> {
-                    NameConfig newConfig = new NameConfig();
-                    newConfig.copyDefaultsFrom(nameConfig);
-                    finalNameConfigs.add(newConfig);
-                });
-            }
-        }
-    }
-
-    public String getService() {
-        return service;
-    }
-
-    public void setService(String service) {
-        this.service = service;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
-    }
 }

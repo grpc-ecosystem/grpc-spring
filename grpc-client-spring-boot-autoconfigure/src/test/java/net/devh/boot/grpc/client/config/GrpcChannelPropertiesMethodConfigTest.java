@@ -26,26 +26,20 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
- * @Title Test
- * @Description GrpcChannelPropertiesGivenMethodConfigUnitTest
- * @Program grpc-spring-boot-starter
- * @Author wushengju
- * @Version 1.0
- * @Date 2021-08-12 16:46
- * @Copyright Copyright (c) 2021 TCL Inc. All rights reserved
+ * Test retry configuration using properties and inheritance.
  **/
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties = {
-        "grpc.client.test.retry-enabled=true",
-        "grpc.client.test.method-config[0].name[0].service=helloworld.Greeter",
-        "grpc.client.test.method-config[0].name[0].method=SayHello",
-        "grpc.client.test.method-config[0].retry-policy.max-attempts=2",
-        "grpc.client.test.method-config[0].retry-policy.initial-backoff=1",
-        "grpc.client.test.method-config[0].retry-policy.max-backoff=1",
-        "grpc.client.test.method-config[0].retry-policy.backoff-multiplier=2",
-        "grpc.client.test.method-config[0].retry-policy.retryable-status-codes=UNKNOWN,UNAVAILABLE"
+        "grpc.client.GLOBAL.retry-enabled=true",
+        "grpc.client.GLOBAL.method-config[0].name[0].service=helloworld.Greeter",
+        "grpc.client.GLOBAL.method-config[0].name[0].method=SayHello",
+        "grpc.client.GLOBAL.method-config[0].retry-policy.max-attempts=2",
+        "grpc.client.GLOBAL.method-config[0].retry-policy.initial-backoff=1",
+        "grpc.client.GLOBAL.method-config[0].retry-policy.max-backoff=1",
+        "grpc.client.GLOBAL.method-config[0].retry-policy.backoff-multiplier=2",
+        "grpc.client.GLOBAL.method-config[0].retry-policy.retryable-status-codes=UNKNOWN,UNAVAILABLE",
 })
-public class GrpcChannelPropertiesGivenMethodConfigUnitTest {
+class GrpcChannelPropertiesMethodConfigTest {
 
     @Autowired
     private GrpcChannelsProperties grpcChannelsProperties;
@@ -53,14 +47,17 @@ public class GrpcChannelPropertiesGivenMethodConfigUnitTest {
     @Test
     void test() {
         final GrpcChannelProperties properties = this.grpcChannelsProperties.getChannel("test");
-        assertEquals(true, properties.getRetryEnabled());
-        assertEquals("helloworld.Greeter", properties.getMethodConfig().get(0).getName().get(0).getService());
-        assertEquals("SayHello", properties.getMethodConfig().get(0).getName().get(0).getMethod());
-        assertEquals(2, properties.getMethodConfig().get(0).getRetryPolicy().getMaxAttempts());
-        assertEquals(1, properties.getMethodConfig().get(0).getRetryPolicy().getInitialBackoff().getSeconds());
-        assertEquals(1, properties.getMethodConfig().get(0).getRetryPolicy().getMaxBackoff().getSeconds());
-        assertEquals(2, properties.getMethodConfig().get(0).getRetryPolicy().getBackoffMultiplier());
-
-        assertEquals(2, properties.getMethodConfig().get(0).getRetryPolicy().getRetryableStatusCodes().size());
+        assertEquals(true, properties.isRetryEnabled());
+        final MethodConfig methodConfig = properties.getMethodConfig().get(0);
+        final NameConfig nameConfig = methodConfig.getName().get(0);
+        assertEquals("helloworld.Greeter", nameConfig.getService());
+        assertEquals("SayHello", nameConfig.getMethod());
+        final RetryPolicyConfig retryPolicy = methodConfig.getRetryPolicy();
+        assertEquals(2, retryPolicy.getMaxAttempts());
+        assertEquals(1, retryPolicy.getInitialBackoff().getSeconds());
+        assertEquals(1, retryPolicy.getMaxBackoff().getSeconds());
+        assertEquals(2, retryPolicy.getBackoffMultiplier());
+        assertEquals(2, retryPolicy.getRetryableStatusCodes().size());
     }
+
 }

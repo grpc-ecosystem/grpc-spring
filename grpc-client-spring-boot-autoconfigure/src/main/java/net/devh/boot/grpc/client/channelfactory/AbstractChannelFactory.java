@@ -24,7 +24,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -46,8 +46,11 @@ import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.client.config.*;
+import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
+import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
+import net.devh.boot.grpc.client.config.MethodConfig;
+import net.devh.boot.grpc.client.config.NegotiationType;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 
 /**
@@ -183,39 +186,23 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         if (properties.isRetryEnabled()) {
             builder.enableRetry();
             // build retry policy by default service config
+            // TODO: Wrap field in defaultServiceConfig
             builder.defaultServiceConfig(buildDefaultServiceConfig(properties));
         }
     }
 
     /**
-     * build service config object
+     * Builds the service config object.
      *
      * @param properties The properties of
+     * @return The json alike service config.
      */
     protected Map<String, Object> buildDefaultServiceConfig(final GrpcChannelProperties properties) {
-        Map<String, Object> serviceConfig = new HashMap<>();
-        List<MethodConfig> methodConfigList = properties.getMethodConfig();
-        if (null == methodConfigList || methodConfigList.isEmpty()) {
-            return serviceConfig;
+        final Map<String, Object> serviceConfig = new LinkedHashMap<>();
+        final List<MethodConfig> methodConfigList = properties.getMethodConfig();
+        if (methodConfigList != null && !methodConfigList.isEmpty()) {
+            serviceConfig.put("methodConfig", MethodConfig.buildMaps(methodConfigList));
         }
-        List<Map<String, Object>> methodConfigJsonList = new ArrayList<>();
-        methodConfigList.forEach(methodConfig -> {
-            Map<String, Object> methodConfigMap = new HashMap<>();
-            // set method config
-            List<NameConfig> nameConfigList = methodConfig.getName();
-            if (null != nameConfigList && !nameConfigList.isEmpty()) {
-                List<Map<String, Object>> list = new ArrayList<>();
-                nameConfigList.forEach(nameConfig -> list.add(nameConfig.buildMap()));
-                methodConfigMap.put("name", list);
-            }
-            // set retry policy
-            RetryPolicyConfig retryConfig = methodConfig.getRetryPolicy();
-            if (retryConfig != null) {
-                methodConfigMap.put("retryPolicy", retryConfig.buildMap());
-            }
-            methodConfigJsonList.add(methodConfigMap);
-        });
-        serviceConfig.put("methodConfig", methodConfigJsonList);
         return serviceConfig;
     }
 

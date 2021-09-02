@@ -444,19 +444,15 @@ public class GrpcChannelProperties {
         this.retryEnabled = retryEnabled;
     }
 
-    public Boolean getRetryEnabled() {
-        return retryEnabled;
-    }
-
     // --------------------------------------------------
 
     private List<MethodConfig> methodConfig;
 
     public List<MethodConfig> getMethodConfig() {
-        return methodConfig;
+        return this.methodConfig;
     }
 
-    public void setMethodConfig(List<MethodConfig> methodConfig) {
+    public void setMethodConfig(final List<MethodConfig> methodConfig) {
         this.methodConfig = methodConfig;
     }
 
@@ -519,7 +515,10 @@ public class GrpcChannelProperties {
         if (this.retryEnabled == null) {
             this.retryEnabled = config.retryEnabled;
         }
-        MethodConfig.copyDefaultsFrom(this.methodConfig, config.methodConfig);
+        if (this.methodConfig == null || this.methodConfig.isEmpty()) {
+            // TBD: Should we smartly merge the method configs?
+            this.methodConfig = config.methodConfig == null ? null : MethodConfig.copy(config.methodConfig);
+        }
         this.security.copyDefaultsFrom(config.security);
     }
 
