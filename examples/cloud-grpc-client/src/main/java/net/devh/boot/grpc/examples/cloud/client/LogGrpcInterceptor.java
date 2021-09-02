@@ -17,6 +17,9 @@
 
 package net.devh.boot.grpc.examples.cloud.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
@@ -26,8 +29,6 @@ import io.grpc.ForwardingClientCallListener;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
 
 /**
@@ -58,26 +59,27 @@ public class LogGrpcInterceptor implements ClientInterceptor {
 
             @Override
             public void start(Listener<RespT> responseListener, Metadata headers) {
-                super.start(new ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT>(responseListener) {
-                    @Override
-                    public void onMessage(RespT message) {
-                        log.debug("Response message: \n{}", message.toString());
-                        super.onMessage(message);
-                    }
+                super.start(
+                        new ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT>(responseListener) {
+                            @Override
+                            public void onMessage(RespT message) {
+                                log.debug("Response message: \n{}", message.toString());
+                                super.onMessage(message);
+                            }
 
-                    @Override
-                    public void onHeaders(Metadata headers) {
-                        log.debug("gRPC headers: \n{}", headers.toString());
-                        super.onHeaders(headers);
-                    }
+                            @Override
+                            public void onHeaders(Metadata headers) {
+                                log.debug("gRPC headers: \n{}", headers.toString());
+                                super.onHeaders(headers);
+                            }
 
-                    @Override
-                    public void onClose(Status status, Metadata trailers) {
-                        log.info("Interaction ends with status: {}", status.toString());
-                        log.info("Trailers: {}", trailers.toString());
-                        super.onClose(status, trailers);
-                    }
-                }, headers);
+                            @Override
+                            public void onClose(Status status, Metadata trailers) {
+                                log.info("Interaction ends with status: {}", status.toString());
+                                log.info("Trailers: {}", trailers.toString());
+                                super.onClose(status, trailers);
+                            }
+                        }, headers);
             }
         };
     }
