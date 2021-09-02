@@ -48,12 +48,12 @@ public class LogGrpcInterceptor implements ClientInterceptor {
             final CallOptions callOptions,
             final Channel next) {
 
-        log.info(method.getFullMethodName());
+        log.info("Received call to {}", method.getFullMethodName());
         return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
 
             @Override
             public void sendMessage(ReqT message) {
-                log.debug("Request message: \n{}", message.toString());
+                log.debug("Request message: {}", message);
                 super.sendMessage(message);
             }
 
@@ -63,20 +63,20 @@ public class LogGrpcInterceptor implements ClientInterceptor {
                         new ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT>(responseListener) {
                             @Override
                             public void onMessage(RespT message) {
-                                log.debug("Response message: \n{}", message.toString());
+                                log.debug("Response message: {}", message);
                                 super.onMessage(message);
                             }
 
                             @Override
                             public void onHeaders(Metadata headers) {
-                                log.debug("gRPC headers: \n{}", headers.toString());
+                                log.debug("gRPC headers: {}", headers);
                                 super.onHeaders(headers);
                             }
 
                             @Override
                             public void onClose(Status status, Metadata trailers) {
-                                log.info("Interaction ends with status: {}", status.toString());
-                                log.info("Trailers: {}", trailers.toString());
+                                log.info("Interaction ends with status: {}", status);
+                                log.info("Trailers: {}", trailers);
                                 super.onClose(status, trailers);
                             }
                         }, headers);
