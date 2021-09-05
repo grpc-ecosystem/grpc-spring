@@ -19,6 +19,7 @@ package net.devh.boot.grpc.client.inject;
 
 import static java.util.Objects.requireNonNull;
 
+import java.beans.Introspector;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -32,7 +33,9 @@ import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
 
@@ -41,6 +44,7 @@ import com.google.common.collect.Lists;
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
 import io.grpc.stub.AbstractStub;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import net.devh.boot.grpc.client.nameresolver.NameResolverRegistration;
 import net.devh.boot.grpc.client.stubfactory.FallbackStubFactory;
@@ -53,6 +57,7 @@ import net.devh.boot.grpc.client.stubfactory.StubFactory;
  * @author Michael (yidongnan@gmail.com)
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
+@Slf4j
 public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
 
     private final ApplicationContext applicationContext;
@@ -130,6 +135,17 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
             throw new IllegalStateException(
                     "Injection value is null unexpectedly for " + name + " at " + injectionTarget);
         }
+
+        try {
+            final ConfigurableListableBeanFactory beanFactory =
+                    ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
+            beanFactory.registerSingleton(Introspector.decapitalize(injectionType.getSimpleName()), value);
+            applicationContext.getAutowireCapableBeanFactory().autowireBean(value);
+        } catch (Exception e) {
+            log.warn("Could not register and autowire bean: {}",
+                    Introspector.decapitalize(injectionType.getSimpleName()));
+        }
+
         return value;
     }
 
@@ -233,9 +249,9 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
      *
      * @param stubClass The stub class that needs to be created.
      * @param channel The gRPC channel associated with the created stub, passed as a parameter to the stub factory.
+     * @return A newly created gRPC stub.
      * @throws BeanInstantiationException If the stub couldn't be created, either because the type isn't supported or
      *         because of a failure in creation.
-     * @return A newly created gRPC stub.
      */
     private AbstractStub<?> createStub(final Class<? extends AbstractStub<?>> stubClass, final Channel channel) {
         final StubFactory factory = getStubFactories().stream()
