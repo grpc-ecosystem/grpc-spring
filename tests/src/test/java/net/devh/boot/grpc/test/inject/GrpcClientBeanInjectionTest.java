@@ -19,8 +19,6 @@ package net.devh.boot.grpc.test.inject;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import javax.annotation.PostConstruct;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,6 +31,8 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import io.grpc.stub.AbstractStub;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import net.devh.boot.grpc.client.inject.GrpcClientBean;
+import net.devh.boot.grpc.client.inject.GrpcClientBeans;
 import net.devh.boot.grpc.client.stubfactory.StandardJavaGrpcStubFactory;
 import net.devh.boot.grpc.client.stubfactory.StubFactory;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
@@ -47,37 +47,92 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc;
 @SpringBootTest
 @SpringJUnitConfig(
         classes = {
-                GrpcClientAutoWiringFieldAndMethodInjectionTest.TestConfig.class,
-                GrpcClientAutoWiringFieldAndMethodInjectionTest.TestConfig2.class,
+                GrpcClientBeanInjectionTest.TestConfig.class,
                 InProcessConfiguration.class,
                 ServiceConfiguration.class,
                 BaseAutoConfiguration.class
         })
 @DirtiesContext
-public class GrpcClientAutoWiringFieldAndMethodInjectionTest {
+public class GrpcClientBeanInjectionTest {
 
     @Autowired
-    @Qualifier("testServiceBlockingStub")
-    TestServiceGrpc.TestServiceBlockingStub testServiceBlockingStub; // created in TestConfig with @GrpcClient
+    TestServiceGrpc.TestServiceBlockingStub blockingStub;
 
     @Autowired
-    String aboutBlockingStubBean; // created in TestConfig2 with method injection
+    TestServiceGrpc.TestServiceFutureStub futureStubForClientTest;
+
+    @Autowired
+    TestServiceGrpc.TestServiceBlockingStub anotherBlockingStub;
+
+    @Autowired
+    TestServiceGrpc.TestServiceBlockingStub unnamedTestServiceBlockingStub;
+
+    @Autowired
+    CustomGrpc.FactoryMethodAccessibleStub anotherServiceClientBean;
+
+    @Autowired
+    String aboutMethodInjectedBlockingStubBean;
 
     @Test
-    void fieldInjectionAutoWiringTest() {
-        assertNotNull(testServiceBlockingStub, "testServiceBlockingStub");
+    void singleContextInjectionTest() {
+        assertNotNull(blockingStub, "blockingStub");
     }
 
     @Test
-    void methodInjectionAutoWiringTest() {
-        assertNotNull(aboutBlockingStubBean, "aboutBlockingStubBean");
+    void anotherSubTypeAndSameClientDefinitionTest() {
+        assertNotNull(futureStubForClientTest, "futureStubForClientTest");
+    }
+
+    @Test
+    void twoDifferentClientDefinitionsTest() {
+        assertNotNull(anotherBlockingStub, "blockingStub");
+    }
+
+    @Test
+    void unnamedBeanContextInjectionTest() {
+        assertNotNull(unnamedTestServiceBlockingStub, "unnamedTestServiceBlockingStub");
+    }
+
+    @Test
+    void autoWiringQualifierMethodInjectionFromContextTest() {
+        assertNotNull(aboutMethodInjectedBlockingStubBean, "aboutBlockingStubBean");
+    }
+
+    @Test
+    void anotherGrpcServiceAndSameGrpcClientDefinitionTest() {
+        assertNotNull(anotherServiceClientBean, "anotherServiceClientBean");
     }
 
     @TestConfiguration
+    @GrpcClientBeans(value = {
+            @GrpcClientBean(
+                    clazz = TestServiceGrpc.TestServiceBlockingStub.class,
+                    beanName = "blockingStub",
+                    client = @GrpcClient("test")),
+            @GrpcClientBean(
+                    clazz = TestServiceGrpc.TestServiceFutureStub.class,
+                    beanName = "futureStubForClientTest",
+                    client = @GrpcClient("test")),
+            @GrpcClientBean(
+                    clazz = TestServiceGrpc.TestServiceBlockingStub.class,
+                    beanName = "anotherBlockingStub",
+                    client = @GrpcClient("anotherTest")),
+            @GrpcClientBean(
+                    clazz = TestServiceGrpc.TestServiceBlockingStub.class,
+                    client = @GrpcClient("unnamed")),
+            @GrpcClientBean(
+                    clazz = CustomGrpc.FactoryMethodAccessibleStub.class,
+                    beanName = "anotherServiceClientBean",
+                    client = @GrpcClient("test"))
+    })
     public static class TestConfig {
 
-        @GrpcClient("test")
-        TestServiceGrpc.TestServiceBlockingStub blockingStub;
+        @Bean
+        public String aboutMethodInjectedBlockingStubBean(
+                @Autowired
+                @Qualifier("anotherBlockingStub") TestServiceGrpc.TestServiceBlockingStub blockingStub) {
+            return blockingStub.toString();
+        }
 
         @Bean
         StubFactory customStubFactory() {
@@ -95,21 +150,5 @@ public class GrpcClientAutoWiringFieldAndMethodInjectionTest {
 
             };
         }
-
-        @PostConstruct
-        public void init() {
-            assertNotNull(this.blockingStub, "blockingStub");
-        }
     }
-
-    @TestConfiguration
-    public static class TestConfig2 {
-
-        @Bean
-        public String aboutBlockingStubBean(
-                @Autowired @Qualifier("testServiceBlockingStub") TestServiceGrpc.TestServiceBlockingStub blockingStub) {
-            return blockingStub.toString();
-        }
-    }
-
 }

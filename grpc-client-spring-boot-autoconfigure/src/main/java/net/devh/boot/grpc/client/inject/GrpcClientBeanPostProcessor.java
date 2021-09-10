@@ -19,7 +19,6 @@ package net.devh.boot.grpc.client.inject;
 
 import static java.util.Objects.requireNonNull;
 
-import java.beans.Introspector;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -102,6 +101,22 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
                             processInjectionPoint(method, paramTypes[0], annotation));
                 }
             }
+
+            for (final GrpcClientBean beanClientIterator : clazz.getAnnotationsByType(GrpcClientBean.class)) {
+                final String beanNameToCreate = beanClientIterator.beanName().isEmpty()
+                        ? beanClientIterator.client().value() + beanClientIterator.clazz().getSimpleName()
+                        : beanClientIterator.beanName();
+                try {
+                    final ConfigurableListableBeanFactory beanFactory =
+                            ((ConfigurableApplicationContext) this.applicationContext).getBeanFactory();
+                    final Object beanValue =
+                            processInjectionPoint(null, beanClientIterator.clazz(), beanClientIterator.client());
+                    beanFactory.registerSingleton(beanNameToCreate, beanValue);
+                } catch (final Exception e) {
+                    log.warn("Could not register and autowire bean: {}", beanNameToCreate, e);
+                }
+            }
+
             clazz = clazz.getSuperclass();
         } while (clazz != null);
         return bean;
@@ -134,16 +149,6 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
         if (value == null) {
             throw new IllegalStateException(
                     "Injection value is null unexpectedly for " + name + " at " + injectionTarget);
-        }
-
-        try {
-            final ConfigurableListableBeanFactory beanFactory =
-                    ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
-            beanFactory.registerSingleton(Introspector.decapitalize(injectionType.getSimpleName()), value);
-            applicationContext.getAutowireCapableBeanFactory().autowireBean(value);
-        } catch (Exception e) {
-            log.warn("Could not register and autowire bean: {}",
-                    Introspector.decapitalize(injectionType.getSimpleName()));
         }
 
         return value;
@@ -239,8 +244,13 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
             }
             return injectionType.cast(stub);
         } else {
-            throw new InvalidPropertyException(injectionTarget.getDeclaringClass(), injectionTarget.getName(),
-                    "Unsupported type " + injectionType.getName());
+            if (injectionTarget != null) {
+                throw new InvalidPropertyException(injectionTarget.getDeclaringClass(), injectionTarget.getName(),
+                        "Unsupported type " + injectionType.getName());
+            } else {
+                throw new InvalidPropertyException(injectionType.getDeclaringClass(), injectionType.getName(),
+                        "Unsupported type " + injectionType.getName());
+            }
         }
     }
 
