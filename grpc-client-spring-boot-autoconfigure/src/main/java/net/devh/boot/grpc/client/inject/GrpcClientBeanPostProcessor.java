@@ -67,6 +67,9 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     private List<StubTransformer> stubTransformers = null;
     private List<StubFactory> stubFactories = null;
 
+    // For bean registration via @GrpcClientBean
+    private ConfigurableListableBeanFactory configurableBeanFactory;
+
     /**
      * Creates a new GrpcClientBeanPostProcessor with the given ApplicationContext.
      *
@@ -105,8 +108,7 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
             for (final GrpcClientBean beanClientIterator : clazz.getAnnotationsByType(GrpcClientBean.class)) {
                 final String beanNameToCreate = getBeanName(beanClientIterator);
                 try {
-                    final ConfigurableListableBeanFactory beanFactory =
-                            ((ConfigurableApplicationContext) this.applicationContext).getBeanFactory();
+                    final ConfigurableListableBeanFactory beanFactory = getConfigurableBeanFactory();
                     final Object beanValue =
                             processInjectionPoint(null, beanClientIterator.clazz(), beanClientIterator.client());
                     beanFactory.registerSingleton(beanNameToCreate, beanValue);
@@ -287,6 +289,18 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
             this.stubFactories.add(new FallbackStubFactory());
         }
         return this.stubFactories;
+    }
+
+    /**
+     * Lazy factory getter from the context for bean registration with {@link GrpcClientBean} annotations.
+     *
+     * @return configurable bean factory
+     */
+    private ConfigurableListableBeanFactory getConfigurableBeanFactory() {
+        if (this.configurableBeanFactory == null) {
+            this.configurableBeanFactory = ((ConfigurableApplicationContext) this.applicationContext).getBeanFactory();
+        }
+        return this.configurableBeanFactory;
     }
 
     /**
