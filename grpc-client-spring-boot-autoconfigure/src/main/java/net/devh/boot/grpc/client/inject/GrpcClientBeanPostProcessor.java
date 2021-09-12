@@ -113,7 +113,8 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
                             processInjectionPoint(null, beanClientIterator.clazz(), beanClientIterator.client());
                     beanFactory.registerSingleton(beanNameToCreate, beanValue);
                 } catch (final Exception e) {
-                    log.warn("Could not register and autowire bean: {}", beanNameToCreate, e);
+                    throw new BeanCreationException(
+                            "Could not create and register grpc client bean: {}", beanNameToCreate, e);
                 }
             }
 
