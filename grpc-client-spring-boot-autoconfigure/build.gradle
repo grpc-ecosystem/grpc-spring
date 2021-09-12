@@ -15,7 +15,6 @@ dependencies {
 
     api project(':grpc-common-spring-boot')
     api 'org.springframework.boot:spring-boot-starter'
-    api 'org.springframework.boot:spring-boot-starter-test'
     optionalSupportImplementation 'org.springframework.boot:spring-boot-starter-actuator'
     optionalSupportImplementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
     optionalSupportImplementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'

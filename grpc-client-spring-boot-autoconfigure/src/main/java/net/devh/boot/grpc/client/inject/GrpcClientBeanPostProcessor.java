@@ -33,7 +33,6 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
@@ -325,15 +324,14 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     }
 
     /**
-     * The method is used to check for the presence of an annotation {@link Configuration} or {@link TestConfiguration}
+     * The method is used to check for the presence of an annotation {@link Configuration}
      *
      * @param clazz instance of the class
      * @return does the class have an annotation or not
      */
     private boolean isAnnotatedWithConfiguration(final Class<?> clazz) {
-        final Configuration[] configurationAnnotation = clazz.getAnnotationsByType(Configuration.class);
-        final TestConfiguration[] testConfigurationAnnotation = clazz.getAnnotationsByType(TestConfiguration.class);
-        return configurationAnnotation.length != 0 || testConfigurationAnnotation.length != 0;
+        final Configuration configurationAnnotation = AnnotationUtils.findAnnotation(clazz, Configuration.class);
+        return configurationAnnotation != null;
     }
 
 }
