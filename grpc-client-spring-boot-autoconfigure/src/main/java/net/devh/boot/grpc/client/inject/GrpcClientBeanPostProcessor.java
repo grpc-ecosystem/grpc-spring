@@ -117,8 +117,9 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
                         beanFactory.registerSingleton(beanNameToCreate, beanValue);
                     } catch (final Exception e) {
                         throw new BeanCreationException(
-                                "Could not create and register grpc client bean: {} from class {}", beanNameToCreate,
-                                clazz.getSimpleName(), e);
+                                "Could not create and register grpc client bean " + beanNameToCreate + " from class " +
+                                        clazz.getSimpleName(),
+                                e);
                     }
                 }
             }
