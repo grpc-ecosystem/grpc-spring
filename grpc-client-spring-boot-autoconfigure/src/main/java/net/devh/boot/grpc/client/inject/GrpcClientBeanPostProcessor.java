@@ -103,9 +103,7 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
             }
 
             for (final GrpcClientBean beanClientIterator : clazz.getAnnotationsByType(GrpcClientBean.class)) {
-                final String beanNameToCreate = beanClientIterator.beanName().isEmpty()
-                        ? beanClientIterator.client().value() + beanClientIterator.clazz().getSimpleName()
-                        : beanClientIterator.beanName();
+                final String beanNameToCreate = getBeanName(beanClientIterator);
                 try {
                     final ConfigurableListableBeanFactory beanFactory =
                             ((ConfigurableApplicationContext) this.applicationContext).getBeanFactory();
@@ -289,6 +287,20 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
             this.stubFactories.add(new FallbackStubFactory());
         }
         return this.stubFactories;
+    }
+
+    /**
+     * The method is used to determine with which name the bean should be registered in the context
+     *
+     * @param grpcClientBean annotation value
+     * @return name
+     */
+    private String getBeanName(final GrpcClientBean grpcClientBean) {
+        if (!grpcClientBean.beanName().isEmpty()) {
+            return grpcClientBean.beanName();
+        } else {
+            return grpcClientBean.client().value() + grpcClientBean.clazz().getSimpleName();
+        }
     }
 
 }
