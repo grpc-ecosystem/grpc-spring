@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
@@ -48,6 +49,7 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc;
 @SpringJUnitConfig(
         classes = {
                 GrpcClientBeanInjectionTest.TestConfig.class,
+                GrpcClientBeanInjectionTest.CustomConfig.class,
                 InProcessConfiguration.class,
                 ServiceConfiguration.class,
                 BaseAutoConfiguration.class
@@ -73,34 +75,65 @@ public class GrpcClientBeanInjectionTest {
     @Autowired
     String aboutMethodInjectedBlockingStubBean;
 
+    @Autowired
+    TestServiceGrpc.TestServiceBlockingStub stubFromSpringConfiguration;
+
+    /**
+     * Test should cover bean simple single bean creation with {@link GrpcClientBean} annotation with
+     * {@link TestConfiguration}
+     */
     @Test
-    void singleContextInjectionTest() {
+    void singleContextInjectionFromTestConfigurationTest() {
         assertNotNull(blockingStub, "blockingStub");
     }
 
+    /**
+     * Test should cover bean simple single bean creation with {@link GrpcClientBean} annotation with
+     * {@link Configuration}
+     */
+    @Test
+    void singleContextInjectionFromConfigurationTest() {
+        assertNotNull(stubFromSpringConfiguration, "stubFromSpringConfiguration");
+    }
+
+    /**
+     * Test should cover creation of another bean with different stub class and same grpc client definition
+     */
     @Test
     void anotherSubTypeAndSameClientDefinitionTest() {
         assertNotNull(futureStubForClientTest, "futureStubForClientTest");
     }
 
+    /**
+     * Test should cover creation of another bean same different stub class, but different grpc client definition
+     */
     @Test
     void twoDifferentClientDefinitionsTest() {
         assertNotNull(anotherBlockingStub, "blockingStub");
     }
 
+    /**
+     * Test should cover creation of another bean with different service and stub class with same grpc client definition
+     */
+    @Test
+    void anotherGrpcServiceAndSameGrpcClientDefinitionTest() {
+        assertNotNull(anotherServiceClientBean, "anotherServiceClientBean");
+    }
+
+    /**
+     * Test should cover creation of bean without defined bean name
+     */
     @Test
     void unnamedBeanContextInjectionTest() {
         assertNotNull(unnamedTestServiceBlockingStub, "unnamedTestServiceBlockingStub");
     }
 
+    /**
+     * Test should cover bean method injection via {@link Autowired} and {@link Qualifier} from context
+     */
     @Test
     void autoWiringQualifierMethodInjectionFromContextTest() {
         assertNotNull(aboutMethodInjectedBlockingStubBean, "aboutBlockingStubBean");
-    }
-
-    @Test
-    void anotherGrpcServiceAndSameGrpcClientDefinitionTest() {
-        assertNotNull(anotherServiceClientBean, "anotherServiceClientBean");
     }
 
     @TestConfiguration
@@ -150,5 +183,13 @@ public class GrpcClientBeanInjectionTest {
 
             };
         }
+    }
+
+    @Configuration
+    @GrpcClientBean(
+            clazz = TestServiceGrpc.TestServiceBlockingStub.class,
+            beanName = "stubFromSpringConfiguration",
+            client = @GrpcClient("test2"))
+    public static class CustomConfig {
     }
 }

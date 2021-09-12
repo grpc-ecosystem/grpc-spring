@@ -33,8 +33,10 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
 
@@ -105,16 +107,20 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
                 }
             }
 
-            for (final GrpcClientBean beanClientIterator : clazz.getAnnotationsByType(GrpcClientBean.class)) {
-                final String beanNameToCreate = getBeanName(beanClientIterator);
-                try {
-                    final ConfigurableListableBeanFactory beanFactory = getConfigurableBeanFactory();
-                    final Object beanValue =
-                            processInjectionPoint(null, beanClientIterator.clazz(), beanClientIterator.client());
-                    beanFactory.registerSingleton(beanNameToCreate, beanValue);
-                } catch (final Exception e) {
-                    throw new BeanCreationException(
-                            "Could not create and register grpc client bean: {}", beanNameToCreate, e);
+            if (isAnnotatedWithConfiguration(clazz)) {
+                for (final GrpcClientBean beanClientIterator : clazz.getAnnotationsByType(GrpcClientBean.class)) {
+
+                    final String beanNameToCreate = getBeanName(beanClientIterator);
+                    try {
+                        final ConfigurableListableBeanFactory beanFactory = getConfigurableBeanFactory();
+                        final Object beanValue =
+                                processInjectionPoint(null, beanClientIterator.clazz(), beanClientIterator.client());
+                        beanFactory.registerSingleton(beanNameToCreate, beanValue);
+                    } catch (final Exception e) {
+                        throw new BeanCreationException(
+                                "Could not create and register grpc client bean: {} from class {}", beanNameToCreate,
+                                clazz.getSimpleName(), e);
+                    }
                 }
             }
 
@@ -316,6 +322,18 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
         } else {
             return grpcClientBean.client().value() + grpcClientBean.clazz().getSimpleName();
         }
+    }
+
+    /**
+     * The method is used to check for the presence of an annotation {@link Configuration} or {@link TestConfiguration}
+     *
+     * @param clazz instance of the class
+     * @return does the class have an annotation or not
+     */
+    private boolean isAnnotatedWithConfiguration(final Class<?> clazz) {
+        final Configuration[] configurationAnnotation = clazz.getAnnotationsByType(Configuration.class);
+        final TestConfiguration[] testConfigurationAnnotation = clazz.getAnnotationsByType(TestConfiguration.class);
+        return configurationAnnotation.length != 0 || testConfigurationAnnotation.length != 0;
     }
 
 }
