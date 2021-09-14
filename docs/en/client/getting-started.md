@@ -106,10 +106,16 @@ If you don't wish to use any advanced features, then the first element is probab
   The annotation that marks fields and setters for auto injection of clients.
   Supports `Channel`s, and all kinds of `Stub`s.
   Do not use `@GrpcClient` in conjunction with `@Autowired` or `@Inject`.
-  Currently it isn't supported for constructor and `@Bean` method parameters. \
+  Currently, it isn't supported for constructor and `@Bean` method parameters. For this case look below
+  to the``@GrpcClientBean``. \
   **Note:** Services provided by the same application can only be accessed/called in/after the
   `ApplicationStartedEvent`. Stubs connecting to services outside of the application can be used earlier; starting with
   `@PostConstruct` / `InitializingBean#afterPropertiesSet()`.
+- [`@GrpcClientBean`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/GrpcClientBean.html):
+  The annotation should help with registration ``@GrpcClient`` to the spring context for usage with ``@Autowire`` and
+  ``@Qualifier``, required annotation ``@Configuration`` or inherited, for example ``@TestConfiguration``.
+- [`@GrpcClientBeans`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/GrpcClientBeans.html):
+  The annotation should help with multiple registration ``@GrpcClient`` to the spring context.
 - [`Channel`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/Channel.html):
   The Channel is a connection pool for a single address. The target servers might serve multiple grpc-services though.
   The address will be resolved using a `NameResolver` and might point to a fixed or dynamic number of servers.
@@ -167,13 +173,48 @@ public class FoobarService {
     public String receiveGreeting(String name) {
         HelloRequest request = HelloRequest.newBuilder()
                 .setName(name)
-                .build()
+                .build();
         return myServiceStub.sayHello(request).getMessage();
     }
 
 }
 ````
 
+Also you can feel free to inject stub with ``@GrpcClientBean`` with ``@Configuration`` for more wide usage in
+another services.
+
+> **Note:** It is definitely not recommended using ``@GrpcClientBean`` and field annotated with ``@GrpcClient`` like in
+> the first example for same configuration class, but it`s still possible.
+
+````java
+@Configuration
+@GrpcClientBean(
+    clazz = TestServiceGrpc.TestServiceBlockingStub.class,
+    beanName = "blockingStub",
+    client = @GrpcClient("test")
+)
+public static class YourCustomConfiguration {
+
+    @Bean
+    FoobarService(@Autowired TestServiceGrpc.TestServiceBlockingStub blockingStub) {
+        return new FoobarService(blockingStub);
+    }
+}
+
+@Service
+@AllArgsConsturtor
+public class FoobarService {
+    private TestServiceBlockingStub blockingStub;
+
+    public String receiveGreeting(String name) {
+        HelloRequest request = HelloRequest.newBuilder()
+                .setName(name)
+                .build();
+        return blockingStub.sayHello(request).getMessage();
+    }
+
+}
+````
 ## Additional Topics <!-- omit in toc -->
 
 - *Getting Started*

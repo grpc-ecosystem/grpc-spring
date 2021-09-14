@@ -9,6 +9,8 @@ This section describes how you can configure your grpc-spring-boot-starter clien
 - [Configuration via Properties](#configuration-via-properties)
   - [Choosing the Target](#choosing-the-target)
 - [Configuration via Beans](#configuration-via-beans)
+  - [GrpcClientBean](#grpcclientbean)
+  - [GrpcClientBeans](#grpcclientbeans)
   - [GrpcChannelConfigurer](#grpcchannelconfigurer)
   - [ClientInterceptor](#clientinterceptor)
   - [StubFactory](#stubfactory)
@@ -114,6 +116,93 @@ extension points that exist in this library.
 First of all most of the beans can be replaced by custom ones, that you can configure in every way you want.
 If you don't wish to go that far, you can use classes such as `GrpcChannelConfigurer` and `StubTransformer` to configure
 the channels, stubs and other components without losing the features provided by this library.
+
+### GrpcClientBean
+
+This should significantly help with ``@Autowire`` and ``@Qualifier`` because default annotation``@GrpcClient`` is
+not designed for usage with spring 'injection' annotations.
+``@GrpcClientBean`` require annotation ``@Cofiguration`` or inherited, for example ``@TestConfiguraiton``.
+It is definitely not recommended using ``@GrpcClientBean`` and field annotated with ``@GrpcClient`` for same
+configuration class, but it`s still possible.
+
+````java
+@Configuration
+@GrpcClientBean(
+    clazz = TestServiceGrpc.TestServiceBlockingStub.class,
+    beanName = "blockingStub",
+    client = @GrpcClient("test")
+)
+public static class YourCustomConfiguration {
+
+    @Bean
+    FoobarService(@Autowired TestServiceGrpc.TestServiceBlockingStub blockingStub) {
+        return new FoobarService(blockingStub);
+    }
+}
+
+@Service
+@AllArgsConsturtor
+public class FoobarService {
+    private TestServiceBlockingStub blockingStub;
+
+    public String receiveGreeting(String name) {
+        HelloRequest request = HelloRequest.newBuilder()
+                .setName(name)
+                .build();
+        return blockingStub.sayHello(request).getMessage();
+    }
+
+}
+````
+
+### GrpcClientBeans
+
+``@GrpcClientBeans`` designed for registration multiple stubs to the spring context from single configuration class.
+
+````java
+    @Configuration
+    @GrpcClientBeans(value = {
+            @GrpcClientBean(
+                    clazz = TestServiceGrpc.TestServiceBlockingStub.class,
+                    beanName = "blockingStub",
+                    client = @GrpcClient("test")),
+            @GrpcClientBean(
+                    clazz = TestServiceGrpc.FactoryMethodAccessibleStub.class,
+                    beanName = "accessibleStub",
+                    client = @GrpcClient("test"))
+    })
+    public static class YourCustomConfiguration {
+
+    @Bean
+    FoobarService(@Autowired TestServiceGrpc.TestServiceBlockingStub blockingStub,
+                  @Autowired TestServiceGrpc.FactoryMethodAccessibleStub accessibleStub) {
+        return new FoobarService(blockingStub, accessibleStub);
+    }
+}
+
+@Service
+@AllArgsConsturtor
+public class FoobarService {
+
+    private TestServiceBlockingStub blockingStub;
+    private FactoryMethodAccessibleStub accessibleStub;
+
+    public String receiveGreeting(String name) {
+        HelloRequest request = HelloRequest.newBuilder()
+                .setName(name)
+                .build();
+        return blockingStub.sayHello(request).getMessage();
+    }
+
+    public String receiveAnotherGreeting(String name) {
+        HelloRequest request = HelloRequest.newBuilder()
+                .setName(name)
+                .build();
+        return accessibleStub.sayHi(request).getMessage();
+    }
+
+}
+````
 
 ### GrpcChannelConfigurer
 

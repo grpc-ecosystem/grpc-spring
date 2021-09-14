@@ -17,7 +17,11 @@
 
 package net.devh.boot.grpc.client.inject;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Annotation that can be added to `@Configuration` classes to create GrpcClient bean in the ApplicationContext.
