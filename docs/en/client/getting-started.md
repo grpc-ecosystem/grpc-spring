@@ -181,8 +181,8 @@ public class FoobarService {
 Also you can feel free to inject stub with `@GrpcClientBean` with `@Configuration` for more wide usage in
 another services.
 
-> **Note:** It is definitely not recommended using ``@GrpcClientBean`` and field annotated with ``@GrpcClient`` like in
-> the previous example for same configuration class, but it`s still possible.
+> **Note:** We recommend using either `@GrpcClientBean`s or fields annotated with `@GrpcClient` throughout your
+> application, as mixing the two can cause confusion for future developers.
 
 ````java
 @Configuration
