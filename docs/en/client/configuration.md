@@ -10,7 +10,6 @@ This section describes how you can configure your grpc-spring-boot-starter clien
   - [Choosing the Target](#choosing-the-target)
 - [Configuration via Beans](#configuration-via-beans)
   - [GrpcClientBean](#grpcclientbean)
-  - [GrpcClientBeans](#grpcclientbeans)
   - [GrpcChannelConfigurer](#grpcchannelconfigurer)
   - [ClientInterceptor](#clientinterceptor)
   - [StubFactory](#stubfactory)
