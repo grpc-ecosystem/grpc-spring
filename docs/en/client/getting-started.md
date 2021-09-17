@@ -112,8 +112,8 @@ If you don't wish to use any advanced features, then the first element is probab
   `ApplicationStartedEvent`. Stubs connecting to services outside of the application can be used earlier; starting with
   `@PostConstruct` / `InitializingBean#afterPropertiesSet()`.
 - [`@GrpcClientBean`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/GrpcClientBean.html):
-  The annotation should help with registration `@GrpcClient` to the spring context for usage with `@Autowire` and
-  `@Qualifier`, required annotation `@Configuration`. Also, this annotation is repeatable using `@GrpcClientBeans`.
+  The annotation helps to register `@GrpcClient` beans in the Spring context to be used with `@Autowired` and
+  `@Qualifier`. The annotation can be repeatedly added to any of your `@Configuration` classes.
 - [`Channel`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/Channel.html):
   The Channel is a connection pool for a single address. The target servers might serve multiple grpc-services though.
   The address will be resolved using a `NameResolver` and might point to a fixed or dynamic number of servers.
