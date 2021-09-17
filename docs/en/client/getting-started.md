@@ -107,7 +107,7 @@ If you don't wish to use any advanced features, then the first element is probab
   Supports `Channel`s, and all kinds of `Stub`s.
   Do not use `@GrpcClient` in conjunction with `@Autowired` or `@Inject`.
   Currently, it isn't supported for constructor and `@Bean` method parameters. For this case look below
-  to the``@GrpcClientBean``. \
+  to the `@GrpcClientBean`. \
   **Note:** Services provided by the same application can only be accessed/called in/after the
   `ApplicationStartedEvent`. Stubs connecting to services outside of the application can be used earlier; starting with
   `@PostConstruct` / `InitializingBean#afterPropertiesSet()`.
