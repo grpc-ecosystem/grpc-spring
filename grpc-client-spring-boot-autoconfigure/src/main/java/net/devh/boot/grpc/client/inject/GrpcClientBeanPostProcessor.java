@@ -105,13 +105,13 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
             }
 
             if (isAnnotatedWithConfiguration(clazz)) {
-                for (final GrpcClientBean beanClientIterator : clazz.getAnnotationsByType(GrpcClientBean.class)) {
+                for (final GrpcClientBean annotation : clazz.getAnnotationsByType(GrpcClientBean.class)) {
 
-                    final String beanNameToCreate = getBeanName(beanClientIterator);
+                    final String beanNameToCreate = getBeanName(annotation);
                     try {
                         final ConfigurableListableBeanFactory beanFactory = getConfigurableBeanFactory();
                         final Object beanValue =
-                                processInjectionPoint(null, beanClientIterator.clazz(), beanClientIterator.client());
+                                processInjectionPoint(null, annotation.clazz(), annotation.client());
                         beanFactory.registerSingleton(beanNameToCreate, beanValue);
                     } catch (final Exception e) {
                         throw new BeanCreationException(
