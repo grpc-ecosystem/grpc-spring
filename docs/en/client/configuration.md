@@ -119,11 +119,10 @@ the channels, stubs and other components without losing the features provided by
 
 ### GrpcClientBean
 
-This should significantly help with ``@Autowire`` and ``@Qualifier`` because default annotation``@GrpcClient`` is
-not designed for usage with spring 'injection' annotations.
-``@GrpcClientBean`` require annotation ``@Cofiguration`` or inherited, for example ``@TestConfiguraiton``.
-It is definitely not recommended using ``@GrpcClientBean`` and field annotated with ``@GrpcClient`` for same
-configuration class, but it`s still possible.
+This should significantly help with `@Autowire` and `@Qualifier` because default annotation `@GrpcClient` is
+not designed for usage with spring 'injection' annotations. `@GrpcClientBean` require annotation `@Cofiguration`.
+It is definitely not recommended using `@GrpcClientBean` and field annotated with `@GrpcClient` for same
+configuration class, but it's still possible.
 
 ````java
 @Configuration
@@ -135,7 +134,7 @@ configuration class, but it`s still possible.
 public static class YourCustomConfiguration {
 
     @Bean
-    FoobarService(@Autowired TestServiceGrpc.TestServiceBlockingStub blockingStub) {
+    FoobarService foobarService(@Autowired TestServiceGrpc.TestServiceBlockingStub blockingStub) {
         return new FoobarService(blockingStub);
     }
 }
@@ -151,31 +150,30 @@ public class FoobarService {
                 .build();
         return blockingStub.sayHello(request).getMessage();
     }
-
 }
 ````
 
 ### GrpcClientBeans
 
-``@GrpcClientBeans`` designed for registration multiple stubs to the spring context from single configuration class.
+`@GrpcClientBeans` designed for registration multiple stubs to the spring context from single configuration class.
 
 ````java
-    @Configuration
-    @GrpcClientBeans(value = {
-            @GrpcClientBean(
-                    clazz = TestServiceGrpc.TestServiceBlockingStub.class,
-                    beanName = "blockingStub",
-                    client = @GrpcClient("test")),
-            @GrpcClientBean(
-                    clazz = TestServiceGrpc.FactoryMethodAccessibleStub.class,
-                    beanName = "accessibleStub",
-                    client = @GrpcClient("test"))
-    })
-    public static class YourCustomConfiguration {
+@Configuration
+@GrpcClientBeans(value = {
+        @GrpcClientBean(
+                clazz = TestServiceGrpc.TestServiceBlockingStub.class,
+                beanName = "blockingStub",
+                client = @GrpcClient("test")),
+        @GrpcClientBean(
+                clazz = TestServiceGrpc.FactoryMethodAccessibleStub.class,
+                beanName = "accessibleStub",
+                client = @GrpcClient("test"))
+})
+public static class YourCustomConfiguration {
 
     @Bean
-    FoobarService(@Autowired TestServiceGrpc.TestServiceBlockingStub blockingStub,
-                  @Autowired TestServiceGrpc.FactoryMethodAccessibleStub accessibleStub) {
+    FoobarService foobarService(@Autowired TestServiceGrpc.TestServiceBlockingStub blockingStub,
+                                @Autowired TestServiceGrpc.FactoryMethodAccessibleStub accessibleStub) {
         return new FoobarService(blockingStub, accessibleStub);
     }
 }
@@ -200,7 +198,6 @@ public class FoobarService {
                 .build();
         return accessibleStub.sayHi(request).getMessage();
     }
-
 }
 ````
 

@@ -112,10 +112,8 @@ If you don't wish to use any advanced features, then the first element is probab
   `ApplicationStartedEvent`. Stubs connecting to services outside of the application can be used earlier; starting with
   `@PostConstruct` / `InitializingBean#afterPropertiesSet()`.
 - [`@GrpcClientBean`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/GrpcClientBean.html):
-  The annotation should help with registration ``@GrpcClient`` to the spring context for usage with ``@Autowire`` and
-  ``@Qualifier``, required annotation ``@Configuration`` or inherited, for example ``@TestConfiguration``.
-- [`@GrpcClientBeans`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/GrpcClientBeans.html):
-  The annotation should help with multiple registration ``@GrpcClient`` to the spring context.
+  The annotation should help with registration `@GrpcClient` to the spring context for usage with `@Autowire` and
+  `@Qualifier`, required annotation `@Configuration`. Also, this annotation is repeatable using `@GrpcClientBeans`.
 - [`Channel`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/Channel.html):
   The Channel is a connection pool for a single address. The target servers might serve multiple grpc-services though.
   The address will be resolved using a `NameResolver` and might point to a fixed or dynamic number of servers.
@@ -184,7 +182,7 @@ Also you can feel free to inject stub with ``@GrpcClientBean`` with ``@Configura
 another services.
 
 > **Note:** It is definitely not recommended using ``@GrpcClientBean`` and field annotated with ``@GrpcClient`` like in
-> the first example for same configuration class, but it`s still possible.
+> the previous example for same configuration class, but it`s still possible.
 
 ````java
 @Configuration
@@ -196,7 +194,7 @@ another services.
 public static class YourCustomConfiguration {
 
     @Bean
-    FoobarService(@Autowired TestServiceGrpc.TestServiceBlockingStub blockingStub) {
+    FoobarService foobarService(@Autowired TestServiceGrpc.TestServiceBlockingStub blockingStub) {
         return new FoobarService(blockingStub);
     }
 }

@@ -44,7 +44,6 @@ import com.google.common.collect.Lists;
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
 import io.grpc.stub.AbstractStub;
-import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import net.devh.boot.grpc.client.nameresolver.NameResolverRegistration;
 import net.devh.boot.grpc.client.stubfactory.FallbackStubFactory;
@@ -57,7 +56,6 @@ import net.devh.boot.grpc.client.stubfactory.StubFactory;
  * @author Michael (yidongnan@gmail.com)
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-@Slf4j
 public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
 
     private final ApplicationContext applicationContext;
