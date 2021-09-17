@@ -118,10 +118,11 @@ the channels, stubs and other components without losing the features provided by
 
 ### GrpcClientBean
 
-This should significantly help with `@Autowire` and `@Qualifier` because default annotation `@GrpcClient` is
-not designed for usage with spring 'injection' annotations. `@GrpcClientBean` require annotation `@Cofiguration`.
-It is definitely not recommended using `@GrpcClientBean` and field annotated with `@GrpcClient` for same
-configuration class, but it's still possible.
+This annotation is used to create injectable beans from your otherwise non-injectable `@GrpcClient` instances.
+The annotation can be repeatedly added to any of your `@Configuration` classes.
+
+> **Note:** We recommend using either `@GrpcClientBean`s or fields annotated with `@GrpcClient` throughout your
+> application, as mixing the two might cause confusion for future developers.
 
 ````java
 @Configuration
