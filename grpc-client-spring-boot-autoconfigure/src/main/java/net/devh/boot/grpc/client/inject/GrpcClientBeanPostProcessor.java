@@ -309,10 +309,10 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     }
 
     /**
-     * The method is used to determine with which name the bean should be registered in the context
+     * Gets the bean name from the given annotation.
      *
-     * @param grpcClientBean annotation value
-     * @return name
+     * @param grpcClientBean The annotation to extract it from.
+     * @return The extracted name.
      */
     private String getBeanName(final GrpcClientBean grpcClientBean) {
         if (!grpcClientBean.beanName().isEmpty()) {
