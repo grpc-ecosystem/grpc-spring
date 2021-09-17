@@ -127,79 +127,37 @@ configuration class, but it's still possible.
 ````java
 @Configuration
 @GrpcClientBean(
-    clazz = TestServiceGrpc.TestServiceBlockingStub.class,
+    clazz = TestServiceBlockingStub.class,
     beanName = "blockingStub",
     client = @GrpcClient("test")
 )
-public static class YourCustomConfiguration {
+@GrpcClientBean(
+    clazz = FactoryMethodAccessibleStub.class,
+    beanName = "accessibleStub",
+    client = @GrpcClient("test"))
+public class YourCustomConfiguration {
 
     @Bean
-    FoobarService foobarService(@Autowired TestServiceGrpc.TestServiceBlockingStub blockingStub) {
+    FooService fooServiceBean(@Autowired TestServiceGrpc.TestServiceBlockingStub blockingStub) {
         return new FoobarService(blockingStub);
     }
+
 }
 
 @Service
 @AllArgsConsturtor
-public class FoobarService {
-    private TestServiceBlockingStub blockingStub;
+public class BarService {
 
-    public String receiveGreeting(String name) {
-        HelloRequest request = HelloRequest.newBuilder()
-                .setName(name)
-                .build();
-        return blockingStub.sayHello(request).getMessage();
-    }
-}
-````
-
-### GrpcClientBeans
-
-`@GrpcClientBeans` designed for registration multiple stubs to the spring context from single configuration class.
-
-````java
-@Configuration
-@GrpcClientBeans(value = {
-        @GrpcClientBean(
-                clazz = TestServiceGrpc.TestServiceBlockingStub.class,
-                beanName = "blockingStub",
-                client = @GrpcClient("test")),
-        @GrpcClientBean(
-                clazz = TestServiceGrpc.FactoryMethodAccessibleStub.class,
-                beanName = "accessibleStub",
-                client = @GrpcClient("test"))
-})
-public static class YourCustomConfiguration {
-
-    @Bean
-    FoobarService foobarService(@Autowired TestServiceGrpc.TestServiceBlockingStub blockingStub,
-                                @Autowired TestServiceGrpc.FactoryMethodAccessibleStub accessibleStub) {
-        return new FoobarService(blockingStub, accessibleStub);
-    }
-}
-
-@Service
-@AllArgsConsturtor
-public class FoobarService {
-
-    private TestServiceBlockingStub blockingStub;
     private FactoryMethodAccessibleStub accessibleStub;
 
     public String receiveGreeting(String name) {
         HelloRequest request = HelloRequest.newBuilder()
                 .setName(name)
                 .build();
-        return blockingStub.sayHello(request).getMessage();
+        return accessibleStub.sayHello(request).getMessage();
     }
 
-    public String receiveAnotherGreeting(String name) {
-        HelloRequest request = HelloRequest.newBuilder()
-                .setName(name)
-                .build();
-        return accessibleStub.sayHi(request).getMessage();
-    }
 }
-````
 
 ### GrpcChannelConfigurer
 
