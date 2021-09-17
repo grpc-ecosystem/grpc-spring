@@ -178,7 +178,7 @@ public class FoobarService {
 }
 ````
 
-Also you can feel free to inject stub with ``@GrpcClientBean`` with ``@Configuration`` for more wide usage in
+Also you can feel free to inject stub with `@GrpcClientBean` with `@Configuration` for more wide usage in
 another services.
 
 > **Note:** It is definitely not recommended using ``@GrpcClientBean`` and field annotated with ``@GrpcClient`` like in
