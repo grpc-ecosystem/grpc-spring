@@ -323,10 +323,10 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     }
 
     /**
-     * The method is used to check for the presence of an annotation {@link Configuration}
+     * Checks whether the given class is annotated with {@link Configuration}.
      *
-     * @param clazz instance of the class
-     * @return does the class have an annotation or not
+     * @param clazz The class to check.
+     * @return True, if the given class is annotated with {@link Configuration}. False otherwise.
      */
     private boolean isAnnotatedWithConfiguration(final Class<?> clazz) {
         final Configuration configurationAnnotation = AnnotationUtils.findAnnotation(clazz, Configuration.class);
