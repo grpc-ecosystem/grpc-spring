@@ -191,17 +191,19 @@ another services.
     beanName = "blockingStub",
     client = @GrpcClient("test")
 )
-public static class YourCustomConfiguration {
+public class YourCustomConfiguration {
 
     @Bean
     FoobarService foobarService(@Autowired TestServiceGrpc.TestServiceBlockingStub blockingStub) {
         return new FoobarService(blockingStub);
     }
+
 }
 
 @Service
 @AllArgsConsturtor
 public class FoobarService {
+
     private TestServiceBlockingStub blockingStub;
 
     public String receiveGreeting(String name) {
@@ -213,6 +215,7 @@ public class FoobarService {
 
 }
 ````
+
 ## Additional Topics <!-- omit in toc -->
 
 - *Getting Started*

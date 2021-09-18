@@ -139,7 +139,7 @@ public class YourCustomConfiguration {
 
     @Bean
     FooService fooServiceBean(@Autowired TestServiceGrpc.TestServiceBlockingStub blockingStub) {
-        return new FoobarService(blockingStub);
+        return new FooService(blockingStub);
     }
 
 }
@@ -158,6 +158,7 @@ public class BarService {
     }
 
 }
+````
 
 ### GrpcChannelConfigurer
 

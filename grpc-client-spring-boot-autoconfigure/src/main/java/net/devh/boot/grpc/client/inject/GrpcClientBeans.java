@@ -22,15 +22,22 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Configuration;
+
 /**
- * Annotation that can be added to `@Configuration` classes to create `GrpcClientBean` beans in the ApplicationContext.
+ * Annotation that can be added to {@link Configuration} classes to add {@link GrpcClient} beans to the
+ * {@link ApplicationContext}.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface GrpcClientBeans {
 
     /**
-     * Array of bean declarations
+     * Helper field containing multiple {@link GrpcClientBean} definitions.
+     *
+     * @return An array with bean definitions to create.
      */
     GrpcClientBean[] value();
+
 }

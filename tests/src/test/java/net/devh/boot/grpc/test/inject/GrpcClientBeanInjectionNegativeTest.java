@@ -17,79 +17,108 @@
 
 package net.devh.boot.grpc.test.inject;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.test.annotation.DirtiesContext;
 
-import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.client.inject.GrpcClientBean;
-import net.devh.boot.grpc.client.inject.GrpcClientBeans;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.InProcessConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc;
 
 /**
- * Test case should cover probable negative situations with @GrpcBeanClient and @GrpcClient usage
+ * Test case covering probable conflicting situations with {@link GrpcClientBean} and {@link GrpcClient} usage.
  */
-@Slf4j
-@DirtiesContext
-public class GrpcClientBeanInjectionNegativeTest {
+class GrpcClientBeanInjectionNegativeTest {
 
     @Test
-    void twoSameGrpcClientBeansTest() {
+    void duplicateGrpcClientBeansTest() {
         final SpringApplication app = new SpringApplication(
-                TwoSameGrpcClientBeans.class,
+                TwoSameGrpcClientBeansConfig.class,
                 InProcessConfiguration.class,
                 ServiceConfiguration.class,
                 BaseAutoConfiguration.class);
+
+        final BeanCreationException error = assertThrows(BeanCreationException.class, app::run);
+
+        final BeanCreationException cause = (BeanCreationException) error.getCause();
+        assertEquals("duplicateStub", cause.getBeanName());
+        assertThat(cause).hasMessageContaining(TwoSameGrpcClientBeansConfig.class.getName());
+    }
+
+    @Test
+    void badGrpcClientBeanTest() {
+        final SpringApplication app = new SpringApplication(
+                BadGrpcClientBeanConfig.class,
+                InProcessConfiguration.class,
+                ServiceConfiguration.class,
+                BaseAutoConfiguration.class);
+
+        final BeanCreationException error = assertThrows(BeanCreationException.class, app::run);
+
+        final BeanCreationException cause = (BeanCreationException) error.getCause();
+        assertEquals("badStub", cause.getBeanName());
+        assertThat(cause)
+                .hasMessageContaining(BadGrpcClientBeanConfig.class.getName())
+                .hasMessageContaining(String.class.getName());
+    }
+
+    @Test
+    @Disabled("This does not fail unexpectedly")
+    void mixedGrpcClientBeanAndFieldTest() {
+        final SpringApplication app = new SpringApplication(
+                MixedBeanConfig.class,
+                InProcessConfiguration.class,
+                ServiceConfiguration.class,
+                BaseAutoConfiguration.class);
+
         assertThrows(BeanCreationException.class, app::run);
-    }
-
-    @Test
-    void grpcClientBeanAndCustomGrpcClientFieldTest() {
-        final SpringApplication app = new SpringApplication(
-                GrpcClientBeanWithCustomGrpcClientFieldConfig.class,
-                InProcessConfiguration.class,
-                ServiceConfiguration.class,
-                BaseAutoConfiguration.class);
-        assertDoesNotThrow(() -> SpringApplication.exit(app.run()));
-    }
-
-    @TestConfiguration
-    @GrpcClientBeans(value = {
-            @GrpcClientBean(
-                    clazz = TestServiceGrpc.TestServiceBlockingStub.class,
-                    beanName = "blockingStub",
-                    client = @GrpcClient("test")),
-            @GrpcClientBean(
-                    clazz = TestServiceGrpc.TestServiceBlockingStub.class,
-                    beanName = "blockingStub",
-                    client = @GrpcClient("test")),
-    })
-    public static class TwoSameGrpcClientBeans {
     }
 
     @TestConfiguration
     @GrpcClientBean(
             clazz = TestServiceGrpc.TestServiceBlockingStub.class,
-            beanName = "blockingStub",
-            client = @GrpcClient("testGrpcBeanClient"))
-    public static class GrpcClientBeanWithCustomGrpcClientFieldConfig {
+            beanName = "duplicateStub",
+            client = @GrpcClient("test"))
+    @GrpcClientBean(
+            clazz = TestServiceGrpc.TestServiceBlockingStub.class,
+            beanName = "duplicateStub",
+            client = @GrpcClient("test"))
+    public static class TwoSameGrpcClientBeansConfig {
+    }
 
-        @GrpcClient("testGrpcBeanClient")
+    @TestConfiguration
+    @GrpcClientBean(
+            clazz = String.class,
+            beanName = "badStub",
+            client = @GrpcClient("test"))
+    public static class BadGrpcClientBeanConfig {
+    }
+
+    @TestConfiguration
+    @GrpcClientBean(
+            clazz = TestServiceGrpc.TestServiceFutureStub.class,
+            beanName = "mixedStub",
+            client = @GrpcClient("test"))
+    public static class MixedBeanConfig {
+
+        @GrpcClient("test")
         TestServiceGrpc.TestServiceBlockingStub stub;
 
-        @Bean
-        public TestServiceGrpc.TestServiceBlockingStub blockingStub() {
-            return stub;
+        @Bean("mixedStub")
+        public TestServiceGrpc.TestServiceBlockingStub mixedStub() {
+            return this.stub;
         }
+
     }
+
 }

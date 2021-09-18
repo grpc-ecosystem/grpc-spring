@@ -23,8 +23,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Configuration;
+
 /**
- * Annotation that can be added to `@Configuration` classes to create GrpcClient bean in the ApplicationContext.
+ * Annotation that can be added to {@link Configuration} classes to add a {@link GrpcClient} bean to the
+ * {@link ApplicationContext}.
  */
 @Target(ElementType.TYPE)
 @Repeatable(GrpcClientBeans.class)
@@ -33,17 +37,24 @@ public @interface GrpcClientBean {
 
     /**
      * The type of the bean to create.
+     *
+     * @return The type of the bean.
      */
     Class<?> clazz();
 
     /**
      * The name of the bean to create. If empty, a name will be generated automatically based on the bean class and the
      * client name.
+     *
+     * @return The optional name of the bean.
      */
     String beanName() default "";
 
     /**
      * The client definition used to create the channel and grab all properties.
+     *
+     * @return The client definition to use.
      */
     GrpcClient client();
+
 }
