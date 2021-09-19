@@ -9,6 +9,7 @@ This section describes how you can configure your grpc-spring-boot-starter clien
 - [Configuration via Properties](#configuration-via-properties)
   - [Choosing the Target](#choosing-the-target)
 - [Configuration via Beans](#configuration-via-beans)
+  - [GrpcClientBean](#grpcclientbean)
   - [GrpcChannelConfigurer](#grpcchannelconfigurer)
   - [ClientInterceptor](#clientinterceptor)
   - [StubFactory](#stubfactory)
@@ -114,6 +115,50 @@ extension points that exist in this library.
 First of all most of the beans can be replaced by custom ones, that you can configure in every way you want.
 If you don't wish to go that far, you can use classes such as `GrpcChannelConfigurer` and `StubTransformer` to configure
 the channels, stubs and other components without losing the features provided by this library.
+
+### GrpcClientBean
+
+This annotation is used to create injectable beans from your otherwise non-injectable `@GrpcClient` instances.
+The annotation can be repeatedly added to any of your `@Configuration` classes.
+
+> **Note:** We recommend using either `@GrpcClientBean`s or fields annotated with `@GrpcClient` throughout your
+> application, as mixing the two might cause confusion for future developers.
+
+````java
+@Configuration
+@GrpcClientBean(
+    clazz = TestServiceBlockingStub.class,
+    beanName = "blockingStub",
+    client = @GrpcClient("test")
+)
+@GrpcClientBean(
+    clazz = FactoryMethodAccessibleStub.class,
+    beanName = "accessibleStub",
+    client = @GrpcClient("test"))
+public class YourCustomConfiguration {
+
+    @Bean
+    FooService fooServiceBean(@Autowired TestServiceGrpc.TestServiceBlockingStub blockingStub) {
+        return new FooService(blockingStub);
+    }
+
+}
+
+@Service
+@AllArgsConsturtor
+public class BarService {
+
+    private FactoryMethodAccessibleStub accessibleStub;
+
+    public String receiveGreeting(String name) {
+        HelloRequest request = HelloRequest.newBuilder()
+                .setName(name)
+                .build();
+        return accessibleStub.sayHello(request).getMessage();
+    }
+
+}
+````
 
 ### GrpcChannelConfigurer
 

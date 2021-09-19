@@ -27,6 +27,7 @@ import java.lang.annotation.Target;
 import javax.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 import io.grpc.CallCredentials;
 import io.grpc.CallOptions;
@@ -39,7 +40,7 @@ import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
 
 /**
  * An annotation for fields of type {@link Channel} or subclasses of {@link AbstractStub}/gRPC client services. Also
- * works for annotated methods that only take a single parameter of the same types. Annotated fields/methods will be
+ * works for annotated methods that only take a single parameter of these types. Annotated fields/methods will be
  * automatically populated/invoked by Spring.
  *
  * <p>
@@ -59,8 +60,7 @@ import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
  * interceptors and applied using {@link ClientInterceptors#interceptForward(Channel, ClientInterceptor...)}.
  * </p>
  *
- * @author Michael (yidongnan@gmail.com)
- * @since 2016/12/7
+ * @see GrpcClientBean Add as bean to the {@link ApplicationContext}.
  */
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
