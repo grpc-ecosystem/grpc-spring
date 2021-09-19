@@ -85,7 +85,7 @@ abstract class AbstractSimpleServerClientTest {
         verifyFutureStubCall(expectedStatus, expectedMetadata);
 
     }
-    
+
     /**
      * Test template call to check for every exception.
      *
@@ -98,7 +98,7 @@ abstract class AbstractSimpleServerClientTest {
         final StreamObserver<SomeType> requestObserver = this.testServiceStub.echo(responseObserver);
         requestObserver.onNext(SOME_TYPE);
         requestObserver.onCompleted();
-        
+
         final StatusRuntimeException error =
                 (StatusRuntimeException) assertDoesNotThrow(() -> responseObserver.getError());
         verifyStatusAndMetadata(error, expectedStatus, expectedMetadata);
