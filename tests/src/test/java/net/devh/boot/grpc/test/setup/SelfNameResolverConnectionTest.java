@@ -48,10 +48,10 @@ public class SelfNameResolverConnectionTest {
 
     private static final Empty EMPTY = Empty.getDefaultInstance();
 
-    @GrpcClient("self")
+    @GrpcClient("self:self")
     private TestServiceBlockingStub selfStub;
 
-    @GrpcClient("other")
+    @GrpcClient("self:other")
     private TestServiceBlockingStub otherStub;
 
     /**

@@ -75,7 +75,7 @@ There are a number of supported schemes, that you can use to determine the targe
   The self address or scheme is a keyword that is available, if you also use `grpc-server-spring-boot-starter` and
   allows you to connect to the server without specifying the own address/port. This is especially useful for tests
   where you might want to use random server ports to avoid conflicts. \
-  Example: `self` or `self:self`
+  Example: `self:self`
 - `in-process`: \
   This is a special scheme that will bypass the normal channel factory and will use the `InProcessChannelFactory`
   instead. Use it to connect to the [`InProcessServer`](../server/configuration.md#enabling-the-inprocessserver). \
