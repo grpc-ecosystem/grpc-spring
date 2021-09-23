@@ -40,7 +40,7 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceBlockingStub;
 @SpringBootTest(properties = {
         "grpc.server.port=0",
         "grpc.client.GLOBAL.negotiationType=PLAINTEXT",
-        "grpc.client.other.address=self",
+        "grpc.client.test.address=self:self",
 })
 @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
 @DirtiesContext
@@ -48,11 +48,8 @@ public class SelfNameResolverConnectionTest {
 
     private static final Empty EMPTY = Empty.getDefaultInstance();
 
-    @GrpcClient("self:self")
+    @GrpcClient("test")
     private TestServiceBlockingStub selfStub;
-
-    @GrpcClient("self:other")
-    private TestServiceBlockingStub otherStub;
 
     /**
      * Tests the connection via the implicit client address.
@@ -60,14 +57,6 @@ public class SelfNameResolverConnectionTest {
     @Test
     public void testSelfConnection() {
         assertEquals("1.2.3", this.selfStub.normal(EMPTY).getVersion());
-    }
-
-    /**
-     * Tests the connection via the explicit client address.
-     */
-    @Test
-    public void testOtherConnection() {
-        assertEquals("1.2.3", this.otherStub.normal(EMPTY).getVersion());
     }
 
 }
