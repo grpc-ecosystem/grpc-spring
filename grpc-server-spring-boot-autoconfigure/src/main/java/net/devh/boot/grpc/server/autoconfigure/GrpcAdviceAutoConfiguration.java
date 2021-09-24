@@ -27,10 +27,10 @@ import net.devh.boot.grpc.common.util.InterceptorOrder;
 import net.devh.boot.grpc.server.advice.GrpcAdvice;
 import net.devh.boot.grpc.server.advice.GrpcAdviceDiscoverer;
 import net.devh.boot.grpc.server.advice.GrpcAdviceExceptionHandler;
-import net.devh.boot.grpc.server.advice.GrpcAdviceExceptionInterceptor;
 import net.devh.boot.grpc.server.advice.GrpcAdviceIsPresentCondition;
 import net.devh.boot.grpc.server.advice.GrpcExceptionHandler;
 import net.devh.boot.grpc.server.advice.GrpcExceptionHandlerMethodResolver;
+import net.devh.boot.grpc.server.error.GrpcExceptionInterceptor;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 
 /**
@@ -44,7 +44,7 @@ import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
  * @author Andjelko Perisic (andjelko.perisic@gmail.com)
  * @see GrpcAdvice
  * @see GrpcExceptionHandler
- * @see GrpcAdviceExceptionInterceptor
+ * @see GrpcExceptionInterceptor
  */
 @Configuration(proxyBeanMethods = false)
 @Conditional(GrpcAdviceIsPresentCondition.class)
@@ -70,9 +70,9 @@ public class GrpcAdviceAutoConfiguration {
 
     @GrpcGlobalServerInterceptor
     @Order(InterceptorOrder.ORDER_GLOBAL_EXCEPTION_HANDLING)
-    public GrpcAdviceExceptionInterceptor grpcAdviceExceptionInterceptor(
+    public GrpcExceptionInterceptor grpcAdviceExceptionInterceptor(
             GrpcAdviceExceptionHandler grpcAdviceExceptionHandler) {
-        return new GrpcAdviceExceptionInterceptor(grpcAdviceExceptionHandler);
+        return new GrpcExceptionInterceptor(grpcAdviceExceptionHandler);
     }
 
 }
