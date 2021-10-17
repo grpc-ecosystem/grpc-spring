@@ -71,6 +71,17 @@ public final class GrpcAssertions {
     }
 
     /**
+     * Assert that the given {@link Executable} throws a {@link StatusRuntimeException}.
+     *
+     * @param executable The executable to run.
+     * @return The thrown exception.
+     * @see Assertions#assertThrows(Class, Executable)
+     */
+    public static StatusRuntimeException assertThrowsStatus(final Executable executable) {
+        return assertThrows(StatusRuntimeException.class, executable);
+    }
+
+    /**
      * Assert that the given {@link Executable} throws a {@link StatusRuntimeException} with the expected status code.
      *
      * @param expectedCode The expected status code.
@@ -79,7 +90,7 @@ public final class GrpcAssertions {
      * @see Assertions#assertThrows(Class, Executable)
      */
     public static Status assertThrowsStatus(final Status.Code expectedCode, final Executable executable) {
-        final StatusRuntimeException exception = assertThrows(StatusRuntimeException.class, executable);
+        final StatusRuntimeException exception = assertThrowsStatus(executable);
         return assertStatus(expectedCode, exception);
     }
 
@@ -103,6 +114,20 @@ public final class GrpcAssertions {
      * Asserts that the given {@link Future} throws an {@link ExecutionException} caused by a
      * {@link StatusRuntimeException} with the expected status code.
      *
+     * @param future The future expected to throw.
+     * @param timeout The maximum time to wait for the result.
+     * @param timeoutUnit The time unit of the {@code timeout} argument.
+     * @return The thrown StatusRuntimeException.
+     */
+    public static StatusRuntimeException assertFutureThrowsStatus(final Future<?> future,
+            final int timeout, final TimeUnit timeoutUnit) {
+        return assertFutureThrows(StatusRuntimeException.class, future, timeout, timeoutUnit);
+    }
+
+    /**
+     * Asserts that the given {@link Future} throws an {@link ExecutionException} caused by a
+     * {@link StatusRuntimeException} with the expected status code.
+     *
      * @param expectedCode The expected status code.
      * @param future The future expected to throw.
      * @param timeout The maximum time to wait for the result.
@@ -111,8 +136,7 @@ public final class GrpcAssertions {
      */
     public static Status assertFutureThrowsStatus(final Status.Code expectedCode, final Future<?> future,
             final int timeout, final TimeUnit timeoutUnit) {
-        final StatusRuntimeException exception =
-                assertFutureThrows(StatusRuntimeException.class, future, timeout, timeoutUnit);
+        final StatusRuntimeException exception = assertFutureThrowsStatus(future, timeout, timeoutUnit);
         return assertStatus(expectedCode, exception);
     }
 

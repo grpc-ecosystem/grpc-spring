@@ -15,40 +15,53 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.server.advice;
+package net.devh.boot.grpc.server.error;
+
+import static java.util.Objects.requireNonNull;
 
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCall.Listener;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
+import net.devh.boot.grpc.server.advice.GrpcAdviceExceptionHandler;
 
 /**
  * Interceptor to use for global exception handling. Every raised {@link Throwable} is caught and being processed.
- * Actual processing of exception is in {@link GrpcAdviceExceptionListener}.
+ * Actual processing of exception is in {@link GrpcExceptionListener}.
  * <p>
- * 
- * @author Andjelko Perisic (andjelko.perisic@gmail.com)
+ *
  * @see GrpcAdviceExceptionHandler
- * @see GrpcAdviceExceptionListener
+ * @see GrpcExceptionListener
  */
-public class GrpcAdviceExceptionInterceptor implements ServerInterceptor {
+public class GrpcExceptionInterceptor implements ServerInterceptor {
 
-    private final GrpcAdviceExceptionHandler grpcAdviceExceptionHandler;
+    private final GrpcExceptionResponseHandler exceptionHandler;
 
-    public GrpcAdviceExceptionInterceptor(final GrpcAdviceExceptionHandler grpcAdviceExceptionHandler) {
-        this.grpcAdviceExceptionHandler = grpcAdviceExceptionHandler;
+    /**
+     * Creates a new GrpcAdviceExceptionInterceptor.
+     *
+     * @param grpcAdviceExceptionHandler The exception handler to use.
+     */
+    public GrpcExceptionInterceptor(final GrpcExceptionResponseHandler grpcAdviceExceptionHandler) {
+        this.exceptionHandler = requireNonNull(grpcAdviceExceptionHandler, "grpcAdviceExceptionHandler");
     }
 
     @Override
     public <ReqT, RespT> Listener<ReqT> interceptCall(
-            ServerCall<ReqT, RespT> call,
-            Metadata headers,
-            ServerCallHandler<ReqT, RespT> next) {
+            final ServerCall<ReqT, RespT> call,
+            final Metadata headers,
+            final ServerCallHandler<ReqT, RespT> next) {
+
         try {
-            Listener<ReqT> delegate = next.startCall(call, headers);
-            return new GrpcAdviceExceptionListener<>(delegate, call, grpcAdviceExceptionHandler);
-        } catch (Throwable throwable) {
+            final GrpcExceptionServerCall<ReqT, RespT> handledCall =
+                    new GrpcExceptionServerCall<>(call, this.exceptionHandler);
+            final Listener<ReqT> delegate = next.startCall(handledCall, headers);
+            return new GrpcExceptionListener<>(delegate, call, this.exceptionHandler);
+
+        } catch (final Throwable error) {
+            // For errors from grpc method implementation methods directly (Not via StreamObserver)
+            this.exceptionHandler.handleError(call, error); // Required to close streaming calls
             return noOpCallListener();
         }
     }

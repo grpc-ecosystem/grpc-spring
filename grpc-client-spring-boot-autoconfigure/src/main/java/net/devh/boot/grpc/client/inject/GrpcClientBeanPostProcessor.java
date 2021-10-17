@@ -32,7 +32,10 @@ import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
 
@@ -63,6 +66,9 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     private List<StubTransformer> stubTransformers = null;
     private List<StubFactory> stubFactories = null;
 
+    // For bean registration via @GrpcClientBean
+    private ConfigurableListableBeanFactory configurableBeanFactory;
+
     /**
      * Creates a new GrpcClientBeanPostProcessor with the given ApplicationContext.
      *
@@ -77,29 +83,78 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     public Object postProcessBeforeInitialization(final Object bean, final String beanName) throws BeansException {
         Class<?> clazz = bean.getClass();
         do {
-            for (final Field field : clazz.getDeclaredFields()) {
-                final GrpcClient annotation = AnnotationUtils.findAnnotation(field, GrpcClient.class);
-                if (annotation != null) {
-                    ReflectionUtils.makeAccessible(field);
-                    ReflectionUtils.setField(field, bean, processInjectionPoint(field, field.getType(), annotation));
-                }
+            processFields(clazz, bean);
+            processMethods(clazz, bean);
+
+            if (isAnnotatedWithConfiguration(clazz)) {
+                processGrpcClientBeansAnnotations(clazz);
             }
-            for (final Method method : clazz.getDeclaredMethods()) {
-                final GrpcClient annotation = AnnotationUtils.findAnnotation(method, GrpcClient.class);
-                if (annotation != null) {
-                    final Class<?>[] paramTypes = method.getParameterTypes();
-                    if (paramTypes.length != 1) {
-                        throw new BeanDefinitionStoreException(
-                                "Method " + method + " doesn't have exactly one parameter.");
-                    }
-                    ReflectionUtils.makeAccessible(method);
-                    ReflectionUtils.invokeMethod(method, bean,
-                            processInjectionPoint(method, paramTypes[0], annotation));
-                }
-            }
+
             clazz = clazz.getSuperclass();
         } while (clazz != null);
         return bean;
+    }
+
+    /**
+     * Processes the bean's fields in the given class.
+     *
+     * @param clazz The class to process.
+     * @param bean The bean to process.
+     */
+    private void processFields(final Class<?> clazz, final Object bean) {
+        for (final Field field : clazz.getDeclaredFields()) {
+            final GrpcClient annotation = AnnotationUtils.findAnnotation(field, GrpcClient.class);
+            if (annotation != null) {
+                ReflectionUtils.makeAccessible(field);
+                ReflectionUtils.setField(field, bean, processInjectionPoint(field, field.getType(), annotation));
+            }
+        }
+    }
+
+
+    /**
+     * Processes the bean's methods in the given class.
+     *
+     * @param clazz The class to process.
+     * @param bean The bean to process.
+     */
+    private void processMethods(final Class<?> clazz, final Object bean) {
+        for (final Method method : clazz.getDeclaredMethods()) {
+            final GrpcClient annotation = AnnotationUtils.findAnnotation(method, GrpcClient.class);
+            if (annotation != null) {
+                final Class<?>[] paramTypes = method.getParameterTypes();
+                if (paramTypes.length != 1) {
+                    throw new BeanDefinitionStoreException(
+                            "Method " + method + " doesn't have exactly one parameter.");
+                }
+                ReflectionUtils.makeAccessible(method);
+                ReflectionUtils.invokeMethod(method, bean,
+                        processInjectionPoint(method, paramTypes[0], annotation));
+            }
+        }
+    }
+
+
+    /**
+     * Processes the given class's {@link GrpcClientBean} annotations.
+     *
+     * @param clazz The class to process.
+     */
+    private void processGrpcClientBeansAnnotations(final Class<?> clazz) {
+        for (final GrpcClientBean annotation : clazz.getAnnotationsByType(GrpcClientBean.class)) {
+
+            final String beanNameToCreate = getBeanName(annotation);
+            try {
+                final ConfigurableListableBeanFactory beanFactory = getConfigurableBeanFactory();
+                final Object beanValue =
+                        processInjectionPoint(null, annotation.clazz(), annotation.client());
+                beanFactory.registerSingleton(beanNameToCreate, beanValue);
+            } catch (final Exception e) {
+                throw new BeanCreationException(annotation + " on class " + clazz.getName(), beanNameToCreate,
+                        "Unexpected exception while creating and registering bean",
+                        e);
+            }
+        }
     }
 
     /**
@@ -130,6 +185,7 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
             throw new IllegalStateException(
                     "Injection value is null unexpectedly for " + name + " at " + injectionTarget);
         }
+
         return value;
     }
 
@@ -223,8 +279,12 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
             }
             return injectionType.cast(stub);
         } else {
-            throw new InvalidPropertyException(injectionTarget.getDeclaringClass(), injectionTarget.getName(),
-                    "Unsupported type " + injectionType.getName());
+            if (injectionTarget != null) {
+                throw new InvalidPropertyException(injectionTarget.getDeclaringClass(), injectionTarget.getName(),
+                        "Unsupported type " + injectionType.getName());
+            } else {
+                throw new BeanInstantiationException(injectionType, "Unsupported grpc stub or channel type");
+            }
         }
     }
 
@@ -233,9 +293,9 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
      *
      * @param stubClass The stub class that needs to be created.
      * @param channel The gRPC channel associated with the created stub, passed as a parameter to the stub factory.
+     * @return A newly created gRPC stub.
      * @throws BeanInstantiationException If the stub couldn't be created, either because the type isn't supported or
      *         because of a failure in creation.
-     * @return A newly created gRPC stub.
      */
     private AbstractStub<?> createStub(final Class<? extends AbstractStub<?>> stubClass, final Channel channel) {
         final StubFactory factory = getStubFactories().stream()
@@ -263,6 +323,43 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
             this.stubFactories.add(new FallbackStubFactory());
         }
         return this.stubFactories;
+    }
+
+    /**
+     * Lazy factory getter from the context for bean registration with {@link GrpcClientBean} annotations.
+     *
+     * @return configurable bean factory
+     */
+    private ConfigurableListableBeanFactory getConfigurableBeanFactory() {
+        if (this.configurableBeanFactory == null) {
+            this.configurableBeanFactory = ((ConfigurableApplicationContext) this.applicationContext).getBeanFactory();
+        }
+        return this.configurableBeanFactory;
+    }
+
+    /**
+     * Gets the bean name from the given annotation.
+     *
+     * @param grpcClientBean The annotation to extract it from.
+     * @return The extracted name.
+     */
+    private String getBeanName(final GrpcClientBean grpcClientBean) {
+        if (!grpcClientBean.beanName().isEmpty()) {
+            return grpcClientBean.beanName();
+        } else {
+            return grpcClientBean.client().value() + grpcClientBean.clazz().getSimpleName();
+        }
+    }
+
+    /**
+     * Checks whether the given class is annotated with {@link Configuration}.
+     *
+     * @param clazz The class to check.
+     * @return True, if the given class is annotated with {@link Configuration}. False otherwise.
+     */
+    private boolean isAnnotatedWithConfiguration(final Class<?> clazz) {
+        final Configuration configurationAnnotation = AnnotationUtils.findAnnotation(clazz, Configuration.class);
+        return configurationAnnotation != null;
     }
 
 }
