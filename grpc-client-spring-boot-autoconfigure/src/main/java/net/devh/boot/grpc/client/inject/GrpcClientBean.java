@@ -15,31 +15,46 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.server.advice;
+package net.devh.boot.grpc.client.inject;
 
-import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.stereotype.Component;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Configuration;
 
 /**
- * Special {@link Component @Component} to declare global gRPC exception handling.
- *
- * <p>
- * Every class annotated with {@link GrpcAdvice @GrpcAdvice} is marked to be scanned for
- * {@link GrpcExceptionHandler @GrpcExceptionHandler} annotations.
- * </p>
- *
- * @author Andjelko Perisic (andjelko.perisic@gmail.com)
- * @see GrpcExceptionHandler
+ * Annotation that can be added to {@link Configuration} classes to add a {@link GrpcClient} bean to the
+ * {@link ApplicationContext}.
  */
-@Target({ElementType.TYPE, ElementType.METHOD})
+@Target(ElementType.TYPE)
+@Repeatable(GrpcClientBeans.class)
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
-@Component
-public @interface GrpcAdvice {
+public @interface GrpcClientBean {
+
+    /**
+     * The type of the bean to create.
+     *
+     * @return The type of the bean.
+     */
+    Class<?> clazz();
+
+    /**
+     * The name of the bean to create. If empty, a name will be generated automatically based on the bean class and the
+     * client name.
+     *
+     * @return The optional name of the bean.
+     */
+    String beanName() default "";
+
+    /**
+     * The client definition used to create the channel and grab all properties.
+     *
+     * @return The client definition to use.
+     */
+    GrpcClient client();
 
 }

@@ -18,6 +18,7 @@
 package net.devh.boot.grpc.test.config;
 
 import java.security.AccessControlException;
+import java.util.function.Supplier;
 
 import org.assertj.core.api.Assertions;
 import org.springframework.context.annotation.Bean;
@@ -36,8 +37,6 @@ import net.devh.boot.grpc.server.advice.GrpcAdvice;
 import net.devh.boot.grpc.server.advice.GrpcExceptionHandler;
 import net.devh.boot.grpc.server.service.GrpcService;
 import net.devh.boot.grpc.test.advice.GrpcMetaDataUtils;
-import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceWithMetadata.MyRootRuntimeException;
-import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceWithMetadata.SecondLevelException;
 import net.devh.boot.grpc.test.proto.SomeType;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc;
 
@@ -47,18 +46,85 @@ public class GrpcAdviceConfig {
     @GrpcService
     public static class TestGrpcAdviceService extends TestServiceGrpc.TestServiceImplBase {
 
-        private RuntimeException throwableToSimulate;
+        private Supplier<? extends RuntimeException> throwableToSimulate;
+        private LocationToThrow throwLocation;
 
         @Override
         public void normal(final Empty request, final StreamObserver<SomeType> responseObserver) {
 
-            Assertions.assertThat(throwableToSimulate).isNotNull();
-            throw throwableToSimulate;
+            Assertions.assertThat(this.throwableToSimulate).isNotNull();
+            switch (this.throwLocation) {
+                case METHOD:
+                    throw this.throwableToSimulate.get();
+                case RESPONSE_OBSERVER:
+                    responseObserver.onError(this.throwableToSimulate.get());
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Unsupported LocationToThrow: " + this.throwLocation);
+            }
         }
 
-        public <E extends RuntimeException> void setExceptionToSimulate(E exception) {
-            throwableToSimulate = exception;
+        @Override
+        public StreamObserver<SomeType> echo(final StreamObserver<SomeType> responseObserver) {
+            Assertions.assertThat(this.throwableToSimulate).isNotNull();
+            switch (this.throwLocation) {
+                case METHOD:
+                    throw this.throwableToSimulate.get();
+                case RESPONSE_OBSERVER:
+                    responseObserver.onError(this.throwableToSimulate.get());
+                    return responseObserver;
+                case REQUEST_OBSERVER_ON_NEXT:
+                    return new StreamObserver<SomeType>() {
+
+                        @Override
+                        public void onNext(final SomeType value) {
+                            throw TestGrpcAdviceService.this.throwableToSimulate.get();
+                        }
+
+                        @Override
+                        public void onError(final Throwable t) {
+                            responseObserver.onError(t);
+                        }
+
+                        @Override
+                        public void onCompleted() {
+                            responseObserver.onCompleted();
+                        }
+
+                    };
+                case REQUEST_OBSERVER_ON_COMPLETION:
+                    return new StreamObserver<SomeType>() {
+
+                        @Override
+                        public void onNext(final SomeType value) {
+                            responseObserver.onNext(value);
+                        }
+
+                        @Override
+                        public void onError(final Throwable t) {
+                            responseObserver.onError(t);
+                        }
+
+                        @Override
+                        public void onCompleted() {
+                            throw TestGrpcAdviceService.this.throwableToSimulate.get();
+                        }
+
+                    };
+                default:
+                    throw new UnsupportedOperationException("Unsupported LocationToThrow: " + this.throwLocation);
+            }
         }
+
+        public void setExceptionToSimulate(final Supplier<? extends RuntimeException> exception) {
+            this.throwableToSimulate = exception;
+        }
+
+        public void setThrowLocation(final LocationToThrow throwLocation) {
+            this.throwLocation = throwLocation;
+        }
+
+
     }
 
     @GrpcAdvice
@@ -67,21 +133,44 @@ public class GrpcAdviceConfig {
         return new TestAdviceWithOutMetadata();
     }
 
+    public enum LocationToThrow {
+
+        METHOD(false),
+
+        RESPONSE_OBSERVER(false),
+
+        REQUEST_OBSERVER_ON_NEXT(true),
+
+        REQUEST_OBSERVER_ON_COMPLETION(true);
+
+        private final boolean streaming;
+
+        LocationToThrow(final boolean streaming) {
+            this.streaming = streaming;
+        }
+
+        public boolean isForStreamingOnly() {
+            return this.streaming;
+        }
+
+
+    }
+
     public static class TestAdviceWithOutMetadata {
 
         @GrpcExceptionHandler
-        public Status handleIllegalArgumentException(IllegalArgumentException e) {
+        public Status handleIllegalArgumentException(final IllegalArgumentException e) {
             return Status.INVALID_ARGUMENT.withCause(e).withDescription(e.getMessage());
         }
 
         @GrpcExceptionHandler({ConversionFailedException.class, AccessControlException.class})
         public Throwable handleConversionFailedExceptionAndAccessControlException(
-                ConversionFailedException e1,
-                AccessControlException e2) {
+                final ConversionFailedException e1,
+                final AccessControlException e2) {
             return (e1 != null) ? e1 : ((e2 != null) ? e2 : new RuntimeException("Should not happen."));
         }
 
-        public Status methodNotToBePickup(AccountExpiredException e) {
+        public Status methodNotToBePickup(final AccountExpiredException e) {
             Assertions.fail("Not supposed to be picked up.");
             return Status.FAILED_PRECONDITION;
         }
@@ -91,54 +180,25 @@ public class GrpcAdviceConfig {
     public static class TestAdviceWithMetadata {
 
         @GrpcExceptionHandler(FirstLevelException.class)
-        public StatusException handleFirstLevelException(MyRootRuntimeException e) {
+        public StatusException handleFirstLevelException(final MyRootRuntimeException e) {
 
-            Status status = Status.NOT_FOUND.withCause(e).withDescription(e.getMessage());
-            Metadata metadata = GrpcMetaDataUtils.createExpectedAsciiHeader();
+            final Status status = Status.NOT_FOUND.withCause(e).withDescription(e.getMessage());
+            final Metadata metadata = GrpcMetaDataUtils.createExpectedAsciiHeader();
             return status.asException(metadata);
         }
 
         @GrpcExceptionHandler(ClassCastException.class)
         public StatusRuntimeException handleClassCastException() {
 
-            Status status = Status.FAILED_PRECONDITION.withDescription("Casting with classes failed.");
-            Metadata metadata = GrpcMetaDataUtils.createExpectedAsciiHeader();
+            final Status status = Status.FAILED_PRECONDITION.withDescription("Casting with classes failed.");
+            final Metadata metadata = GrpcMetaDataUtils.createExpectedAsciiHeader();
             return status.asRuntimeException(metadata);
         }
 
         @GrpcExceptionHandler
-        public StatusRuntimeException handleStatusMappingException(StatusMappingException e) {
+        public StatusRuntimeException handleStatusMappingException(final StatusMappingException e) {
 
             throw new NullPointerException("Simulate developer error");
-        }
-
-
-        public static class MyRootRuntimeException extends RuntimeException {
-
-            public MyRootRuntimeException(String msg) {
-                super(msg);
-            }
-        }
-
-        public static class FirstLevelException extends MyRootRuntimeException {
-
-            public FirstLevelException(String msg) {
-                super(msg);
-            }
-        }
-
-        public static class SecondLevelException extends FirstLevelException {
-
-            public SecondLevelException(String msg) {
-                super(msg);
-            }
-        }
-
-        public static class StatusMappingException extends RuntimeException {
-
-            public StatusMappingException(String msg) {
-                super(msg);
-            }
         }
 
     }
@@ -149,17 +209,53 @@ public class GrpcAdviceConfig {
 
 
         @GrpcExceptionHandler(SecondLevelException.class)
-        public Status handleSecondLevelException(SecondLevelException e) {
+        public Status handleSecondLevelException(final SecondLevelException e) {
 
             return Status.ABORTED.withCause(e).withDescription(e.getMessage());
         }
 
         @GrpcExceptionHandler
-        public Status handleMyRootRuntimeException(MyRootRuntimeException e) {
+        public Status handleMyRootRuntimeException(final MyRootRuntimeException e) {
 
             return Status.DEADLINE_EXCEEDED.withCause(e).withDescription(e.getMessage());
         }
 
+    }
+
+    public static class MyRootRuntimeException extends RuntimeException {
+
+        private static final long serialVersionUID = 1L;
+
+        public MyRootRuntimeException(final String msg) {
+            super(msg);
+        }
+    }
+
+    public static class FirstLevelException extends MyRootRuntimeException {
+
+        private static final long serialVersionUID = 1L;
+
+        public FirstLevelException(final String msg) {
+            super(msg);
+        }
+    }
+
+    public static class SecondLevelException extends FirstLevelException {
+
+        private static final long serialVersionUID = 1L;
+
+        public SecondLevelException(final String msg) {
+            super(msg);
+        }
+    }
+
+    public static class StatusMappingException extends RuntimeException {
+
+        private static final long serialVersionUID = 1L;
+
+        public StatusMappingException(final String msg) {
+            super(msg);
+        }
     }
 
 

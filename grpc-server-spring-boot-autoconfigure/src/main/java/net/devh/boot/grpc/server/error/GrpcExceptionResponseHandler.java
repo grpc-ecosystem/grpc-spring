@@ -15,31 +15,35 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.server.advice;
+package net.devh.boot.grpc.server.error;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import org.springframework.stereotype.Component;
+import io.grpc.Metadata;
+import io.grpc.ServerCall;
+import io.grpc.Status;
+import io.grpc.stub.StreamObserver;
 
 /**
- * Special {@link Component @Component} to declare global gRPC exception handling.
+ * An exception handler for errors in the grpc call execution (For both the grpc method implementations and the
+ * {@link StreamObserver}s used to process incoming messages and sending outgoing errors).
  *
  * <p>
- * Every class annotated with {@link GrpcAdvice @GrpcAdvice} is marked to be scanned for
- * {@link GrpcExceptionHandler @GrpcExceptionHandler} annotations.
+ * Implementations must:
  * </p>
  *
- * @author Andjelko Perisic (andjelko.perisic@gmail.com)
- * @see GrpcExceptionHandler
+ * <ul>
+ * <li>Call {@link ServerCall#close(Status, Metadata)} before returning</li>
+ * <li>Not throw (any thrown errors must be caught)</li>
+ * <li>Not keep a reference to the call instance after the call</li>
+ * </ul>
  */
-@Target({ElementType.TYPE, ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-@Component
-public @interface GrpcAdvice {
+public interface GrpcExceptionResponseHandler {
+
+    /**
+     * Handles an exception by closing the call with an appropriate {@link Status}.
+     *
+     * @param serverCall The server call used to send the response status.
+     * @param error The error to handle.
+     */
+    void handleError(final ServerCall<?, ?> serverCall, final Throwable error);
 
 }

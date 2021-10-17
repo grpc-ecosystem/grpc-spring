@@ -12,7 +12,7 @@ buildscript {
         projectVersion = '2.13.0-SNAPSHOT'
 
         // https://github.com/grpc/grpc-java/releases
-        grpcVersion = '1.37.0'
+        grpcVersion = '1.40.1'
 
         // https://github.com/google/guava/releases
         guavaVersion = '30.1.1-jre'

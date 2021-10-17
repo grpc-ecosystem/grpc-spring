@@ -15,31 +15,29 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.devh.boot.grpc.server.advice;
+package net.devh.boot.grpc.client.inject;
 
-import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.stereotype.Component;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Configuration;
 
 /**
- * Special {@link Component @Component} to declare global gRPC exception handling.
- *
- * <p>
- * Every class annotated with {@link GrpcAdvice @GrpcAdvice} is marked to be scanned for
- * {@link GrpcExceptionHandler @GrpcExceptionHandler} annotations.
- * </p>
- *
- * @author Andjelko Perisic (andjelko.perisic@gmail.com)
- * @see GrpcExceptionHandler
+ * Annotation that can be added to {@link Configuration} classes to add {@link GrpcClient} beans to the
+ * {@link ApplicationContext}.
  */
-@Target({ElementType.TYPE, ElementType.METHOD})
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
-@Component
-public @interface GrpcAdvice {
+public @interface GrpcClientBeans {
+
+    /**
+     * Helper field containing multiple {@link GrpcClientBean} definitions.
+     *
+     * @return An array with bean definitions to create.
+     */
+    GrpcClientBean[] value();
 
 }
