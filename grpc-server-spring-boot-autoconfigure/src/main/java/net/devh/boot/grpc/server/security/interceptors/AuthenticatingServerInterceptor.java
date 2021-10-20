@@ -18,6 +18,7 @@
 package net.devh.boot.grpc.server.security.interceptors;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 
 import io.grpc.Context;
 import io.grpc.Contexts;
@@ -46,6 +47,11 @@ public interface AuthenticatingServerInterceptor extends ServerInterceptor {
     /**
      * The context key that can be used to retrieve the associated {@link Authentication}.
      */
-    public static final Context.Key<Authentication> AUTHENTICATION_CONTEXT_KEY = Context.key("authentication");
+    Context.Key<SecurityContext> SECURITY_CONTEXT_KEY = Context.key("security-context");
+
+    /**
+     * The context key that can be used to retrieve the originally associated {@link Authentication}.
+     */
+    Context.Key<Authentication> AUTHENTICATION_CONTEXT_KEY = Context.key("authentication");
 
 }

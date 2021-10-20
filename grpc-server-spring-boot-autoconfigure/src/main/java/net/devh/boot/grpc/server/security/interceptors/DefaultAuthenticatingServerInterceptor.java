@@ -28,6 +28,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import io.grpc.Context;
@@ -93,7 +94,7 @@ public class DefaultAuthenticatingServerInterceptor implements AuthenticatingSer
             try {
                 return next.startCall(call, headers);
             } catch (final AccessDeniedException e) {
-                throw new BadCredentialsException("No credentials found in the request", e);
+                throw newNoCredentialsException(e);
             }
         }
         if (authentication.getDetails() == null && authentication instanceof AbstractAuthenticationToken) {
@@ -107,27 +108,98 @@ public class DefaultAuthenticatingServerInterceptor implements AuthenticatingSer
             authentication = this.authenticationManager.authenticate(authentication);
         } catch (final AuthenticationException e) {
             log.debug("Authentication request failed: {}", e.getMessage());
+            onUnsuccessfulAuthentication(call, headers, e);
             throw e;
         }
 
-        final Context context = Context.current().withValue(AUTHENTICATION_CONTEXT_KEY, authentication);
-        final Context previousContext = context.attach();
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        final SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        securityContext.setAuthentication(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        final Context grpcContext = Context.current().withValues(
+                SECURITY_CONTEXT_KEY, securityContext,
+                AUTHENTICATION_CONTEXT_KEY, authentication);
+        final Context previousContext = grpcContext.attach();
         log.debug("Authentication successful: Continuing as {} ({})", authentication.getName(),
                 authentication.getAuthorities());
+        onSuccessfulAuthentication(call, headers, authentication);
         try {
-            return new AuthenticatingServerCallListener<>(next.startCall(call, headers), context, authentication);
+            return new AuthenticatingServerCallListener<>(next.startCall(call, headers), grpcContext, securityContext);
         } catch (final AccessDeniedException e) {
             if (authentication instanceof AnonymousAuthenticationToken) {
-                throw new BadCredentialsException("No credentials found in the request", e);
+                throw newNoCredentialsException(e);
             } else {
                 throw e;
             }
         } finally {
             SecurityContextHolder.clearContext();
-            context.detach(previousContext);
+            grpcContext.detach(previousContext);
             log.debug("startCall - Authentication cleared");
         }
+    }
+
+    /**
+     * Hook that will be called on successful authentication. Implementations may only use the call instance in a
+     * non-disruptive manor, that is accessing call attributes or the call descriptor. Implementations must not pollute
+     * the current thread/context with any call-related state, including authentication, beyond the duration of the
+     * method invocation. At the time of calling both the grpc context and the security context have been updated to
+     * reflect the state of the authentication and thus don't have to be setup manually.
+     *
+     * <p>
+     * <b>Note:</b> This method is called regardless of whether the authenticated user is authorized or not to perform
+     * the requested action.
+     * </p>
+     *
+     * <p>
+     * By default, this method does nothing.
+     * </p>
+     *
+     * @param call The call instance to receive response messages.
+     * @param headers The headers associated with the call.
+     * @param authentication The successful authentication instance.
+     */
+    protected void onSuccessfulAuthentication(
+            final ServerCall<?, ?> call,
+            final Metadata headers,
+            final Authentication authentication) {
+        // Overwrite to add custom behavior.
+    }
+
+    /**
+     * Hook that will be called on unsuccessful authentication. Implementations must use the call instance only in a
+     * non-disruptive manner, i.e. to access call attributes or the call descriptor. Implementations must not close the
+     * call and must not pollute the current thread/context with any call-related state, including authentication,
+     * beyond the duration of the method invocation.
+     *
+     * <p>
+     * <b>Note:</b> This method is called only if the request contains an authentication but the
+     * {@link AuthenticationManager} considers it invalid. This method is not called if an authenticated user is not
+     * authorized to perform the requested action.
+     * </p>
+     *
+     * <p>
+     * By default, this method does nothing.
+     * </p>
+     *
+     * @param call The call instance to receive response messages.
+     * @param headers The headers associated with the call.
+     * @param failed The exception related to the unsuccessful authentication.
+     */
+    protected void onUnsuccessfulAuthentication(
+            final ServerCall<?, ?> call,
+            final Metadata headers,
+            final AuthenticationException failed) {
+        // Overwrite to add custom behavior.
+    }
+
+    /**
+     * Wraps the given {@link AccessDeniedException} in an {@link AuthenticationException} to reflect, that no
+     * authentication was originally present in the request.
+     *
+     * @param denied The caught exception.
+     * @return The newly created {@link AuthenticationException}.
+     */
+    private static AuthenticationException newNoCredentialsException(final AccessDeniedException denied) {
+        return new BadCredentialsException("No credentials found in the request", denied);
     }
 
     /**
@@ -138,25 +210,25 @@ public class DefaultAuthenticatingServerInterceptor implements AuthenticatingSer
      */
     private static class AuthenticatingServerCallListener<ReqT> extends AbstractAuthenticatingServerCallListener<ReqT> {
 
-        private final Authentication authentication;
+        private final SecurityContext securityContext;
 
         /**
          * Creates a new AuthenticatingServerCallListener which will attach the given security context before delegating
          * to the given listener.
          *
          * @param delegate The listener to delegate to.
-         * @param context The context to attach.
-         * @param authentication The authentication instance to attach.
+         * @param grpcContext The context to attach.
+         * @param securityContext The security context instance to attach.
          */
-        public AuthenticatingServerCallListener(final Listener<ReqT> delegate, final Context context,
-                final Authentication authentication) {
-            super(delegate, context);
-            this.authentication = authentication;
+        public AuthenticatingServerCallListener(final Listener<ReqT> delegate, final Context grpcContext,
+                final SecurityContext securityContext) {
+            super(delegate, grpcContext);
+            this.securityContext = securityContext;
         }
 
         @Override
         protected void attachAuthenticationContext() {
-            SecurityContextHolder.getContext().setAuthentication(this.authentication);
+            SecurityContextHolder.setContext(this.securityContext);
         }
 
         @Override
@@ -169,8 +241,8 @@ public class DefaultAuthenticatingServerInterceptor implements AuthenticatingSer
             try {
                 super.onHalfClose();
             } catch (final AccessDeniedException e) {
-                if (this.authentication instanceof AnonymousAuthenticationToken) {
-                    throw new BadCredentialsException("No credentials found in the request", e);
+                if (this.securityContext.getAuthentication() instanceof AnonymousAuthenticationToken) {
+                    throw newNoCredentialsException(e);
                 } else {
                     throw e;
                 }
