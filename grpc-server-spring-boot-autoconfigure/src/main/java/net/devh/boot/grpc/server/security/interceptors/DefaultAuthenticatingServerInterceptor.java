@@ -47,6 +47,10 @@ import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReade
  * authentication to both grpc's {@link Context} and {@link SecurityContextHolder}.
  *
  * <p>
+ * This works similar to the {@code org.springframework.security.web.authentication.AuthenticationFilter}.
+ * </p>
+ *
+ * <p>
  * <b>Note:</b> This interceptor works similar to
  * {@link Contexts#interceptCall(Context, ServerCall, Metadata, ServerCallHandler)}.
  * </p>

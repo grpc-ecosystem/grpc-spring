@@ -48,7 +48,7 @@ import net.devh.boot.grpc.test.config.WithBasicAuthSecurityConfiguration;
         ManualSecurityConfiguration.class})
 @EnableAutoConfiguration
 @DirtiesContext
-public class DefaultServerInterceptorTest {
+class DefaultServerInterceptorTest {
 
     @Autowired
     private ApplicationContext applicationContext;
