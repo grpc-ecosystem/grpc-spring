@@ -51,7 +51,10 @@ public interface AuthenticatingServerInterceptor extends ServerInterceptor {
 
     /**
      * The context key that can be used to retrieve the originally associated {@link Authentication}.
+     *
+     * @deprecated Use {@link #SECURITY_CONTEXT_KEY} instead.
      */
+    @Deprecated
     Context.Key<Authentication> AUTHENTICATION_CONTEXT_KEY = Context.key("authentication");
 
 }

@@ -115,6 +115,7 @@ public class DefaultAuthenticatingServerInterceptor implements AuthenticatingSer
         final SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         securityContext.setAuthentication(authentication);
         SecurityContextHolder.setContext(securityContext);
+        @SuppressWarnings("deprecation")
         final Context grpcContext = Context.current().withValues(
                 SECURITY_CONTEXT_KEY, securityContext,
                 AUTHENTICATION_CONTEXT_KEY, authentication);
