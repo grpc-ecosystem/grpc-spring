@@ -58,6 +58,8 @@ import net.devh.boot.grpc.common.security.SecurityConstants;
  * </p>
  * <ul>
  * <li>{@link #basicAuth(String, String) Basic-Auth}</li>
+ * <li>{@link #bearerAuth(Supplier) Bearer-Auth}</li>
+ * <li>Other variants using static or dynamic headers</li>
  * <li>{@link #requirePrivacy(CallCredentials) Require privacy for the connection} (Wrapper)</li>
  * <li>{@link #includeWhenPrivate(CallCredentials) Include credentials only if connection is private} (Wrapper)</li>
  * </ul>
@@ -73,7 +75,7 @@ import net.devh.boot.grpc.common.security.SecurityConstants;
  * <pre>
  * <code>@Bean
  * CallCredentials myCallCredentials() {
- *     return CallCredentialsHelper#basicAuth("user", "password")}
+ *     return CallCredentialsHelper.basicAuth("user", "password");
  * }</code>
  * </pre>
  *
@@ -85,7 +87,7 @@ import net.devh.boot.grpc.common.security.SecurityConstants;
  * <pre>
  * <code>@Bean
  * StubTransformer myCallCredentialsTransformer() {
- *     return CallCredentialsHelper#mappedCredentialsStubTransformer(Map.of(
+ *     return CallCredentialsHelper.mappedCredentialsStubTransformer(Map.of(
  *         "myService1", basicAuth("user1", "password1"),
  *         "theService2", basicAuth("foo", "bar"),
  *         "publicApi", null // No credentials needed
@@ -97,7 +99,7 @@ import net.devh.boot.grpc.common.security.SecurityConstants;
  * <li>If you need different CallCredentials for each call, then you have to define it in the method yourself.
  *
  * <pre>
- * <code>stub.withCallCredentials(CallCredentialsHelper#basicAuth("user", "password")).doStuff(request);</code>
+ * <code>stub.withCallCredentials(CallCredentialsHelper.basicAuth("user", "password")).doStuff(request);</code>
  * </pre>
  *
  * </li>
