@@ -50,15 +50,9 @@ README: [English](README.md) | [中文](README-zh-CN.md)
 
 ## Versions
 
-2.x.x.RELEASE supports Spring Boot 2.1.x/2.2.x & Spring Cloud Greenwich/Hoxton.
-
-The latest version: ``2.12.0.RELEASE``
-
-(Use `2.4.0.RELEASE` for Spring Boot 2.0.x & Spring Cloud Finchley).
-
-1.x.x.RELEASE support Spring Boot 1 & Spring Cloud Edgware, Dalston, Camden.
-
-The latest version: ``1.4.2.RELEASE``
+The latest version is `2.12.0.RELEASE` it was compiled with spring-boot `2.4.5` and spring-cloud `2020.0.2`
+but it is also compatible with a large variety of other versions.
+An overview of all versions and their respective library versions can be found in our [documentation](https://yidongnan.github.io/grpc-spring-boot-starter/en/versions.html).
 
 **Note:** This project can also be used without Spring-Boot, however that requires some manual bean configuration.
 
