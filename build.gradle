@@ -12,26 +12,26 @@ buildscript {
         projectVersion = '2.13.0-SNAPSHOT'
 
         // https://github.com/grpc/grpc-java/releases
-        grpcVersion = '1.40.1'
+        grpcVersion = '1.42.1'
 
         // https://github.com/google/guava/releases
-        guavaVersion = '30.1.1-jre'
+        guavaVersion = '31.0.1-jre'
         // https://github.com/protocolbuffers/protobuf/releases
-        protobufVersion = '3.15.8'
-        protobufGradlePluginVersion = '0.8.12'
+        protobufVersion = '3.19.1'
+        protobufGradlePluginVersion = '0.8.18'
 
         // https://github.com/spring-projects/spring-boot/releases
-        springBootVersion = '2.4.5'
+        springBootVersion = '2.5.6'
         // https://github.com/spring-cloud/spring-cloud-release/releases
-        springCloudVersion = '2020.0.2'
+        springCloudVersion = '2020.0.4'
         // https://github.com/alibaba/spring-cloud-alibaba/releases
         springCloudAlibabaNacosVersion = '2021.1'
         // https://github.com/spring-projects/spring-security-oauth/releases
         springSecurityOAuthVersion = '2.5.1.RELEASE'
 
-        lombokPluginVersion = '4.0.0'
-        versioningPluginVersion = '2.14.0'
-        versionsPluginVersion = '0.29.0'
+        lombokPluginVersion = '5.0.0'
+        versioningPluginVersion = '2.15.1'
+        versionsPluginVersion = '0.39.0'
     }
 }
 
@@ -40,11 +40,11 @@ plugins {
     id 'java-library'
     id 'org.springframework.boot' version "${springBootVersion}" apply false
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'net.nemerosa.versioning' version '2.14.0'
-    id 'com.google.protobuf' version '0.8.15'
-    id 'io.franzbecker.gradle-lombok' version '4.0.0' apply false
-    id 'com.github.ben-manes.versions' version '0.36.0' // gradle dependencyUpdates
-    id 'com.diffplug.spotless' version '5.11.0'
+    id 'net.nemerosa.versioning' version "${versioningPluginVersion}"
+    id 'com.google.protobuf' version "${protobufGradlePluginVersion}"
+    id 'io.franzbecker.gradle-lombok' version "${lombokPluginVersion}" apply false
+    id 'com.github.ben-manes.versions' version "${versionsPluginVersion}" // gradle dependencyUpdates
+    id 'com.diffplug.spotless' version '6.0.0'
 }
 
 // If you attempt to build without the `--scan` parameter in `gradle 6.0+` it will cause a build error that it can't find
@@ -59,8 +59,8 @@ if (hasProperty('buildScan')) {
 // you may use IntelliJ's project configuration to make it use the gradle version defined in the gradle script's wrapper section
 wrapper {
     // Update using:
-    // ./gradlew wrapper --gradle-version=6.5 --distribution-type=bin
-    gradleVersion = '7.0'
+    // ./gradlew wrapper --gradle-version=7.3 --distribution-type=bin
+    gradleVersion = '7.3'
 }
 
 def buildTimeAndDate = OffsetDateTime.now()
