@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
@@ -57,6 +58,8 @@ import net.devh.boot.grpc.common.security.SecurityConstants;
  * </p>
  * <ul>
  * <li>{@link #basicAuth(String, String) Basic-Auth}</li>
+ * <li>{@link #bearerAuth(Supplier) Bearer-Auth}</li>
+ * <li>Other variants using static or dynamic headers</li>
  * <li>{@link #requirePrivacy(CallCredentials) Require privacy for the connection} (Wrapper)</li>
  * <li>{@link #includeWhenPrivate(CallCredentials) Include credentials only if connection is private} (Wrapper)</li>
  * </ul>
@@ -72,7 +75,7 @@ import net.devh.boot.grpc.common.security.SecurityConstants;
  * <pre>
  * <code>@Bean
  * CallCredentials myCallCredentials() {
- *     return CallCredentialsHelper#basicAuth("user", "password")}
+ *     return CallCredentialsHelper.basicAuth("user", "password");
  * }</code>
  * </pre>
  *
@@ -84,7 +87,7 @@ import net.devh.boot.grpc.common.security.SecurityConstants;
  * <pre>
  * <code>@Bean
  * StubTransformer myCallCredentialsTransformer() {
- *     return CallCredentialsHelper#mappedCredentialsStubTransformer(Map.of(
+ *     return CallCredentialsHelper.mappedCredentialsStubTransformer(Map.of(
  *         "myService1", basicAuth("user1", "password1"),
  *         "theService2", basicAuth("foo", "bar"),
  *         "publicApi", null // No credentials needed
@@ -96,7 +99,7 @@ import net.devh.boot.grpc.common.security.SecurityConstants;
  * <li>If you need different CallCredentials for each call, then you have to define it in the method yourself.
  *
  * <pre>
- * <code>stub.withCallCredentials(CallCredentialsHelper#basicAuth("user", "password")).doStuff(request);</code>
+ * <code>stub.withCallCredentials(CallCredentialsHelper.basicAuth("user", "password")).doStuff(request);</code>
  * </pre>
  *
  * </li>
@@ -159,7 +162,8 @@ public class CallCredentialsHelper {
     }
 
     /**
-     * Creates new call credentials with the given token for bearer auth.
+     * Creates new call credentials with the given token for bearer auth. Use this method if you have a permanent token
+     * or only use the call credentials for a single call/while the token is valid.
      *
      * <p>
      * <b>Note:</b> This method uses experimental grpc-java-API features.
@@ -172,6 +176,23 @@ public class CallCredentialsHelper {
      */
     public static CallCredentials bearerAuth(final String token) {
         return authorizationHeader(BEARER_AUTH_PREFIX + token);
+    }
+
+    /**
+     * Creates new call credentials with the given token source for bearer auth. Use this method if you derive the token
+     * from the active context (e.g. currently logged in user) or dynamically obtain it from the authentication server.
+     *
+     * <p>
+     * <b>Note:</b> This method uses experimental grpc-java-API features.
+     * </p>
+     *
+     * @param tokenSource the bearer token source to use
+     * @return The newly created bearer auth credentials.
+     * @see SecurityConstants#BEARER_AUTH_PREFIX
+     * @see #authorizationHeader(Supplier)
+     */
+    public static CallCredentials bearerAuth(final Supplier<String> tokenSource) {
+        return authorizationHeader(() -> BEARER_AUTH_PREFIX + tokenSource);
     }
 
     /**
@@ -228,10 +249,33 @@ public class CallCredentialsHelper {
      * @see #authorizationHeaders(Metadata)
      */
     public static CallCredentials authorizationHeader(final String authorization) {
-        requireNonNull(authorization);
+        requireNonNull(authorization, "authorization");
         final Metadata extraHeaders = new Metadata();
         extraHeaders.put(AUTHORIZATION_HEADER, authorization);
         return authorizationHeaders(extraHeaders);
+    }
+
+    /**
+     * Creates new call credentials with the given authorization information source.
+     *
+     * <p>
+     * <b>Note:</b> This method uses experimental grpc-java-API features.
+     * </p>
+     *
+     * @param authorizationSource The authorization source to use. The authorization usually starts with the scheme such
+     *        as as {@code "Basic "} or {@code "Bearer "} followed by the actual authentication information.
+     * @return The newly created call credentials.
+     * @see SecurityConstants#AUTHORIZATION_HEADER
+     * @see #authorizationHeaders(Supplier)
+     */
+    public static CallCredentials authorizationHeader(final Supplier<String> authorizationSource) {
+        requireNonNull(authorizationSource, "authorizationSource");
+
+        return authorizationHeaders(() -> {
+            final Metadata extraHeaders = new Metadata();
+            extraHeaders.put(AUTHORIZATION_HEADER, authorizationSource.get());
+            return extraHeaders;
+        });
     }
 
     /**
@@ -241,19 +285,19 @@ public class CallCredentialsHelper {
      * @return The newly created call credentials.
      */
     public static CallCredentials authorizationHeaders(final Metadata authorizationHeaders) {
-        return new StaticSecurityHeaderCallCredentials(requireNonNull(authorizationHeaders));
+        return new StaticSecurityHeaderCallCredentials(authorizationHeaders);
     }
 
     /**
-     * The static security header {@link CallCredentials} simply add a set of predefined headers to the call. Their
+     * The static security header {@link CallCredentials} simply adds a set of predefined headers to the call. Their
      * specific meaning is server specific. This implementation can be used, for example, for BasicAuth.
      */
     private static final class StaticSecurityHeaderCallCredentials extends CallCredentials {
 
         private final Metadata extraHeaders;
 
-        StaticSecurityHeaderCallCredentials(final Metadata extraHeaders) {
-            this.extraHeaders = requireNonNull(extraHeaders, "extraHeaders");
+        StaticSecurityHeaderCallCredentials(final Metadata authorizationHeaders) {
+            this.extraHeaders = requireNonNull(authorizationHeaders, "authorizationHeaders");
         }
 
         @Override
@@ -268,6 +312,44 @@ public class CallCredentialsHelper {
         @Override
         public String toString() {
             return "StaticSecurityHeaderCallCredentials [extraHeaders.keys=" + this.extraHeaders.keys() + "]";
+        }
+
+    }
+
+    /**
+     * Creates new call credentials with the given authorization headers source.
+     *
+     * @param authorizationHeadersSupplier The authorization headers source to use.
+     * @return The newly created call credentials.
+     */
+    public static CallCredentials authorizationHeaders(final Supplier<Metadata> authorizationHeadersSupplier) {
+        return new DynamicSecurityHeaderCallCredentials(authorizationHeadersSupplier);
+    }
+
+    /**
+     * The dynamic security header {@link CallCredentials} simply adds a set of dynamic headers to the call. Their
+     * specific meaning is server specific. This implementation can be used, for example, for BasicAuth.
+     */
+    private static final class DynamicSecurityHeaderCallCredentials extends CallCredentials {
+
+        private final Supplier<Metadata> extraHeadersSupplier;
+
+        DynamicSecurityHeaderCallCredentials(final Supplier<Metadata> authorizationHeadersSupplier) {
+            this.extraHeadersSupplier = requireNonNull(authorizationHeadersSupplier, "authorizationHeadersSupplier");
+        }
+
+        @Override
+        public void applyRequestMetadata(final RequestInfo requestInfo, final Executor appExecutor,
+                final MetadataApplier applier) {
+            applier.apply(this.extraHeadersSupplier.get());
+        }
+
+        @Override
+        public void thisUsesUnstableApi() {} // API evolution in progress
+
+        @Override
+        public String toString() {
+            return "DynamicSecurityHeaderCallCredentials [extraHeadersSupplier=" + this.extraHeadersSupplier + "]";
         }
 
     }

@@ -12,6 +12,9 @@ This page describes how you connect to a grpc server and authenticate yourself.
   - [Trusting a Server](#trusting-a-server)
 - [Mutual Certificate Authentication](#mutual-certificate-authentication)
 - [Authentication](#authentication)
+  - [Creating CallCredentials](#creating-callcredentials)
+  - [Using CallCredentials](#using-callcredentials)
+  - [Retry with new Authentication](#retry-with-new-authentication)
 
 ## Additional Topics <!-- omit in toc -->
 
@@ -97,6 +100,8 @@ grpc.client.__name__.security.privateKey=file:certificates/client.key
 
 ## Authentication
 
+### Creating CallCredentials
+
 In addition to mutual certificate authentication, there are several other ways to authenticate yourself, such as
 `BasicAuth`.
 
@@ -105,6 +110,20 @@ various libraries out there that provide implementations for grpc's
 [`CallCredentials`](https://grpc.github.io/grpc-java/javadoc/io/grpc/CallCredentials.html).
 `CallCredentials` are potentially active components because they can authenticate the request using a (third party)
 service and can manage and renew session tokens themselves.
+
+````java
+@Bean
+CallCredentials basicAuthCredentials() {
+    return CallCredentialsHelper.basicAuth("user", "password");
+}
+
+@Bean
+CallCredentials bearerAuthForwardingCredentials() {
+    return CallCredentialsHelper.bearerAuth(() -> KeycloakSecurityContext.getTokenString());
+}
+````
+
+### Using CallCredentials
 
 If you have exactly one `CallCredentials` in your application context, we'll automatically create a `StubTransformer`
 for you and configure all `Stub`s to use it. If you wish to configure different credentials per stub, then you use our
@@ -121,6 +140,45 @@ You can also configure the `CallCredentials` just in time (e.g. for user depende
 MyServiceBlockingStub myServiceForUser = myService.withCallCredentials(userCredentials);
 return myServiceForUser.send(request);
 ````
+
+### Retry with new Authentication
+
+If you want to retry calls that failed due to an expired token (using grpc's built-in retry mechanism), you can use the
+following example `ClientInterceptor` as a guide to automatically report the failure to the token store.
+Please note that many popular token-based authentication systems (such as OAuth) also provide a token TTL that can be
+used to automatically update the token before the call is even sent for the first time, rendering this obsolete.
+
+````java
+@Override
+public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+        MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
+
+    callOptions = callOptions
+            .withCallCredentials(this.credentials)
+            .withStreamTracerFactory(new ClientStreamTracer.Factory() {
+
+                @Override
+                public ClientStreamTracer newClientStreamTracer(
+                        ClientStreamTracer.StreamInfo info, Metadata headers) {
+
+                    // Make sure your implementations do _not_ block and return _immediately_
+                    final Object authToken = headers.get(AUTH_TOKEN_KEY);
+                    return new ClientStreamTracer() {
+
+                        @Override
+                        public void streamClosed(final Status status) {
+                            this.credentials.invalidate(authToken);
+                        }
+                    };
+
+                }
+            });
+
+    return next.newCall(method, callOptions);
+}
+````
+
+For more details refer to [How to retry with new auth token using builtin retry?](https://github.com/grpc/grpc-java/issues/7345#issuecomment-679295003)
 
 ## Additional Topics <!-- omit in toc -->
 
