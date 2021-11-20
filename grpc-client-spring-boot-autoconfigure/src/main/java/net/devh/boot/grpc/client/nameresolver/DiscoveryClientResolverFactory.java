@@ -22,7 +22,6 @@ import static java.util.Objects.requireNonNull;
 import java.net.URI;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
@@ -73,12 +72,9 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
                         + "expected: '" + DISCOVERY_SCHEME + ":[//]/<service-name>'; "
                         + "but was '" + targetUri.toString() + "'");
             }
-            final AtomicReference<DiscoveryClientNameResolver> reference = new AtomicReference<>();
             final DiscoveryClientNameResolver discoveryClientNameResolver =
                     new DiscoveryClientNameResolver(serviceName.substring(1), this.client, args,
-                            GrpcUtil.SHARED_CHANNEL_EXECUTOR,
-                            () -> this.discoveryClientNameResolvers.remove(reference.get()));
-            reference.set(discoveryClientNameResolver);
+                            GrpcUtil.SHARED_CHANNEL_EXECUTOR, this.discoveryClientNameResolvers::remove);
             this.discoveryClientNameResolvers.add(discoveryClientNameResolver);
             return discoveryClientNameResolver;
         }
