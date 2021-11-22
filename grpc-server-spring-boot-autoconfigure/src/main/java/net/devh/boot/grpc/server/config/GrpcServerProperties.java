@@ -17,8 +17,11 @@
 
 package net.devh.boot.grpc.server.config;
 
+import static net.devh.boot.grpc.common.security.KeyStoreUtils.FORMAT_AUTODETECT;
+
 import java.io.File;
 import java.io.InputStream;
+import java.security.KeyStore;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -39,6 +42,7 @@ import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import lombok.Data;
+import net.devh.boot.grpc.common.security.KeyStoreUtils;
 import net.devh.boot.grpc.common.util.GrpcUtils;
 
 /**
@@ -246,8 +250,10 @@ public class GrpcServerProperties {
     @Data
     public static class Security {
 
+
         /**
-         * Flag that controls whether transport security is used. Defaults to {@code false}.
+         * Flag that controls whether transport security is used. Defaults to {@code false}. If {@code true}, either set
+         * {@link #certificateChain} and {@link #privateKey}, or {@link #keyStore}.
          *
          * @param enabled Whether transport security should be enabled.
          * @return True, if transport security should be enabled. False otherwise.
@@ -255,34 +261,71 @@ public class GrpcServerProperties {
         private boolean enabled = false;
 
         /**
-         * The resource containing the SSL certificate chain. Required if {@link #isEnabled()} is true.
+         * The resource containing the SSL certificate chain. Use is combination with {@link #privateKey}. Cannot be
+         * used in conjunction with {@link #keyStore}.
          *
          * @see GrpcSslContexts#forServer(InputStream, InputStream, String)
          *
          * @param certificateChain The certificate chain resource.
-         * @return The certificate chain resource or null, if security is not enabled.
+         * @return The certificate chain resource or null.
          */
         private Resource certificateChain = null;
 
         /**
-         * The resource containing the private key. Required if {@link #enabled} is true.
+         * The resource containing the private key. Use in combination with {@link #certificateChain}. Cannot be used in
+         * conjunction with {@link #keyStore}.
          *
          * @see GrpcSslContexts#forServer(InputStream, InputStream, String)
          *
          * @param privateKey The private key resource.
-         * @return The private key resource or null, if security is not enabled.
+         * @return The private key resource or null.
          */
         private Resource privateKey = null;
 
         /**
-         * Password for the private key.
+         * Password for the private key. Use is combination with {@link #privateKey}.
          *
          * @see GrpcSslContexts#forServer(File, File, String)
          *
          * @param privateKeyPassword The password for the private key.
-         * @return The password for the private key or null, if the private key is not set or not encrypted.
+         * @return The password for the private key or null.
          */
         private String privateKeyPassword = null;
+
+        /**
+         * The format of the {@link #keyStore}.
+         * 
+         * <p>
+         * Possible values includes:
+         * </p>
+         * <ul>
+         * <li>{@link KeyStoreUtils#FORMAT_AUTODETECT AUTODETECT} (default)</li>
+         * <li>{@code JKS} ({@code .jks})</li>
+         * <li>{@code PKCS12} ({@code .p12})</li>
+         * <li>any supported {@link KeyStore} format</li>
+         * <li>Fallback to {@code KeyStore#getDefaultType()}</li>
+         * </ul>
+         * 
+         * @param keyStoreFormat The trust store format to use.
+         * @return The trust store format to use.
+         */
+        private String keyStoreFormat = FORMAT_AUTODETECT;
+
+        /**
+         * The resource containing the key store. Cannot be used in conjunction with {@link #privateKey}.
+         *
+         * @param keyStore The key store resource.
+         * @return The key store resource or null.
+         */
+        private Resource keyStore = null;
+
+        /**
+         * Password for the key store. Use is combination with {@link #keyStore}.
+         *
+         * @param keyStorePassword The password for the key store.
+         * @return The password for the key store or null.
+         */
+        private String keyStorePassword = null;
 
         /**
          * Whether the client has to authenticate himself via certificates. Can be either of {@link ClientAuth#NONE
@@ -298,8 +341,9 @@ public class GrpcServerProperties {
         private ClientAuth clientAuth = ClientAuth.NONE;
 
         /**
-         * The resource containing the trusted certificate collection. If {@code null} or empty it will use the system's
-         * default collection (Default). This collection will be used to verify client certificates.
+         * The resource containing the trusted certificate collection. Cannot be used in conjunction with
+         * {@link #trustStore}. If neither this nor {@link #trustCertCollection} is set then the system's trust store
+         * will be used.
          *
          * @see SslContextBuilder#trustManager(InputStream)
          *
@@ -307,6 +351,42 @@ public class GrpcServerProperties {
          * @return The trusted certificate collection resource or null.
          */
         private Resource trustCertCollection = null;
+
+        /**
+         * The format of the {@link #trustStore}.
+         * 
+         * <p>
+         * Possible values includes:
+         * </p>
+         * <ul>
+         * <li>{@link KeyStoreUtils#FORMAT_AUTODETECT AUTODETECT} (default)</li>
+         * <li>{@code JKS} ({@code .jks})</li>
+         * <li>{@code PKCS12} ({@code .p12})</li>
+         * <li>any supported {@link KeyStore} format</li>
+         * <li>Fallback to {@code KeyStore#getDefaultType()}</li>
+         * </ul>
+         * 
+         * @param trustStoreFormat The trust store format to use.
+         * @return The trust store format to use.
+         */
+        private String trustStoreFormat = FORMAT_AUTODETECT;
+
+        /**
+         * The resource containing the trust store. Cannot be used in conjunction with {@link #trustCertCollection}. If
+         * neither this nor {@link #trustCertCollection} is set then the system's trust store will be used.
+         *
+         * @param trustStore The trust store resource.
+         * @return The trust store resource or null.
+         */
+        private Resource trustStore = null;
+
+        /**
+         * Password for the trust store. Use is combination with {@link #trustStore}.
+         *
+         * @param trustStorePassword The password for the trust store.
+         * @return The password for the trust store or null.
+         */
+        private String trustStorePassword = null;
 
         /**
          * Specifies the cipher suite. If {@code null} or empty it will use the system's default cipher suite.
@@ -332,6 +412,7 @@ public class GrpcServerProperties {
         public void setProtocols(final String protocols) {
             this.protocols = protocols.split("[ :,]");
         }
+
 
     }
 
