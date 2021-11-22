@@ -17,46 +17,34 @@
 
 package net.devh.boot.grpc.test.setup;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import com.google.protobuf.Empty;
-
-import net.devh.boot.grpc.client.inject.GrpcClient;
-import net.devh.boot.grpc.server.nameresolver.SelfNameResolverFactory;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.ServiceConfiguration;
-import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceBlockingStub;
 
 /**
- * Tests that the {@link SelfNameResolverFactory} works as expected.
+ * A test checking that the server and client can start and connect to each other with minimal config.
  *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
+@Slf4j
 @SpringBootTest(properties = {
-        "grpc.server.port=0",
+        "grpc.server.address=unix:unix-test",
+        "grpc.client.GLOBAL.address=unix:unix-test",
         "grpc.client.GLOBAL.negotiationType=PLAINTEXT",
-        "grpc.client.test.address=self:self",
 })
 @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
 @DirtiesContext
-public class SelfNameResolverConnectionTest {
+@EnabledOnOs(OS.LINUX)
+public class UnixSetupTest extends AbstractSimpleServerClientTest {
 
-    private static final Empty EMPTY = Empty.getDefaultInstance();
-
-    @GrpcClient("test")
-    private TestServiceBlockingStub selfStub;
-
-    /**
-     * Tests the connection via the implicit client address.
-     */
-    @Test
-    public void testSelfConnection() {
-        assertEquals("1.2.3", this.selfStub.normal(EMPTY).getVersion());
+    public UnixSetupTest() {
+        log.info("--- UnixSetupTest ---");
     }
 
 }

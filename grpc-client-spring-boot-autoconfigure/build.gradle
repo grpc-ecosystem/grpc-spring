@@ -24,6 +24,7 @@ dependencies {
     // api comes from java-library, and allows exposure of the dependency to consumers of the library
     //  this means it can be used implicitly without specifying the dependency (unless you wish to override with a different version, or exclude)
     optionalSupportApi 'io.grpc:grpc-netty'
+    optionalSupportApi 'io.netty:netty-transport-native-epoll'
     api 'io.grpc:grpc-netty-shaded'
     api 'io.grpc:grpc-protobuf'
     api 'io.grpc:grpc-stub'

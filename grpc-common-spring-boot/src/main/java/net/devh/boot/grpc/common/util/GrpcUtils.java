@@ -27,6 +27,16 @@ import io.grpc.MethodDescriptor;
 public final class GrpcUtils {
 
     /**
+     * A constant that defines, the scheme of a Unix domain socket address.
+     */
+    public static final String DOMAIN_SOCKET_ADDRESS_SCHEME = "unix";
+
+    /**
+     * A constant that defines, the scheme prefix of a Unix domain socket address.
+     */
+    public static final String DOMAIN_SOCKET_ADDRESS_PREFIX = DOMAIN_SOCKET_ADDRESS_SCHEME + ":";
+
+    /**
      * The cloud discovery metadata key used to identify the grpc port.
      */
     public static final String CLOUD_DISCOVERY_METADATA_PORT = "gRPC_port";
@@ -35,6 +45,30 @@ public final class GrpcUtils {
      * The constant for the grpc server port, -1 represents don't start an inter process server.
      */
     public static final int INTER_PROCESS_DISABLE = -1;
+
+    /**
+     * Extracts the domain socket address specific path from the given full address. The address must fulfill the
+     * requirements as specified by <a href="https://grpc.github.io/grpc/cpp/md_doc_naming.html">grpc</a>.
+     *
+     * @param address The address to extract it from.
+     * @return The extracted domain socket address specific path.
+     * @throws IllegalArgumentException If the given address is not a valid address.
+     */
+    public static String extractDomainSocketAddressPath(final String address) {
+        if (!address.startsWith(DOMAIN_SOCKET_ADDRESS_PREFIX)) {
+            throw new IllegalArgumentException(address + " is not a valid domain socket address.");
+        }
+        String path = address.substring(DOMAIN_SOCKET_ADDRESS_PREFIX.length());
+        if (path.startsWith("//")) {
+            path = path.substring(2);
+            // We don't check this as there is no reliable way to check that it's an absolute path,
+            // especially when Windows adds support for these in the future
+            // if (!path.startsWith("/")) {
+            // throw new IllegalArgumentException("If the path is prefixed with '//', then the path must be absolute");
+            // }
+        }
+        return path;
+    }
 
     /**
      * Extracts the service name from the given method.

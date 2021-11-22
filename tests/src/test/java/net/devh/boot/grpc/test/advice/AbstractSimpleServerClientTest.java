@@ -17,10 +17,11 @@
 
 package net.devh.boot.grpc.test.advice;
 
-import static net.devh.boot.grpc.test.util.FutureAssertions.assertFutureThrows;
+import static net.devh.boot.grpc.test.util.GrpcAssertions.assertFutureThrowsStatus;
+import static net.devh.boot.grpc.test.util.GrpcAssertions.assertThrowsStatus;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.concurrent.TimeUnit;
 
@@ -33,21 +34,24 @@ import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.internal.testing.StreamRecorder;
-import lombok.extern.slf4j.Slf4j;
+import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.test.proto.SomeType;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceBlockingStub;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceFutureStub;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceStub;
+import net.devh.boot.grpc.test.util.AwaitableStreamObserver;
 
 /**
  * A test checking that the server and client can start and connect to each other with proper exception handling.
  *
  * @author Andjelko Perisic (andjelko.perisic@gmail.com)
  */
-@Slf4j
 abstract class AbstractSimpleServerClientTest {
+
+    private static final Empty EMPTY = Empty.getDefaultInstance();
+    private static final SomeType SOME_TYPE = SomeType.getDefaultInstance();
 
     @GrpcClient("test")
     protected Channel channel;
@@ -69,61 +73,82 @@ abstract class AbstractSimpleServerClientTest {
 
     /**
      * Test template call to check for every exception.
+     *
+     * @param expectedStatus The status to expect.
+     * @param expectedMetadata The metadata to expect.
      */
-    void testGrpcCallAndVerifyMappedException(Status expectedStatus, Metadata metadata) {
+    void testUnaryGrpcCallAndVerifyMappedException(final Status expectedStatus, final Metadata expectedMetadata) {
 
-        verifyManualBlockingStubCall(expectedStatus, metadata);
-        verifyBlockingStubCall(expectedStatus, metadata);
-        verifyManualFutureStubCall(expectedStatus, metadata);
-        verifyFutureStubCall(expectedStatus, metadata);
+        verifyManualBlockingStubCall(expectedStatus, expectedMetadata);
+        verifyBlockingStubCall(expectedStatus, expectedMetadata);
+        verifyManualFutureStubCall(expectedStatus, expectedMetadata);
+        verifyFutureStubCall(expectedStatus, expectedMetadata);
+
+    }
+
+    /**
+     * Test template call to check for every exception.
+     *
+     * @param expectedStatus The status to expect.
+     * @param expectedMetadata The metadata to expect.
+     */
+    void testStreamingGrpcCallAndVerifyMappedException(final Status expectedStatus, final Metadata expectedMetadata) {
+
+        final AwaitableStreamObserver<SomeType> responseObserver = new AwaitableStreamObserver<>();
+        final StreamObserver<SomeType> requestObserver = this.testServiceStub.echo(responseObserver);
+        requestObserver.onNext(SOME_TYPE);
+        requestObserver.onCompleted();
+
+        final StatusRuntimeException error =
+                (StatusRuntimeException) assertDoesNotThrow(() -> responseObserver.getError());
+        verifyStatusAndMetadata(error, expectedStatus, expectedMetadata);
+
     }
 
     private void verifyManualBlockingStubCall(
-            Status expectedStatus, Metadata expectedMetadata) {
+            final Status expectedStatus, final Metadata expectedMetadata) {
 
-        StatusRuntimeException actualException =
-                assertThrows(StatusRuntimeException.class,
-                        () -> TestServiceGrpc.newBlockingStub(this.channel).normal(Empty.getDefaultInstance()));
+        final TestServiceBlockingStub newBlockingStub = TestServiceGrpc.newBlockingStub(this.channel);
+        final StatusRuntimeException actualException =
+                assertThrowsStatus(() -> newBlockingStub.normal(EMPTY));
 
         verifyStatusAndMetadata(actualException, expectedStatus, expectedMetadata);
     }
 
-    private <E extends RuntimeException> void verifyBlockingStubCall(Status expectedStatus, Metadata expectedMetadata) {
+    private void verifyBlockingStubCall(final Status expectedStatus,
+            final Metadata expectedMetadata) {
 
-        StatusRuntimeException actualException =
-                assertThrows(StatusRuntimeException.class,
-                        () -> this.testServiceBlockingStub.normal(Empty.getDefaultInstance()));
+        final StatusRuntimeException actualException =
+                assertThrowsStatus(() -> this.testServiceBlockingStub.normal(EMPTY));
 
         verifyStatusAndMetadata(actualException, expectedStatus, expectedMetadata);
     }
 
 
     private void verifyManualFutureStubCall(
-            Status expectedStatus, Metadata expectedMetadata) {
+            final Status expectedStatus, final Metadata expectedMetadata) {
 
         final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
-        this.testServiceStub.normal(Empty.getDefaultInstance(), streamRecorder);
-        StatusRuntimeException actualException =
-                assertFutureThrows(StatusRuntimeException.class, streamRecorder.firstValue(), 5, TimeUnit.SECONDS);
+        this.testServiceStub.normal(EMPTY, streamRecorder);
+        final StatusRuntimeException actualException =
+                assertFutureThrowsStatus(streamRecorder.firstValue(), 5, TimeUnit.SECONDS);
 
         verifyStatusAndMetadata(actualException, expectedStatus, expectedMetadata);
     }
 
 
     private void verifyFutureStubCall(
-            Status expectedStatus, Metadata expectedMetadata) {
+            final Status expectedStatus, final Metadata expectedMetadata) {
 
-        StatusRuntimeException actualException =
-                assertFutureThrows(StatusRuntimeException.class,
-                        this.testServiceFutureStub.normal(Empty.getDefaultInstance()),
-                        5,
-                        TimeUnit.SECONDS);
+        final StatusRuntimeException actualException =
+                assertFutureThrowsStatus(this.testServiceFutureStub.normal(EMPTY), 5, TimeUnit.SECONDS);
 
         verifyStatusAndMetadata(actualException, expectedStatus, expectedMetadata);
     }
 
     private void verifyStatusAndMetadata(
-            StatusRuntimeException actualException, Status expectedStatus, Metadata expectedMetadata) {
+            final StatusRuntimeException actualException, final Status expectedStatus,
+            final Metadata expectedMetadata) {
 
         assertThat(actualException.getTrailers())
                 .usingRecursiveComparison()

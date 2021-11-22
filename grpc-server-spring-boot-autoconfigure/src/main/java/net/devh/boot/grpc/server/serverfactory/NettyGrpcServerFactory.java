@@ -18,6 +18,8 @@
 package net.devh.boot.grpc.server.serverfactory;
 
 import static java.util.Objects.requireNonNull;
+import static net.devh.boot.grpc.common.util.GrpcUtils.DOMAIN_SOCKET_ADDRESS_PREFIX;
+import static net.devh.boot.grpc.server.config.GrpcServerProperties.ANY_IP_ADDRESS;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +35,11 @@ import com.google.common.net.InetAddresses;
 
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyServerBuilder;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerDomainSocketChannel;
+import io.netty.channel.unix.DomainSocketAddress;
 import io.netty.handler.ssl.SslContextBuilder;
+import net.devh.boot.grpc.common.util.GrpcUtils;
 import net.devh.boot.grpc.server.config.ClientAuth;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import net.devh.boot.grpc.server.config.GrpcServerProperties.Security;
@@ -61,7 +67,13 @@ public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServe
     protected NettyServerBuilder newServerBuilder() {
         final String address = getAddress();
         final int port = getPort();
-        if (GrpcServerProperties.ANY_IP_ADDRESS.equals(address)) {
+        if (address.startsWith(DOMAIN_SOCKET_ADDRESS_PREFIX)) {
+            final String path = GrpcUtils.extractDomainSocketAddressPath(address);
+            return NettyServerBuilder.forAddress(new DomainSocketAddress(path))
+                    .channelType(EpollServerDomainSocketChannel.class)
+                    .bossEventLoopGroup(new EpollEventLoopGroup(1))
+                    .workerEventLoopGroup(new EpollEventLoopGroup());
+        } else if (ANY_IP_ADDRESS.equals(address)) {
             return NettyServerBuilder.forPort(port);
         } else {
             return NettyServerBuilder.forAddress(new InetSocketAddress(InetAddresses.forString(address), port));
@@ -77,6 +89,20 @@ public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServe
         }
         builder.permitKeepAliveTime(this.properties.getPermitKeepAliveTime().toNanos(), TimeUnit.NANOSECONDS)
                 .permitKeepAliveWithoutCalls(this.properties.isPermitKeepAliveWithoutCalls());
+    }
+
+    @Override
+    // Keep this in sync with ShadedNettyGrpcServerFactory#configureConnectionLimits
+    protected void configureConnectionLimits(final NettyServerBuilder builder) {
+        if (this.properties.getMaxConnectionIdle() != null) {
+            builder.maxConnectionIdle(this.properties.getMaxConnectionIdle().toNanos(), TimeUnit.NANOSECONDS);
+        }
+        if (this.properties.getMaxConnectionAge() != null) {
+            builder.maxConnectionAge(this.properties.getMaxConnectionAge().toNanos(), TimeUnit.NANOSECONDS);
+        }
+        if (this.properties.getMaxConnectionAgeGrace() != null) {
+            builder.maxConnectionAgeGrace(this.properties.getMaxConnectionAgeGrace().toNanos(), TimeUnit.NANOSECONDS);
+        }
     }
 
     @Override

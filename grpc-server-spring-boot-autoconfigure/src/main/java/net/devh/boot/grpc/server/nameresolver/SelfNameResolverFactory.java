@@ -50,7 +50,7 @@ public class SelfNameResolverFactory extends NameResolverProvider {
 
     @Override
     public NameResolver newNameResolver(final URI targetUri, final Args args) {
-        if (SELF_SCHEME.equals(targetUri.getScheme()) || targetUri.toString().equals(SELF_SCHEME)) {
+        if (SELF_SCHEME.equals(targetUri.getScheme())) {
             return new SelfNameResolver(this.properties, args);
         }
         return null;

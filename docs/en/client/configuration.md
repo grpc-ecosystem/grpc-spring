@@ -9,6 +9,7 @@ This section describes how you can configure your grpc-spring-boot-starter clien
 - [Configuration via Properties](#configuration-via-properties)
   - [Choosing the Target](#choosing-the-target)
 - [Configuration via Beans](#configuration-via-beans)
+  - [GrpcClientBean](#grpcclientbean)
   - [GrpcChannelConfigurer](#grpcchannelconfigurer)
   - [ClientInterceptor](#clientinterceptor)
   - [StubFactory](#stubfactory)
@@ -38,9 +39,10 @@ If you prefer to read the sources instead, you can do so
 [here](https://github.com/yidongnan/grpc-spring-boot-starter/blob/master/grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/config/GrpcChannelProperties.java#L58).
 
 The properties for the channels are all prefixed with `grpc.client.__name__.` and `grpc.client.__name__.security.`
-respectively. The channel name is taken from the `@GrpcClient` annotation. If you wish to configure some options such as
-trusted certificates for all servers at once you can do so using `GLOBAL` as name. Properties that are defined for a
-name channel take precedence over global once.
+respectively. The channel name is taken from the `@GrpcClient("__name__")` annotation.
+If you wish to configure some options such as trusted certificates for all servers at once,
+you can do so using `GLOBAL` as name.
+Properties that are defined for a specific/named channel take precedence over `GLOBAL` ones.
 
 ### Choosing the Target
 
@@ -55,6 +57,7 @@ There are a number of supported schemes, that you can use to determine the targe
 
 - `static` (Prio 4): \
   A simple static list of IPs (both v4 and v6), that can be use connect to the server (Supports `localhost`). \
+  For resolvable hostnames please use `dns` instead. \
   Example: `static://192.168.1.1:8080,10.0.0.1:1337`
 - [`dns`](https://github.com/grpc/grpc-java/blob/master/core/src/main/java/io/grpc/internal/DnsNameResolver.java#L66)
   (Prio 5): \
@@ -72,11 +75,16 @@ There are a number of supported schemes, that you can use to determine the targe
   The self address or scheme is a keyword that is available, if you also use `grpc-server-spring-boot-starter` and
   allows you to connect to the server without specifying the own address/port. This is especially useful for tests
   where you might want to use random server ports to avoid conflicts. \
-  Example: `self` or `self:self`
+  Example: `self:self`
 - `in-process`: \
   This is a special scheme that will bypass the normal channel factory and will use the `InProcessChannelFactory`
   instead. Use it to connect to the [`InProcessServer`](../server/configuration.md#enabling-the-inprocessserver). \
   Example: `in-process:foobar`
+- `unix` (Available on Unix based systems only): \
+  This is a special scheme that uses unix's domain socket addresses to connect to a server. \
+  If you are using `grpc-netty` you also need the `netty-transport-native-epoll` dependency.
+  `grpc-netty-shaded` already contains that dependency, so there is no need to add anything for it to work. \
+  Example: `unix:/run/grpc-server`
 - *custom*: \
   You can define custom
   [`NameResolverProvider`s](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/NameResolverProvider.html) those
@@ -107,6 +115,50 @@ extension points that exist in this library.
 First of all most of the beans can be replaced by custom ones, that you can configure in every way you want.
 If you don't wish to go that far, you can use classes such as `GrpcChannelConfigurer` and `StubTransformer` to configure
 the channels, stubs and other components without losing the features provided by this library.
+
+### GrpcClientBean
+
+This annotation is used to create injectable beans from your otherwise non-injectable `@GrpcClient` instances.
+The annotation can be repeatedly added to any of your `@Configuration` classes.
+
+> **Note:** We recommend using either `@GrpcClientBean`s or fields annotated with `@GrpcClient` throughout your
+> application, as mixing the two might cause confusion for future developers.
+
+````java
+@Configuration
+@GrpcClientBean(
+    clazz = TestServiceBlockingStub.class,
+    beanName = "blockingStub",
+    client = @GrpcClient("test")
+)
+@GrpcClientBean(
+    clazz = FactoryMethodAccessibleStub.class,
+    beanName = "accessibleStub",
+    client = @GrpcClient("test"))
+public class YourCustomConfiguration {
+
+    @Bean
+    FooService fooServiceBean(@Autowired TestServiceGrpc.TestServiceBlockingStub blockingStub) {
+        return new FooService(blockingStub);
+    }
+
+}
+
+@Service
+@AllArgsConsturtor
+public class BarService {
+
+    private FactoryMethodAccessibleStub accessibleStub;
+
+    public String receiveGreeting(String name) {
+        HelloRequest request = HelloRequest.newBuilder()
+                .setName(name)
+                .build();
+        return accessibleStub.sayHello(request).getMessage();
+    }
+
+}
+````
 
 ### GrpcChannelConfigurer
 
@@ -151,34 +203,48 @@ The following examples demonstrate how to use annotations to create a global cli
 
 ````java
 @Configuration
-public class ThirdPartyInterceptorConfig {}
+public class GlobalInterceptorConfiguration {
 
-    @GrpcGlobalServerInterceptor
-    LogGrpcInterceptor logServerInterceptor() {
+    @GrpcGlobalClientInterceptor
+    LogGrpcInterceptor logClientInterceptor() {
         return new LogGrpcInterceptor();
     }
 
 }
 ````
 
-This variant is very handy if you wish to add third-party interceptors to the global scope.
+The following example demonstrates creation via `GlobalClientInterceptorConfigurer`
+
+````java
+@Configuration
+public class GlobalInterceptorConfiguration {
+
+    @Bean
+    GlobalClientInterceptorConfigurer globalClientInterceptorConfigurer() {
+        interceptors -> interceptors.add(new LogGrpcInterceptor());
+    }
+
+}
+````
+
+These variant are very handy if you wish to add third-party interceptors to the global scope.
 
 For your own interceptor implementations you can achieve the same result by adding the annotation to the class itself:
 
 ````java
-@GrpcGlobalServerInterceptor
-public class LogGrpcInterceptor implements ServerInterceptor {
+@GrpcGlobalClientInterceptor
+public class LogGrpcInterceptor implements ClientInterceptor {
 
     private static final Logger log = LoggerFactory.getLogger(LogGrpcInterceptor.class);
 
     @Override
-    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
-            ServerCall<ReqT, RespT> serverCall,
-            Metadata metadata,
-            ServerCallHandler<ReqT, RespT> serverCallHandler) {
+    public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+            final MethodDescriptor<ReqT, RespT> method,
+            final CallOptions callOptions,
+            final Channel next) {
 
-        log.info(serverCall.getMethodDescriptor().getFullMethodName());
-        return serverCallHandler.startCall(serverCall, metadata);
+        log.info(method.getFullMethodName());
+        return next.newCall(method, callOptions);
     }
 
 }
@@ -267,6 +333,7 @@ you have to define it via spring context (unless you wish to use `static`).
 - [Getting Started](getting-started.md)
 - *Configuration*
 - [Security](security.md)
+- [Tests with Grpc-Stubs](testing.md)
 
 ----------
 

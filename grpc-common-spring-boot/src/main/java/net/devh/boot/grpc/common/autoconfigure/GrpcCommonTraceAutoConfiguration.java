@@ -28,9 +28,20 @@ import org.springframework.context.annotation.Configuration;
 import brave.Tracing;
 import brave.grpc.GrpcTracing;
 
+/**
+ * The configuration containing the common grpc tracing setup.
+ *
+ * <p>
+ * Can be disabled using {@code spring.sleuth.grpc.enabled=false}.
+ * </p>
+ *
+ * <p>
+ * Should run after {@link BraveAutoConfiguration} if present to ensure the required beans exist.
+ * </p>
+ */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty(value = "spring.sleuth.grpc.enabled", matchIfMissing = true)
-@AutoConfigureAfter(BraveAutoConfiguration.class)
+@AutoConfigureAfter(name = "org.springframework.cloud.sleuth.autoconfig.brave.BraveAutoConfiguration")
 @ConditionalOnClass(value = {Tracing.class, GrpcTracing.class})
 public class GrpcCommonTraceAutoConfiguration {
 

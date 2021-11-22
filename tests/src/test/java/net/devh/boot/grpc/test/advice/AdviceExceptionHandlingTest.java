@@ -26,6 +26,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,14 +42,15 @@ import io.grpc.Metadata;
 import io.grpc.Status;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.advice.GrpcAdviceExceptionHandler;
-import net.devh.boot.grpc.server.advice.GrpcAdviceExceptionListener;
 import net.devh.boot.grpc.server.autoconfigure.GrpcAdviceAutoConfiguration;
+import net.devh.boot.grpc.server.error.GrpcExceptionListener;
 import net.devh.boot.grpc.test.config.BaseAutoConfiguration;
 import net.devh.boot.grpc.test.config.GrpcAdviceConfig;
-import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceWithMetadata.FirstLevelException;
-import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceWithMetadata.MyRootRuntimeException;
-import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceWithMetadata.SecondLevelException;
-import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestAdviceWithMetadata.StatusMappingException;
+import net.devh.boot.grpc.test.config.GrpcAdviceConfig.FirstLevelException;
+import net.devh.boot.grpc.test.config.GrpcAdviceConfig.LocationToThrow;
+import net.devh.boot.grpc.test.config.GrpcAdviceConfig.MyRootRuntimeException;
+import net.devh.boot.grpc.test.config.GrpcAdviceConfig.SecondLevelException;
+import net.devh.boot.grpc.test.config.GrpcAdviceConfig.StatusMappingException;
 import net.devh.boot.grpc.test.config.GrpcAdviceConfig.TestGrpcAdviceService;
 import net.devh.boot.grpc.test.config.InProcessConfiguration;
 import net.devh.boot.grpc.test.util.LoggerTestUtil;
@@ -69,6 +72,7 @@ import net.devh.boot.grpc.test.util.LoggerTestUtil;
 @DirtiesContext
 class AdviceExceptionHandlingTest extends AbstractSimpleServerClientTest {
 
+
     private ListAppender<ILoggingEvent> loggingEventListAppender;
 
     @Autowired
@@ -76,60 +80,89 @@ class AdviceExceptionHandlingTest extends AbstractSimpleServerClientTest {
 
     @BeforeEach
     void setup() {
-        loggingEventListAppender = LoggerTestUtil.getListAppenderForClasses(
-                GrpcAdviceExceptionListener.class,
+        this.loggingEventListAppender = LoggerTestUtil.getListAppenderForClasses(
+                GrpcExceptionListener.class,
                 GrpcAdviceExceptionHandler.class);
     }
 
+
     @Test
-    @DirtiesContext
-    void testThrownIllegalArgumentException_IsMappedAsStatus() {
-
-        IllegalArgumentException exceptionToMap = new IllegalArgumentException("Trigger Advice");
-        testGrpcAdviceService.setExceptionToSimulate(exceptionToMap);
-        Status expectedStatus = Status.INVALID_ARGUMENT.withDescription(exceptionToMap.getMessage());
-        Metadata metadata = new Metadata();
-
-        testGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+    void testOne() {
+        testThrownIllegalArgumentException_IsMappedAsStatus(LocationToThrow.METHOD);
     }
 
-    @Test
-    @DirtiesContext
-    void testThrownAccessControlException_IsMappedAsThrowable() {
+    @ParameterizedTest
+    @EnumSource(LocationToThrow.class)
+    void testThrownIllegalArgumentException_IsMappedAsStatus(final LocationToThrow location) {
 
-        AccessControlException exceptionToMap = new AccessControlException("Trigger Advice");
-        testGrpcAdviceService.setExceptionToSimulate(exceptionToMap);
-        Status expectedStatus = Status.UNKNOWN;
-        Metadata metadata = new Metadata();
+        final String message = "Trigger Advice";
+        this.testGrpcAdviceService.setExceptionToSimulate(() -> new IllegalArgumentException(message));
+        this.testGrpcAdviceService.setThrowLocation(location);
 
-        testGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+        final Status expectedStatus = Status.INVALID_ARGUMENT.withDescription(message);
+        final Metadata metadata = new Metadata();
+
+        if (!location.isForStreamingOnly()) {
+            testUnaryGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+        }
+
+        testStreamingGrpcCallAndVerifyMappedException(expectedStatus, metadata);
     }
 
-    @Test
-    @DirtiesContext
-    void testThrownClassCastException_IsMappedAsStatusRuntimeExceptionAndWithMetadata() {
+    @ParameterizedTest
+    @EnumSource(value = LocationToThrow.class, names = {"METHOD", "RESPONSE_OBSERVER"})
+    void testThrownAccessControlException_IsMappedAsThrowable(final LocationToThrow location) {
 
-        ClassCastException exceptionToMap = new ClassCastException("Casting with classes failed.");
-        testGrpcAdviceService.setExceptionToSimulate(exceptionToMap);
-        Status expectedStatus = Status.FAILED_PRECONDITION.withDescription(exceptionToMap.getMessage());
-        Metadata metadata = GrpcMetaDataUtils.createExpectedAsciiHeader();
+        this.testGrpcAdviceService.setExceptionToSimulate(() -> new AccessControlException("Trigger Advice"));
+        this.testGrpcAdviceService.setThrowLocation(location);
 
-        testGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+        final Status expectedStatus = Status.UNKNOWN;
+        final Metadata metadata = new Metadata();
+
+        if (!location.isForStreamingOnly()) {
+            testUnaryGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+        }
+
+        testStreamingGrpcCallAndVerifyMappedException(expectedStatus, metadata);
     }
 
-    @Test
-    @DirtiesContext
-    void testThrownAccountExpiredException_IsNotMappedAndResultsInInvocationException() {
+    @ParameterizedTest
+    @EnumSource(value = LocationToThrow.class, names = {"METHOD", "RESPONSE_OBSERVER"})
+    void testThrownClassCastException_IsMappedAsStatusRuntimeExceptionAndWithMetadata(final LocationToThrow location) {
 
-        AccountExpiredException exceptionToMap =
-                new AccountExpiredException("Trigger Advice"); // not mapped in GrpcAdviceConfig
-        testGrpcAdviceService.setExceptionToSimulate(exceptionToMap);
-        Status expectedStatus =
+        final String message = "Casting with classes failed.";
+        this.testGrpcAdviceService.setExceptionToSimulate(() -> new ClassCastException(message));
+        this.testGrpcAdviceService.setThrowLocation(location);
+
+        final Status expectedStatus = Status.FAILED_PRECONDITION.withDescription(message);
+        final Metadata metadata = GrpcMetaDataUtils.createExpectedAsciiHeader();
+
+        if (!location.isForStreamingOnly()) {
+            testUnaryGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+        }
+
+        testStreamingGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = LocationToThrow.class, names = {"METHOD", "RESPONSE_OBSERVER"})
+    void testThrownAccountExpiredException_IsNotMappedAndResultsInInvocationException(final LocationToThrow location) {
+
+        // not mapped in GrpcAdviceConfig
+        this.testGrpcAdviceService.setExceptionToSimulate(() -> new AccountExpiredException("Trigger Advice"));
+        this.testGrpcAdviceService.setThrowLocation(location);
+
+        final Status expectedStatus =
                 Status.INTERNAL.withDescription("There was a server error trying to handle an exception");
-        Metadata metadata = new Metadata();
+        final Metadata metadata = new Metadata();
 
-        testGrpcCallAndVerifyMappedException(expectedStatus, metadata);
-        assertThat(loggingEventListAppender.list)
+        if (!location.isForStreamingOnly()) {
+            testUnaryGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+        }
+
+        testStreamingGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+
+        assertThat(this.loggingEventListAppender.list)
                 .extracting(ILoggingEvent::getMessage, ILoggingEvent::getLevel)
                 .contains(Tuple.tuple("Exception caught during gRPC execution: ", Level.DEBUG))
                 .contains(Tuple.tuple(
@@ -137,31 +170,42 @@ class AdviceExceptionHandlingTest extends AbstractSimpleServerClientTest {
                         Level.ERROR));
     }
 
-    @Test
-    @DirtiesContext
-    void testThrownFirstLevelException_IsMappedAsStatusExceptionWithMetadata() {
+    @ParameterizedTest
+    @EnumSource(value = LocationToThrow.class, names = {"METHOD", "RESPONSE_OBSERVER"})
+    void testThrownFirstLevelException_IsMappedAsStatusExceptionWithMetadata(final LocationToThrow location) {
 
-        FirstLevelException exceptionToMap = new FirstLevelException("Trigger Advice");
-        testGrpcAdviceService.setExceptionToSimulate(exceptionToMap);
-        Status expectedStatus = Status.NOT_FOUND.withDescription(exceptionToMap.getMessage());
-        Metadata metadata = GrpcMetaDataUtils.createExpectedAsciiHeader();
+        final String message = "Trigger Advice";
+        this.testGrpcAdviceService.setExceptionToSimulate(() -> new FirstLevelException(message));
+        this.testGrpcAdviceService.setThrowLocation(location);
 
-        testGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+        final Status expectedStatus = Status.NOT_FOUND.withDescription(message);
+        final Metadata metadata = GrpcMetaDataUtils.createExpectedAsciiHeader();
+
+        if (!location.isForStreamingOnly()) {
+            testUnaryGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+        }
+
+        testStreamingGrpcCallAndVerifyMappedException(expectedStatus, metadata);
     }
 
-    @Test
-    @DirtiesContext
-    void testThrownStatusMappingException_IsResolvedAsInternalServerError() {
+    @ParameterizedTest
+    @EnumSource(value = LocationToThrow.class, names = {"METHOD", "RESPONSE_OBSERVER"})
+    void testThrownStatusMappingException_IsResolvedAsInternalServerError(final LocationToThrow location) {
 
-        StatusMappingException exceptionToMap = new StatusMappingException("Trigger Advice");
-        testGrpcAdviceService.setExceptionToSimulate(exceptionToMap);
-        Status expectedStatus =
+        this.testGrpcAdviceService.setExceptionToSimulate(() -> new StatusMappingException("Trigger Advice"));
+        this.testGrpcAdviceService.setThrowLocation(location);
+
+        final Status expectedStatus =
                 Status.INTERNAL.withDescription("There was a server error trying to handle an exception");
-        Metadata metadata = new Metadata();
+        final Metadata metadata = new Metadata();
 
-        testGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+        if (!location.isForStreamingOnly()) {
+            testUnaryGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+        }
 
-        assertThat(loggingEventListAppender.list)
+        testStreamingGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+
+        assertThat(this.loggingEventListAppender.list)
                 .extracting(ILoggingEvent::getMessage, ILoggingEvent::getLevel)
                 .contains(Tuple.tuple("Exception caught during gRPC execution: ", Level.DEBUG))
                 .contains(Tuple.tuple(
@@ -169,34 +213,41 @@ class AdviceExceptionHandlingTest extends AbstractSimpleServerClientTest {
                         Level.ERROR));
     }
 
-    @Test
-    @DirtiesContext
-    void testThrownRootDepth_IsMappedCorrectlyWithRootException() {
+    @ParameterizedTest
+    @EnumSource(value = LocationToThrow.class, names = {"METHOD", "RESPONSE_OBSERVER"})
+    void testThrownRootDepth_IsMappedCorrectlyWithRootException(final LocationToThrow location) {
 
-        MyRootRuntimeException rootRuntimeException = new MyRootRuntimeException("root exception triggered.");
+        final String message = "root exception triggered.";
+        this.testGrpcAdviceService.setExceptionToSimulate(() -> new MyRootRuntimeException(message));
+        this.testGrpcAdviceService.setThrowLocation(location);
 
-        testGrpcAdviceService.setExceptionToSimulate(rootRuntimeException);
-        Status expectedStatus = Status.DEADLINE_EXCEEDED.withDescription(rootRuntimeException.getMessage());
-        Metadata metadata = new Metadata();
+        final Status expectedStatus = Status.DEADLINE_EXCEEDED.withDescription(message);
+        final Metadata metadata = new Metadata();
 
-        testGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+        if (!location.isForStreamingOnly()) {
+            testUnaryGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+        }
+
+        testStreamingGrpcCallAndVerifyMappedException(expectedStatus, metadata);
     }
 
-    @Test
-    @DirtiesContext
-    void testThrownSecondLevenDepth_IsMappedCorrectlyWithSecondLevelException() {
+    @ParameterizedTest
+    @EnumSource(value = LocationToThrow.class, names = {"METHOD", "RESPONSE_OBSERVER"})
+    void testThrownSecondLevenDepth_IsMappedCorrectlyWithSecondLevelException(final LocationToThrow location) {
 
-        SecondLevelException secondLevelException =
-                new SecondLevelException("level under first level and second level under root triggered.");
+        final String message = "level under first level and second level under root triggered.";
+        this.testGrpcAdviceService.setExceptionToSimulate(() -> new SecondLevelException(message));
+        this.testGrpcAdviceService.setThrowLocation(location);
 
-        testGrpcAdviceService.setExceptionToSimulate(secondLevelException);
-        Status expectedStatus = Status.ABORTED.withDescription(secondLevelException.getMessage());
-        Metadata metadata = new Metadata();
+        final Status expectedStatus = Status.ABORTED.withDescription(message);
+        final Metadata metadata = new Metadata();
 
-        testGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+        if (!location.isForStreamingOnly()) {
+            testUnaryGrpcCallAndVerifyMappedException(expectedStatus, metadata);
+        }
+
+        testStreamingGrpcCallAndVerifyMappedException(expectedStatus, metadata);
     }
-
-
 
     @BeforeAll
     public static void beforeAll() {
