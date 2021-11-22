@@ -184,7 +184,7 @@ public class TestServiceImpl extends TestServiceImplBase {
     protected Authentication assertSameAuthenticatedGrcContextOnly(final String method, final Authentication expected,
             final Context context) {
         return assertSameAuthenticated(method, expected,
-                AuthenticatingServerInterceptor.AUTHENTICATION_CONTEXT_KEY.get(context));
+                AuthenticatingServerInterceptor.SECURITY_CONTEXT_KEY.get(context).getAuthentication());
     }
 
     protected Authentication assertSameAuthenticated(final String method, final Authentication expected) {

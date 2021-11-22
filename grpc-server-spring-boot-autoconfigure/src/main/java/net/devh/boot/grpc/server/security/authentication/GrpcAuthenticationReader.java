@@ -26,10 +26,15 @@ import org.springframework.security.core.AuthenticationException;
 
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
+import io.grpc.Status;
 
 /**
  * Reads the authentication data from the given {@link ServerCall} and {@link Metadata}. The returned
  * {@link Authentication} is not yet validated and needs to be passed to an {@link AuthenticationManager}.
+ *
+ * <p>
+ * This is similar to the {@code org.springframework.security.web.authentication.AuthenticationConverter}.
+ * </p>
  *
  * <p>
  * <b>Note:</b> The authentication manager needs a corresponding {@link AuthenticationProvider} to actually verify the
@@ -47,7 +52,9 @@ public interface GrpcAuthenticationReader {
      * <p>
      * <b>Note:</b> Implementations are free to throw an {@link AuthenticationException} if no credentials could be
      * found in the call. If an exception is thrown by an implementation then the authentication attempt should be
-     * considered as failed and no subsequent {@link GrpcAuthenticationReader}s should be called.
+     * considered as failed and no subsequent {@link GrpcAuthenticationReader}s should be called. Additionally, the call
+     * will fail as {@link Status#UNAUTHENTICATED}. If the call instead returns {@code null}, then the call processing
+     * will proceed unauthenticated.
      * </p>
      *
      * @param call The call to get that send the request.
