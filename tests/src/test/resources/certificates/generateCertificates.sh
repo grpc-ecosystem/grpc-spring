@@ -14,5 +14,5 @@ openssl pkcs12 -export -name server -in server.crt -inkey server.key -passout 'p
 openssl pkcs12 -export -name client1 -in client1.crt -inkey client1.key -passout 'pass:' -out client1.p12
 openssl pkcs12 -export -name client2 -in client2.crt -inkey client2.key -passout 'pass:' -out client2.p12
 
-# create trusted-clients.p12 and trusted-servers.p12 via keystore-explorer
+# create trusted-clients.p12 and trusted-servers.p12 via keystore-explorer and java 8
 echo "--- DONE ---"
