@@ -94,9 +94,9 @@ class GrpcServerLifecycleTest {
         // And we give it 5s to shutdown
         final GrpcServerLifecycle lifecycle =
                 new GrpcServerLifecycle(this.factory, ofMillis(5000), this.eventPublisher);
-        verify(this.eventPublisher).publishEvent(ArgumentMatchers.any(GrpcServerStartedEvent.class));
 
         lifecycle.start();
+        verify(this.eventPublisher).publishEvent(ArgumentMatchers.any(GrpcServerStartedEvent.class));
 
         assertFalse(server.isShutdown());
         assertFalse(server.isTerminated());
