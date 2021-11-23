@@ -48,7 +48,7 @@ public class MyEventListenerComponent {
 
     @EventListener
     public void onServerStarted(GrpcServerStartedEvent event) {
-        System.out.println("gRPC Server started, listening on address: {}, port: {}", address, port);
+        System.out.println("gRPC Server started, listening on address: " + event.getAddress() + ", port: " + event.getPort());
     }
 
 }
