@@ -35,6 +35,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.Mockito;
+import org.springframework.context.ApplicationEventPublisher;
 
 import com.google.protobuf.Empty;
 
@@ -62,6 +64,8 @@ class GrpcServerLifecycleWithCallsTest {
 
     private static ManagedChannel channel;
     private static TestServiceFutureStub stub;
+
+    private final ApplicationEventPublisher eventPublisher = Mockito.mock(ApplicationEventPublisher.class);
 
     @BeforeAll
     static void beforeAll() {
@@ -158,7 +162,8 @@ class GrpcServerLifecycleWithCallsTest {
 
         factory.addService(new GrpcServiceDefinition("service", WaitingTestService.class, service.bindService()));
 
-        final GrpcServerLifecycle lifecycle = new GrpcServerLifecycle(factory, gracefulShutdownTimeout);
+        final GrpcServerLifecycle lifecycle =
+                new GrpcServerLifecycle(factory, gracefulShutdownTimeout, this.eventPublisher);
         try {
             assertDoesNotThrow(() -> executuable.accept(service, lifecycle));
         } finally {
