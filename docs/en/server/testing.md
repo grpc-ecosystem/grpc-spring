@@ -25,6 +25,7 @@ Please refer to [Tests with Grpc-Stubs](../client/testing.md).
 - [Exception Handling](exception-handling.md)
 - [Contextual Data / Scoped Beans](contextual-data.md)
 - *Testing the Service*
+- [Server Events](events.md)
 - [Security](security.md)
 
 ## Introductory Words
@@ -372,6 +373,7 @@ For more information regarding `gRPCurl` please refer to their [official documen
 - [Exception Handling](exception-handling.md)
 - [Contextual Data / Scoped Beans](contextual-data.md)
 - *Testing the Service*
+- [Server Events](events.md)
 - [Security](security.md)
 
 ----------

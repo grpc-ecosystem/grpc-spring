@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -36,8 +37,13 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.ArgumentMatchers;
+import org.springframework.context.ApplicationEventPublisher;
 
 import io.grpc.Server;
+import net.devh.boot.grpc.server.event.GrpcServerShutdownEvent;
+import net.devh.boot.grpc.server.event.GrpcServerStartedEvent;
+import net.devh.boot.grpc.server.event.GrpcServerTerminatedEvent;
 
 /**
  * Tests for {@link GrpcServerLifecycle}.
@@ -45,13 +51,13 @@ import io.grpc.Server;
 class GrpcServerLifecycleTest {
 
     private final GrpcServerFactory factory = mock(GrpcServerFactory.class);
+    private final ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
 
     @BeforeEach
     void beforeEach() {
-        reset(this.factory);
+        reset(this.factory, this.eventPublisher);
         when(this.factory.getAddress()).thenReturn("test");
         when(this.factory.getPort()).thenReturn(-1);
-
     }
 
     @Test
@@ -61,15 +67,18 @@ class GrpcServerLifecycleTest {
         when(this.factory.createServer()).thenReturn(server);
 
         // But we won't wait
-        final GrpcServerLifecycle lifecycle = new GrpcServerLifecycle(this.factory, ZERO);
+        final GrpcServerLifecycle lifecycle = new GrpcServerLifecycle(this.factory, ZERO, this.eventPublisher);
 
         lifecycle.start();
+        verify(this.eventPublisher).publishEvent(ArgumentMatchers.any(GrpcServerStartedEvent.class));
 
         assertFalse(server.isShutdown());
         assertFalse(server.isTerminated());
 
         // So the shutdown should complete near instantly
         assertTimeoutPreemptively(ofMillis(100), (Executable) lifecycle::stop);
+        verify(this.eventPublisher).publishEvent(ArgumentMatchers.any(GrpcServerShutdownEvent.class));
+        verify(this.eventPublisher).publishEvent(ArgumentMatchers.any(GrpcServerTerminatedEvent.class));
 
         assertTrue(server.isShutdown());
         assertTrue(server.isTerminated());
@@ -83,7 +92,9 @@ class GrpcServerLifecycleTest {
         when(this.factory.createServer()).thenReturn(server);
 
         // And we give it 5s to shutdown
-        final GrpcServerLifecycle lifecycle = new GrpcServerLifecycle(this.factory, ofMillis(5000));
+        final GrpcServerLifecycle lifecycle =
+                new GrpcServerLifecycle(this.factory, ofMillis(5000), this.eventPublisher);
+        verify(this.eventPublisher).publishEvent(ArgumentMatchers.any(GrpcServerStartedEvent.class));
 
         lifecycle.start();
 
@@ -92,6 +103,8 @@ class GrpcServerLifecycleTest {
 
         // So it should finish within 5.1 seconds
         assertTimeout(ofMillis(5100), (Executable) lifecycle::stop);
+        verify(this.eventPublisher).publishEvent(ArgumentMatchers.any(GrpcServerShutdownEvent.class));
+        verify(this.eventPublisher).publishEvent(ArgumentMatchers.any(GrpcServerTerminatedEvent.class));
 
         assertTrue(server.isShutdown());
         assertTrue(server.isTerminated());
@@ -106,9 +119,10 @@ class GrpcServerLifecycleTest {
         when(this.factory.createServer()).thenReturn(server);
 
         // And we give it infinite time to shutdown
-        final GrpcServerLifecycle lifecycle = new GrpcServerLifecycle(this.factory, ofSeconds(-1));
+        final GrpcServerLifecycle lifecycle = new GrpcServerLifecycle(this.factory, ofSeconds(-1), this.eventPublisher);
 
         lifecycle.start();
+        verify(this.eventPublisher).publishEvent(ArgumentMatchers.any(GrpcServerStartedEvent.class));
 
         assertFalse(server.isShutdown());
         assertFalse(server.isTerminated());
@@ -116,6 +130,8 @@ class GrpcServerLifecycleTest {
         final long start = System.currentTimeMillis();
 
         lifecycle.stop();
+        verify(this.eventPublisher).publishEvent(ArgumentMatchers.any(GrpcServerShutdownEvent.class));
+        verify(this.eventPublisher).publishEvent(ArgumentMatchers.any(GrpcServerTerminatedEvent.class));
 
         final long duration = System.currentTimeMillis() - start;
         // We waited for the entire duration

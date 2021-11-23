@@ -19,6 +19,7 @@ This section describes how you can handle exceptions inside GrpcService layer wi
 - [Contextual Data](contextual-data.md)
 - *Exception Handling*
 - [Testing the Service](testing.md)
+- [Server Events](events.md)
 - [Security](security.md)
 
 ## Proper exception handling
@@ -112,6 +113,7 @@ returned:
 - [Contextual Data](contextual-data.md)
 - *Exception Handling*
 - [Testing the Service](testing.md)
+- [Server Events](events.md)
 - [Security](security.md)
 
 ----------

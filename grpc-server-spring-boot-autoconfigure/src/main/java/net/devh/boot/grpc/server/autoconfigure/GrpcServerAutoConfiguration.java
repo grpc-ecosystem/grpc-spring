@@ -26,6 +26,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -49,7 +50,6 @@ import net.devh.boot.grpc.server.service.GrpcServiceDiscoverer;
  * The auto configuration used by Spring-Boot that contains all beans to run a grpc server/service.
  *
  * @author Michael (yidongnan@gmail.com)
- * @since 5/17/16
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
@@ -130,8 +130,9 @@ public class GrpcServerAutoConfiguration {
     @Bean
     public GrpcServerLifecycle grpcServerLifecycle(
             final GrpcServerFactory factory,
-            final GrpcServerProperties properties) {
-        return new GrpcServerLifecycle(factory, properties.getShutdownGracePeriod());
+            final GrpcServerProperties properties,
+            final ApplicationEventPublisher eventPublisher) {
+        return new GrpcServerLifecycle(factory, properties.getShutdownGracePeriod(), eventPublisher);
     }
 
 }

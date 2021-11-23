@@ -22,6 +22,7 @@ We strongly recommend enabling at least transport layer security.
 - [Exception Handling](exception-handling.md)
 - [Contextual Data / Scoped Beans](contextual-data.md)
 - [Testing the Service](testing.md)
+- [Server Events](events.md)
 - *Security*
 
 ## Enable Transport Layer Security
@@ -283,6 +284,7 @@ public void methodX(Request request, StreamObserver<Response> responseObserver) 
 - [Exception Handling](exception-handling.md)
 - [Contextual Data / Scoped Beans](contextual-data.md)
 - [Testing the Service](testing.md)
+- [Server Events](events.md)
 - *Security*
 
 ----------

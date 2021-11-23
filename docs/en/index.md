@@ -15,6 +15,7 @@ customization you need for your project.
   - [Exception Handling](server/exception-handling.md)
   - [Contextual Data / Scoped Beans](server/contextual-data.md)
   - [Testing the Service](server/testing.md)
+  - [Server Events](server/events.md)
   - [Security](server/security.md)
 - Client
   - [Getting Started](client/getting-started.md)
