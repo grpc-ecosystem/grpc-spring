@@ -27,7 +27,7 @@ import net.devh.boot.grpc.server.serverfactory.GrpcServerLifecycle;
  *
  * @see Server#shutdown()
  * @see Server#isShutdown()
- * 
+ *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 public class GrpcServerShutdownEvent extends GrpcServerLifecycleEvent {
@@ -35,7 +35,7 @@ public class GrpcServerShutdownEvent extends GrpcServerLifecycleEvent {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Creates a new GrpcServerStoppingEvent.
+     * Creates a new GrpcServerShutdownEvent.
      *
      * @param lifecyle The lifecycle that caused this event.
      * @param clock The clock used to determine the timestamp.
@@ -50,7 +50,7 @@ public class GrpcServerShutdownEvent extends GrpcServerLifecycleEvent {
     }
 
     /**
-     * Creates a new GrpcServerStartedEvent.
+     * Creates a new GrpcServerShutdownEvent.
      *
      * @param lifecyle The lifecycle that caused this event.
      * @param server The server related to this event.

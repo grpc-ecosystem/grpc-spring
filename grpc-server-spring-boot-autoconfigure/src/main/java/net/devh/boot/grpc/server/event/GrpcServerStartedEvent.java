@@ -28,7 +28,7 @@ import net.devh.boot.grpc.server.serverfactory.GrpcServerLifecycle;
  * This event will be fired after the server has been started.
  *
  * @see Server#start()
- * 
+ *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 public class GrpcServerStartedEvent extends GrpcServerLifecycleEvent {

@@ -26,7 +26,7 @@ import net.devh.boot.grpc.server.serverfactory.GrpcServerLifecycle;
  * This event will be fired after the server completed to shutdown. The server will no longer process requests.
  *
  * @see Server#isTerminated()
- * 
+ *
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 public class GrpcServerTerminatedEvent extends GrpcServerLifecycleEvent {
@@ -34,7 +34,7 @@ public class GrpcServerTerminatedEvent extends GrpcServerLifecycleEvent {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Creates a new GrpcServerStoppingEvent.
+     * Creates a new GrpcServerTerminatedEvent.
      *
      * @param lifecyle The lifecycle that caused this event.
      * @param clock The clock used to determine the timestamp.
@@ -49,7 +49,7 @@ public class GrpcServerTerminatedEvent extends GrpcServerLifecycleEvent {
     }
 
     /**
-     * Creates a new GrpcServerStartedEvent.
+     * Creates a new GrpcServerTerminatedEvent.
      *
      * @param lifecyle The lifecycle that caused this event.
      * @param server The server related to this event.
