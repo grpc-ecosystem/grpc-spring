@@ -20,6 +20,7 @@ package net.devh.boot.grpc.client.config;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
+import java.security.KeyStore;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -40,6 +41,7 @@ import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import net.devh.boot.grpc.common.security.KeyStoreUtils;
 
 /**
  * The channel properties for a single named gRPC channel or service reference.
@@ -588,6 +590,95 @@ public class GrpcChannelProperties {
 
         // --------------------------------------------------
 
+        private static final String DEFAULT_KEY_STORE_FORMAT = KeyStoreUtils.FORMAT_AUTODETECT;
+        private String keyStoreFormat = null;
+
+        /**
+         * The format of the {@link #keyStore}.
+         *
+         * <p>
+         * Possible values includes:
+         * </p>
+         * <ul>
+         * <li>{@link KeyStoreUtils#FORMAT_AUTODETECT AUTODETECT} (default)</li>
+         * <li>{@code JKS} ({@code .jks})</li>
+         * <li>{@code PKCS12} ({@code .p12})</li>
+         * <li>any supported {@link KeyStore} format</li>
+         * <li>Fallback to {@code KeyStore#getDefaultType()}</li>
+         * </ul>
+         *
+         * @return The key store format to use.
+         */
+        public String getKeyStoreFormat() {
+            return this.keyStoreFormat == null ? DEFAULT_KEY_STORE_FORMAT : this.keyStoreFormat;
+        }
+
+        /**
+         * The format of the {@link #keyStore}.
+         *
+         * <p>
+         * Possible values includes:
+         * </p>
+         * <ul>
+         * <li>{@link KeyStoreUtils#FORMAT_AUTODETECT AUTODETECT} (default)</li>
+         * <li>{@code JKS} ({@code .jks})</li>
+         * <li>{@code PKCS12} ({@code .p12})</li>
+         * <li>any supported {@link KeyStore} format</li>
+         * <li>Fallback to {@code KeyStore#getDefaultType()}</li>
+         * </ul>
+         *
+         * @param keyStoreFormat The key store format to use
+         */
+        public void setKeyStoreFormat(final String keyStoreFormat) {
+            this.keyStoreFormat = keyStoreFormat;
+        }
+
+        // --------------------------------------------------
+
+        private Resource keyStore = null;
+
+        /**
+         * The resource containing the key store. Cannot be used in conjunction with {@link #privateKey}.
+         *
+         * @return The key store resource or null.
+         */
+        public Resource getKeyStore() {
+            return this.keyStore;
+        }
+
+        /**
+         * The resource containing the key store. Cannot be used in conjunction with {@link #privateKey}.
+         *
+         * @param keyStore The key store resource.
+         */
+        public void setKeyStore(final Resource keyStore) {
+            this.keyStore = keyStore;
+        }
+
+        // --------------------------------------------------
+
+        private String keyStorePassword = null;
+
+        /**
+         * Password for the key store. Use is combination with {@link #keyStore}.
+         *
+         * @return The password for the key store or null.
+         */
+        public String getKeyStorePassword() {
+            return this.keyStorePassword;
+        }
+
+        /**
+         * Password for the key store. Use is combination with {@link #keyStore}.
+         *
+         * @param keyStorePassword The password for the key store.
+         */
+        public void setKeyStorePassword(final String keyStorePassword) {
+            this.keyStorePassword = keyStorePassword;
+        }
+
+        // --------------------------------------------------
+
         private Resource trustCertCollection = null;
 
         /**
@@ -612,6 +703,96 @@ public class GrpcChannelProperties {
          */
         public void setTrustCertCollection(final Resource trustCertCollection) {
             this.trustCertCollection = trustCertCollection;
+        }
+
+        // --------------------------------------------------
+
+        private String trustStoreFormat = null;
+
+        /**
+         * The format of the {@link #trustStore}.
+         *
+         * <p>
+         * Possible values includes:
+         * </p>
+         * <ul>
+         * <li>{@link KeyStoreUtils#FORMAT_AUTODETECT AUTODETECT} (default)</li>
+         * <li>{@code JKS} ({@code .jks})</li>
+         * <li>{@code PKCS12} ({@code .p12})</li>
+         * <li>any supported {@link KeyStore} format</li>
+         * <li>Fallback to {@code KeyStore#getDefaultType()}</li>
+         * </ul>
+         *
+         * @return The trust store format to use.
+         */
+        public String getTrustStoreFormat() {
+            return this.trustStoreFormat == null ? DEFAULT_KEY_STORE_FORMAT : this.trustStoreFormat;
+        }
+
+        /**
+         * The format of the {@link #trustStore}.
+         *
+         * <p>
+         * Possible values includes:
+         * </p>
+         * <ul>
+         * <li>{@link KeyStoreUtils#FORMAT_AUTODETECT AUTODETECT} (default)</li>
+         * <li>{@code JKS} ({@code .jks})</li>
+         * <li>{@code PKCS12} ({@code .p12})</li>
+         * <li>any supported {@link KeyStore} format</li>
+         * <li>Fallback to {@code KeyStore#getDefaultType()}</li>
+         * </ul>
+         *
+         * @param trustStoreFormat The trust store format to use.
+         */
+        public void setTrustStoreFormat(final String trustStoreFormat) {
+            this.trustStoreFormat = trustStoreFormat;
+        }
+
+        // --------------------------------------------------
+
+        private Resource trustStore = null;
+
+        /**
+         * The resource containing the trust store. Cannot be used in conjunction with {@link #trustCertCollection}. If
+         * neither this nor {@link #trustCertCollection} is set then the system's trust store will be used.
+         *
+         * @return The trust store resource or null.
+         */
+        public Resource getTrustStore() {
+            return this.trustStore;
+        }
+
+        /**
+         * The resource containing the trust store. Cannot be used in conjunction with {@link #trustCertCollection}. If
+         * neither this nor {@link #trustCertCollection} is set then the system's trust store will be used.
+         *
+         * @param trustStore The trust store resource.
+         */
+        public void setTrustStore(final Resource trustStore) {
+            this.trustStore = trustStore;
+        }
+
+        // --------------------------------------------------
+
+        private String trustStorePassword = null;
+
+        /**
+         * Password for the trust store. Use is combination with {@link #trustStore}.
+         *
+         * @return The password for the trust store or null.
+         */
+        public String getTrustStorePassword() {
+            return this.trustStorePassword;
+        }
+
+        /**
+         * Password for the trust store. Use is combination with {@link #trustStore}.
+         *
+         * @param trustStorePassword The password for the trust store.
+         */
+        public void setTrustStorePassword(final String trustStorePassword) {
+            this.trustStorePassword = trustStorePassword;
         }
 
         // --------------------------------------------------
@@ -723,8 +904,26 @@ public class GrpcChannelProperties {
             if (this.privateKeyPassword == null) {
                 this.privateKeyPassword = config.privateKeyPassword;
             }
+            if (this.keyStoreFormat == null) {
+                this.keyStoreFormat = config.keyStoreFormat;
+            }
+            if (this.keyStore == null) {
+                this.keyStore = config.keyStore;
+            }
+            if (this.keyStorePassword == null) {
+                this.keyStorePassword = config.keyStorePassword;
+            }
             if (this.trustCertCollection == null) {
                 this.trustCertCollection = config.trustCertCollection;
+            }
+            if (this.trustStoreFormat == null) {
+                this.trustStoreFormat = config.trustStoreFormat;
+            }
+            if (this.trustStore == null) {
+                this.trustStore = config.trustStore;
+            }
+            if (this.trustStorePassword == null) {
+                this.trustStorePassword = config.trustStorePassword;
             }
             if (this.authorityOverride == null) {
                 this.authorityOverride = config.authorityOverride;
