@@ -6,8 +6,12 @@ This section describes how you can subscribe to events related to the grpc serve
 
 ## Table of Contents <!-- omit in toc -->
 
-- [A Word of Warning](#a-word-of-warning)
-- [grpcRequest Scope](#grpcrequest-scope)
+- [Event Overview](#event-overview)
+  - [GrpcServerLifecycleEvent](#grpcserverlifecycleevent)
+  - [GrpcServerStartedEvent](#grpcserverstartedevent)
+  - [GrpcServerShutdownEvent](#grpcservershutdownevent)
+  - [GrpcServerTerminatedEvent](#grpcserverterminatedevent)
+- [Subscribing to Events](#subscribing-to-events)
 
 ## Additional Topics <!-- omit in toc -->
 
