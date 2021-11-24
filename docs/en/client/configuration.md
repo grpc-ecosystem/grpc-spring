@@ -328,6 +328,13 @@ you have to define it via spring context (unless you wish to use `static`).
 > **Note:** `NameResolverProvider`s are registered gloablly, so might run into issues if you boot up two or more
 > applications simulataneosly in the same JVM (e.g. during tests).
 
+## HealthIndicator
+
+This library automatically provides a `grpcChannel` `HealthIndicator` (actuator/health) for all clients (shared).
+It will report the service as `OUT_OF_SERVICE` if any client has the `TRANSIENT_FAILURE` status.
+If you wish to exclude it and provide more specific `HealthIndicator`s,
+you can disable it by excluding the `GrpcClientHealthAutoConfiguration`
+
 ## Additional Topics <!-- omit in toc -->
 
 - [Getting Started](getting-started.md)
