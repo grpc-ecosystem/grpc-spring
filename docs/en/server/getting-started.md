@@ -47,9 +47,9 @@ We recommend splitting your project into 2-3 separate modules.
 
 ````xml
     <properties>
-        <protobuf.version>3.14.0</protobuf.version>
+        <protobuf.version>3.19.1</protobuf.version>
         <protobuf-plugin.version>0.6.1</protobuf-plugin.version>
-        <grpc.version>1.35.0</grpc.version>
+        <grpc.version>1.42.1</grpc.version>
     </properties>
 
     <dependencies>
@@ -77,7 +77,7 @@ We recommend splitting your project into 2-3 separate modules.
             <extension>
                 <groupId>kr.motd.maven</groupId>
                 <artifactId>os-maven-plugin</artifactId>
-                <version>1.6.2</version>
+                <version>1.7.0</version>
             </extension>
         </extensions>
 
@@ -109,9 +109,9 @@ We recommend splitting your project into 2-3 separate modules.
 ````gradle
 buildscript {
     ext {
-        protobufVersion = '3.14.0'
-        protobufPluginVersion = '0.8.14'
-        grpcVersion = '1.35.0'
+        protobufVersion = '3.19.1'
+        protobufPluginVersion = '0.8.18'
+        grpcVersion = '1.42.1'
     }
 }
 

@@ -20,12 +20,13 @@ package net.devh.boot.grpc.client.channelfactory;
 import static java.util.Objects.requireNonNull;
 import static net.devh.boot.grpc.common.util.GrpcUtils.DOMAIN_SOCKET_ADDRESS_SCHEME;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.TrustManagerFactory;
 
 import org.springframework.core.io.Resource;
 
@@ -40,6 +41,7 @@ import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 import net.devh.boot.grpc.client.config.NegotiationType;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
+import net.devh.boot.grpc.common.security.KeyStoreUtils;
 import net.devh.boot.grpc.common.util.GrpcUtils;
 
 /**
@@ -85,7 +87,9 @@ public class ShadedNettyChannelFactory extends AbstractChannelFactory<NettyChann
         }
     }
 
+
     @Override
+    // Keep this in sync with NettyChannelFactory#configureSecurity
     protected void configureSecurity(final NettyChannelBuilder builder, final String name) {
         final GrpcChannelProperties properties = getPropertiesFor(name);
 
@@ -101,28 +105,8 @@ public class ShadedNettyChannelFactory extends AbstractChannelFactory<NettyChann
             }
 
             final SslContextBuilder sslContextBuilder = GrpcSslContexts.forClient();
-
-            if (security.isClientAuthEnabled()) {
-                final Resource certificateChain =
-                        requireNonNull(security.getCertificateChain(), "certificateChain not configured");
-                final Resource privateKey = requireNonNull(security.getPrivateKey(), "privateKey not configured");
-                try (InputStream certificateChainStream = certificateChain.getInputStream();
-                        InputStream privateKeyStream = privateKey.getInputStream()) {
-                    sslContextBuilder.keyManager(certificateChainStream, privateKeyStream,
-                            security.getPrivateKeyPassword());
-                } catch (IOException | RuntimeException e) {
-                    throw new IllegalArgumentException("Failed to create SSLContext (PK/Cert)", e);
-                }
-            }
-
-            final Resource trustCertCollection = security.getTrustCertCollection();
-            if (trustCertCollection != null) {
-                try (InputStream trustCertCollectionStream = trustCertCollection.getInputStream()) {
-                    sslContextBuilder.trustManager(trustCertCollectionStream);
-                } catch (IOException | RuntimeException e) {
-                    throw new IllegalArgumentException("Failed to create SSLContext (TrustStore)", e);
-                }
-            }
+            configureProvidedClientCertificate(security, sslContextBuilder);
+            configureAcceptedServerCertificates(security, sslContextBuilder);
 
             if (security.getCiphers() != null && !security.getCiphers().isEmpty()) {
                 sslContextBuilder.ciphers(security.getCiphers());
@@ -141,11 +125,80 @@ public class ShadedNettyChannelFactory extends AbstractChannelFactory<NettyChann
     }
 
     /**
+     * Configures the client certificate provided by the ssl context.
+     *
+     * @param security The security configuration to use.
+     * @param sslContextBuilder The ssl context builder to configure.
+     */
+    // Keep this in sync with NettyChannelFactory#configureProvidedClientCertificate
+    protected static void configureProvidedClientCertificate(final Security security,
+            final SslContextBuilder sslContextBuilder) {
+        if (security.isClientAuthEnabled()) {
+            try {
+                final Resource privateKey = security.getPrivateKey();
+                final Resource keyStore = security.getKeyStore();
+
+                if (privateKey != null) {
+                    final Resource certificateChain =
+                            requireNonNull(security.getCertificateChain(), "certificateChain");
+                    final String privateKeyPassword = security.getPrivateKeyPassword();
+                    try (InputStream certificateChainStream = certificateChain.getInputStream();
+                            InputStream privateKeyStream = privateKey.getInputStream()) {
+                        sslContextBuilder.keyManager(certificateChainStream, privateKeyStream, privateKeyPassword);
+                    }
+
+                } else if (keyStore != null) {
+                    final KeyManagerFactory keyManagerFactory = KeyStoreUtils.loadKeyManagerFactory(
+                            security.getKeyStoreFormat(), keyStore, security.getKeyStorePassword());
+                    sslContextBuilder.keyManager(keyManagerFactory);
+
+                } else {
+                    throw new IllegalStateException("Neither privateKey nor keyStore configured");
+                }
+            } catch (final Exception e) {
+                throw new IllegalArgumentException("Failed to create SSLContext (PK/Cert)", e);
+            }
+        }
+    }
+
+    /**
+     * Configures the server certificates accepted by the ssl context.
+     *
+     * @param security The security configuration to use.
+     * @param sslContextBuilder The ssl context builder to configure.
+     */
+    // Keep this in sync with NettyChannelFactory#configureAcceptedServerCertificates
+    protected static void configureAcceptedServerCertificates(final Security security,
+            final SslContextBuilder sslContextBuilder) {
+        try {
+            final Resource trustCertCollection = security.getTrustCertCollection();
+            final Resource trustStore = security.getTrustStore();
+
+            if (trustCertCollection != null) {
+                try (InputStream trustCertCollectionStream = trustCertCollection.getInputStream()) {
+                    sslContextBuilder.trustManager(trustCertCollectionStream);
+                }
+
+            } else if (trustStore != null) {
+                final TrustManagerFactory trustManagerFactory = KeyStoreUtils.loadTrustManagerFactory(
+                        security.getTrustStoreFormat(), trustStore, security.getTrustStorePassword());
+                sslContextBuilder.trustManager(trustManagerFactory);
+
+            } else {
+                // Use system default
+            }
+        } catch (final Exception e) {
+            throw new IllegalArgumentException("Failed to create SSLContext (TrustStore)", e);
+        }
+    }
+
+    /**
      * Converts the given negotiation type to netty's negotiation type.
      *
      * @param negotiationType The negotiation type to convert.
      * @return The converted negotiation type.
      */
+    // Keep this in sync with NettyChannelFactory#of
     protected static io.grpc.netty.shaded.io.grpc.netty.NegotiationType of(final NegotiationType negotiationType) {
         switch (negotiationType) {
             case PLAINTEXT:

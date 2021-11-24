@@ -21,13 +21,14 @@ import static java.util.Objects.requireNonNull;
 import static net.devh.boot.grpc.common.util.GrpcUtils.DOMAIN_SOCKET_ADDRESS_PREFIX;
 import static net.devh.boot.grpc.server.config.GrpcServerProperties.ANY_IP_ADDRESS;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.TrustManagerFactory;
 
 import org.springframework.core.io.Resource;
 
@@ -39,6 +40,7 @@ import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerDomainSocketChannel;
 import io.netty.channel.unix.DomainSocketAddress;
 import io.netty.handler.ssl.SslContextBuilder;
+import net.devh.boot.grpc.common.security.KeyStoreUtils;
 import net.devh.boot.grpc.common.util.GrpcUtils;
 import net.devh.boot.grpc.server.config.ClientAuth;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
@@ -48,7 +50,6 @@ import net.devh.boot.grpc.server.config.GrpcServerProperties.Security;
  * Factory for netty based grpc servers.
  *
  * @author Michael (yidongnan@gmail.com)
- * @since 5/17/16
  */
 public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServerBuilder> {
 
@@ -81,17 +82,6 @@ public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServe
     }
 
     @Override
-    // Keep this in sync with ShadedNettyGrpcServerFactory#configureKeepAlive
-    protected void configureKeepAlive(final NettyServerBuilder builder) {
-        if (this.properties.isEnableKeepAlive()) {
-            builder.keepAliveTime(this.properties.getKeepAliveTime().toNanos(), TimeUnit.NANOSECONDS)
-                    .keepAliveTimeout(this.properties.getKeepAliveTimeout().toNanos(), TimeUnit.NANOSECONDS);
-        }
-        builder.permitKeepAliveTime(this.properties.getPermitKeepAliveTime().toNanos(), TimeUnit.NANOSECONDS)
-                .permitKeepAliveWithoutCalls(this.properties.isPermitKeepAliveWithoutCalls());
-    }
-
-    @Override
     // Keep this in sync with ShadedNettyGrpcServerFactory#configureConnectionLimits
     protected void configureConnectionLimits(final NettyServerBuilder builder) {
         if (this.properties.getMaxConnectionIdle() != null) {
@@ -106,35 +96,29 @@ public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServe
     }
 
     @Override
+    // Keep this in sync with ShadedNettyGrpcServerFactory#configureKeepAlive
+    protected void configureKeepAlive(final NettyServerBuilder builder) {
+        if (this.properties.isEnableKeepAlive()) {
+            builder.keepAliveTime(this.properties.getKeepAliveTime().toNanos(), TimeUnit.NANOSECONDS)
+                    .keepAliveTimeout(this.properties.getKeepAliveTimeout().toNanos(), TimeUnit.NANOSECONDS);
+        }
+        builder.permitKeepAliveTime(this.properties.getPermitKeepAliveTime().toNanos(), TimeUnit.NANOSECONDS)
+                .permitKeepAliveWithoutCalls(this.properties.isPermitKeepAliveWithoutCalls());
+    }
+
+
+    @Override
     // Keep this in sync with ShadedNettyGrpcServerFactory#configureSecurity
     protected void configureSecurity(final NettyServerBuilder builder) {
         final Security security = this.properties.getSecurity();
         if (security.isEnabled()) {
-            final Resource certificateChain =
-                    requireNonNull(security.getCertificateChain(), "certificateChain not configured");
-            final Resource privateKey = requireNonNull(security.getPrivateKey(), "privateKey not configured");
-            SslContextBuilder sslContextBuilder;
-            try (InputStream certificateChainStream = certificateChain.getInputStream();
-                    InputStream privateKeyStream = privateKey.getInputStream()) {
-                sslContextBuilder = GrpcSslContexts.forServer(certificateChainStream, privateKeyStream,
-                        security.getPrivateKeyPassword());
-            } catch (IOException | RuntimeException e) {
-                throw new IllegalArgumentException("Failed to create SSLContext (PK/Cert)", e);
-            }
+            // Provided server certificates
+            final SslContextBuilder sslContextBuilder = newServerSslContextBuilder(security);
 
-            if (security.getClientAuth() != ClientAuth.NONE) {
-                sslContextBuilder.clientAuth(of(security.getClientAuth()));
+            // Accepted client certificates
+            configureAcceptedClientCertificates(security, sslContextBuilder);
 
-                final Resource trustCertCollection = security.getTrustCertCollection();
-                if (trustCertCollection != null) {
-                    try (InputStream trustCertCollectionStream = trustCertCollection.getInputStream()) {
-                        sslContextBuilder.trustManager(trustCertCollectionStream);
-                    } catch (IOException | RuntimeException e) {
-                        throw new IllegalArgumentException("Failed to create SSLContext (TrustStore)", e);
-                    }
-                }
-            }
-
+            // Other configuration
             if (security.getCiphers() != null && !security.getCiphers().isEmpty()) {
                 sslContextBuilder.ciphers(security.getCiphers());
             }
@@ -147,6 +131,77 @@ public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServe
                 builder.sslContext(sslContextBuilder.build());
             } catch (final SSLException e) {
                 throw new IllegalStateException("Failed to create ssl context for grpc server", e);
+            }
+        }
+    }
+
+    /**
+     * Creates a new server ssl context builder.
+     *
+     * @param security The security configuration to use.
+     * @return The newly created SslContextBuilder.
+     */
+    // Keep this in sync with ShadedNettyGrpcServerFactory#newServerSslContextBuilder
+    protected static SslContextBuilder newServerSslContextBuilder(final Security security) {
+        try {
+            final Resource privateKey = security.getPrivateKey();
+            final Resource keyStore = security.getKeyStore();
+
+            if (privateKey != null) {
+                final Resource certificateChain =
+                        requireNonNull(security.getCertificateChain(), "certificateChain");
+                final String privateKeyPassword = security.getPrivateKeyPassword();
+                try (InputStream certificateChainStream = certificateChain.getInputStream();
+                        InputStream privateKeyStream = privateKey.getInputStream()) {
+                    return GrpcSslContexts.forServer(certificateChainStream, privateKeyStream, privateKeyPassword);
+                }
+
+            } else if (keyStore != null) {
+                final KeyManagerFactory keyManagerFactory = KeyStoreUtils.loadKeyManagerFactory(
+                        security.getKeyStoreFormat(), keyStore, security.getKeyStorePassword());
+                return GrpcSslContexts.configure(SslContextBuilder.forServer(keyManagerFactory));
+
+            } else {
+                throw new IllegalStateException("Neither privateKey nor keyStore configured");
+            }
+        } catch (final Exception e) {
+            throw new IllegalArgumentException("Failed to create SSLContext (PK/Cert)", e);
+        }
+    }
+
+    /**
+     * Configures the client certificates accepted by the ssl context.
+     *
+     * @param security The security configuration to use.
+     * @param sslContextBuilder The ssl context builder to configure.
+     */
+    // Keep this in sync with ShadedNettyGrpcServerFactory#configureAcceptedClientCertificates
+    protected static void configureAcceptedClientCertificates(
+            final Security security,
+            final SslContextBuilder sslContextBuilder) {
+
+        if (security.getClientAuth() != ClientAuth.NONE) {
+            sslContextBuilder.clientAuth(of(security.getClientAuth()));
+
+            try {
+                final Resource trustCertCollection = security.getTrustCertCollection();
+                final Resource trustStore = security.getTrustStore();
+
+                if (trustCertCollection != null) {
+                    try (InputStream trustCertCollectionStream = trustCertCollection.getInputStream()) {
+                        sslContextBuilder.trustManager(trustCertCollectionStream);
+                    }
+
+                } else if (trustStore != null) {
+                    final TrustManagerFactory trustManagerFactory = KeyStoreUtils.loadTrustManagerFactory(
+                            security.getTrustStoreFormat(), trustStore, security.getTrustStorePassword());
+                    sslContextBuilder.trustManager(trustManagerFactory);
+
+                } else {
+                    // Use system default
+                }
+            } catch (final Exception e) {
+                throw new IllegalArgumentException("Failed to create SSLContext (TrustStore)", e);
             }
         }
     }

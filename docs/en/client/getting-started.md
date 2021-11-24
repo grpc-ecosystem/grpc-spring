@@ -100,7 +100,7 @@ This section assumes that you have already defined and generated your [Protobuf 
 ### Explaining the Client Components
 
 The following list contains all features that you might encounter on the client side.
-If you don't wish to use any advanced features, then the first element is probably all you need to use.
+If you don't wish to use any advanced features, then the first two elements are probably all you need to use.
 
 - [`@GrpcClient`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/GrpcClient.html):
   The annotation that marks fields and setters for auto injection of clients.
