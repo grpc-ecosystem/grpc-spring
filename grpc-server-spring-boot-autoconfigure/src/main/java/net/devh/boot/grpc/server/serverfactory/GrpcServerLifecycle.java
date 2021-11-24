@@ -24,10 +24,14 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.SmartLifecycle;
 
 import io.grpc.Server;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.server.event.GrpcServerShutdownEvent;
+import net.devh.boot.grpc.server.event.GrpcServerStartedEvent;
+import net.devh.boot.grpc.server.event.GrpcServerTerminatedEvent;
 
 /**
  * Lifecycle bean that automatically starts and stops the grpc server.
@@ -41,6 +45,7 @@ public class GrpcServerLifecycle implements SmartLifecycle {
 
     private final GrpcServerFactory factory;
     private final Duration shutdownGracePeriod;
+    private final ApplicationEventPublisher eventPublisher;
 
     private Server server;
 
@@ -49,10 +54,16 @@ public class GrpcServerLifecycle implements SmartLifecycle {
      *
      * @param factory The server factory to use.
      * @param shutdownGracePeriod The time to wait for the server to gracefully shut down.
+     * @param eventPublisher The event publisher to use.
      */
-    public GrpcServerLifecycle(final GrpcServerFactory factory, final Duration shutdownGracePeriod) {
+    public GrpcServerLifecycle(
+            final GrpcServerFactory factory,
+            final Duration shutdownGracePeriod,
+            final ApplicationEventPublisher eventPublisher) {
+
         this.factory = requireNonNull(factory, "factory");
         this.shutdownGracePeriod = requireNonNull(shutdownGracePeriod, "shutdownGracePeriod");
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -100,8 +111,10 @@ public class GrpcServerLifecycle implements SmartLifecycle {
             final Server localServer = this.factory.createServer();
             this.server = localServer;
             localServer.start();
-            log.info("gRPC Server started, listening on address: " + this.factory.getAddress() + ", port: "
-                    + this.factory.getPort());
+            final String address = this.factory.getAddress();
+            final int port = this.factory.getPort();
+            log.info("gRPC Server started, listening on address: {}, port: {}", address, port);
+            this.eventPublisher.publishEvent(new GrpcServerStartedEvent(this, localServer, address, port));
 
             // Prevent the JVM from shutting down while the server is running
             final Thread awaitThread = new Thread(() -> {
@@ -126,6 +139,7 @@ public class GrpcServerLifecycle implements SmartLifecycle {
         if (localServer != null) {
             final long millis = this.shutdownGracePeriod.toMillis();
             log.debug("Initiating gRPC server shutdown");
+            this.eventPublisher.publishEvent(new GrpcServerShutdownEvent(this, localServer));
             localServer.shutdown();
             // Wait for the server to shutdown completely before continuing with destroying the spring context
             try {
@@ -144,6 +158,7 @@ public class GrpcServerLifecycle implements SmartLifecycle {
                 this.server = null;
             }
             log.info("Completed gRPC server shutdown");
+            this.eventPublisher.publishEvent(new GrpcServerTerminatedEvent(this, localServer));
         }
     }
 

@@ -16,6 +16,7 @@ This section describes how you can store contextual / per request data.
 - [Exception Handling](exception-handling.md)
 - *Contextual Data / Scoped Beans*
 - [Testing the Service](testing.md)
+- [Server Events](events.md)
 - [Security](security.md)
 
 ## A Word of Warning
@@ -65,6 +66,7 @@ public void grpcMethod(Request request, StreamObserver<Response> responseObserve
 - [Exception Handling](exception-handling.md)
 - *Contextual Data / Scoped Beans*
 - [Testing the Service](testing.md)
+- [Server Events](events.md)
 - [Security](security.md)
 
 ----------

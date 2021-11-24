@@ -24,6 +24,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -83,15 +84,17 @@ public class GrpcServerFactoryAutoConfiguration {
      *
      * @param factory The factory used to create the lifecycle.
      * @param properties The server properties to use.
+     * @param eventPublisher The event publisher to use.
      * @return The inter-process server lifecycle bean.
      */
     @ConditionalOnBean(ShadedNettyGrpcServerFactory.class)
     @Bean
     public GrpcServerLifecycle shadedNettyGrpcServerLifecycle(
             final ShadedNettyGrpcServerFactory factory,
-            final GrpcServerProperties properties) {
+            final GrpcServerProperties properties,
+            ApplicationEventPublisher eventPublisher) {
 
-        return new GrpcServerLifecycle(factory, properties.getShutdownGracePeriod());
+        return new GrpcServerLifecycle(factory, properties.getShutdownGracePeriod(), eventPublisher);
     }
 
     // Then try the normal netty server
@@ -125,15 +128,17 @@ public class GrpcServerFactoryAutoConfiguration {
      *
      * @param factory The factory used to create the lifecycle.
      * @param properties The server properties to use.
+     * @param eventPublisher The event publisher to use.
      * @return The inter-process server lifecycle bean.
      */
     @ConditionalOnBean(NettyGrpcServerFactory.class)
     @Bean
     public GrpcServerLifecycle nettyGrpcServerLifecycle(
             final NettyGrpcServerFactory factory,
-            final GrpcServerProperties properties) {
+            final GrpcServerProperties properties,
+            ApplicationEventPublisher eventPublisher) {
 
-        return new GrpcServerLifecycle(factory, properties.getShutdownGracePeriod());
+        return new GrpcServerLifecycle(factory, properties.getShutdownGracePeriod(), eventPublisher);
     }
 
     /**
@@ -162,15 +167,17 @@ public class GrpcServerFactoryAutoConfiguration {
      *
      * @param factory The factory used to create the lifecycle.
      * @param properties The server properties to use.
+     * @param eventPublisher The event publisher to use.
      * @return The in-process server lifecycle bean.
      */
     @ConditionalOnBean(InProcessGrpcServerFactory.class)
     @Bean
     public GrpcServerLifecycle inProcessGrpcServerLifecycle(
             final InProcessGrpcServerFactory factory,
-            final GrpcServerProperties properties) {
+            final GrpcServerProperties properties,
+            ApplicationEventPublisher eventPublisher) {
 
-        return new GrpcServerLifecycle(factory, properties.getShutdownGracePeriod());
+        return new GrpcServerLifecycle(factory, properties.getShutdownGracePeriod(), eventPublisher);
     }
 
 }
