@@ -37,7 +37,7 @@ QQ交流群：294712648
 
 2.x.x.RELEASE 支持 Spring Boot 2.1.x/2.2.x 和 Spring Cloud Greenwich / Hoxton。
 
-最新版本： `2.12.0.RELEASE`
+最新版本： `2.13.0.RELEASE`
 
 ( `2.4.0.RELEASE` 用于 Spring Boot 2.0.x & Spring Cloud Finchy).
 
@@ -57,7 +57,7 @@ QQ交流群：294712648
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-spring-boot-starter</artifactId>
-  <version>2.12.0.RELEASE</version>
+  <version>2.13.0.RELEASE</version>
 </dependency>
 ````
 
@@ -65,7 +65,7 @@ Gradle：
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-spring-boot-starter:2.12.0.RELEASE'
+  compile 'net.devh:grpc-spring-boot-starter:2.13.0.RELEASE'
 }
 ````
 
@@ -77,7 +77,7 @@ dependencies {
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-server-spring-boot-starter</artifactId>
-  <version>2.12.0.RELEASE</version>
+  <version>2.13.0.RELEASE</version>
 </dependency>
 ````
 
@@ -85,7 +85,7 @@ Gradle：
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-server-spring-boot-starter:2.12.0.RELEASE'
+  compile 'net.devh:grpc-server-spring-boot-starter:2.13.0.RELEASE'
 }
 ````
 
@@ -117,7 +117,7 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-client-spring-boot-starter</artifactId>
-  <version>2.12.0.RELEASE</version>
+  <version>2.13.0.RELEASE</version>
 </dependency>
 ````
 
@@ -125,7 +125,7 @@ Gradle：
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-client-spring-boot-starter:2.12.0.RELEASE'
+  compile 'net.devh:grpc-client-spring-boot-starter:2.13.0.RELEASE'
 }
 ````
 在 grpc 客户端的的 stub 字段上添加 `@GrpcClient(serverName)` 注解。
