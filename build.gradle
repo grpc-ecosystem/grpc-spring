@@ -8,21 +8,21 @@ buildscript {
         }
     }
     ext {
-        projectVersion = '2.13.0.RELEASE'
+        projectVersion = '2.13.1.RELEASE'
 
         // https://github.com/grpc/grpc-java/releases
-        grpcVersion = '1.42.1'
+        grpcVersion = '1.42.2'
 
         // https://github.com/google/guava/releases
         guavaVersion = '31.0.1-jre'
         // https://github.com/protocolbuffers/protobuf/releases
-        protobufVersion = '3.19.1'
+        protobufVersion = '3.19.2'
         protobufGradlePluginVersion = '0.8.18'
 
         // https://github.com/spring-projects/spring-boot/releases
-        springBootVersion = '2.5.7'
+        springBootVersion = '2.5.8'
         // https://github.com/spring-cloud/spring-cloud-release/releases
-        springCloudVersion = '2020.0.4'
+        springCloudVersion = '2020.0.5'
         // https://github.com/alibaba/spring-cloud-alibaba/releases
         springCloudAlibabaNacosVersion = '2021.1'
         // https://github.com/spring-projects/spring-security-oauth/releases
