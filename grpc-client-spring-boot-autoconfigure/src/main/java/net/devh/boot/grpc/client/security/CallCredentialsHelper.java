@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2022 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -105,7 +105,7 @@ import net.devh.boot.grpc.common.security.SecurityConstants;
  * </li>
  * </ul>
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @author Daniel Theuke (daniel.theuke@aequitas-software.de)
  */
 // @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1914")
 // @ExperimentalApi("https://github.com/grpc/grpc-java/issues/4901")
@@ -192,7 +192,7 @@ public class CallCredentialsHelper {
      * @see #authorizationHeader(Supplier)
      */
     public static CallCredentials bearerAuth(final Supplier<String> tokenSource) {
-        return authorizationHeader(() -> BEARER_AUTH_PREFIX + tokenSource);
+        return authorizationHeader(() -> BEARER_AUTH_PREFIX + tokenSource.get());
     }
 
     /**
