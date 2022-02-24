@@ -44,9 +44,9 @@ publishing {
                     developer {
                         id = 'ST-DDT'
                         name = 'Daniel Theuke'
-                        email = 'daniel.theuke@heuboe.de'
-                        organization = 'Heusch/Boesefeldt GmbH'
-                        organizationUrl = 'https://www.heuboe.de'
+                        email = 'daniel.theuke@aequitas-software.de'
+                        organization = 'Aequitas Software GmbH & Co. KG'
+                        organizationUrl = 'https://aequitas-software.de/'
                     }
                 }
                 scm {
