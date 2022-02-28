@@ -192,7 +192,7 @@ public class CallCredentialsHelper {
      * @see #authorizationHeader(Supplier)
      */
     public static CallCredentials bearerAuth(final Supplier<String> tokenSource) {
-        return authorizationHeader(() -> BEARER_AUTH_PREFIX + tokenSource);
+        return authorizationHeader(() -> BEARER_AUTH_PREFIX + tokenSource.get());
     }
 
     /**
