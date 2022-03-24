@@ -18,6 +18,7 @@
 package net.devh.boot.grpc.client.autoconfigure;
 
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,7 +52,7 @@ public class GrpcClientSecurityAutoConfiguration {
      *
      * <p>
      * <b>Note:</b> This method will only be applied if exactly one {@link CallCredentials} is in the application
-     * context.
+     * context, and another StubTransformer isn't provided.
      * </p>
      *
      * @param credentials The call credentials to configure in the stubs.
@@ -60,6 +61,7 @@ public class GrpcClientSecurityAutoConfiguration {
      * @sse {@link CallCredentialsHelper#fixedCredentialsStubTransformer(CallCredentials)}
      */
     @ConditionalOnSingleCandidate(CallCredentials.class)
+    @ConditionalOnMissingBean
     @Bean
     StubTransformer stubCallCredentialsTransformer(final CallCredentials credentials) {
         log.info("Found single CallCredentials in the context, automatically using it for all stubs");
