@@ -152,10 +152,11 @@ public class GrpcServerFactoryAutoConfiguration {
     @Bean
     public InProcessGrpcServerFactory inProcessGrpcServerFactory(
             final GrpcServerProperties properties,
-            final GrpcServiceDiscoverer serviceDiscoverer) {
+            final GrpcServiceDiscoverer serviceDiscoverer,
+            final List<GrpcServerConfigurer> serverConfigurers) {
 
         log.info("'grpc.server.in-process-name' is set: Creating InProcessGrpcServerFactory");
-        final InProcessGrpcServerFactory factory = new InProcessGrpcServerFactory(properties);
+        final InProcessGrpcServerFactory factory = new InProcessGrpcServerFactory(properties, serverConfigurers);
         for (final GrpcServiceDefinition service : serviceDiscoverer.findGrpcServices()) {
             factory.addService(service);
         }
