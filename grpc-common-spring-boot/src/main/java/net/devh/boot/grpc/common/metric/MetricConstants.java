@@ -61,11 +61,11 @@ public final class MetricConstants {
     /**
      * The metrics tag key that belongs to the type of the called method.
      */
-    public static final String TAG_METHOD_TYPE = "methodType";
+    public static final String TAG_METHOD_TYPE = "method.type";
     /**
      * The metrics tag key that belongs to the result status code.
      */
-    public static final String TAG_STATUS_CODE = "statusCode";
+    public static final String TAG_STATUS_CODE = "status.code";
 
     private MetricConstants() {}
 

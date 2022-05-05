@@ -54,7 +54,7 @@ compile("org.springframework.boot:spring-boot-starter-actuator")
 
 - `service`: 请求的 grpc 服务名称（使用 protubuf 名称）
 - `method`: 请求的 grpc 方法名称（使用 protobuf 名称）
-- `methodType`: 请求的 grpc 方法的类型。
+- `method.type`: 请求的 grpc 方法的类型。
 
 ### 计时器
 
@@ -65,8 +65,8 @@ compile("org.springframework.boot:spring-boot-starter-actuator")
 
 - `service`: 请求的 grpc 服务名称（使用 protobuf 名称）
 - `method`: 请求的 grpc 方法名称（使用 protobuf 名称）
-- `methodType`: 请求的 grpc 方法的类型。
-- `statusCode`: 响应的 `Status.Code`
+- `method.type`: 请求的 grpc 方法的类型。
+- `status.code`: 响应的 `Status.Code`
 
 ### 查看指标
 

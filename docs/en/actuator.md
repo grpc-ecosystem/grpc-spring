@@ -59,7 +59,7 @@ Once the dependencies are added grpc-spring-boot-starter will automatically conf
 
 - `service`: The requested grpc service name (using protobuf name)
 - `method`: The requested grpc method name (using protobuf name)
-- `methodType`: The type of the requested grpc method.
+- `method.type`: The type of the requested grpc method.
 
 ### Timer
 
@@ -70,8 +70,8 @@ Once the dependencies are added grpc-spring-boot-starter will automatically conf
 
 - `service`: The requested grpc service name (using protobuf name)
 - `method`: The requested grpc method name (using protobuf name)
-- `methodType`: The type of the requested grpc method.
-- `statusCode`: Response `Status.Code`
+- `method.type`: The type of the requested grpc method.
+- `status.code`: Response `Status.Code`
 
 ### Viewing the metrics
 
