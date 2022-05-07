@@ -28,7 +28,7 @@ buildscript {
 
         lombokPluginVersion = '6.4.3'
         versioningPluginVersion = '2.15.1'
-        versionsPluginVersion = '0.41.0'
+        versionsPluginVersion = '0.42.0'
     }
 }
 
