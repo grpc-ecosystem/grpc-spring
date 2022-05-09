@@ -22,7 +22,7 @@ buildscript {
         // https://github.com/spring-projects/spring-boot/releases
         springBootVersion = '2.6.7'
         // https://github.com/spring-cloud/spring-cloud-release/releases
-        springCloudVersion = '2021.0.0'
+        springCloudVersion = '2021.0.2'
         // https://github.com/alibaba/spring-cloud-alibaba/releases
         springCloudAlibabaNacosVersion = '2021.1'
 
