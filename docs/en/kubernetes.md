@@ -51,15 +51,15 @@ spec:
 ````properties
 ## Choose your matching variant
 # Same namespace (target port=80 or derived by DNS-SVC)
-grpc.clients.my-grpc-server-app.address=dns:///my-grpc-server-app
+grpc.client.my-grpc-server-app.address=dns:///my-grpc-server-app
 # Same namespace (different port)
-grpc.clients.my-grpc-server-app.address=dns:///my-grpc-server-app:1234
+grpc.client.my-grpc-server-app.address=dns:///my-grpc-server-app:1234
 # Different namespace
-grpc.clients.my-grpc-server-app.address=dns:///my-grpc-server-app.example:1234
+grpc.client.my-grpc-server-app.address=dns:///my-grpc-server-app.example:1234
 # Different cluster
-grpc.clients.my-grpc-server-app.address=dns:///my-grpc-server-app.example.svc.cluster.local:1234
+grpc.client.my-grpc-server-app.address=dns:///my-grpc-server-app.example.svc.cluster.local:1234
 # Format
-grpc.clients.my-grpc-server-app.address=dns:///<serviceName>[.<namespace>[.<clusterAddress>]][:<service-port>]
+grpc.client.my-grpc-server-app.address=dns:///<serviceName>[.<namespace>[.<clusterAddress>]][:<service-port>]
 ````
 
 > **Note:** DNS-SVC lookups require the `grpclb` dependency to be present and the service's port name to be `grpclb`.
