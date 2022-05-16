@@ -94,8 +94,8 @@ There are a number of supported schemes, that you can use to determine the targe
 
 If you don't define an address it will be guessed:
 
-- First it will try it with just it's name (`<name>`)
-- If you have configured a default scheme it will try that next (`<scheme>:/<name>`)
+- If you have configured a default scheme it will try that first (`<scheme>:///<name>`)
+- Then it will try it with just it's name (`<name>`)
 - Then it will use the default scheme of the `NameResolver.Factory` delegate (See the priorities above)
 
 > **Note:** The number of slashes is important! Also make sure that you don't try to connect to a normal
