@@ -17,6 +17,7 @@
 
 package net.devh.boot.grpc.client.autoconfigure;
 
+import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -37,6 +38,7 @@ import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
  */
 @Configuration(proxyBeanMethods = false)
 @AutoConfigureAfter(GrpcClientAutoConfiguration.class)
+@ConditionalOnEnabledHealthIndicator("grpcChannel")
 @ConditionalOnClass(name = "org.springframework.boot.actuate.health.HealthIndicator")
 public class GrpcClientHealthAutoConfiguration {
 
