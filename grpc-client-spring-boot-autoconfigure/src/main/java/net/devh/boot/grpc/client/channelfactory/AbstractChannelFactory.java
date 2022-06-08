@@ -163,7 +163,12 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
      * @return The default scheme defined in {@link GrpcChannelsProperties}.
      */
     protected final String getDefaultScheme() {
-        return this.properties.getDefaultScheme();
+        String defaultScheme = this.properties.getDefaultScheme();
+        if (defaultScheme == null) {
+            return null;
+        }
+
+        return defaultScheme.contains(":") ? defaultScheme : defaultScheme + ":///";
     }
 
     /**

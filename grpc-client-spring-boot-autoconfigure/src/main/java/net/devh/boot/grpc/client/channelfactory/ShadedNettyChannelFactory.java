@@ -76,7 +76,7 @@ public class ShadedNettyChannelFactory extends AbstractChannelFactory<NettyChann
         if (address == null) {
             String defaultScheme = getDefaultScheme();
             if (defaultScheme != null) {
-                address = URI.create(defaultScheme + ":///" + name);
+                address = URI.create(defaultScheme + name);
             } else {
                 address = URI.create(name);
             }
