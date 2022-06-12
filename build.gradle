@@ -41,7 +41,7 @@ plugins {
     id 'com.google.protobuf' version "${protobufGradlePluginVersion}"
     id 'io.freefair.lombok' version "${lombokPluginVersion}" apply false
     id 'com.github.ben-manes.versions' version "${versionsPluginVersion}" // gradle dependencyUpdates
-    id 'com.diffplug.spotless' version '6.7.0'
+    id 'com.diffplug.spotless' version '6.7.2'
 }
 
 // If you attempt to build without the `--scan` parameter in `gradle 6.0+` it will cause a build error that it can't find
