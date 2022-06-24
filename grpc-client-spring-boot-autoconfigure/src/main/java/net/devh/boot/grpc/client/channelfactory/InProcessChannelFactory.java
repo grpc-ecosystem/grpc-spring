@@ -17,6 +17,7 @@
 
 package net.devh.boot.grpc.client.channelfactory;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,13 +39,20 @@ import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 public class InProcessChannelFactory extends AbstractChannelFactory<InProcessChannelBuilder> {
 
     /**
+     * The scheme of this factory: {@value #SCHEME}.
+     */
+    public static final String SCHEME = "in-process";
+
+    /**
      * Creates a new InProcessChannelFactory with the given properties.
      *
      * @param properties The properties for the channels to create.
      * @param globalClientInterceptorRegistry The interceptor registry to use.
      */
-    public InProcessChannelFactory(final GrpcChannelsProperties properties,
+    public InProcessChannelFactory(
+            final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
+
         this(properties, globalClientInterceptorRegistry, Collections.emptyList());
     }
 
@@ -55,16 +63,20 @@ public class InProcessChannelFactory extends AbstractChannelFactory<InProcessCha
      * @param globalClientInterceptorRegistry The interceptor registry to use.
      * @param channelConfigurers The channel configurers to use. Can be empty.
      */
-    public InProcessChannelFactory(final GrpcChannelsProperties properties,
+    public InProcessChannelFactory(
+            final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
+
         super(properties, globalClientInterceptorRegistry, channelConfigurers);
     }
 
     @Override
     protected InProcessChannelBuilder newChannelBuilder(final String name) {
-        log.debug("Creating new channel: {}", name);
-        return InProcessChannelBuilder.forName(name);
+        final URI address = getPropertiesFor(name).getAddress();
+        final String target = address == null ? name : address.getSchemeSpecificPart();
+        log.debug("Creating new channel: {}", target);
+        return InProcessChannelBuilder.forName(target);
     }
 
     @Override

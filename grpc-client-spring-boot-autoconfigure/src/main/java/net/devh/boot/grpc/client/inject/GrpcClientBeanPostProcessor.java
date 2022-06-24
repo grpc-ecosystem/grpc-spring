@@ -174,7 +174,7 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
         try {
             channel = getChannelFactory().createChannel(name, interceptors, annotation.sortInterceptors());
             if (channel == null) {
-                throw new IllegalStateException("Channel factory created a null channel for " + name);
+                return null;
             }
         } catch (final RuntimeException e) {
             throw new IllegalStateException("Failed to create channel: " + name, e);
