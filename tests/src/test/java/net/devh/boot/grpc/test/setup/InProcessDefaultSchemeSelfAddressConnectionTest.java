@@ -36,26 +36,26 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceBlockingStub;
  *
  */
 @SpringBootTest(properties = {
-        "grpc.server.port=-1",
-        "grpc.server.in-process-name=test",
+        "grpc.server.port=0",
         "grpc.client.GLOBAL.negotiationType=PLAINTEXT",
         "grpc.default-scheme=in-process:",
+        "grpc.client.test.address=self:self"
 })
 @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
 @DirtiesContext
-public class InProcessDefaultSchemeConnectionTest {
+public class InProcessDefaultSchemeSelfAddressConnectionTest {
 
     private static final Empty EMPTY = Empty.getDefaultInstance();
 
     @GrpcClient("test")
-    private TestServiceBlockingStub inProcessStub;
+    private TestServiceBlockingStub selfStub;
 
     /**
      * Tests the connection via the implicit client address.
      */
     @Test
     public void testSelfConnection() {
-        assertEquals("1.2.3", this.inProcessStub.normal(EMPTY).getVersion());
+        assertEquals("1.2.3", this.selfStub.normal(EMPTY).getVersion());
     }
 
 }

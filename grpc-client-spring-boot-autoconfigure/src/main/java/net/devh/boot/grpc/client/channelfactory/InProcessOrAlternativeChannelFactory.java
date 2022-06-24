@@ -80,7 +80,7 @@ public class InProcessOrAlternativeChannelFactory implements GrpcChannelFactory 
         if (address != null && IN_PROCESS_SCHEME.equals(address.getScheme())) {
             return this.inProcessChannelFactory.createChannel(address.getSchemeSpecificPart(), interceptors,
                     sortInterceptors);
-        } else if (defaultScheme != null && defaultScheme.startsWith(IN_PROCESS_SCHEME)) {
+        } else if (address == null && defaultScheme != null && defaultScheme.startsWith(IN_PROCESS_SCHEME)) {
             return this.inProcessChannelFactory.createChannel(name, interceptors, sortInterceptors);
         }
         return this.alternativeChannelFactory.createChannel(name, interceptors, sortInterceptors);
