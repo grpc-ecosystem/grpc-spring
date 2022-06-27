@@ -157,6 +157,21 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
     }
 
     /**
+     * Gets the default scheme that should be used for a client channel's target if no address is specified for a
+     * client's channel properties.
+     *
+     * @return The default scheme defined in {@link GrpcChannelsProperties}.
+     */
+    protected final String getDefaultScheme() {
+        String defaultScheme = this.properties.getDefaultScheme();
+        if (defaultScheme == null) {
+            return null;
+        }
+
+        return defaultScheme.contains(":") ? defaultScheme : defaultScheme + ":///";
+    }
+
+    /**
      * Configures the given channel builder. This method can be overwritten to add features that are not yet supported
      * by this library.
      *

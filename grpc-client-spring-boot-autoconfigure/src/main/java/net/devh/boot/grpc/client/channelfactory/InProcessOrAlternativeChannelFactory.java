@@ -76,9 +76,12 @@ public class InProcessOrAlternativeChannelFactory implements GrpcChannelFactory 
     public Channel createChannel(final String name, final List<ClientInterceptor> interceptors,
             boolean sortInterceptors) {
         final URI address = this.properties.getChannel(name).getAddress();
+        final String defaultScheme = this.properties.getDefaultScheme();
         if (address != null && IN_PROCESS_SCHEME.equals(address.getScheme())) {
             return this.inProcessChannelFactory.createChannel(address.getSchemeSpecificPart(), interceptors,
                     sortInterceptors);
+        } else if (address == null && defaultScheme != null && defaultScheme.startsWith(IN_PROCESS_SCHEME)) {
+            return this.inProcessChannelFactory.createChannel(name, interceptors, sortInterceptors);
         }
         return this.alternativeChannelFactory.createChannel(name, interceptors, sortInterceptors);
     }

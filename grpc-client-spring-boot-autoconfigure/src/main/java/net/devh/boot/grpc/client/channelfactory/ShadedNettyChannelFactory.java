@@ -74,7 +74,12 @@ public class ShadedNettyChannelFactory extends AbstractChannelFactory<NettyChann
         final GrpcChannelProperties properties = getPropertiesFor(name);
         URI address = properties.getAddress();
         if (address == null) {
-            address = URI.create(name);
+            String defaultScheme = getDefaultScheme();
+            if (defaultScheme != null) {
+                address = URI.create(defaultScheme + name);
+            } else {
+                address = URI.create(name);
+            }
         }
         if (DOMAIN_SOCKET_ADDRESS_SCHEME.equals(address.getScheme())) {
             final String path = GrpcUtils.extractDomainSocketAddressPath(address.toString());
