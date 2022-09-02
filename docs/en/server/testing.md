@@ -40,7 +40,7 @@ Generally there are three ways to test your grpc service:
 
 - [Test them directly](#unit-tests)
 - [Test them via grpc](#integration-tests)
-- [Test them in producation](#grpcurl) (in addition to automated build time tests)
+- [Test them in production](#grpcurl) (in addition to automated build time tests)
 
 ## The Service to Test
 
