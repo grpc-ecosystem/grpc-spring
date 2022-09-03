@@ -89,7 +89,7 @@ public class OrderedClientInterceptorConfiguration {
         return new TestClientInterceptor();
     }
 
-    public static class TestClientInterceptor implements ClientInterceptor, BeanNameAware {
+    private static class TestClientInterceptor implements ClientInterceptor, BeanNameAware {
 
         private String name;
 
