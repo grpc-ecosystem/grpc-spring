@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2022 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -20,6 +20,7 @@ package net.devh.boot.grpc.client.interceptor;
 import static java.util.Objects.requireNonNull;
 
 import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 import io.grpc.CallOptions;
 import io.grpc.Channel;
@@ -30,8 +31,12 @@ import io.grpc.MethodDescriptor;
 /**
  * A client interceptor wrapper that assigns an order to the underlying client interceptor.
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @deprecated Use the original {@link ClientInterceptor} in combination with {@link Order} (either on the target class
+ *             itself or the related factory method).
+ *
+ * @author Daniel Theuke (daniel.theuke@aequitas-software.de)
  */
+@Deprecated
 public class OrderedClientInterceptor implements ClientInterceptor, Ordered {
 
     private final ClientInterceptor clientInterceptor;

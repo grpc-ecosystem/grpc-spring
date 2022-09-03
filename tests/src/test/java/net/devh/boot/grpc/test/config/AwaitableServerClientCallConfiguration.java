@@ -23,6 +23,7 @@ import static net.devh.boot.grpc.common.util.InterceptorOrder.ORDER_LAST;
 import java.util.concurrent.CountDownLatch;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 
 import io.grpc.CallOptions;
 import io.grpc.Channel;
@@ -39,9 +40,7 @@ import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
 import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
-import net.devh.boot.grpc.client.interceptor.OrderedClientInterceptor;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
-import net.devh.boot.grpc.server.interceptor.OrderedServerInterceptor;
 
 /**
  * Helper configuration that can be used to await the completion/closing of the next calls.
@@ -61,8 +60,9 @@ public class AwaitableServerClientCallConfiguration {
      * @return A testing server interceptor bean.
      */
     @GrpcGlobalServerInterceptor
+    @Order(ORDER_FIRST)
     ServerInterceptor awaitableServerInterceptor() {
-        return new OrderedServerInterceptor(new ServerInterceptor() {
+        return new ServerInterceptor() {
 
             @Override
             public <ReqT, RespT> Listener<ReqT> interceptCall(
@@ -92,7 +92,7 @@ public class AwaitableServerClientCallConfiguration {
                 }
             }
 
-        }, ORDER_FIRST);
+        };
     }
 
     /**
@@ -102,8 +102,9 @@ public class AwaitableServerClientCallConfiguration {
      * @return A testing client interceptor bean.
      */
     @GrpcGlobalClientInterceptor
+    @Order(ORDER_LAST)
     ClientInterceptor awaitableClientInterceptor() {
-        return new OrderedClientInterceptor(new ClientInterceptor() {
+        return new ClientInterceptor() {
 
             @Override
             public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
@@ -134,7 +135,7 @@ public class AwaitableServerClientCallConfiguration {
                 }
             }
 
-        }, ORDER_LAST);
+        };
     }
 
     /**
