@@ -22,12 +22,14 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 
 import io.grpc.ClientInterceptor;
 import io.micrometer.core.instrument.MeterRegistry;
-import net.devh.boot.grpc.client.metric.MetricCollectingClientInterceptor;
+import io.micrometer.core.instrument.binder.grpc.MetricCollectingClientInterceptor;
+import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
+import net.devh.boot.grpc.common.util.InterceptorOrder;
 
 /**
  * Auto configuration class for Spring-Boot. This allows zero config client metrics for gRPC services.
@@ -46,7 +48,8 @@ public class GrpcClientMetricAutoConfiguration {
      * @param registry The registry used to create the metrics.
      * @return The newly created MetricCollectingClientInterceptor bean.
      */
-    @Bean
+    @GrpcGlobalClientInterceptor
+    @Order(InterceptorOrder.ORDER_TRACING_METRICS)
     @ConditionalOnMissingBean
     public MetricCollectingClientInterceptor metricCollectingClientInterceptor(final MeterRegistry registry) {
         return new MetricCollectingClientInterceptor(registry);

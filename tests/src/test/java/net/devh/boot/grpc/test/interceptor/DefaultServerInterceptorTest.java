@@ -33,8 +33,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import io.grpc.ServerInterceptor;
+import io.micrometer.core.instrument.binder.grpc.MetricCollectingServerInterceptor;
 import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorRegistry;
-import net.devh.boot.grpc.server.metric.MetricCollectingServerInterceptor;
 import net.devh.boot.grpc.server.scope.GrpcRequestScope;
 import net.devh.boot.grpc.server.security.interceptors.AuthenticatingServerInterceptor;
 import net.devh.boot.grpc.server.security.interceptors.AuthorizationCheckingServerInterceptor;
