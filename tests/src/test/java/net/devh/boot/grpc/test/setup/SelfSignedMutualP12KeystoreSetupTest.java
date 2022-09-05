@@ -45,10 +45,10 @@ import net.devh.boot.grpc.test.config.ServiceConfiguration;
 })
 @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
 @DirtiesContext
-public class SelfSignedMutualKeystoreSetupTest extends AbstractSimpleServerClientTest {
+public class SelfSignedMutualP12KeystoreSetupTest extends AbstractSimpleServerClientTest {
 
-    public SelfSignedMutualKeystoreSetupTest() {
-        log.info("--- SelfSignedMutualKeystoreSetupTest ---");
+    public SelfSignedMutualP12KeystoreSetupTest() {
+        log.info("--- SelfSignedMutualP12KeystoreSetupTest ---");
     }
 
 }
