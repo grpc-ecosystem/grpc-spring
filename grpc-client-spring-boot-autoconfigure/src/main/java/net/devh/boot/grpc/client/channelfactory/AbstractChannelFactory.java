@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2022 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -58,7 +58,7 @@ import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
  * @param <T> The type of builder used by this channel factory.
  *
  * @author Michael (yidongnan@gmail.com)
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @author Daniel Theuke (daniel.theuke@aequitas-software.de)
  * @since 5/17/16
  */
 @Slf4j
@@ -83,7 +83,7 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
      * @param globalClientInterceptorRegistry The interceptor registry to use.
      * @param channelConfigurers The channel configurers to use. Can be empty.
      */
-    public AbstractChannelFactory(final GrpcChannelsProperties properties,
+    protected AbstractChannelFactory(final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
         this.properties = requireNonNull(properties, "properties");
