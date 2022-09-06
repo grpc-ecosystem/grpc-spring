@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2022 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -25,7 +25,7 @@ import org.springframework.security.core.Authentication;
 /**
  * Helper class that contains some internal constants for {@link AccessPredicate}s.
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @author Daniel Theuke (daniel.theuke@aequitas-software.de)
  */
 final class AccessPredicates {
 
@@ -51,7 +51,7 @@ final class AccessPredicates {
         @Override
         @Deprecated // Should never be called
         public AccessPredicate and(final Predicate<? super Authentication> other) {
-            throw new UnsupportedOperationException("Not allowed for 'permit-all' access predicate");
+            throw fail();
         }
 
         /**
@@ -60,7 +60,7 @@ final class AccessPredicates {
         @Override
         @Deprecated // Should never be called
         public AccessPredicate or(final Predicate<? super Authentication> other) {
-            throw new UnsupportedOperationException("Not allowed for 'permit-all' access predicate");
+            throw fail();
         }
 
         /**
@@ -69,7 +69,11 @@ final class AccessPredicates {
         @Override
         @Deprecated // Should never be called
         public AccessPredicate negate() {
-            throw new UnsupportedOperationException("Not allowed for 'permit-all' access predicate");
+            throw fail();
+        }
+
+        private UnsupportedOperationException fail() {
+            return new UnsupportedOperationException("Not allowed for 'permit-all' access predicate");
         }
 
     };

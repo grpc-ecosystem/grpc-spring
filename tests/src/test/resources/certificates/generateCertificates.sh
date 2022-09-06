@@ -9,10 +9,11 @@ echo "Generating trustCertCollection"
 cat server.crt > trusted-servers-collection
 cat client1.crt client2.crt > trusted-clients-collection
 
-echo "Creating key and trust stores"
+echo "Creating p12 key and trust stores"
 openssl pkcs12 -export -name server -in server.crt -inkey server.key -passout 'pass:' -out server.p12
 openssl pkcs12 -export -name client1 -in client1.crt -inkey client1.key -passout 'pass:' -out client1.p12
 openssl pkcs12 -export -name client2 -in client2.crt -inkey client2.key -passout 'pass:' -out client2.p12
 
 # create trusted-clients.p12 and trusted-servers.p12 via keystore-explorer and java 8
+# create *.jks by opening the p12 variants and saving this as jks
 echo "--- DONE ---"
