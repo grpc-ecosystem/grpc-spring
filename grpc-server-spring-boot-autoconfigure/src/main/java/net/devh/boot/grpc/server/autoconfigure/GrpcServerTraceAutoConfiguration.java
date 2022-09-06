@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2022 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -21,18 +21,18 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 
 import brave.grpc.GrpcTracing;
 import io.grpc.ServerInterceptor;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonTraceAutoConfiguration;
 import net.devh.boot.grpc.common.util.InterceptorOrder;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
-import net.devh.boot.grpc.server.interceptor.OrderedServerInterceptor;
 
 /**
  * The configuration used to configure brave's tracing for grpc.
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @author Daniel Theuke (daniel.theuke@aequitas-software.de)
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty(value = "spring.sleuth.grpc.enabled", matchIfMissing = true)
@@ -47,10 +47,9 @@ public class GrpcServerTraceAutoConfiguration {
      * @return The tracing server interceptor bean.
      */
     @GrpcGlobalServerInterceptor
+    @Order(InterceptorOrder.ORDER_TRACING_METRICS + 1)
     public ServerInterceptor globalTraceServerInterceptorConfigurer(final GrpcTracing grpcTracing) {
-        return new OrderedServerInterceptor(
-                grpcTracing.newServerInterceptor(),
-                InterceptorOrder.ORDER_TRACING_METRICS + 1);
+        return grpcTracing.newServerInterceptor();
     }
 
 }
