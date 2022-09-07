@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2022 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -19,9 +19,11 @@ package net.devh.boot.grpc.test.config;
 
 import javax.annotation.Priority;
 
+import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
@@ -34,62 +36,81 @@ public class OrderedServerInterceptorConfiguration {
 
     @GrpcGlobalServerInterceptor
     @Priority(30)
-    public class SecondPriorityAnnotatedInterceptor implements ServerInterceptor {
-        public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
-                ServerCallHandler<ReqT, RespT> next) {
-            return next.startCall(call, headers);
-        }
+    @Component("SecondPriorityAnnotatedInterceptor")
+    public class SecondPriorityAnnotatedInterceptor extends TestServerInterceptor {
     }
 
     @GrpcGlobalServerInterceptor
     @Order(20)
-    public class SecondOrderAnnotatedInterceptor implements ServerInterceptor {
-        public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
-                ServerCallHandler<ReqT, RespT> next) {
-            return next.startCall(call, headers);
-        }
+    @Component("SecondOrderAnnotatedInterceptor")
+    public class SecondOrderAnnotatedInterceptor extends TestServerInterceptor {
     }
 
     @GrpcGlobalServerInterceptor
-    public class FirstOrderedInterfaceInterceptor implements ServerInterceptor, Ordered {
+    @Component("FirstOrderedInterfaceInterceptor")
+    public class FirstOrderedInterfaceInterceptor extends TestServerInterceptor implements Ordered {
+        @Override
         public int getOrder() {
             return 40;
-        }
-
-        public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
-                ServerCallHandler<ReqT, RespT> next) {
-            return next.startCall(call, headers);
         }
     }
 
     @GrpcGlobalServerInterceptor
     @Order(10)
-    public class FirstOrderAnnotatedInterceptor implements ServerInterceptor {
-        public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
-                ServerCallHandler<ReqT, RespT> next) {
-            return next.startCall(call, headers);
-        }
+    @Component("FirstOrderAnnotatedInterceptor")
+    public class FirstOrderAnnotatedInterceptor extends TestServerInterceptor {
     }
 
     @GrpcGlobalServerInterceptor
-    public class SecondOrderedInterfaceInterceptor implements ServerInterceptor, Ordered {
+    @Component("SecondOrderedInterfaceInterceptor")
+    public class SecondOrderedInterfaceInterceptor extends TestServerInterceptor implements Ordered {
+        @Override
         public int getOrder() {
             return 50;
         }
-
-        public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
-                ServerCallHandler<ReqT, RespT> next) {
-            return next.startCall(call, headers);
-        }
     }
+
 
     @GrpcGlobalServerInterceptor
     @Priority(5)
-    public class FirstPriorityAnnotatedInterceptor implements ServerInterceptor {
-        public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
-                ServerCallHandler<ReqT, RespT> next) {
+    @Component("FirstPriorityAnnotatedInterceptor")
+    public class FirstPriorityAnnotatedInterceptor extends TestServerInterceptor {
+    }
+
+    @GrpcGlobalServerInterceptor
+    @Order(30)
+    ServerInterceptor firstOrderAnnotationInterceptorBean() {
+        return new TestServerInterceptor();
+    }
+
+    @GrpcGlobalServerInterceptor
+    @Order(75)
+    ServerInterceptor secondOrderAnnotationInterceptorBean() {
+        return new TestServerInterceptor();
+    }
+
+    private static class TestServerInterceptor implements ServerInterceptor, BeanNameAware {
+
+        private String name;
+
+        @Override
+        public void setBeanName(final String name) {
+            this.name = name;
+        }
+
+        @Override
+        public final <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
+                final ServerCall<ReqT, RespT> call,
+                final Metadata headers,
+                final ServerCallHandler<ReqT, RespT> next) {
             return next.startCall(call, headers);
         }
+
+        @Override
+        public String toString() {
+            return this.name;
+        }
+
     }
 
 }

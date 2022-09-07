@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2022 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -20,6 +20,7 @@ package net.devh.boot.grpc.server.interceptor;
 import static java.util.Objects.requireNonNull;
 
 import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
@@ -30,8 +31,12 @@ import io.grpc.ServerInterceptor;
 /**
  * A server interceptor wrapper that assigns an order to the underlying server interceptor.
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @deprecated Use the original {@link ServerInterceptor} in combination with {@link Order} (either on the target class
+ *             itself or the related factory method).
+ *
+ * @author Daniel Theuke (daniel.theuke@aequitas-software.de)
  */
+@Deprecated
 public class OrderedServerInterceptor implements ServerInterceptor, Ordered {
 
     private final ServerInterceptor serverInterceptor;
@@ -43,14 +48,14 @@ public class OrderedServerInterceptor implements ServerInterceptor, Ordered {
      * @param serverInterceptor The server interceptor to delegate to.
      * @param order The order of this interceptor.
      */
-    public OrderedServerInterceptor(ServerInterceptor serverInterceptor, int order) {
+    public OrderedServerInterceptor(final ServerInterceptor serverInterceptor, final int order) {
         this.serverInterceptor = requireNonNull(serverInterceptor, "serverInterceptor");
         this.order = order;
     }
 
     @Override
-    public <ReqT, RespT> Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
-            ServerCallHandler<ReqT, RespT> next) {
+    public <ReqT, RespT> Listener<ReqT> interceptCall(final ServerCall<ReqT, RespT> call, final Metadata headers,
+            final ServerCallHandler<ReqT, RespT> next) {
         return this.serverInterceptor.interceptCall(call, headers, next);
     }
 

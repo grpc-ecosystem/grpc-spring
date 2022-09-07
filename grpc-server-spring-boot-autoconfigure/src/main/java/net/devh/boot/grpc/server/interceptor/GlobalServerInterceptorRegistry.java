@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2022 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -18,18 +18,19 @@
 package net.devh.boot.grpc.server.interceptor;
 
 import static java.util.Objects.requireNonNull;
+import static net.devh.boot.grpc.common.util.InterceptorOrder.beanFactoryAwareOrderComparator;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
 import com.google.common.collect.ImmutableList;
 
 import io.grpc.BindableService;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
+import net.devh.boot.grpc.common.util.InterceptorOrder;
 
 /**
  * The global server interceptor registry keeps references to all {@link ServerInterceptor}s that should be registered
@@ -88,12 +89,14 @@ public class GlobalServerInterceptorRegistry {
 
     /**
      * Sorts the given list of interceptors. Use this method if you want to sort custom interceptors. The default
-     * implementation will sort them by using then {@link AnnotationAwareOrderComparator}.
+     * implementation will sort them by using a
+     * {@link InterceptorOrder#beanFactoryAwareOrderComparator(ApplicationContext, Class)
+     * beanDefinitionAwareOrderComparator}.
      *
      * @param interceptors The interceptors to sort.
      */
     public void sortInterceptors(final List<? extends ServerInterceptor> interceptors) {
-        interceptors.sort(AnnotationAwareOrderComparator.INSTANCE);
+        interceptors.sort(beanFactoryAwareOrderComparator(this.applicationContext, ServerInterceptor.class));
     }
 
 }

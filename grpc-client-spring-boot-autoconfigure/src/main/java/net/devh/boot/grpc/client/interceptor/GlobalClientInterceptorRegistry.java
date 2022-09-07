@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2022 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -18,6 +18,7 @@
 package net.devh.boot.grpc.client.interceptor;
 
 import static java.util.Objects.requireNonNull;
+import static net.devh.boot.grpc.common.util.InterceptorOrder.beanFactoryAwareOrderComparator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,7 +94,7 @@ public class GlobalClientInterceptorRegistry {
      * @param interceptors The interceptors to sort.
      */
     public void sortInterceptors(final List<? extends ClientInterceptor> interceptors) {
-        interceptors.sort(AnnotationAwareOrderComparator.INSTANCE);
+        interceptors.sort(beanFactoryAwareOrderComparator(this.applicationContext, ClientInterceptor.class));
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2022 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -51,8 +51,9 @@ public final class KeyStoreUtils {
      */
     public static final String FORMAT_FALLBACK = KeyStore.getDefaultType();
     private static final Map<String, String> FORMAT_MAPPING = ImmutableMap.<String, String>builder()
-            .put("jks", FORMAT_FALLBACK)
+            .put("jks", "JKS")
             .put("p12", "PKCS12")
+            .put("pfx", "PKCS12")
             .build();
 
     /**

@@ -17,6 +17,7 @@
 
 package net.devh.boot.grpc.test.interceptor;
 
+import static net.devh.boot.grpc.common.util.InterceptorOrder.beanFactoryAwareOrderComparator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
@@ -44,7 +45,9 @@ import net.devh.boot.grpc.test.config.ServiceConfiguration;
 import net.devh.boot.grpc.test.config.WithBasicAuthSecurityConfiguration;
 
 @SpringBootTest
-@SpringJUnitConfig(classes = {ServiceConfiguration.class, WithBasicAuthSecurityConfiguration.class,
+@SpringJUnitConfig(classes = {
+        ServiceConfiguration.class,
+        WithBasicAuthSecurityConfiguration.class,
         ManualSecurityConfiguration.class})
 @EnableAutoConfiguration
 @DirtiesContext
@@ -58,16 +61,21 @@ class DefaultServerInterceptorTest {
 
     @Test
     void testOrderingOfTheDefaultInterceptors() {
-        List<ServerInterceptor> expected = new ArrayList<>();
+        final List<ServerInterceptor> expected = new ArrayList<>();
         expected.add(this.applicationContext.getBean(GrpcRequestScope.class));
         expected.add(this.applicationContext.getBean(MetricCollectingServerInterceptor.class));
         expected.add(this.applicationContext.getBean(ExceptionTranslatingServerInterceptor.class));
         expected.add(this.applicationContext.getBean(AuthenticatingServerInterceptor.class));
         expected.add(this.applicationContext.getBean(AuthorizationCheckingServerInterceptor.class));
 
-        List<ServerInterceptor> actual = new ArrayList<>(this.registry.getServerInterceptors());
+        final List<ServerInterceptor> actual = new ArrayList<>(this.registry.getServerInterceptors());
         assertEquals(expected, actual);
 
+        Collections.shuffle(actual);
+        actual.sort(beanFactoryAwareOrderComparator(this.applicationContext, ServerInterceptor.class));
+        assertEquals(expected, actual);
+
+        // This might have to be removed once we have external interceptor beans with @Order on their factory method
         Collections.shuffle(actual);
         AnnotationAwareOrderComparator.sort(actual);
         assertEquals(expected, actual);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2022 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -39,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
  * An {@link AuthenticationProvider} for {@link X509Certificate}s. This provider only supports
  * {@link X509CertificateAuthentication}s.
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @author Daniel Theuke (daniel.theuke@aequitas-software.de)
  */
 @Slf4j
 public class X509CertificateAuthenticationProvider implements AuthenticationProvider {
@@ -47,8 +47,7 @@ public class X509CertificateAuthenticationProvider implements AuthenticationProv
     /**
      * The uses the name of the principal way to extract the username from an {@link Authentication}.
      */
-    public static final Function<Authentication, String> PRINCIPAL_USERNAME_EXTRACTOR =
-            authentication -> authentication.getName();
+    public static final Function<Authentication, String> PRINCIPAL_USERNAME_EXTRACTOR = Authentication::getName;
 
     /**
      * The default way to extract the username from an {@link Authentication} by using the CN.

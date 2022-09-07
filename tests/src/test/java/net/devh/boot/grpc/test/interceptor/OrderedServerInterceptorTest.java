@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021 Michael Zhang <yidongnan@gmail.com>
+ * Copyright (c) 2016-2022 Michael Zhang <yidongnan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -36,40 +36,53 @@ import net.devh.boot.grpc.test.config.OrderedServerInterceptorConfiguration;
 @SpringBootTest
 @SpringJUnitConfig(classes = {OrderedServerInterceptorConfiguration.class, GrpcServerAutoConfiguration.class})
 @DirtiesContext
-public class OrderedServerInterceptorTest {
+class OrderedServerInterceptorTest {
 
     @Autowired
     GlobalServerInterceptorRegistry registry;
 
     @Test
-    public void testOrderingByOrderAnnotation() {
-        int firstInterceptorIndex = findIndexOfClass(registry.getServerInterceptors(),
+    void testOrderingByOrderAnnotation() {
+        final int firstInterceptorIndex = findIndexOfClass(this.registry.getServerInterceptors(),
                 OrderedServerInterceptorConfiguration.FirstOrderAnnotatedInterceptor.class);
-        int secondInterceptorIndex = findIndexOfClass(registry.getServerInterceptors(),
+        final int secondInterceptorIndex = findIndexOfClass(this.registry.getServerInterceptors(),
                 OrderedServerInterceptorConfiguration.SecondOrderAnnotatedInterceptor.class);
         Assert.assertTrue(firstInterceptorIndex < secondInterceptorIndex);
     }
 
     @Test
-    public void testOrderingByPriorityAnnotation() {
-        int firstInterceptorIndex = findIndexOfClass(registry.getServerInterceptors(),
+    void testOrderingByPriorityAnnotation() {
+        final int firstInterceptorIndex = findIndexOfClass(this.registry.getServerInterceptors(),
                 OrderedServerInterceptorConfiguration.FirstPriorityAnnotatedInterceptor.class);
-        int secondInterceptorIndex = findIndexOfClass(registry.getServerInterceptors(),
+        final int secondInterceptorIndex = findIndexOfClass(this.registry.getServerInterceptors(),
                 OrderedServerInterceptorConfiguration.SecondPriorityAnnotatedInterceptor.class);
         Assert.assertTrue(firstInterceptorIndex < secondInterceptorIndex);
     }
 
     @Test
-    public void testOrderingByOrderedInterface() {
-        int firstInterceptorIndex = findIndexOfClass(registry.getServerInterceptors(),
+    void testOrderingByOrderedInterface() {
+        final int firstInterceptorIndex = findIndexOfClass(this.registry.getServerInterceptors(),
                 OrderedServerInterceptorConfiguration.FirstOrderedInterfaceInterceptor.class);
-        int secondInterceptorIndex = findIndexOfClass(registry.getServerInterceptors(),
+        final int secondInterceptorIndex = findIndexOfClass(this.registry.getServerInterceptors(),
                 OrderedServerInterceptorConfiguration.SecondOrderedInterfaceInterceptor.class);
         Assert.assertTrue(firstInterceptorIndex < secondInterceptorIndex);
     }
 
-    private int findIndexOfClass(List<ServerInterceptor> interceptors, Class<?> clazz) {
+    @Test
+    void testOrderingByOrderedBean() {
+        final int firstInterceptorIndex =
+                findIndexOfName(this.registry.getServerInterceptors(), "firstOrderAnnotationInterceptorBean");
+        final int secondInterceptorIndex =
+                findIndexOfName(this.registry.getServerInterceptors(), "secondOrderAnnotationInterceptorBean");
+        Assert.assertTrue(firstInterceptorIndex < secondInterceptorIndex);
+    }
+
+    private int findIndexOfClass(final List<ServerInterceptor> interceptors, final Class<?> clazz) {
         return Iterators.indexOf(interceptors.iterator(), clazz::isInstance);
+    }
+
+    private int findIndexOfName(final List<ServerInterceptor> interceptors, final String name) {
+        return Iterators.indexOf(interceptors.iterator(), bean -> bean.toString().equals(name));
     }
 
 }
