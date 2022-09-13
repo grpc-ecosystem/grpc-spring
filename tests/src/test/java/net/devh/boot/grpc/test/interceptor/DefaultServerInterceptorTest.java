@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
@@ -73,11 +72,6 @@ class DefaultServerInterceptorTest {
 
         Collections.shuffle(actual);
         actual.sort(beanFactoryAwareOrderComparator(this.applicationContext, ServerInterceptor.class));
-        assertEquals(expected, actual);
-
-        // This might have to be removed once we have external interceptor beans with @Order on their factory method
-        Collections.shuffle(actual);
-        AnnotationAwareOrderComparator.sort(actual);
         assertEquals(expected, actual);
     }
 
