@@ -28,7 +28,6 @@ import org.springframework.security.access.intercept.InterceptorStatusToken;
 import org.springframework.security.core.AuthenticationException;
 
 import io.grpc.Metadata;
-import io.grpc.MethodDescriptor;
 import io.grpc.ServerCall;
 import io.grpc.ServerCall.Listener;
 import io.grpc.ServerCallHandler;
@@ -50,7 +49,7 @@ import net.devh.boot.grpc.server.security.check.GrpcSecurityMetadataSource;
  * {@code @EnableGlobalMethodSecurity(proxyTargetClass = true, ...)}
  * </p>
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @author Daniel Theuke (daniel.theuke@aequitas-software.de)
  */
 @Slf4j
 @GrpcGlobalServerInterceptor
@@ -74,12 +73,14 @@ public class AuthorizationCheckingServerInterceptor extends AbstractSecurityInte
 
     @SuppressWarnings("unchecked")
     @Override
-    public <ReqT, RespT> Listener<ReqT> interceptCall(final ServerCall<ReqT, RespT> call, final Metadata headers,
+    public <ReqT, RespT> Listener<ReqT> interceptCall(
+            final ServerCall<ReqT, RespT> call,
+            final Metadata headers,
             final ServerCallHandler<ReqT, RespT> next) {
-        final MethodDescriptor<ReqT, RespT> methodDescriptor = call.getMethodDescriptor();
+
         final InterceptorStatusToken token;
         try {
-            token = beforeInvocation(methodDescriptor);
+            token = beforeInvocation(call);
         } catch (final AuthenticationException | AccessDeniedException e) {
             log.debug("Access denied");
             throw e;
@@ -91,13 +92,12 @@ public class AuthorizationCheckingServerInterceptor extends AbstractSecurityInte
         } finally {
             finallyInvocation(token);
         }
-        // TODO: Call that here or in onHalfClose?
         return (Listener<ReqT>) afterInvocation(token, result);
     }
 
     @Override
     public Class<?> getSecureObjectClass() {
-        return MethodDescriptor.class;
+        return ServerCall.class;
     }
 
     @Override

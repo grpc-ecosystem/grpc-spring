@@ -17,6 +17,13 @@
 
 package net.devh.boot.grpc.test.config;
 
+import static net.devh.boot.grpc.server.security.check.AccessPredicate.SocketPredicate.inProcess;
+import static net.devh.boot.grpc.server.security.check.AccessPredicate.SocketPredicate.inet;
+import static net.devh.boot.grpc.server.security.check.AccessPredicate.fromClientAddress;
+import static net.devh.boot.grpc.server.security.check.AccessPredicate.hasRole;
+import static net.devh.boot.grpc.server.security.check.AccessPredicate.permitAll;
+import static net.devh.boot.grpc.server.security.check.AccessPredicate.toServerAddress;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +33,6 @@ import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.vote.UnanimousBased;
 
-import net.devh.boot.grpc.server.security.check.AccessPredicate;
 import net.devh.boot.grpc.server.security.check.AccessPredicateVoter;
 import net.devh.boot.grpc.server.security.check.GrpcSecurityMetadataSource;
 import net.devh.boot.grpc.server.security.check.ManualGrpcSecurityMetadataSource;
@@ -45,11 +51,14 @@ public class ManualSecurityConfiguration {
     @Bean
     GrpcSecurityMetadataSource grpcSecurityMetadataSource() {
         final ManualGrpcSecurityMetadataSource source = new ManualGrpcSecurityMetadataSource();
-        source.set(TestServiceGrpc.getSecureMethod(), AccessPredicate.hasRole("ROLE_CLIENT1"));
-        source.set(TestServiceGrpc.getSecureDrainMethod(), AccessPredicate.hasRole("ROLE_CLIENT1"));
-        source.set(TestServiceGrpc.getSecureSupplyMethod(), AccessPredicate.hasRole("ROLE_CLIENT1"));
-        source.set(TestServiceGrpc.getSecureBidiMethod(), AccessPredicate.hasRole("ROLE_CLIENT1"));
-        source.setDefault(AccessPredicate.permitAll());
+        source.set(TestServiceGrpc.getSecureMethod(),
+                hasRole("ROLE_CLIENT1").and(fromClientAddress(inProcess().or(inet()))));
+        source.set(TestServiceGrpc.getSecureDrainMethod(),
+                hasRole("ROLE_CLIENT1").and(fromClientAddress(inProcess("test").or(inet()))));
+        source.set(TestServiceGrpc.getSecureSupplyMethod(),
+                hasRole("ROLE_CLIENT1").or(toServerAddress(inProcess("test-secondary"))));
+        source.set(TestServiceGrpc.getSecureBidiMethod(), hasRole("ROLE_CLIENT1"));
+        source.setDefault(permitAll());
         return source;
     }
 

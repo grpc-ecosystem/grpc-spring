@@ -30,6 +30,7 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 
 import io.grpc.MethodDescriptor;
+import io.grpc.ServerCall;
 import io.grpc.ServiceDescriptor;
 
 /**
@@ -41,16 +42,20 @@ import io.grpc.ServiceDescriptor;
  * <b>Note:</b> This instance is initialized with {@link AccessPredicate#denyAll() deny all} as default.
  * </p>
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @author Daniel Theuke (daniel.theuke@aequitas-software.de)
  */
 public final class ManualGrpcSecurityMetadataSource extends AbstractGrpcSecurityMetadataSource {
 
     private final Map<MethodDescriptor<?, ?>, Collection<ConfigAttribute>> accessMap = new HashMap<>();
     private Collection<ConfigAttribute> defaultAttributes = wrap(AccessPredicate.denyAll());
 
-    @Override
-    public Collection<ConfigAttribute> getAttributes(final MethodDescriptor<?, ?> method) {
+    private Collection<ConfigAttribute> getAttributes(final MethodDescriptor<?, ?> method) {
         return this.accessMap.getOrDefault(method, this.defaultAttributes);
+    }
+
+    @Override
+    public Collection<ConfigAttribute> getAttributes(final ServerCall<?, ?> call) {
+        return getAttributes(call.getMethodDescriptor());
     }
 
     @Override

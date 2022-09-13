@@ -107,7 +107,9 @@ public class WithBasicAuthSecurityConfiguration {
     StubTransformer mappedCredentialsStubTransformer() {
         return CallCredentialsHelper.mappedCredentialsStubTransformer(ImmutableMap.<String, CallCredentials>builder()
                 .put("test", testCallCredentials("client1"))
+                .put("test-secondary", testCallCredentials("client1"))
                 .put("noPerm", testCallCredentials("client2"))
+                .put("noPerm-secondary", testCallCredentials("client2"))
                 .put("unknownUser", testCallCredentials("unknownUser"))
                 // .put("noAuth", null)
                 .build());
