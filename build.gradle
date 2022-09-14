@@ -16,7 +16,7 @@ buildscript {
         // https://github.com/google/guava/releases
         guavaVersion = '31.1-jre'
         // https://github.com/protocolbuffers/protobuf/releases
-        protobufVersion = '3.21.5'
+        protobufVersion = '3.21.6'
         protobufGradlePluginVersion = '0.8.19'
 
         // https://github.com/spring-projects/spring-boot/releases
@@ -41,7 +41,7 @@ plugins {
     id 'com.google.protobuf' version "${protobufGradlePluginVersion}"
     id 'io.freefair.lombok' version "${lombokPluginVersion}" apply false
     id 'com.github.ben-manes.versions' version "${versionsPluginVersion}" // gradle dependencyUpdates
-    id 'com.diffplug.spotless' version '6.10.0'
+    id 'com.diffplug.spotless' version '6.11.0'
 }
 
 // If you attempt to build without the `--scan` parameter in `gradle 6.0+` it will cause a build error that it can't find
