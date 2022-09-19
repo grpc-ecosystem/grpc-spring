@@ -29,6 +29,8 @@ buildscript {
         lombokPluginVersion = '6.5.1'
         versioningPluginVersion = '2.15.1'
         versionsPluginVersion = '0.42.0'
+
+        kotlinVersion = "1.6.21"
     }
 }
 
@@ -42,6 +44,7 @@ plugins {
     id 'io.freefair.lombok' version "${lombokPluginVersion}" apply false
     id 'com.github.ben-manes.versions' version "${versionsPluginVersion}" // gradle dependencyUpdates
     id 'com.diffplug.spotless' version '6.11.0'
+    id 'org.jetbrains.kotlin.jvm' version "${kotlinVersion}" apply false
 }
 
 // If you attempt to build without the `--scan` parameter in `gradle 6.0+` it will cause a build error that it can't find

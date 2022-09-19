@@ -1,6 +1,7 @@
 plugins {
     id 'eclipse'
     id 'com.google.protobuf'
+    id "org.jetbrains.kotlin.jvm"
 }
 
 group = 'net.devh'
@@ -80,4 +81,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
 
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+
+    testImplementation 'org.jetbrains.kotlin:kotlin-reflect'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
 }

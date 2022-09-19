@@ -20,6 +20,7 @@ package net.devh.boot.grpc.client.autoconfigure;
 import java.util.Collections;
 import java.util.List;
 
+import net.devh.boot.grpc.client.inject.GrpcClientConstructorInjectBeanFactoryPostProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -67,6 +68,11 @@ public class GrpcClientAutoConfiguration {
     @Bean
     static GrpcClientBeanPostProcessor grpcClientBeanPostProcessor(final ApplicationContext applicationContext) {
         return new GrpcClientBeanPostProcessor(applicationContext);
+    }
+
+    @Bean
+    static GrpcClientConstructorInjectBeanFactoryPostProcessor grpcClientConstructorInjectBeanFactoryPostProcessor(){
+        return new GrpcClientConstructorInjectBeanFactoryPostProcessor();
     }
 
     @Bean
