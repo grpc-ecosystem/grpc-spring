@@ -2,9 +2,8 @@ package net.devh.boot.grpc.client.inject;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Iterator;
 
-class GrpcClientConstructorInjection implements Iterable<GrpcClientConstructorInjection.GrpcClientBeanInjection> {
+class GrpcClientConstructorInjection {
 
     private final ArrayList<GrpcClientBeanInjection> injections = new ArrayList<>();
 
@@ -12,13 +11,13 @@ class GrpcClientConstructorInjection implements Iterable<GrpcClientConstructorIn
     static class GrpcClientBeanInjection implements GrpcClientBean {
 
         private final Class<?> stubClazz;
-        private final Class<?> injectClazz;
+        private final Class<?> targetClazz;
         private final GrpcClient client;
 
-        public GrpcClientBeanInjection(Class<?> stubClazz, GrpcClient client, Class<?> injectClazz) {
+        public GrpcClientBeanInjection(Class<?> stubClazz, GrpcClient client, Class<?> targetClazz) {
             this.stubClazz = stubClazz;
             this.client = client;
-            this.injectClazz = injectClazz;
+            this.targetClazz = targetClazz;
         }
 
         @Override
@@ -41,15 +40,13 @@ class GrpcClientConstructorInjection implements Iterable<GrpcClientConstructorIn
             return GrpcClientBean.class;
         }
 
-        public Class<?> getInjectClazz() {
-            return injectClazz;
+        public Class<?> getTargetClazz() {
+            return targetClazz;
         }
-
     }
 
-    @Override
-    public Iterator<GrpcClientBeanInjection> iterator() {
-        return injections.iterator();
+    public ArrayList<GrpcClientBeanInjection> getInjections() {
+        return injections;
     }
 
     public GrpcClientConstructorInjection add(GrpcClientBeanInjection injection) {

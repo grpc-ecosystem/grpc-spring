@@ -31,6 +31,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -145,11 +146,14 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
      * Triggers registering grpc client beans from GrpcClientConstructorInjects in bean factory.
      */
     private void initGrpClientConstructorInjects() {
+        Iterable<GrpcClientConstructorInjection.GrpcClientBeanInjection> injections;
         try {
-            for (GrpcClientConstructorInjection.GrpcClientBeanInjection injection : getConfigurableBeanFactory().getBean(GrpcClientConstructorInjection.class)) {
-                registerGrpcClientBean(injection, injection.getInjectClazz());
-            }
-        } catch (Exception ignored) {
+            injections = getConfigurableBeanFactory().getBean(GrpcClientConstructorInjection.class).getInjections();
+        } catch (NoSuchBeanDefinitionException ignored) {
+            return;
+        }
+        for (GrpcClientConstructorInjection.GrpcClientBeanInjection injection : injections) {
+            registerGrpcClientBean(injection, injection.getTargetClazz());
         }
     }
 
