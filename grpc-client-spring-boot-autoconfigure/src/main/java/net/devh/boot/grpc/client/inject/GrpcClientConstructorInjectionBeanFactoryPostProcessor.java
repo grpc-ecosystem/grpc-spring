@@ -57,6 +57,6 @@ public class GrpcClientConstructorInjectionBeanFactoryPostProcessor implements B
             }
         });
 
-        beanFactory.registerSingleton("grpcClientInjects", grpcClientConstructorInjection);
+        beanFactory.registerSingleton("grpcClientConstructorInjection", grpcClientConstructorInjection);
     }
 }
