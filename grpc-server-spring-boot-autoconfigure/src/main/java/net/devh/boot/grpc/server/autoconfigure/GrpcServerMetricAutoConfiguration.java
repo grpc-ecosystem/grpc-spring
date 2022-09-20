@@ -36,14 +36,17 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.annotation.Order;
 
 import io.grpc.BindableService;
 import io.grpc.MethodDescriptor;
 import io.grpc.ServiceDescriptor;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.grpc.MetricCollectingServerInterceptor;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.common.util.InterceptorOrder;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
-import net.devh.boot.grpc.server.metric.MetricCollectingServerInterceptor;
+import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 
 /**
  * Auto configuration class for Spring-Boot. This allows zero config server metrics for gRPC services.
@@ -57,7 +60,8 @@ import net.devh.boot.grpc.server.metric.MetricCollectingServerInterceptor;
 @ConditionalOnBean(MeterRegistry.class)
 public class GrpcServerMetricAutoConfiguration {
 
-    @Bean
+    @GrpcGlobalServerInterceptor
+    @Order(InterceptorOrder.ORDER_TRACING_METRICS)
     @ConditionalOnMissingBean
     public MetricCollectingServerInterceptor metricCollectingServerInterceptor(final MeterRegistry registry,
             final Collection<BindableService> services) {
