@@ -137,23 +137,23 @@ public @interface GrpcClient {
      * <b>Example:</b>
      * 
      * <pre>
-     * {@code
+     * <code>
      * class Service {
      *     Service(
-     *         @GrpcClient(value = "test", beanName = "blockingStub")
+     *         &#64;GrpcClient(value = "test", beanName = "blockingStub")
      *         BlockingStub blockingStub,
      *
-     *         @GrpcClient(value = "anotherTest", beanName = "anotherBlockingStub")
+     *         &#64;GrpcClient(value = "anotherTest", beanName = "anotherBlockingStub")
      *         BlockingStub anotherBlockingStub,
      *
      *         // Annotates without bean name, the auto-generated bean name will be used
-     *         @GrpcClient("unnamed")
+     *         &#64;GrpcClient("unnamed")
      *         BlockingStub unnamedBlockingStub,
      *
      *     ) {
      *     }
      * }
-     * }
+     * </code>
      * </pre>
      * </p>
      * 
