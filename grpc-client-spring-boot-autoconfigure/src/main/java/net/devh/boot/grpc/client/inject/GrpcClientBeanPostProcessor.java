@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.InvalidPropertyException;
@@ -49,8 +51,6 @@ import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import net.devh.boot.grpc.client.nameresolver.NameResolverRegistration;
 import net.devh.boot.grpc.client.stubfactory.FallbackStubFactory;
 import net.devh.boot.grpc.client.stubfactory.StubFactory;
-
-import javax.annotation.PostConstruct;
 
 /**
  * This {@link BeanPostProcessor} searches for fields and methods in beans that are annotated with {@link GrpcClient}
@@ -172,7 +172,7 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
      * Registers a Spring Bean with {@link GrpcClientBean} annotation.
      *
      * @param annotation The bean info annotation.
-     * @param clazz      The class to process.
+     * @param clazz The class to process.
      * @return Registered bean name.
      */
     private void registerGrpcClientBean(final GrpcClientBean annotation, final Class<?> clazz) {
@@ -184,7 +184,8 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
             Class<?> existClazz = beanFactory.getBean(beanNameToCreate).getClass();
             if (!existClazz.isAssignableFrom(annotation.clazz())) {
                 throw new BeanCreationException(annotation + " on class " + clazz.getName(), beanNameToCreate,
-                        "Conflicted class while registering bean with same name, register class=" + annotation.clazz().getName() + ", exist class=" + existClazz.getName());
+                        "Conflicted class while registering bean with same name, register class="
+                                + annotation.clazz().getName() + ", exist class=" + existClazz.getName());
             }
             return;
         }

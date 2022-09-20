@@ -126,8 +126,8 @@ public @interface GrpcClient {
     boolean sortInterceptors() default false;
 
     /**
-     * Indicate the bean name of generated stub should be. Avoid conflicts of same stub class register as bean.
-     * Useful for registering different channels for same stub.
+     * Indicate the bean name of generated stub should be. Avoid conflicts of same stub class register as bean. Useful
+     * for registering different channels for same stub.
      *
      * <p>
      * Rules of auto-generated bean name reference to {@link GrpcClientBeanPostProcessor#getBeanName(GrpcClientBean)}.
@@ -135,6 +135,7 @@ public @interface GrpcClient {
      *
      * <p>
      * <b>Example:</b>
+     * 
      * <pre>
      * {@code
      * class Service {
@@ -155,6 +156,7 @@ public @interface GrpcClient {
      * }
      * </pre>
      * </p>
+     * 
      * @return The stub bean name. Auto-generated if value is empty.
      */
     String beanName() default "";

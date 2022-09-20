@@ -20,7 +20,6 @@ package net.devh.boot.grpc.client.autoconfigure;
 import java.util.Collections;
 import java.util.List;
 
-import net.devh.boot.grpc.client.inject.GrpcClientConstructorInjectBeanFactoryPostProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -45,6 +44,7 @@ import net.devh.boot.grpc.client.channelfactory.NettyChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.ShadedNettyChannelFactory;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 import net.devh.boot.grpc.client.inject.GrpcClientBeanPostProcessor;
+import net.devh.boot.grpc.client.inject.GrpcClientConstructorInjectionBeanFactoryPostProcessor;
 import net.devh.boot.grpc.client.interceptor.AnnotationGlobalClientInterceptorConfigurer;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 import net.devh.boot.grpc.client.nameresolver.NameResolverRegistration;
@@ -71,8 +71,8 @@ public class GrpcClientAutoConfiguration {
     }
 
     @Bean
-    static GrpcClientConstructorInjectBeanFactoryPostProcessor grpcClientConstructorInjectBeanFactoryPostProcessor(){
-        return new GrpcClientConstructorInjectBeanFactoryPostProcessor();
+    static GrpcClientConstructorInjectionBeanFactoryPostProcessor grpcClientConstructorInjectBeanFactoryPostProcessor() {
+        return new GrpcClientConstructorInjectionBeanFactoryPostProcessor();
     }
 
     @Bean
