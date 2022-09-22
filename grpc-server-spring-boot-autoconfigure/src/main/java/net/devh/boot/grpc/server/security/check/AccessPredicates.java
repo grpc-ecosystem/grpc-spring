@@ -22,6 +22,8 @@ import java.util.function.Predicate;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 
+import io.grpc.ServerCall;
+
 /**
  * Helper class that contains some internal constants for {@link AccessPredicate}s.
  *
@@ -40,7 +42,7 @@ final class AccessPredicates {
          */
         @Override
         @Deprecated // Should never be called
-        public boolean test(final Authentication t) {
+        public boolean test(final Authentication t, ServerCall<?, ?> serverCall) {
             throw new InternalAuthenticationServiceException(
                     "Tried to execute the 'permit-all' access predicate. The server's security configuration is broken.");
         }

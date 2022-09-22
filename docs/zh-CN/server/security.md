@@ -202,7 +202,7 @@ GrpcSecurityMetadataSource grpcSecurityMetadataSource() {
     source.set(MyServiceGrpc.getMethodA(), AccessPredicate.authenticated());
     source.set(MyServiceGrpc.getMethodB(), AccessPredicate.hasRole("ROLE_USER"));
     source.set(MyServiceGrpc.getMethodC(), AccessPredicate.hasAllRole("ROLE_FOO", "ROLE_BAR"));
-    source.set(MyServiceGrpc.getMethodD(), auth -> "admin".equals(auth.getName()));
+    source.set(MyServiceGrpc.getMethodD(), (auth, call) -> "admin".equals(auth.getName()));
     source.setDefault(AccessPredicate.denyAll());
     return source;
 }

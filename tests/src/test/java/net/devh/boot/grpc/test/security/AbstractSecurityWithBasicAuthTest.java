@@ -19,7 +19,6 @@ package net.devh.boot.grpc.test.security;
 
 import static io.grpc.Status.Code.UNAUTHENTICATED;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -29,7 +28,7 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceFutureStub;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceStub;
 import net.devh.boot.grpc.test.util.DynamicTestCollection;
 
-public abstract class AbstractSecurityWithBasicAuthTest extends AbstractSecurityTest {
+abstract class AbstractSecurityWithBasicAuthTest extends AbstractSecurityTest {
 
     @GrpcClient("unknownUser")
     protected TestServiceStub unknownUserStub;
@@ -46,10 +45,9 @@ public abstract class AbstractSecurityWithBasicAuthTest extends AbstractSecurity
     protected TestServiceFutureStub noAuthFutureStub;
 
     @Override
-    @Test
     @DirtiesContext
     @TestFactory
-    public DynamicTestCollection unprotectedCallTests() {
+    DynamicTestCollection unprotectedCallTests() {
         return super.unprotectedCallTests()
                 .add("unprotected-unknownUser",
                         () -> assertNormalCallFailure(this.unknownUserStub, this.unknownUserBlockingStub,
@@ -59,10 +57,9 @@ public abstract class AbstractSecurityWithBasicAuthTest extends AbstractSecurity
     }
 
     @Override
-    @Test
     @DirtiesContext
     @TestFactory
-    public DynamicTestCollection unaryCallTest() {
+    DynamicTestCollection unaryCallTest() {
         return super.unaryCallTest()
                 .add("unary-unknownUser",
                         () -> assertUnaryCallFailure(this.unknownUserStub, this.unknownUserBlockingStub,
@@ -73,10 +70,9 @@ public abstract class AbstractSecurityWithBasicAuthTest extends AbstractSecurity
     }
 
     @Override
-    @Test
     @DirtiesContext
     @TestFactory
-    public DynamicTestCollection clientStreamingCallTests() {
+    DynamicTestCollection clientStreamingCallTests() {
         return super.clientStreamingCallTests()
                 .add("clientStreaming-unknownUser",
                         () -> assertClientStreamingCallFailure(this.unknownUserStub, UNAUTHENTICATED))
@@ -85,10 +81,9 @@ public abstract class AbstractSecurityWithBasicAuthTest extends AbstractSecurity
     }
 
     @Override
-    @Test
     @DirtiesContext
     @TestFactory
-    public DynamicTestCollection serverStreamingCallTests() {
+    DynamicTestCollection serverStreamingCallTests() {
         return super.serverStreamingCallTests()
                 .add("serverStreaming-unknownUser",
                         () -> assertServerStreamingCallFailure(this.unknownUserStub, UNAUTHENTICATED))
@@ -97,10 +92,9 @@ public abstract class AbstractSecurityWithBasicAuthTest extends AbstractSecurity
     }
 
     @Override
-    @Test
     @DirtiesContext
     @TestFactory
-    public DynamicTestCollection bidiStreamingCallTests() {
+    DynamicTestCollection bidiStreamingCallTests() {
         return super.bidiStreamingCallTests()
                 .add("bidiStreaming-unknownUser",
                         () -> assertServerStreamingCallFailure(this.unknownUserStub, UNAUTHENTICATED))

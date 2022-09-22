@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -46,7 +45,7 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceStub;
 import net.devh.boot.grpc.test.util.DynamicTestCollection;
 import net.devh.boot.grpc.test.util.TriConsumer;
 
-public abstract class AbstractSecurityTest {
+abstract class AbstractSecurityTest {
 
     protected static final Empty EMPTY = Empty.getDefaultInstance();
 
@@ -69,10 +68,9 @@ public abstract class AbstractSecurityTest {
      *
      * @return The tests.
      */
-    @Test
     @DirtiesContext
     @TestFactory
-    public DynamicTestCollection unprotectedCallTests() {
+    DynamicTestCollection unprotectedCallTests() {
         return DynamicTestCollection.create()
                 .add("unprotected-default",
                         () -> assertNormalCallSuccess(this.serviceStub, this.blockingStub, this.futureStub))
@@ -104,10 +102,9 @@ public abstract class AbstractSecurityTest {
      *
      * @return The tests.
      */
-    @Test
     @DirtiesContext
     @TestFactory
-    public DynamicTestCollection unaryCallTest() {
+    DynamicTestCollection unaryCallTest() {
         return DynamicTestCollection.create()
                 .add("unary-default",
                         () -> assertUnaryCallSuccess(this.serviceStub, this.blockingStub, this.futureStub))
@@ -140,10 +137,9 @@ public abstract class AbstractSecurityTest {
      *
      * @return The tests.
      */
-    @Test
     @DirtiesContext
     @TestFactory
-    public DynamicTestCollection clientStreamingCallTests() {
+    DynamicTestCollection clientStreamingCallTests() {
         return DynamicTestCollection.create()
                 .add("clientStreaming-default", () -> assertClientStreamingCallSuccess(this.serviceStub))
                 .add("clientStreaming-noPerm",
@@ -170,9 +166,9 @@ public abstract class AbstractSecurityTest {
      *
      * @return The tests.
      */
-    @Test
     @DirtiesContext
-    public DynamicTestCollection serverStreamingCallTests() {
+    @TestFactory
+    DynamicTestCollection serverStreamingCallTests() {
         return DynamicTestCollection.create()
                 .add("serverStreaming-default",
                         () -> assertServerStreamingCallSuccess(this.serviceStub))
@@ -197,9 +193,9 @@ public abstract class AbstractSecurityTest {
      *
      * @return The tests.
      */
-    @Test
     @DirtiesContext
-    public DynamicTestCollection bidiStreamingCallTests() {
+    @TestFactory
+    DynamicTestCollection bidiStreamingCallTests() {
         return DynamicTestCollection.create()
                 .add("bidiStreaming-default", () -> assertBidiCallSuccess(this.serviceStub))
                 .add("bidiStreaming-noPerm", () -> assertBidiCallFailure(this.noPermStub, PERMISSION_DENIED));

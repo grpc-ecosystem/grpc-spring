@@ -21,27 +21,27 @@ import java.util.Collection;
 
 import org.springframework.security.access.ConfigAttribute;
 
-import io.grpc.MethodDescriptor;
+import io.grpc.ServerCall;
 
 /**
  * Abstract implementation of {@link GrpcSecurityMetadataSource} which resolves the secured object type to a
- * {@link MethodDescriptor}.
+ * {@link ServerCall}.
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @author Daniel Theuke (daniel.theuke@aequitas-software.de)
  */
 public abstract class AbstractGrpcSecurityMetadataSource implements GrpcSecurityMetadataSource {
 
     @Override
     public final Collection<ConfigAttribute> getAttributes(final Object object) throws IllegalArgumentException {
-        if (object instanceof MethodDescriptor) {
-            return getAttributes((MethodDescriptor<?, ?>) object);
+        if (object instanceof ServerCall) {
+            return getAttributes((ServerCall<?, ?>) object);
         }
-        throw new IllegalArgumentException("Object must be a non-null MethodDescriptor");
+        throw new IllegalArgumentException("Object must be a ServerCall");
     }
 
     @Override
     public final boolean supports(final Class<?> clazz) {
-        return MethodDescriptor.class.equals(clazz);
+        return ServerCall.class.isAssignableFrom(clazz);
     }
 
 }

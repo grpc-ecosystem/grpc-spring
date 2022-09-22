@@ -23,12 +23,14 @@ import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 
+import io.grpc.ServerCall;
+
 /**
  * An {@link AccessDecisionVoter} that checks for {@link AccessPredicateConfigAttribute}s.
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @author Daniel Theuke (daniel.theuke@aequitas-software.de)
  */
-public class AccessPredicateVoter implements AccessDecisionVoter<Object> {
+public class AccessPredicateVoter implements AccessDecisionVoter<ServerCall<?, ?>> {
 
     @Override
     public boolean supports(final ConfigAttribute attribute) {
@@ -37,17 +39,17 @@ public class AccessPredicateVoter implements AccessDecisionVoter<Object> {
 
     @Override
     public boolean supports(final Class<?> clazz) {
-        return true;
+        return ServerCall.class.isAssignableFrom(clazz);
     }
 
     @Override
-    public int vote(final Authentication authentication, final Object object,
+    public int vote(final Authentication authentication, final ServerCall<?, ?> serverCall,
             final Collection<ConfigAttribute> attributes) {
         final AccessPredicateConfigAttribute attr = find(attributes);
         if (attr == null) {
             return ACCESS_ABSTAIN;
         }
-        final boolean allowed = attr.getAccessPredicate().test(authentication);
+        final boolean allowed = attr.getAccessPredicate().test(authentication, serverCall);
         return allowed ? ACCESS_GRANTED : ACCESS_DENIED;
     }
 
