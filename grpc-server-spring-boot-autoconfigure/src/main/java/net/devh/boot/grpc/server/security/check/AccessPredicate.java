@@ -19,9 +19,12 @@ package net.devh.boot.grpc.server.security.check;
 
 import static java.util.Objects.requireNonNull;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -30,29 +33,65 @@ import org.springframework.security.core.GrantedAuthority;
 
 import com.google.common.collect.ImmutableSet;
 
+import io.grpc.Grpc;
+import io.grpc.ServerCall;
+import io.grpc.inprocess.InProcessSocketAddress;
+
 /**
  * Predicate that can be used to check whether the given {@link Authentication} has access to the protected
  * service/method. This interface assumes, that the user is authenticated before the method is called.
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @author Daniel Theuke (daniel.theuke@aequitas-software.de)
  */
-public interface AccessPredicate extends Predicate<Authentication> {
+public interface AccessPredicate extends BiPredicate<Authentication, ServerCall<?, ?>> {
+
+    /**
+     * Checks whether the given user is authorized to execute the given call.
+     *
+     * @param authentication The authentication to check.
+     * @param serverCall The secure object being called.
+     * @return True, if the user has access. False otherwise.
+     */
+    @Override
+    boolean test(Authentication authentication, ServerCall<?, ?> serverCall);
 
     @Override
     default AccessPredicate negate() {
-        return t -> !test(t);
+        return (a, c) -> !test(a, c);
     }
 
-    @Override
+    /**
+     * Combines this predicate with the given predicate using the {@code AND} operator.
+     *
+     * @param other The other predicate to call.
+     * @return The combined predicate.
+     */
     default AccessPredicate and(final Predicate<? super Authentication> other) {
         requireNonNull(other);
-        return t -> test(t) && other.test(t);
+        return (a, c) -> test(a, c) && other.test(a);
     }
 
     @Override
+    default AccessPredicate and(final BiPredicate<? super Authentication, ? super ServerCall<?, ?>> other) {
+        requireNonNull(other);
+        return (a, c) -> test(a, c) && other.test(a, c);
+    }
+
+    /**
+     * Combines this predicate with the given predicate using the {@code OR} operator.
+     *
+     * @param other The other predicate to call.
+     * @return The combined predicate.
+     */
     default AccessPredicate or(final Predicate<? super Authentication> other) {
         requireNonNull(other);
-        return t -> test(t) || other.test(t);
+        return (a, c) -> test(a, c) || other.test(a);
+    }
+
+    @Override
+    default AccessPredicate or(final BiPredicate<? super Authentication, ? super ServerCall<?, ?>> other) {
+        requireNonNull(other);
+        return (a, c) -> test(a, c) || other.test(a, c);
     }
 
     /**
@@ -80,7 +119,7 @@ public interface AccessPredicate extends Predicate<Authentication> {
      * @return A newly created AccessPredicate that always returns true.
      */
     static AccessPredicate authenticated() {
-        return authentication -> true;
+        return (a, c) -> true;
     }
 
     /**
@@ -89,7 +128,7 @@ public interface AccessPredicate extends Predicate<Authentication> {
      * @return A newly created AccessPredicate that checks whether the user is explicitly authenticated.
      */
     static AccessPredicate fullyAuthenticated() {
-        return authentication -> !(authentication instanceof AnonymousAuthenticationToken);
+        return (a, c) -> !(a instanceof AnonymousAuthenticationToken);
     }
 
     /**
@@ -102,7 +141,7 @@ public interface AccessPredicate extends Predicate<Authentication> {
      * @return A newly created AccessPredicate that always returns false.
      */
     static AccessPredicate denyAll() {
-        return authentication -> false;
+        return (a, c) -> false;
     }
 
     /**
@@ -114,8 +153,8 @@ public interface AccessPredicate extends Predicate<Authentication> {
      */
     static AccessPredicate hasRole(final String role) {
         requireNonNull(role, "role");
-        return authentication -> {
-            for (final GrantedAuthority authority : authentication.getAuthorities()) {
+        return (a, c) -> {
+            for (final GrantedAuthority authority : a.getAuthorities()) {
                 if (role.equals(authority.getAuthority())) {
                     return true;
                 }
@@ -133,8 +172,8 @@ public interface AccessPredicate extends Predicate<Authentication> {
      */
     static AccessPredicate hasAuthority(final GrantedAuthority role) {
         requireNonNull(role, "role");
-        return authentication -> {
-            for (final GrantedAuthority authority : authentication.getAuthorities()) {
+        return (a, c) -> {
+            for (final GrantedAuthority authority : a.getAuthorities()) {
                 if (role.equals(authority)) {
                     return true;
                 }
@@ -166,8 +205,8 @@ public interface AccessPredicate extends Predicate<Authentication> {
         requireNonNull(roles, "roles");
         roles.forEach(role -> requireNonNull(role, "role"));
         final Set<String> immutableRoles = ImmutableSet.copyOf(roles);
-        return authentication -> {
-            for (final GrantedAuthority authority : authentication.getAuthorities()) {
+        return (a, c) -> {
+            for (final GrantedAuthority authority : a.getAuthorities()) {
                 if (immutableRoles.contains(authority.getAuthority())) {
                     return true;
                 }
@@ -199,8 +238,8 @@ public interface AccessPredicate extends Predicate<Authentication> {
         requireNonNull(roles, "roles");
         roles.forEach(role -> requireNonNull(role, "role"));
         final Set<GrantedAuthority> immutableRoles = ImmutableSet.copyOf(roles);
-        return authentication -> {
-            for (final GrantedAuthority authority : authentication.getAuthorities()) {
+        return (a, c) -> {
+            for (final GrantedAuthority authority : a.getAuthorities()) {
                 if (immutableRoles.contains(authority)) {
                     return true;
                 }
@@ -232,8 +271,8 @@ public interface AccessPredicate extends Predicate<Authentication> {
         requireNonNull(roles, "roles");
         roles.forEach(role -> requireNonNull(role, "role"));
         final Set<String> immutableRoles = ImmutableSet.copyOf(roles);
-        return authentication -> {
-            for (final GrantedAuthority authority : authentication.getAuthorities()) {
+        return (a, c) -> {
+            for (final GrantedAuthority authority : a.getAuthorities()) {
                 if (!immutableRoles.contains(authority.getAuthority())) {
                     return false;
                 }
@@ -265,14 +304,102 @@ public interface AccessPredicate extends Predicate<Authentication> {
         requireNonNull(roles, "roles");
         roles.forEach(role -> requireNonNull(role, "role"));
         final Set<GrantedAuthority> immutableRoles = ImmutableSet.copyOf(roles);
-        return authentication -> {
-            for (final GrantedAuthority authority : authentication.getAuthorities()) {
+        return (a, c) -> {
+            for (final GrantedAuthority authority : a.getAuthorities()) {
                 if (!immutableRoles.contains(authority)) {
                     return false;
                 }
             }
             return true;
         };
+    }
+
+    /**
+     * Checks that the client connected from the given address.
+     *
+     * @param remoteAddressCheck The check to apply to the client address.
+     * @return A newly created AccessPredicate that only returns true, if the client address passes the given check.
+     *
+     * @see Grpc#TRANSPORT_ATTR_REMOTE_ADDR
+     */
+    static AccessPredicate fromClientAddress(final Predicate<? super SocketAddress> remoteAddressCheck) {
+        requireNonNull(remoteAddressCheck, "remoteAddressCheck");
+        return (a, c) -> remoteAddressCheck.test(c.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR));
+    }
+
+    /**
+     * Checks that the client connected to the given server address.
+     *
+     * @param localAddressCheck The check to apply to the server address.
+     * @return A newly created AccessPredicate that only returns true, if the server address passes the given check.
+     *
+     * @see Grpc#TRANSPORT_ATTR_LOCAL_ADDR
+     */
+    static AccessPredicate toServerAddress(final Predicate<? super SocketAddress> localAddressCheck) {
+        requireNonNull(localAddressCheck, "localAddressCheck");
+        return (a, c) -> localAddressCheck.test(c.getAttributes().get(Grpc.TRANSPORT_ATTR_LOCAL_ADDR));
+    }
+
+    /**
+     * Some helper methods used to create {@link Predicate}s for {@link SocketAddress}es.
+     */
+    interface SocketPredicate extends Predicate<SocketAddress> {
+
+        /**
+         * Checks the type of the socket address.
+         *
+         * @param type The expected class of the socket address.
+         * @return The newly created socket predicate.
+         */
+        static SocketPredicate type(final Class<? extends SocketAddress> type) {
+            requireNonNull(type, "type");
+            return type::isInstance;
+        }
+
+        /**
+         * Checks the type of the socket address and the given condition.
+         *
+         * @param <T> The expected type of the socket address.
+         * @param type The expected class of the socket address.
+         * @param condition The additional condition the socket has to pass.
+         * @return The newly created socket predicate.
+         */
+        @SuppressWarnings("unchecked")
+        static <T> SocketPredicate typeAnd(final Class<T> type, final Predicate<T> condition) {
+            requireNonNull(type, "type");
+            requireNonNull(condition, "condition");
+            return s -> type.isInstance(s) && condition.test((T) s);
+        }
+
+        /**
+         * Checks that the given socket address is an {@link InProcessSocketAddress}.
+         *
+         * @return The newly created socket predicate.
+         */
+        static SocketPredicate inProcess() {
+            return type(InProcessSocketAddress.class);
+        }
+
+        /**
+         * Checks that the given socket address is an {@link InProcessSocketAddress} with the given name.
+         *
+         * @param name The name of in process connection.
+         * @return The newly created socket predicate.
+         */
+        static SocketPredicate inProcess(final String name) {
+            requireNonNull(name, "name");
+            return typeAnd(InProcessSocketAddress.class, s -> name.equals(s.getName()));
+        }
+
+        /**
+         * Checks that the given socket address is a {@link InetSocketAddress}.
+         *
+         * @return The newly created socket predicate.
+         */
+        static SocketPredicate inet() {
+            return type(InetSocketAddress.class);
+        }
+
     }
 
 }

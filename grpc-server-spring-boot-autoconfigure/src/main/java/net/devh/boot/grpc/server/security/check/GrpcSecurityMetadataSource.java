@@ -23,7 +23,7 @@ import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityMetadataSource;
 
-import io.grpc.MethodDescriptor;
+import io.grpc.ServerCall;
 
 /**
  * A {@link SecurityMetadataSource} for grpc requests.
@@ -33,17 +33,17 @@ import io.grpc.MethodDescriptor;
  * {@link AccessDecisionVoter} and a {@link GrpcSecurityMetadataSource} are present in the application context.
  * </p>
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @author Daniel Theuke (daniel.theuke@aequitas-software.de)
  */
 public interface GrpcSecurityMetadataSource extends SecurityMetadataSource {
 
     /**
      * Accesses the {@code ConfigAttribute}s that apply to a given secure object.
      *
-     * @param method The grpc method being secured.
+     * @param call The grpc call being secured.
      * @return The attributes that apply to the passed in secured object. Should return an empty collection if there are
      *         no applicable attributes.
      */
-    Collection<ConfigAttribute> getAttributes(final MethodDescriptor<?, ?> method);
+    Collection<ConfigAttribute> getAttributes(final ServerCall<?, ?> call);
 
 }

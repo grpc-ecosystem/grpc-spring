@@ -50,9 +50,9 @@ import net.devh.boot.grpc.test.config.WithCertificateSecurityConfiguration;
         classes = {ServiceConfiguration.class, BaseAutoConfiguration.class, ManualSecurityConfiguration.class,
                 WithCertificateSecurityConfiguration.class})
 @DirtiesContext
-public class ManualSecurityWithCertificateTest extends AbstractSecurityTest {
+class ManualSecurityWithCertificateTest extends AbstractSecurityTest {
 
-    public ManualSecurityWithCertificateTest() {
+    ManualSecurityWithCertificateTest() {
         log.info("--- ManualSecurityWithCertificateTest ---");
     }
 
