@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
  */
 @Component
 class ConstructorInjectionAnotherTestContainer(
-    @GrpcClient("test", beanName = "blockingStub")
+    @GrpcClient("test")
     val blockingStub: TestServiceGrpc.TestServiceBlockingStub,
 
     @GrpcClient("unnamed")

@@ -70,17 +70,11 @@ class GrpcClientConstructorInjectionTest {
         public CustomGrpc.FactoryMethodAccessibleStub anotherServiceClientBean;
 
         public GrpcClientConstructorInjectionBean(
-                @GrpcClient(value = "test",
-                        beanName = "blockingStub") TestServiceGrpc.TestServiceBlockingStub blockingStub,
-
+                @GrpcClient("test") TestServiceGrpc.TestServiceBlockingStub blockingStub,
                 @GrpcClient("test") TestServiceGrpc.TestServiceFutureStub futureStubForClientTest,
-
-                @GrpcClient(value = "anotherTest",
-                        beanName = "anotherBlockingStub") TestServiceGrpc.TestServiceBlockingStub anotherBlockingStub,
-
+                @GrpcClient("anotherTest") TestServiceGrpc.TestServiceBlockingStub anotherBlockingStub,
                 @GrpcClient("unnamed") TestServiceGrpc.TestServiceBlockingStub unnamedTestServiceBlockingStub,
-
-                @GrpcClient(value = "test") CustomGrpc.FactoryMethodAccessibleStub anotherServiceClientBean) {
+                @GrpcClient("test") CustomGrpc.FactoryMethodAccessibleStub anotherServiceClientBean) {
             this.blockingStub = blockingStub;
             this.futureStubForClientTest = futureStubForClientTest;
             this.anotherBlockingStub = anotherBlockingStub;

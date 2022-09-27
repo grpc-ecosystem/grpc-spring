@@ -83,8 +83,39 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     }
 
     @PostConstruct
-    private void init() {
-        initGrpClientConstructorInjects();
+    public void init() {
+        initGrpClientConstructorInjections();
+    }
+
+    /**
+     * Triggers registering grpc client beans from GrpcClientConstructorInjection.
+     */
+    private void initGrpClientConstructorInjections() {
+        Iterable<GrpcClientConstructorInjection.Registry> registries;
+        try {
+            registries = getConfigurableBeanFactory().getBean(GrpcClientConstructorInjection.class).getRegistries();
+        } catch (NoSuchBeanDefinitionException ignored) {
+            return;
+        }
+
+        for (GrpcClientConstructorInjection.Registry registry : registries) {
+            try {
+                Object clientStubInstance =
+                        processInjectionPoint(null, registry.getStubClass(), registry.getClient());
+
+                // Bind generated client stub instance to specific constructor parameter by ConstructorArgumentValues in
+                // BeanDefinition
+                registry.getTargetBeanDefinition()
+                        .getConstructorArgumentValues()
+                        .addIndexedArgumentValue(registry.getConstructorArgumentIndex(), clientStubInstance);
+
+            } catch (final Exception e) {
+                throw new BeanCreationException("@GrpcClient on class " + registry.getTargetClazz().getName(),
+                        "@GrpcClient constructor injection, parameter index=" + registry.getConstructorArgumentIndex(),
+                        "Unexpected exception while binding gRPC client stub instance to constructor parameter",
+                        e);
+            }
+        }
     }
 
     @Override
@@ -142,20 +173,6 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
         }
     }
 
-    /**
-     * Triggers registering grpc client beans from GrpcClientConstructorInjects in bean factory.
-     */
-    private void initGrpClientConstructorInjects() {
-        Iterable<GrpcClientConstructorInjection.GrpcClientBeanInjection> injections;
-        try {
-            injections = getConfigurableBeanFactory().getBean(GrpcClientConstructorInjection.class).getInjections();
-        } catch (NoSuchBeanDefinitionException ignored) {
-            return;
-        }
-        for (GrpcClientConstructorInjection.GrpcClientBeanInjection injection : injections) {
-            registerGrpcClientBean(injection, injection.getTargetClazz());
-        }
-    }
 
     /**
      * Processes the given class's {@link GrpcClientBean} annotations.
@@ -164,40 +181,17 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
      */
     private void processGrpcClientBeansAnnotations(final Class<?> clazz) {
         for (final GrpcClientBean annotation : clazz.getAnnotationsByType(GrpcClientBean.class)) {
-            registerGrpcClientBean(annotation, clazz);
-        }
-    }
-
-    /**
-     * Registers a Spring Bean with {@link GrpcClientBean} annotation.
-     *
-     * @param annotation The bean info annotation.
-     * @param clazz The class to process.
-     * @return Registered bean name.
-     */
-    private void registerGrpcClientBean(final GrpcClientBean annotation, final Class<?> clazz) {
-        final String beanNameToCreate = getBeanName(annotation);
-        final ConfigurableListableBeanFactory beanFactory = getConfigurableBeanFactory();
-
-        // Skips if same class with same name registered in bean factory
-        if (beanFactory.containsSingleton(beanNameToCreate)) {
-            Class<?> existClazz = beanFactory.getBean(beanNameToCreate).getClass();
-            if (!existClazz.isAssignableFrom(annotation.clazz())) {
+            final String beanNameToCreate = getBeanName(annotation);
+            try {
+                final ConfigurableListableBeanFactory beanFactory = getConfigurableBeanFactory();
+                final Object beanValue =
+                        processInjectionPoint(null, annotation.clazz(), annotation.client());
+                beanFactory.registerSingleton(beanNameToCreate, beanValue);
+            } catch (final Exception e) {
                 throw new BeanCreationException(annotation + " on class " + clazz.getName(), beanNameToCreate,
-                        "Conflicted class while registering bean with same name, register class="
-                                + annotation.clazz().getName() + ", exist class=" + existClazz.getName());
+                        "Unexpected exception while creating and registering bean",
+                        e);
             }
-            return;
-        }
-
-        try {
-            final Object beanValue =
-                    processInjectionPoint(null, annotation.clazz(), annotation.client());
-            beanFactory.registerSingleton(beanNameToCreate, beanValue);
-        } catch (final Exception e) {
-            throw new BeanCreationException(annotation + " on class " + clazz.getName(), beanNameToCreate,
-                    "Unexpected exception while creating and registering bean",
-                    e);
         }
     }
 

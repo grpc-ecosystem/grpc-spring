@@ -74,11 +74,6 @@ class GrpcClientBeanPostProcessorTest {
                     }
 
                     @Override
-                    public String beanName() {
-                        return "";
-                    }
-
-                    @Override
                     @SuppressWarnings("unchecked")
                     public Class<? extends ClientInterceptor>[] interceptors() {
                         return new Class[] {Interceptor1.class};
@@ -112,11 +107,6 @@ class GrpcClientBeanPostProcessorTest {
                     @Override
                     public boolean sortInterceptors() {
                         return false;
-                    }
-
-                    @Override
-                    public String beanName() {
-                        return "";
                     }
 
                     @Override

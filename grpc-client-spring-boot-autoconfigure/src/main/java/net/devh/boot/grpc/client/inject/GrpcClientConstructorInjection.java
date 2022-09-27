@@ -17,56 +17,57 @@
 
 package net.devh.boot.grpc.client.inject;
 
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+
+import org.springframework.beans.factory.config.BeanDefinition;
 
 class GrpcClientConstructorInjection {
 
-    private final ArrayList<GrpcClientBeanInjection> injections = new ArrayList<>();
+    private final ArrayList<Registry> injections = new ArrayList<>();
 
-    @SuppressWarnings("ClassExplicitlyAnnotation")
-    static class GrpcClientBeanInjection implements GrpcClientBean {
+    static class Registry {
 
         private final Class<?> stubClazz;
-        private final Class<?> targetClazz;
         private final GrpcClient client;
+        private final Class<?> targetClazz;
+        private final BeanDefinition targetBeanDefinition;
+        private final int constructorArgumentIndex;
 
-        public GrpcClientBeanInjection(Class<?> stubClazz, GrpcClient client, Class<?> targetClazz) {
+        public Registry(Class<?> stubClazz, GrpcClient client, Class<?> targetClazz,
+                BeanDefinition targetBeanDefinition, int constructorArgumentIndex) {
             this.stubClazz = stubClazz;
             this.client = client;
             this.targetClazz = targetClazz;
+            this.targetBeanDefinition = targetBeanDefinition;
+            this.constructorArgumentIndex = constructorArgumentIndex;
         }
 
-        @Override
-        public Class<?> clazz() {
+        public Class<?> getStubClass() {
             return stubClazz;
         }
 
-        @Override
-        public String beanName() {
-            return client.beanName();
-        }
-
-        @Override
-        public GrpcClient client() {
+        public GrpcClient getClient() {
             return client;
-        }
-
-        @Override
-        public Class<? extends Annotation> annotationType() {
-            return GrpcClientBean.class;
         }
 
         public Class<?> getTargetClazz() {
             return targetClazz;
         }
+
+        public BeanDefinition getTargetBeanDefinition() {
+            return targetBeanDefinition;
+        }
+
+        public int getConstructorArgumentIndex() {
+            return constructorArgumentIndex;
+        }
     }
 
-    public ArrayList<GrpcClientBeanInjection> getInjections() {
+    public ArrayList<Registry> getRegistries() {
         return injections;
     }
 
-    public GrpcClientConstructorInjection add(GrpcClientBeanInjection injection) {
+    public GrpcClientConstructorInjection add(Registry injection) {
         injections.add(injection);
         return this;
     }

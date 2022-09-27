@@ -90,7 +90,7 @@ class GrpcClientBeanInjectionNegativeTest {
             beanName = "duplicateStub",
             client = @GrpcClient("test"))
     @GrpcClientBean(
-            clazz = TestServiceGrpc.TestServiceFutureStub.class,
+            clazz = TestServiceGrpc.TestServiceBlockingStub.class,
             beanName = "duplicateStub",
             client = @GrpcClient("test"))
     public static class TwoSameGrpcClientBeansConfig {

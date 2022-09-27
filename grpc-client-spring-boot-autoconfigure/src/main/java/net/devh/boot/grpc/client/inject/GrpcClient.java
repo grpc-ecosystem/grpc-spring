@@ -44,11 +44,6 @@ import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
  * automatically populated/invoked by Spring.
  *
  * <p>
- * Support for constructor injection, please see docs on {@link GrpcClient#beanName()} for usages of same stub with
- * different channels.
- * </p>
- *
- * <p>
  * <b>Note:</b> Fields/Methods that are annotated with this annotation should NOT be annotated with {@link Autowired} or
  * {@link Inject} (conflict).
  * </p>
@@ -124,41 +119,5 @@ public @interface GrpcClient {
      *         otherwise.
      */
     boolean sortInterceptors() default false;
-
-    /**
-     * Indicate the bean name of generated stub should be. Avoid conflicts of same stub class register as bean. Useful
-     * for registering different channels for same stub.
-     *
-     * <p>
-     * Rules of auto-generated bean name reference to {@link GrpcClientBeanPostProcessor#getBeanName(GrpcClientBean)}.
-     * </p>
-     *
-     * <p>
-     * <b>Example:</b>
-     * 
-     * <pre>
-     * <code>
-     * class Service {
-     *     Service(
-     *         &#64;GrpcClient(value = "test", beanName = "blockingStub")
-     *         BlockingStub blockingStub,
-     *
-     *         &#64;GrpcClient(value = "anotherTest", beanName = "anotherBlockingStub")
-     *         BlockingStub anotherBlockingStub,
-     *
-     *         // Annotates without bean name, the auto-generated bean name will be used
-     *         &#64;GrpcClient("unnamed")
-     *         BlockingStub unnamedBlockingStub,
-     *
-     *     ) {
-     *     }
-     * }
-     * </code>
-     * </pre>
-     * </p>
-     * 
-     * @return The stub bean name. Auto-generated if value is empty.
-     */
-    String beanName() default "";
 
 }

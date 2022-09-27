@@ -3,7 +3,8 @@ package net.devh.boot.grpc.test.kotlin.inject
 import io.grpc.Channel
 import net.devh.boot.grpc.client.inject.GrpcClient
 import net.devh.boot.grpc.test.inject.CustomGrpc
-import net.devh.boot.grpc.test.proto.TestServiceGrpc.*
+import net.devh.boot.grpc.test.proto.TestServiceGrpc
+import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceBlockingStub
 import org.springframework.stereotype.Component
 
 /**
@@ -16,20 +17,20 @@ class ConstructorInjectionTestContainer(
     val channel: Channel,
 
     @GrpcClient("test")
-    val stub: TestServiceStub,
+    val stub: TestServiceGrpc.TestServiceStub,
 
-    @GrpcClient("test", beanName = "blockingStub")
+    @GrpcClient("test")
     val blockingStub: TestServiceBlockingStub,
 
-    @GrpcClient("test", beanName = "futureStubForClientTest")
-    val futureStubForClientTest: TestServiceFutureStub,
+    @GrpcClient("test")
+    val futureStubForClientTest: TestServiceGrpc.TestServiceFutureStub,
 
-    @GrpcClient("anotherTest", beanName = "anotherBlockingStub")
+    @GrpcClient("anotherTest")
     val anotherBlockingStub: TestServiceBlockingStub,
 
     @GrpcClient("unnamed")
     val unnamedTestServiceBlockingStub: TestServiceBlockingStub,
 
-    @GrpcClient("test", beanName = "anotherServiceClientBean")
-    val anotherServiceClientBean: CustomGrpc.FactoryMethodAccessibleStub
+    @GrpcClient("test")
+    val anotherServiceClientBean: CustomGrpc.FactoryMethodAccessibleStub,
 )

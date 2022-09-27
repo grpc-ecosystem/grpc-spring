@@ -42,17 +42,23 @@ public class GrpcClientConstructorInjectionBeanFactoryPostProcessor implements B
 
             // Search for GrpcClient annotation in all parameters of all constructors
             for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-                for (Parameter parameter : constructor.getParameters()) {
+                Parameter[] parameters = constructor.getParameters();
+                for (int i = 0; i < parameters.length; i++) {
+                    Parameter parameter = parameters[i];
                     GrpcClient client = parameter.getAnnotation(GrpcClient.class);
                     if (client == null) {
                         continue;
                     }
-                    GrpcClientConstructorInjection.GrpcClientBeanInjection injection =
-                            new GrpcClientConstructorInjection.GrpcClientBeanInjection(
+
+                    GrpcClientConstructorInjection.Registry registry =
+                            new GrpcClientConstructorInjection.Registry(
                                     parameter.getType(),
                                     client,
-                                    clazz);
-                    grpcClientConstructorInjection.add(injection);
+                                    clazz,
+                                    beanFactory.getBeanDefinition(beanName),
+                                    i);
+
+                    grpcClientConstructorInjection.add(registry);
                 }
             }
         });
