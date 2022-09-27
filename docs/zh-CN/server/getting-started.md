@@ -18,6 +18,7 @@
 
 - *入门指南*
 - [配置](configuration.md)
+- [异常处理](exception-handling.md)
 - [上下文数据 / Bean 的作用域](contextual-data.md)
 - [测试服务](testing.md)
 - [安全性](security.md)
@@ -41,6 +42,12 @@
 #### Maven (Interface)
 
 ````xml
+    <properties>
+        <protobuf.version>3.19.1</protobuf.version>
+        <protobuf-plugin.version>0.6.1</protobuf-plugin.version>
+        <grpc.version>1.42.1</grpc.version>
+    </properties>
+    
     <dependencies>
         <dependency>
             <groupId>io.grpc</groupId>
@@ -51,9 +58,11 @@
             <artifactId>grpc-protobuf</artifactId>
         </dependency>
         <dependency>
-            <!-- Java 9+ compatibility -->
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
+            <!-- Java 9+ compatibility - Do NOT update to 2.0.0 -->
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <version>1.3.5</version>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
@@ -62,6 +71,7 @@
             <extension>
                 <groupId>kr.motd.maven</groupId>
                 <artifactId>os-maven-plugin</artifactId>
+                <version>1.7.0</version>
             </extension>
         </extensions>
 
@@ -69,6 +79,7 @@
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
+                <version>${protobuf-plugin.version}</version>
                 <configuration>
                     <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
                     <pluginId>grpc-java</pluginId>
@@ -90,11 +101,27 @@
 #### Gradle (Interface)
 
 ````gradle
-apply plugin: 'com.google.protobuf'
+buildscript {
+    ext {
+        protobufVersion = '3.19.1'
+        protobufPluginVersion = '0.8.18'
+        grpcVersion = '1.42.1'
+    }
+}
+
+plugins {
+    id 'java-library'
+    id 'com.google.protobuf' version "${protobufPluginVersion}"
+}
+
+repositories {
+    mavenCentral()
+}
 
 dependencies {
-    compile "io.grpc:grpc-protobuf"
-    compile "io.grpc:grpc-stub"
+    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+    implementation "io.grpc:grpc-stub:${grpcVersion}"
+    compileOnly 'jakarta.annotation:jakarta.annotation-api:1.3.5' // Java 9+ compatibility - Do NOT update to 2.0.0
 }
 
 protobuf {
@@ -107,19 +134,13 @@ protobuf {
     }
     plugins {
         grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java"
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
         }
     }
     generateProtoTasks {
         all()*.plugins {
             grpc {}
         }
-    }
-}
-
-buildscript {
-    dependencies {
-        classpath "com.google.protobuf:protobuf-gradle-plugin:${protobufGradlePluginVersion}"
     }
 }
 
@@ -286,13 +307,19 @@ public class MyServiceImpl extends MyServiceGrpc.MyServiceImplBase {
 ````sh
 grpcurl --plaintext localhost:9090 list
 grpcurl --plaintext localhost:9090 list net.devh.boot.grpc.example.MyService
+# Linux (Static content)
 grpcurl --plaintext -d '{"name": "test"}' localhost:9090 net.devh.boot.grpc.example.MyService/sayHello
+# Windows or Linux (dynamic content)
+grpcurl --plaintext -d "{\"name\": \"test\"}" localhost:9090 net.devh.boot.grpc.example.MyService/sayHello
 ````
+
+`gRPCurl`示例命令的输出与其他信息，见 [👉testing](testing.md#grpcurl)
 
 ## 附加主题 <!-- omit in toc -->
 
 - *入门指南*
 - [配置](configuration.md)
+- [异常处理](exception-handling.md)
 - [上下文数据 / Bean 的作用域](contextual-data.md)
 - [测试服务](testing.md)
 - [安全性](security.md)
