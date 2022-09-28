@@ -18,6 +18,7 @@
 
 - [入门指南](getting-started.md)
 - [配置](configuration.md)
+- [异常处理](exception-handling.md)
 - [上下文数据 / Bean 的作用域](contextual-data.md)
 - *测试服务*
 - [安全性](security.md)
@@ -272,8 +273,10 @@ public class MyServiceIntegrationTestConfiguration {
 
 > 注意：这个代码看起来可能比单元测试更短/更简单，但执行时间要长一些。
 
-## 附加主题<!-- omit in toc -->- [入门指南](getting-started.md)
+## 附加主题<!-- omit in toc -->
+- [入门指南](getting-started.md)
 - [配置](configuration.md)
+- [异常处理](exception-handling.md)
 - [上下文数据 / Bean 的作用域](contextual-data.md)
 - *测试服务*
 - [安全性](security.md)

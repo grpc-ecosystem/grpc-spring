@@ -7,6 +7,7 @@ gRPC-Spring-Boot-Starter 将 [Google的开源高性能RPC框架](https://grpc.io
 - 服务端
   - [入门指南](server/getting-started.md)
   - [配置](server/configuration.md)
+  - [异常处理](server/exception-handling.md)
   - [上下文数据 / Bean 的作用域](server/contextual-data.md)
   - [测试服务](server/testing.md)
   - [安全性](server/security.md)

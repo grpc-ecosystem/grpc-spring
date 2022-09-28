@@ -13,6 +13,7 @@
 
 - [入门指南](getting-started.md)
 - [配置](configuration.md)
+- [异常处理](exception-handling.md)
 - *上下文数据 / Bean 的作用域*
 - [测试服务](testing.md)
 - [安全性](security.md)
@@ -55,6 +56,7 @@ public void grpcMethod(Request request, StreamObserver<Response> responseObserve
 
 - [入门指南](getting-started.md)
 - [配置](configuration.md)
+- [异常处理](exception-handling.md)
 - *上下文数据 / Bean 的作用域*
 - [测试服务](testing.md)
 - [安全性](security.md)

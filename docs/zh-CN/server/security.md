@@ -18,6 +18,7 @@
 
 - [入门指南](getting-started.md)
 - [配置](configuration.md)
+- [异常处理](exception-handling.md)
 - [上下文数据 / Bean 的作用域](contextual-data.md)
 - [测试服务](testing.md)
 - *安全性*
@@ -246,6 +247,7 @@ public void methodX(Request request, StreamObserver<Response> responseObserver) 
 
 - [入门指南](getting-started.md)
 - [配置](configuration.md)
+- [异常处理](exception-handling.md)
 - [上下文数据 / Bean 的作用域](contextual-data.md)
 - [测试服务](testing.md)
 - *安全性*
