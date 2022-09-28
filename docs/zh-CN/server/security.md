@@ -1,6 +1,6 @@
 # 服务端安全
 
-[<- 返回索引](../index.md)
+[<- Back to Index](../index.md)
 
 本节描述如何使用传输层安全和身份验证来保护您的应用程序。 我们强烈建议至少启用运输层安全。
 
@@ -18,13 +18,15 @@
 
 - [入门指南](getting-started.md)
 - [配置](configuration.md)
-- [上下文数据 / Bean 的作用域](contextual-data.md)
-- [测试服务](testing.md)
-- *安全性*
+- [Exception Handling](exception-handling.md)
+- [Contextual Data / Scoped Beans](contextual-data.md)
+- [Testing the Service](testing.md)
+- [Server Events](events.md)
+- *Security*
 
 ## 启用传输图层安全
 
-您可以使用 Spring 的配置机制来配置传输层安全。 与之相关的非安全性配置选项参见 [配置](configuration.md) 页面。
+您可以使用 Spring 的配置机制来配置传输层安全。 For non security related configuration options refer to the [Configuration](configuration.md) page.
 
 如果你的服务在 TLS 的反向代理后面，你可能不需要设置 `TLS/`。 如果您不熟悉安全，请咨询安全专家。 请不要忘记检查是否存在安全问题。 ^^
 
@@ -60,7 +62,7 @@ grpc.server.security.privateKey=file:certificates/server.key
 
 如果您想知道这里支持哪些选项，请阅读 [Spring 的 Resource 文档](https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#resources-resourceloader)。
 
-对于客户端的配置，请参考 [客户端安全](../client/security.md) 页面。
+For the corresponding client configuration read the [Client Security](../client/security.md) page.
 
 ## 双向证书认证
 
@@ -92,7 +94,7 @@ cat client*.crt > trusted-clients.crt.collection
 
 `grpc-spring-boot-starter` 原生支持 `spring-security` , 因此您可以使用众所周知的一些注解来保护您的应用程序。
 
-![server-request-security](/grpc-spring-boot-starter/assets/images/server-security.svg)
+![服务端请求安全](/grpc-spring-boot-starter/assets/images/server-security.svg)
 
 ### 配置身份验证
 
@@ -246,10 +248,12 @@ public void methodX(Request request, StreamObserver<Response> responseObserver) 
 
 - [入门指南](getting-started.md)
 - [配置](configuration.md)
-- [上下文数据 / Bean 的作用域](contextual-data.md)
-- [测试服务](testing.md)
-- *安全性*
+- [Exception Handling](exception-handling.md)
+- [Contextual Data / Scoped Beans](contextual-data.md)
+- [Testing the Service](testing.md)
+- [Server Events](events.md)
+- *Security*
 
 ----------
 
-[<- 返回索引](../index.md)
+[<- Back to Index](../index.md)
