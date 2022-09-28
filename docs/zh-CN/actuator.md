@@ -1,13 +1,13 @@
 # 支持 Spring Boot Actuator
 
-[<- 返回索引](index.md)
+[<- Back to Index](index.md)
 
 此页面重点介绍与 [Spring-Boot-Actator](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html) 的集成。 这是一个可选的功能。 支持的特性
 
 - 客户端 + 服务端指标
 - 服务端的`InfoContributor`
 
-## 目录 <!-- omit in toc -->
+## Table of Contents <!-- omit in toc -->
 
 - [依赖项](#dependencies)
 - [指标](#metrics)
@@ -54,7 +54,7 @@ compile("org.springframework.boot:spring-boot-starter-actuator")
 
 - `service`: 请求的 grpc 服务名称（使用 protubuf 名称）
 - `method`: 请求的 grpc 方法名称（使用 protobuf 名称）
-- `method.type`: 请求的 grpc 方法的类型。
+- `method.type`: The type of the requested grpc method.
 
 ### 计时器
 
@@ -65,19 +65,19 @@ compile("org.springframework.boot:spring-boot-starter-actuator")
 
 - `service`: 请求的 grpc 服务名称（使用 protobuf 名称）
 - `method`: 请求的 grpc 方法名称（使用 protobuf 名称）
-- `method.type`: 请求的 grpc 方法的类型。
-- `status.code`: 响应的 `Status.Code`
+- `method.type`: The type of the requested grpc method.
+- `status.code`: Response `Status.Code`
 
 ### 查看指标
 
 您可以在 `/actorator/metrics` (需要一个web-server) 或通过 JMX 查看 grpc 的指标以及其他指标。
 
 > **注意:** 你可能需要先启用指标。
->
+> 
 > ````properties management.endpoints.web.exposure.include=metrics
->
+> 
 > # management.endpoints.jmx.exposure.include=metrics
->
+> 
 > management.endpoint.metrics.enabled=true ````
 
 阅读官方文档以了解更多关于[Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html) 的信息。
@@ -115,11 +115,11 @@ MetricCollectingClientInterceptor metricCollectingClientInterceptor(MeterRegistr
 您可以在 `/actorator/info` (需要一个web-server) 或通过 JMX 查看 grpc 的信息以及其他信息。
 
 > **注意:** 你可能需要先启用信息。
->
+> 
 > ````properties management.endpoints.web.exposure.include=info
->
+> 
 > # management.endpoints.jmx.exposure.include=info
->
+> 
 > management.endpoint.info.enabled=true ````
 
 您可以使用 `grpc.server.reflectionServiceEnabled=false` 来打开服务列表(对于 actuator 和 grpc)。
@@ -142,4 +142,4 @@ net.devh.boot.grpc.server.autoconfigure.GrpcServerMetricAutoConfiguration
 
 ----------
 
-[<- 返回索引](index.md)
+[<- Back to Index](index.md)
