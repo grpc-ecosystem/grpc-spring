@@ -1,6 +1,6 @@
 # 配置
 
-[<- 返回索引](../index.md)
+[<- Back to Index](../index.md)
 
 本节描述您如何配置您的 grpc-spring-boot-starter 应用程序。
 
@@ -10,15 +10,18 @@
   - [更改服务端端口](#changing-the-server-port)
   - [启用 InProcessServer](#enabling-the-inprocessserver)
 - [通过 Bean 配置](#configuration-via-beans)
+  - [ServerInterceptor](#serverinterceptor)
   - [GrpcServerConfigurer](#grpcserverconfigurer)
 
 ## 附加主题 <!-- omit in toc -->
 
 - [入门指南](getting-started.md)
 - *配置*
-- [上下文数据 / Bean 的作用域](contextual-data.md)
-- [测试服务](testing.md)
-- [安全性](security.md)
+- [Exception Handling](exception-handling.md)
+- [Contextual Data / Scoped Beans](contextual-data.md)
+- [Testing the Service](testing.md)
+- [Server Events](events.md)
+- [Security](security.md)
 
 ## 通过属性配置
 
@@ -45,7 +48,7 @@ grpc.server.port=80
 
 > 请确保您不会与其他应用程序或其他端点发生冲突，如`spring-web`。
 
-[服务端安全性](security.md) 页面上解释了 `SSL` / `TLS` 和其他与安全相关的配置。
+The `SSL`/`TLS` and other security relevant configuration is explained on the [Server Security](security.md) page.
 
 ### 启用 InProcessServer
 
@@ -67,17 +70,39 @@ grpc.client.inProcess.address=in-process:<SomeName>
 
 这对测试特别有用，因为他们不需要打开特定的端口，因此可以并发运行(在构建 服务器上)。
 
+### Using Unix's Domain Sockets
+
+On Unix based systems you can also use domain sockets to locally communicate between server and clients.
+
+Simply configure the address like this:
+
+````properties
+grpc.server.address=unix:/run/grpc-server
+````
+
+Clients can then connect to the server using the same address.
+
+If you are using `grpc-netty` you also need the `netty-transport-native-epoll` dependency. `grpc-netty-shaded` already contains that dependency, so there is no need to add anything for it to work.
+
 ## 通过Beans 配置
 
-虽然这个项目提供大多数功能作为配置选项，但有时会因为添加它的开销太高了，我们会选择没有添加它。 如果您觉得这是一项重要功能，请随意打开一项功能性 Pull Request。
+While this library intents to provide most of the features as configuration option, sometimes the overhead for adding it is too high and thus we didn't add it, yet. If you feel like it is an important feature, feel free to open a feature request.
 
-如果您要更改应用程序，而不是通过属性进行更改，则可以使用该项目中现有存在的扩展点。
+If you want to change the application beyond what you can do through the properties, then you can use the existing extension points that exist in this library.
 
-首先，大多数 bean 可以被自定义 bean 替换，您可以按照您想要的任何方式进行配置。 如果您不希望这么麻烦，可以使用 `GrpcServerConfigurer` 来配置你的服务端和其他组件，它不会丢失这个项目所提供的任何功能。
+First of all most of the beans can be replaced by custom ones, that you can configure in every way you want. If you don't wish to go that far, you can use classes such as `GrpcServerConfigurer` to configure the server and other components without losing the features provided by this library.
+
+### ServerInterceptor
+
+There are three ways to add a `ServerInterceptor` to your server.
+
+- Define the `ServerInterceptor` as a global interceptor using either the `@GrpcGlobalServerInterceptor` annotation, or a `GlobalServerInterceptorConfigurer`
+- Explicitly list them in the `@GrpcService#interceptors` or `@GrpcService#interceptorNames` field
+- Use a `GrpcServerConfigurer` and call `serverBuilder.intercept(ServerInterceptor interceptor)`
 
 ### GrpcServerConfigurer
 
-gRPC 服务端配置器允许您将自定义配置添加到 gRPC 的 `ServerBuilder` 。
+The grpc server configurer allows you to add your custom configuration to grpc's `ServerBuilder`s.
 
 ````java
 @Bean
@@ -97,12 +122,14 @@ public GrpcServerConfigurer keepAliveServerConfigurer() {
 
 ## 附加主题 <!-- omit in toc -->
 
-- [入门指南](getting-started.md)
-- *配置*
-- [上下文数据 / Bean 的作用域](contextual-data.md)
-- [测试服务](testing.md)
-- [安全性](security.md)
+- [Getting Started](getting-started.md)
+- *Configuration*
+- [Exception Handling](exception-handling.md)
+- [Contextual Data / Scoped Beans](contextual-data.md)
+- [Testing the Service](testing.md)
+- [Server Events](events.md)
+- [Security](security.md)
 
 ----------
 
-[<- 返回索引](../index.md)
+[<- Back to Index](../index.md)
