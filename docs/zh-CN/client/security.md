@@ -1,6 +1,6 @@
 # 客户端安全
 
-[<- 返回索引](../index.md)
+[<- Back to Index](../index.md)
 
 此页面描述了您如何连接到 gRPC 服务器并进行身份验证。
 
@@ -12,12 +12,16 @@
   - [信任服务器](#trusting-a-server)
 - [双向证书认证](#mutual-certificate-authentication)
 - [身份验证](#authentication)
+  - [Creating CallCredentials](#creating-callcredentials)
+  - [Using CallCredentials](#using-callcredentials)
+  - [Retry with new Authentication](#retry-with-new-authentication)
 
 ## 附加主题 <!-- omit in toc -->
 
 - [入门指南](getting-started.md)
 - [配置](configuration.md)
 - *安全性*
+- [使用 Grpc-Stubs 测试](testing.md)
 
 ## 启用传输图层安全
 
@@ -29,7 +33,7 @@ gRPC 默认使用 `TLS` 连接服务端，因此无需执行其他任何操作�
 grpc.client.<SomeName>.negotiationType=TLS
 ````
 
-对于服务端的配置，请参考 [服务端安全](../server/security.md) 页面。
+For the corresponding server configuration read the [Server Security](../server/security.md) page.
 
 ### 基础要求
 
@@ -89,9 +93,25 @@ grpc.client.__name__.security.privateKey=file:certificates/client.key
 
 ## 身份验证
 
+### Creating CallCredentials
+
 除了双向证书认证外，还有其他几种认证方式，如 `BasicAuth`。
 
 grpc-spring-boot-starter 除了一些帮助方法，同时提供了 BasicAuth 的实现。 然而，这里有很多库可以为 [`CallCredentials`](https://grpc.github.io/grpc-java/javadoc/io/grpc/CallCredentials.html)提供实现功能。 `CallCredentials` 是一个可扩展的组件，因为它们可以使用（第三方）服务队请求进行身份验证，并且可以自己管理和更新会话 token。
+
+````java
+@Bean
+CallCredentials basicAuthCredentials() {
+    return CallCredentialsHelper.basicAuth("user", "password");
+}
+
+@Bean
+CallCredentials bearerAuthForwardingCredentials() {
+    return CallCredentialsHelper.bearerAuth(() -> KeycloakSecurityContext.getTokenString());
+}
+````
+
+### Using CallCredentials
 
 如果您的应用程序上下文中只有一个`CallCredentials`，我们将自动为您创建一个 `StubTransformer`，并配置到所有的 `Stub`上。 如果您想为每个 Stub 配置不同的凭据，那么您可以使用 [`CallCredentialsHelper`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/security/CallCredentialsHelper.html) 中提供的帮助方法。
 
@@ -104,6 +124,42 @@ MyServiceBlockingStub myServiceForUser = myService.withCallCredentials(userCrede
 return myServiceForUser.send(request);
 ````
 
+### Retry with new Authentication
+
+If you want to retry calls that failed due to an expired token (using grpc's built-in retry mechanism), you can use the following example `ClientInterceptor` as a guide to automatically report the failure to the token store. Please note that many popular token-based authentication systems (such as OAuth) also provide a token TTL that can be used to automatically update the token before the call is even sent for the first time, rendering this obsolete.
+
+````java
+@Override
+public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+        MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
+
+    callOptions = callOptions
+            .withCallCredentials(this.credentials)
+            .withStreamTracerFactory(new ClientStreamTracer.Factory() {
+
+                @Override
+                public ClientStreamTracer newClientStreamTracer(
+                        ClientStreamTracer.StreamInfo info, Metadata headers) {
+
+                    // Make sure your implementations do _not_ block and return _immediately_
+                    final Object authToken = headers.get(AUTH_TOKEN_KEY);
+                    return new ClientStreamTracer() {
+
+                        @Override
+                        public void streamClosed(final Status status) {
+                            this.credentials.invalidate(authToken);
+                        }
+                    };
+
+                }
+            });
+
+    return next.newCall(method, callOptions);
+}
+````
+
+For more details refer to [How to retry with new auth token using builtin retry?](https://github.com/grpc/grpc-java/issues/7345#issuecomment-679295003)
+
 ## 附加主题 <!-- omit in toc -->
 
 - [入门指南](getting-started.md)
@@ -112,4 +168,4 @@ return myServiceForUser.send(request);
 
 ----------
 
-[<- 返回索引](../index.md)
+[<- Back to Index](../index.md)
