@@ -1,22 +1,69 @@
 # 疑难解答
 
-[<- 返回索引](index.md)
+[<- Back to Index](index.md)
 
 本节描述这个项目的一些常见错误，以及如何解决这些错误。 请注意，这个页面永远不能覆盖所有案件，还请搜索现有的 issures/PRs（打开和关闭状态的）。 如果对应的主题已经存在，请给我们留下评论/信息，以便我们知道你也会受到影响。 如果没有这样的主题，请随时打开本页底部描述创建一个的新主题。
 
-## 目录
+## Table of Contents
 
-- [传输失败](#transport-failed)
-- [网络因未知原因关闭](#network-closed-for-unknown-reason)
-- [找不到 TLS ALPN 提供商](#could-not-find-tls-alpn-provider)
-- [证书不匹配](#dismatching-certificates)
-- [不受信任的证书](#untrusted-certificates)
-- [服务端端口被占用](#server-port-already-in-use)
-- [创建 issues / 提问题](#creating-issues)
+- [NoClassDefFoundError, ClassNotFoundException, NoSuchMethodError, AbstractMethodError](#noclassdeffounderror-classnotfoundexception-nosuchmethoderror-abstractmethoderror)
+- [Transport failed](#transport-failed)
+- [Network closed for unknown reason](#network-closed-for-unknown-reason)
+- [Could not find TLS ALPN provider](#could-not-find-tls-alpn-provider)
+- [Dismatching certificates](#dismatching-certificates)
+- [Untrusted certificates](#untrusted-certificates)
+- [Server port already in use](#server-port-already-in-use)
+- [Client fails to resolve domain name](#client-fails-to-resolve-domain-name)
+- [Creating issues / asking questions](#creating-issues)
 
-## 传输失败
+## NoClassDefFoundError, ClassNotFoundException, NoSuchMethodError, AbstractMethodError
 
-### 服务端
+### Example
+
+````txt
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'client' defined in file [~/.../MyGrpcClient.class]: Initialization of bean failed; nested exception is java.lang.NoClassDefFoundError: io/grpc/TlsChannelCredentials$Feature
+    at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:602)
+    [...]
+Caused by: java.lang.NoClassDefFoundError: io/grpc/TlsChannelCredentials$Feature
+    at io.grpc.netty.ProtocolNegotiators.<clinit>(ProtocolNegotiators.java:92)
+````
+
+### The Problem
+
+The server/client does not start because some class or method is missing. \
+This is usually the case if the grpc-libraries use slightly different versions.
+
+### The solution
+
+Make sure to use exactly the same version for all `grpc-java` versions.
+
+Add the following entry to your `dependencyManagement` section of your project:
+
+````xml
+<dependency>
+    <groupId>io.grpc</groupId>
+    <artifactId>grpc-bom</artifactId>
+    <version>${grpcVersion}</version>
+    <type>pom</type>
+    <scope>import</scope>
+</dependency>
+````
+
+You can use a similar approach for gradle:
+
+````groovy
+dependencyManagement {
+    imports {
+        mavenBom "io.grpc:grpc-bom:${grpcVersion}"
+````
+
+> **Note:** grpc-spring-boot-starter isn't strictly bound to a specific version of grpc-java, so you can also use this to change the version of grpc-java you are using in your project.
+
+See also [Could not find TLS ALPN provider](#could-not-find-tls-alpn-provider)
+
+## Transport failed
+
+### Server-side
 
 ````txt
 2019-07-07 10:05:46.217  INFO 6552 --- [-worker-ELG-3-5] i.g.n.s.i.g.n.N.connections              : Transport failed
@@ -28,7 +75,7 @@ io.grpc.netty.shaded.io.netty.handler.codec.http2.Http2Exception: HTTP/2 client 
     at io.grpc.netty.shaded.io.netty.handler.codec.http2.Http2ConnectionHandler.decode(Http2ConnectionHandler.java:450) [grpc-netty-shaded-1.21.0.jar:1.21.0]
 ````
 
-### 客户端
+### Client-side
 
 ````txt
 io.grpc.StatusRuntimeException: UNAVAILABLE: io exception
@@ -43,25 +90,25 @@ Caused by: io.grpc.netty.shaded.io.netty.handler.ssl.NotSslRecordException: not 
     at io.grpc.netty.shaded.io.netty.handler.codec.ByteToMessageDecoder.decodeRemovalReentryProtection(ByteToMessageDecoder.java:502)
 ````
 
-### 问题
+### The Problem
 
-服务器运行在`PLAINTEXT`模式，但客户端试图在`TLS`(默认)模式中连接它。
+The server runs in `PLAINTEXT` mode, but the client tries to connect it in `TLS` (default) mode.
 
-### 简单的解决办法
+### The simple solution
 
-将客户端配置在`PLAINTEXT`模式下连接(不推荐生产)。
+a.k.a.: Configure the client to connect in `PLAINTEXT` mode (Not recommended for production).
 
-添加以下条目到您的客户端应用程序配置：
+Add the following entry to your client side application config:
 
 ````properties
 grpc.client.__name__.negotiationType=PLAINTEXT
 ````
 
-### 更好的解决办法
+### The better solution
 
-将服务端配置在`TLS`模式下运行(推荐)。
+a.k.a.: Configure the server to run in `TLS` mode (Recommended).
 
-添加以下条目到您的服务端应用程序配置：
+Add the following entry to your sever side application config:
 
 ````properties
 grpc.server.security.enabled=true
@@ -69,19 +116,19 @@ grpc.server.security.certificateChain=file:certificates/server.crt
 grpc.server.security.privateKey=file:certificates/server.key
 ````
 
-## 网络因未知原因关闭
+## Network closed for unknown reason
 
-### 客户端
+### Client-side
 
 ````txt
 io.grpc.StatusRuntimeException: UNAVAILABLE: Network closed for unknown reason
 ````
 
-### 问题
+### The Problem
 
-您可能是 (1) 尝试通过 `TLS ` 模式连接到 grpc-server 时，使用 `PLAINTE` 客户端 或 (2) 目标不是一个 grpc-server （例如 Web 服务）。
+You are either (1) trying to connect to an grpc-server in `TLS` mode using a `PLAINTEXT` client or (2) the target is not a grpc-server (e.g. a web-server).
 
-### 解决办法
+### The Solution
 
 1. 配置您的客户端使用`TLS`模式。
 
@@ -90,11 +137,11 @@ io.grpc.StatusRuntimeException: UNAVAILABLE: Network closed for unknown reason
    ````
 
    或删除`negotiationType`配置，因为默认情况下`TLS`。
-2. 使用 `grpcurl` 或类似工具，验证已配置的服务端正在运行的是 grpc 服务
+2. Validate that the configured server is running and is a grpc-server using [`grpcurl`](https://github.com/fullstorydev/grpcurl) or a similar tool.
 
-## 找不到 TLS ALPN 提供商
+## Could not find TLS ALPN provider
 
-### 服务端
+### Server-side
 
 ````txt
 org.springframework.context.ApplicationContextException: Failed to start bean 'nettyGrpcServerLifecycle'; nested exception is java.lang.IllegalStateException: Could not find TLS ALPN provider; no working netty-tcnative, Conscrypt, or Jetty NPN/ALPN available
@@ -107,7 +154,7 @@ Caused by: java.lang.IllegalStateException: Could not find TLS ALPN provider; no
     [...]
 ````
 
-### 客户端
+### Client-side
 
 ````txt
 [...]
@@ -122,23 +169,23 @@ Caused by: java.lang.IllegalStateException: Could not find TLS ALPN provider; no
     [...]
 ````
 
-### 两端
+### Both sides
 
 ````txt
 AbstractMethodError: io.netty.internal.tcnative.SSL.readFromSSL()
 ````
 
-### 问题
+### The Problem
 
-classpath 上没有 (兼容) netty TLS 实现。
+There is no (compatible) netty TLS implementation available on the classpath.
 
-### 解决办法
+### The Solution
 
-从[`grpc-netty`](https://mvnrepository.com/artifact/io.grpc/grpc-netty)切换到[`grpc-netty-shaded`](https://mvnrepository.com/artifact/io.grpc/grpc-netty-shaded) 或添加依赖于[`nety-tcnative-boringssl-static`](https://mvnrepository.com/artifact/io.netty/netty-tcnative-boringssl-static) (请使用与[grpc-java 的netty 安全性部分](https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty)**完全相同**（兼容的版本）)。
+Either switch from [`grpc-netty`](https://mvnrepository.com/artifact/io.grpc/grpc-netty) to [`grpc-netty-shaded`](https://mvnrepository.com/artifact/io.grpc/grpc-netty-shaded) or add a dependency to [`netty-tcnative-boringssl-static`](https://mvnrepository.com/artifact/io.netty/netty-tcnative-boringssl-static) (Please use the **exact same** (compatible) versions that are listed in the table in [grpc-java's netty security section](https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty).
 
-> **注意:** 你需要一个 64 位的 Java 虚拟机。
+> **Note:** You need a 64bit Java JVM.
 
-## 证书不匹配
+## Dismatching certificates
 
 ### 客户端
 
@@ -150,7 +197,7 @@ Caused by: javax.net.ssl.SSLHandshakeException: General OpenSslEngine problem
 Caused by: java.security.cert.CertificateException: No subject alternative names present
 ````
 
-或
+or
 
 ````txt
 io.grpc.StatusRuntimeException: UNAVAILABLE: io exception
@@ -160,21 +207,21 @@ Caused by: javax.net.ssl.SSLHandshakeException: General OpenSslEngine problem
 Caused by: java.security.cert.CertificateException: No name matching <name> found
 ````
 
-### 问题
+### The Problem
 
-证书与目标地址/名称不匹配。
+The certificate does not match the target's address/name.
 
-### 解决办法
+### The Solution
 
-通过在客户端配置中添加以下内容：
+Configure an override for the name comparison by adding the following to your client config:
 
 ````properties
 grpc.client.__name__.security.authorityOverride=<authority>
 ````
 
-## 不受信任的证书
+## Untrusted certificates
 
-### 客户端
+### Client-side
 
 ````txt
 io.grpc.StatusRuntimeException: UNAVAILABLE: io exception
@@ -186,23 +233,23 @@ Caused by: sun.security.validator.ValidatorException: PKIX path building failed:
 Caused by: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
 ````
 
-### 问题
+### The Problem
 
-服务器使用的证书不在客户端的信任库中。
+The certificate used by the server is not in the trust store of the client.
 
-### 解决办法
+### The Solution
 
-通过使用 java `keytool` 将证书添加到java的信任商店，或配置客户端使用自定义信任的证书文件：
+Either add the certificate to java's truststore by using java's `keytool` or configure the client to use a custom trusted certificate file:
 
 ````properties
 grpc.client.__name__.security.trustCertCollection=file:certificates/trusted-servers-collection.crt.list
 ````
 
-> **注意:** 两边的存储库目前在创建时都是只读的，更新不会被应用。
+> **Note:** Both stores are currently read only at creation time and updates won't be picked up.
 
-## 服务端端口被占用
+## Server port already in use
 
-### 服务端
+### Server-side
 
 ````txt
 Caused by: java.lang.IllegalStateException: Failed to start the grpc server
@@ -218,40 +265,64 @@ Caused by: java.io.IOException: Failed to bind
 Caused by: java.net.BindException: Address already in use: bind
 ````
 
-### 问题
+### The Problem
 
-grpc 服务端尝试使用的端口被占用。
+The port the grpc server is trying to use is already used.
 
-有四种常见情况可能发生这种错误。
+There are four common cases where this error might occur.
 
 1. 应用程序已在运行
 2. 另一个应用程序正在使用该端口
 3. grpc 服务器使用了一个已经用于其他用途的端口(例如spring-web)
 4. 你正在运行测试，每次测试后你都没有关闭 grpc-server
 
-### 解决办法
+### The Solution
 
 1. 尝试使用任务管理器或`jps`搜索应用程序
 2. 尝试使用 `netstat` 搜索端口
 3. 检查/更改您的配置。 此库默认使用端口 `9090`
 4. 添加`@DirtiesContext`到您的测试类和方法中，请注意，这个错误只会从第二次测试开始发生，因此你必须在你的第一个测试类上也加上这个注解！
 
-## 创建 issue
+## Client fails to resolve domain name
 
-在 GitHub 上创建问题/提问并不难，但你可以稍微努力帮助我们更快地解决您的 个问题。
+### Client-side
 
-如果您的问题/疑问一般都是关于 grpc 的问题，请考虑在 [grpc-java](https://github.com/grpc/grpc-java) 上提问。
+````txt
+WARN  io.grpc.internal.ManagedChannelImpl - [Failed to resolve name. status=Status{code=UNAVAILABLE, description=No servers found for `discovery-server:443`}
+ERROR n.d.b.g.c.n.DiscoveryClientNameResolver - No servers found for `discovery-server:443`
+````
 
-使用提供的模板来创建新问题，其中包含我们需要的必需/有用信息的部分。
+### The Problem
 
-通常来说，你应该在你的问题上包括以下信息：
+The discovery service library or it's configuration failed to specify the scheme how `discovery-server:443` should be resolved. If you don't have a service discovery, then the default is `dns`, but if you use a discovery service, then that will be the default and thus failing to resolve that address.
+
+The same applies to other libraries, such as tracing or reporting libraries, which report their results via grpc to an external server.
+
+### The Solution
+
+- Configure the (discovery service) library to specify the `dns` scheme: e.g. `dns:///discovery-server:443`
+- Search for invocations of `ManagedChannelBuilder#forTarget(String)` or `NettyChannelBuilder#forTarget(String)` (or similar methods) and make sure they use the `dns` scheme.
+- Disable the service discovery for grpc services: `spring.autoconfigure.exclude=net.devh.boot.grpc.client.autoconfigure.GrpcDiscoveryClientAutoConfiguration`
+- or create a custom `NameResolverRegistry` bean
+
+See also [client target configuration](client/configuration.md#choosing-the-target).
+
+## Creating issues
+
+Creating issues/asking questions on GitHub isn't hard, but with a little bit of your effort you can help us solving your issues faster.
+
+If your issue/question is about grpc in general consider asking it over at [grpc-java](https://github.com/grpc/grpc-java).
+
+Use the provided templates to create new issues, these contain sections for the required/helpful information we need.
+
+In general, you should include the following information in your issue:
 
 1. 您有什么类型的诉求？
    - 问题
    - Bug 反馈
    - 功能​​​​​​​​​​​请求
 2. 你希望的结果是什么？
-3. 问题是什么？ 什么不起作用？ 缺少什么东西，为什么需要？
+3. What's The Problem? 什么不起作用？ 缺少什么东西，为什么需要？
 4. 任何相关堆栈/日志(非常重要)
 5. 您使用的是哪个版本？
    - Spring (boot)
@@ -265,4 +336,4 @@ grpc 服务端尝试使用的端口被占用。
 
 ----------
 
-[<- 返回索引](index.md)
+[<- Back to Index](index.md)
