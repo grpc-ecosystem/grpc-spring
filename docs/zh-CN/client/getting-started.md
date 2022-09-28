@@ -1,6 +1,6 @@
 # 入门指南
 
-[<- 返回索引](../index.md)
+[<- Back to Index](../index.md)
 
 本节讨论如何让 Spring 连接到 gRPC 服务端并管理您的连接。
 
@@ -12,7 +12,7 @@
   - [服务端项目](#server-project)
   - [客户端项目](#client-project)
 - [使用 Stubs 连接服务端](#using-the-stubs-to-connect-to-the-server)
-  - [解释客户端组件](#explaining-the-client-components)
+  - [Explaining the Client Components](#explaining-the-client-components)
   - [访问客户端](#accessing-the-client)
 
 ## 附加主题 <!-- omit in toc -->
@@ -20,12 +20,13 @@
 - *入门指南*
 - [配置](configuration.md)
 - [安全性](security.md)
+- [使用 Grpc-Stubs 测试](testing.md)
 
 ## 项目创建
 
 在我们开始添加依赖关系之前，让我们项目的一些设置建议开始。
 
-![project setup](/grpc-spring-boot-starter/assets/images/client-project-setup.svg)
+![项目创建](/grpc-spring-boot-starter/assets/images/client-project-setup.svg)
 
 我们建议将您的项目分为2至3个不同的模块。
 
@@ -37,11 +38,11 @@
 
 ### 接口项目
 
-请参阅 [服务端入门指引](../server/getting-started.md#interface-project) 页面
+See the [server getting started page](../server/getting-started.md#interface-project)
 
 ### 服务端项目
 
-请参阅 [服务端入门指引](../server/getting-started.md#server-project) 页面
+See the [server getting started page](../server/getting-started.md#server-project)
 
 ### 客户端项目
 
@@ -91,31 +92,36 @@ buildscript {
 
 ## 使用 Stubs 连接服务端
 
-本节假定您已经定义并生成了[Protobuf](../server/getting-started.md#creating-the-grpc-service-definitions)。
+This section assumes that you have already defined and generated your [Protobuf service](../server/getting-started.md#creating-the-grpc-service-definitions).
 
-### 解释客户端组件
+### Explaining the Client Components
 
-- [`Channel`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/Channel.html): Channel 是单个服务端的连接池。 目标服务器可能是多个 gRPC 服务。
-- [`ManagedChannel`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/ManagedChannel.html): ManagedChannel 是 Channel 的一种特殊变体，因为它允许对连接池进行管理操作，例如将其关闭。
-- [`ClientInterceptor`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/ClientInterceptor.html): 在每个 `Channel` 处理之前拦截它们。 可以用于日志、监测、元数据处理和请求/响应的重写。 grpc-spring-boot-starter 将自动接收所有带有 [`@GrpcGlobalClientInterceptor`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/interceptor/GrpcGlobalClientInterceptor.html) 注解以及手动注册在[`GlobalClientInterceptorRegistry`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/interceptor/GlobalClientInterceptorRegistry.html) 上的客户拦截器。
-- [`CallCredentials`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/CallCredentials.html): 管理身份验证的组件。 它可以用于存储凭据和会话令牌。 它还可以用来身份验证，并且使用返回的令牌(例如 OAuth )来授权实际请求。 除此之外，如果令牌过期并且重新发送请求，它可以续签令牌。 如果您的应用程序上下文中只存在一个 `CallCredentials` bean，那么 spring 将会自动将其附加到`Stub`（ **非** `Channel` ）。 [`CallCredentialsHelper`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/security/CallCredentialsHelper.html)工具类可以帮助您创建常用的 `CallCredentials` 类型和相关的`StubTransformer`。
-- [`StubTransformer`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/StubTransformer.html): 所有客户端的 `Stub` 的注入之前应用的转换器。
-- [`@GrpcClient`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/GrpcClient.html): 这个注解用在你需要注入客户端的字段或者 set 方法上。 支持 `Channel`和各种类型的 `Stub`。 请不要将 `@GrpcClient` 与 `@Autowireed` 或 `@Inject` 一起使用。
+The following list contains all features that you might encounter on the client side. If you don't wish to use any advanced features, then the first two elements are probably all you need to use.
+
+- [`@GrpcClient`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/GrpcClient.html): The annotation that marks fields and setters for auto injection of clients. Supports `Channel`s, and all kinds of `Stub`s. Do not use `@GrpcClient` in conjunction with `@Autowired` or `@Inject`. Currently, it isn't supported for constructor and `@Bean` method parameters. For this case look below to the `@GrpcClientBean`. \
+**Note:** Services provided by the same application can only be accessed/called in/after the `ApplicationStartedEvent`. Stubs connecting to services outside of the application can be used earlier; starting with `@PostConstruct` / `InitializingBean#afterPropertiesSet()`.
+- [`@GrpcClientBean`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/GrpcClientBean.html): The annotation helps to register `@GrpcClient` beans in the Spring context to be used with `@Autowired` and `@Qualifier`. The annotation can be repeatedly added to any of your `@Configuration` classes.
+- [`Channel`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/Channel.html): The Channel is a connection pool for a single address. The target servers might serve multiple grpc-services though. The address will be resolved using a `NameResolver` and might point to a fixed or dynamic number of servers.
+- [`ManagedChannel`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/ManagedChannel.html): The ManagedChannel is a special variant of a Channel as it allows management operations to the connection pool such as shuting it down.
+- [`NameResolver`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/NameResolver.html) respectively [`NameResolver.Factory`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/NameResolver.Factory.html): A class that will be used to resolve the address to a list of `SocketAddress`es, the address will usually be re-resolved when a connection to a previously listed server fails or the channel was idle. See also [Configuration -> Choosing the Target](configuration.md#choosing-the-target).
+- [`ClientInterceptor`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/ClientInterceptor.html): Intercepts every call before they are handed to the `Channel`. Can be used for logging, monitoring, metadata handling, and request/response rewriting. grpc-spring-boot-starter will automatically pick up all client interceptors that are annotated with [`@GrpcGlobalClientInterceptor`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/interceptor/GrpcGlobalClientInterceptor.html) or are manually registered to the [`GlobalClientInterceptorRegistry`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/interceptor/GlobalClientInterceptorRegistry.html). See also [Configuration -> ClientInterceptor](configuration.md#clientinterceptor).
+- [`CallCredentials`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/CallCredentials.html): A potentially active component that manages the authentication for the calls. It can be used to store credentials or session tokens. It can also be used to authenticate at an authentication provider and then use returned tokens (such as OAuth) to authorize the actual request. In addition to that, it is able to renew the token, if it expired and re-sent the request. If exactly one `CallCredentials` bean is present on your application context then spring will automatically attach it to all `Stub`s (**NOT** `Channel`s). The [`CallCredentialsHelper`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/security/CallCredentialsHelper.html) utility class helps you to create commonly used `CallCredentials` types and related `StubTransformer`.
+- [`StubFactory`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/stubfactory/StubFactory.html): A factory that can be used to create a specfic `Stub` type from a `Channel`. Multiple `StubFactory`s can be registered to support different stub types. See also [Configuration -> StubFactory](configuration.md#stubfactory).
+- [`StubTransformer`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/StubTransformer.html): A transformer that will be applied to all client `Stub`s before they are injected. See also [Configuration -> StubTransformer](configuration.md#stubtransformer).
 
 ### 访问客户端
 
-我们建议注入 (`@GrpcClient`) `Stub`，而不是纯粹的 `Channel`.
+We recommended to inject (`@GrpcClient`) `Stub`s instead of plain `Channel`s.
 
 > **注意:** 存在不同类型的 `Stub`。 并非所有的都支持所有请求类型 (流式调用)。
 
 ````java
-import example.HelloReply;
 import example.HelloRequest;
-import example.MyServiceGrpc;
+import example.MyServiceGrpc.MyServiceBlockingStub;
 
-import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 
-import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.stereotype.Service;
 
 @Service
 public class FoobarService {
@@ -126,8 +132,44 @@ public class FoobarService {
     public String receiveGreeting(String name) {
         HelloRequest request = HelloRequest.newBuilder()
                 .setName(name)
-                .build()
+                .build();
         return myServiceStub.sayHello(request).getMessage();
+    }
+
+}
+````
+
+Also you can feel free to inject stub with `@GrpcClientBean` with `@Configuration` for more wide usage in another services.
+
+> **Note:** We recommend using either `@GrpcClientBean`s or fields annotated with `@GrpcClient` throughout your application, as mixing the two can cause confusion for future developers.
+
+````java
+@Configuration
+@GrpcClientBean(
+    clazz = TestServiceGrpc.TestServiceBlockingStub.class,
+    beanName = "blockingStub",
+    client = @GrpcClient("test")
+)
+public class YourCustomConfiguration {
+
+    @Bean
+    FoobarService foobarService(@Autowired TestServiceGrpc.TestServiceBlockingStub blockingStub) {
+        return new FoobarService(blockingStub);
+    }
+
+}
+
+@Service
+@AllArgsConsturtor
+public class FoobarService {
+
+    private TestServiceBlockingStub blockingStub;
+
+    public String receiveGreeting(String name) {
+        HelloRequest request = HelloRequest.newBuilder()
+                .setName(name)
+                .build();
+        return blockingStub.sayHello(request).getMessage();
     }
 
 }
@@ -141,4 +183,4 @@ public class FoobarService {
 
 ----------
 
-[<- 返回索引](../index.md)
+[<- Back to Index](../index.md)
