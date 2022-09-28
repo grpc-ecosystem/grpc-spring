@@ -1,8 +1,10 @@
 # 测试服务
 
-[<- 返回索引](../index.md)
+[<- Back to Index](../index.md)
 
 本节介绍如何为您的 grpc-service 编写测试用例。
+
+If you want to test a component that internally uses an `@GrpcClient` annotated field or one of grpc's stubs. Please refer to [Tests with Grpc-Stubs](../client/testing.md).
 
 ## 目录 <!-- omit in toc -->
 
@@ -13,14 +15,17 @@
   - [独立测试](#standalone-tests)
   - [基于Spring的测试](#spring-based-tests)
 - [集成测试](#integration-tests)
+- [gRPCurl](#grpcurl)
 
 ## 附加主题 <!-- omit in toc -->
 
 - [入门指南](getting-started.md)
 - [配置](configuration.md)
-- [上下文数据 / Bean 的作用域](contextual-data.md)
-- *测试服务*
-- [安全性](security.md)
+- [Exception Handling](exception-handling.md)
+- [Contextual Data / Scoped Beans](contextual-data.md)
+- *Testing the Service*
+- [Server Events](events.md)
+- [Security](security.md)
 
 ## 前言
 
@@ -30,10 +35,11 @@
 - [Testing with JUnit](https://junit.org/junit5/docs/current/user-guide/#writing-tests)
 - [grpc-spring-boot-starter's Tests](https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/tests/src/test/java/net/devh/boot/grpc/test)
 
-通常有两种方法来测试您的 grpc 服务：
+Generally there are three ways to test your grpc service:
 
 - [直接测试](#unit-tests)
 - [通过 grpc 测试](#integration-tests)
+- [Test them in production](#grpcurl) (in addition to automated build time tests)
 
 ## 测试服务
 
@@ -67,31 +73,40 @@ public class MyServiceImpl extends MyServiceGrpc.MyServiceImplBase {
 
 在您开始编写自己的测试框架之前，您可能想要使用以下库来使您的工作更加简单。
 
+> **Note:** Spring-Boot-Test already contains some of these dependencies, so make sure you exclude conflicting versions.
+
 对于Maven来说，添加以下依赖：
 
 ````xml
-<！-- JUnit-elotelFramework -->
+<!-- JUnit-Test-Framework -->
 <dependency>
-    <groupId>org.junit。 upiter</groupId>
+    <groupId>org.junit.jupiter</groupId>
     <artifactId>junit-jupiter-api</artifactId>
     <scope>test</scope>
 </dependency>
 <dependency>
-    <groupId>org。 unit.jupiter</groupId>
+    <groupId>org.junit.jupiter</groupId>
     <artifactId>junit-jupiter-engine</artifactId>
     <scope>test</scope>
 </dependency>
-<- Grpc-extract Support -->
+<!-- Grpc-Test-Support -->
 <dependency>
-    <groupId>io. rpc</groupId>
+    <groupId>io.grpc</groupId>
     <artifactId>grpc-testing</artifactId>
     <scope>test</scope>
 </dependency>
-<！ - Spring-Extract Support (Optional) -->
+<!-- Spring-Test-Support (Optional) -->
 <dependency>
-    <groupId>org。 pringframework.boot</groupId>
-    <artifactId>spring-boot-start-test</artifactId>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
     <scope>test</scope>
+    <!-- Exclude the test engine you don't need -->
+    <exclusions>
+        <exclusion>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+        </exclusion>
+    </exclusions>
 </dependency>
 ````
 
@@ -104,7 +119,10 @@ testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 // Grpc-Test-Support
 testImplementation("io.grpc:grpc-testing")
 // Spring-Test-Support (Optional)
-testImplementation("org.springframework.boot:spring-boot-starter-test")
+testImplementation("org.springframework.boot:spring-boot-starter-test") {
+    // Exclude the test engine you don't need
+    exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+}
 ````
 
 ## 单元测试
@@ -272,12 +290,80 @@ public class MyServiceIntegrationTestConfiguration {
 
 > 注意：这个代码看起来可能比单元测试更短/更简单，但执行时间要长一些。
 
-## 附加主题<!-- omit in toc -->- [入门指南](getting-started.md)
+## gRPCurl
+
+[`gRPCurl`](https://github.com/fullstorydev/grpcurl) is a small command line application, that you can use to query your application at runtime. Or as their Readme states:
+
+> It's basically `curl` for gRPC servers.
+
+You can even use the responses with `jq` and use it in your automation.
+
+Skip the first/this block if you already know what you wish to query.
+
+````bash
+$ # First scan the server for available services
+$ grpcurl --plaintext localhost:9090 list
+net.devh.boot.grpc.example.MyService
+$ # Then list the methods available for that call
+$ grpcurl --plaintext localhost:9090 list net.devh.boot.grpc.example.MyService
+net.devh.boot.grpc.example.MyService.SayHello
+$ # Lets check the request and response types
+$ grpcurl --plaintext localhost:9090 describe net.devh.boot.grpc.example.MyService/SayHello
+net.devh.boot.grpc.example.MyService.SayHello is a method:
+rpc SayHello ( .HelloRequest ) returns ( .HelloReply );
+$ # Now we only have query for the request body structure
+$ grpcurl --plaintext localhost:9090 describe net.devh.boot.grpc.example.HelloRequest
+net.devh.boot.grpc.example.HelloRequest is a message:
+message HelloRequest {
+  string name = 1;
+}
+````
+
+> Note: `gRPCurl` supports both `.` and `/` as separator between the service name and the method name:
+> 
+> - `net.devh.boot.grpc.example.MyService.SayHello`
+> - `net.devh.boot.grpc.example.MyService/SayHello`
+> 
+> We recommend the second variant as it matches grpc's internal full method name and the method name is easier to detect in the call.
+
+````bash
+$ # Finally we can call the actual method
+$ grpcurl --plaintext localhost:9090 net.devh.boot.grpc.example.MyService/SayHello
+{
+  "message": "Hello ==> ",
+  "counter": 1337
+}
+$ # Or call it with a populated request body
+$ grpcurl --plaintext -d '{"name": "Test"}' localhost:9090 net.devh.boot.grpc.example.MyService/SayHello
+{
+  "message": "Hello ==> Test",
+  "counter": 1337
+}
+````
+
+> Note: If you use the windows terminal or wish to use variables inside the data block then you have to use `"` instead of `'` and escape the `"` that are part of the actual json.
+> 
+> ````cmd
+> 
+> > grpcurl --plaintext -d "{\"name\": \"Test\"}" localhost:9090 net.devh.boot.grpc.example.MyService/sayHello
+    {
+      "message": "Hello ==> Test",
+      "counter": 1337
+    }
+    ````
+
+For more information regarding `gRPCurl` please refer to their [official documentation](https://github.com/fullstorydev/grpcurl)
+
+## Additional Topics <!-- omit in toc -->
+
+- [入门指南](getting-started.md)
 - [配置](configuration.md)
-- [上下文数据 / Bean 的作用域](contextual-data.md)
-- *测试服务*
-- [安全性](security.md)
+- [Exception Handling](exception-handling.md)
+- [Contextual Data / Scoped Beans](contextual-data.md)
+- *Testing the Service*
+- [Server Events](events.md)
+- [Security](security.md)
 
 ----------
 
-[<- 返回索引](../index.md)
+[<- Back to Index](../index.md)
