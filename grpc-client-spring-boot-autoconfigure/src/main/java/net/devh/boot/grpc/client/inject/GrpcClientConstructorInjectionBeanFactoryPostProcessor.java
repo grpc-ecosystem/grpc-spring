@@ -54,6 +54,7 @@ public class GrpcClientConstructorInjectionBeanFactoryPostProcessor implements B
             try {
                 beanDefinition = beanFactory.getBeanDefinition(beanName);
             } catch (final NoSuchBeanDefinitionException ignored) {
+                return;
             }
 
             // Search for GrpcClient annotation in all parameters of all constructors
