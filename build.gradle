@@ -11,12 +11,12 @@ buildscript {
         projectVersion = '2.14.0-SNAPSHOT'
 
         // https://github.com/grpc/grpc-java/releases
-        grpcVersion = '1.49.1'
+        grpcVersion = '1.49.2'
 
         // https://github.com/google/guava/releases
         guavaVersion = '31.1-jre'
         // https://github.com/protocolbuffers/protobuf/releases
-        protobufVersion = '3.21.6'
+        protobufVersion = '3.21.7'
         protobufGradlePluginVersion = '0.8.19'
 
         // https://github.com/spring-projects/spring-boot/releases
