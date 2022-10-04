@@ -104,10 +104,9 @@ If you don't wish to use any advanced features, then the first two elements are 
 
 - [`@GrpcClient`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/GrpcClient.html):
   The annotation that marks fields and setters for auto injection of clients.
+  Support for constructor and `@Bean` factory method parameters is experimental.
   Supports `Channel`s, and all kinds of `Stub`s.
-  Do not use `@GrpcClient` in conjunction with `@Autowired` or `@Inject`.
-  Currently, it isn't supported for constructor and `@Bean` method parameters. For this case look below
-  to the `@GrpcClientBean`. \
+  Use `@GrpcClientBean` when used in conjunction with `@Autowired` or `@Inject`. \
   **Note:** Services provided by the same application can only be accessed/called in/after the
   `ApplicationStartedEvent`. Stubs connecting to services outside of the application can be used earlier; starting with
   `@PostConstruct` / `InitializingBean#afterPropertiesSet()`.
@@ -201,7 +200,7 @@ public class YourCustomConfiguration {
 }
 
 @Service
-@AllArgsConsturtor
+@AllArgsConstructor
 public class FoobarService {
 
     private TestServiceBlockingStub blockingStub;
