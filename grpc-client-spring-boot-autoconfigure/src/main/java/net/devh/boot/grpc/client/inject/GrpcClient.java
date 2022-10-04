@@ -44,8 +44,8 @@ import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
  * automatically populated/invoked by Spring.
  *
  * <p>
- * <b>Note:</b> Fields/Methods that are annotated with this annotation should NOT be annotated with {@link Autowired} or
- * {@link Inject} (conflict).
+ * <b>Note:</b> Fields/Set-Methods that are annotated with this annotation should NOT be annotated with
+ * {@link Autowired} or {@link Inject} (conflict).
  * </p>
  *
  * <p>
@@ -58,6 +58,10 @@ import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
  * <p>
  * <b>Note:</b> These annotation allows the specification of custom interceptors. These will be appended to the global
  * interceptors and applied using {@link ClientInterceptors#interceptForward(Channel, ClientInterceptor...)}.
+ * </p>
+ * 
+ * <p>
+ * <b>Note:</b> The constructor and bean factory injection is experimental.
  * </p>
  *
  * @see GrpcClientBean Add as bean to the {@link ApplicationContext}.

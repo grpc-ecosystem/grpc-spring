@@ -18,12 +18,15 @@
 package net.devh.boot.grpc.client.inject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 
 class GrpcClientConstructorInjection {
 
-    private final ArrayList<Registry> injections = new ArrayList<>();
+    public static final String BEAN_NAME = "grpcClientConstructorInjection";
+
+    private final List<Registry> injections = new ArrayList<>();
 
     static class Registry {
 
@@ -33,8 +36,8 @@ class GrpcClientConstructorInjection {
         private final BeanDefinition targetBeanDefinition;
         private final int constructorArgumentIndex;
 
-        public Registry(Class<?> stubClazz, GrpcClient client, Class<?> targetClazz,
-                BeanDefinition targetBeanDefinition, int constructorArgumentIndex) {
+        public Registry(final Class<?> stubClazz, final GrpcClient client, final Class<?> targetClazz,
+                final BeanDefinition targetBeanDefinition, final int constructorArgumentIndex) {
             this.stubClazz = stubClazz;
             this.client = client;
             this.targetClazz = targetClazz;
@@ -43,32 +46,37 @@ class GrpcClientConstructorInjection {
         }
 
         public Class<?> getStubClass() {
-            return stubClazz;
+            return this.stubClazz;
         }
 
         public GrpcClient getClient() {
-            return client;
+            return this.client;
         }
 
         public Class<?> getTargetClazz() {
-            return targetClazz;
+            return this.targetClazz;
         }
 
         public BeanDefinition getTargetBeanDefinition() {
-            return targetBeanDefinition;
+            return this.targetBeanDefinition;
         }
 
         public int getConstructorArgumentIndex() {
-            return constructorArgumentIndex;
+            return this.constructorArgumentIndex;
         }
     }
 
-    public ArrayList<Registry> getRegistries() {
-        return injections;
+    public List<Registry> getRegistries() {
+        return this.injections;
     }
 
-    public GrpcClientConstructorInjection add(Registry injection) {
-        injections.add(injection);
+    public GrpcClientConstructorInjection add(final Registry injection) {
+        this.injections.add(injection);
         return this;
     }
+
+    public boolean isEmpty() {
+        return this.injections.isEmpty();
+    }
+
 }

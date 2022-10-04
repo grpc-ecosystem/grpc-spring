@@ -17,45 +17,61 @@
 
 package net.devh.boot.grpc.client.inject;
 
-import java.lang.reflect.Constructor;
+import static net.devh.boot.grpc.client.inject.GrpcClientConstructorInjection.BEAN_NAME;
+
+import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
+import java.util.Arrays;
 
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
+/**
+ * {@link BeanFactoryPostProcessor} that searches the bean definitions for {@link GrpcClient} annotations on
+ * constructors and factory methods.
+ */
 public class GrpcClientConstructorInjectionBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 
     @Override
-    public void postProcessBeanFactory(@NotNull ConfigurableListableBeanFactory beanFactory) throws BeansException {
+    public void postProcessBeanFactory(@NotNull final ConfigurableListableBeanFactory beanFactory)
+            throws BeansException {
 
-        GrpcClientConstructorInjection grpcClientConstructorInjection = new GrpcClientConstructorInjection();
+        final GrpcClientConstructorInjection grpcClientConstructorInjection = new GrpcClientConstructorInjection();
 
         // Use bean name to get bean class to avoid triggering bean init
         beanFactory.getBeanNamesIterator().forEachRemaining(beanName -> {
-            Class<?> clazz = beanFactory.getType(beanName);
+            final Class<?> clazz = beanFactory.getType(beanName);
             if (clazz == null) {
                 return;
             }
 
+            BeanDefinition beanDefinition = null;
+            try {
+                beanDefinition = beanFactory.getBeanDefinition(beanName);
+            } catch (final NoSuchBeanDefinitionException ignored) {
+            }
+
             // Search for GrpcClient annotation in all parameters of all constructors
-            for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-                Parameter[] parameters = constructor.getParameters();
+            for (final Executable constructor : getConstructorCandidates(beanFactory, beanDefinition, clazz)) {
+                final Parameter[] parameters = constructor.getParameters();
                 for (int i = 0; i < parameters.length; i++) {
-                    Parameter parameter = parameters[i];
-                    GrpcClient client = parameter.getAnnotation(GrpcClient.class);
+                    final Parameter parameter = parameters[i];
+                    final GrpcClient client = parameter.getAnnotation(GrpcClient.class);
                     if (client == null) {
                         continue;
                     }
 
-                    GrpcClientConstructorInjection.Registry registry =
+                    final GrpcClientConstructorInjection.Registry registry =
                             new GrpcClientConstructorInjection.Registry(
                                     parameter.getType(),
                                     client,
                                     clazz,
-                                    beanFactory.getBeanDefinition(beanName),
+                                    beanDefinition,
                                     i);
 
                     grpcClientConstructorInjection.add(registry);
@@ -63,6 +79,29 @@ public class GrpcClientConstructorInjectionBeanFactoryPostProcessor implements B
             }
         });
 
-        beanFactory.registerSingleton("grpcClientConstructorInjection", grpcClientConstructorInjection);
+        if (!grpcClientConstructorInjection.isEmpty()) {
+            beanFactory.registerSingleton(BEAN_NAME, grpcClientConstructorInjection);
+        }
     }
+
+    private Executable[] getConstructorCandidates(
+            final ConfigurableListableBeanFactory beanFactory,
+            final BeanDefinition beanDefinition,
+            final Class<?> clazz) {
+
+        if (beanDefinition != null) {
+            final String factoryBeanName = beanDefinition.getFactoryBeanName();
+            final String factoryMethodName = beanDefinition.getFactoryMethodName();
+            if (factoryBeanName != null && factoryMethodName != null) {
+                final Class<?> factoryClass = beanFactory.getType(factoryBeanName);
+                if (factoryClass != null) {
+                    return Arrays.stream(factoryClass.getDeclaredMethods())
+                            .filter(m -> factoryMethodName.equals(m.getName()))
+                            .toArray(Executable[]::new);
+                }
+            }
+        }
+        return clazz.getDeclaredConstructors();
+    }
+
 }
