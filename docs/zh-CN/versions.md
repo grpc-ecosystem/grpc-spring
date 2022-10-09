@@ -1,23 +1,23 @@
 # 版本
 
-[<- Back to Index](index.md)
+[<- 返回索引](index.md)
 
-This page shows the additional information about our Versioning Policy and lifecycles.
+本页面介绍版本策略和生命周期等信息。
 
 ## 目录 <!-- omit in toc -->
 
-- [Versioning Policy](#versioning-policy)
+- [版本策略](#versioning-policy)
 - [版本列表](#version-table)
   - [2.x 版本](#version-2x)
   - [1.x 版本](#version-1x)
   - [升级依赖关系](#upgrading-dependencies)
   - [发布日志](#release-notes)
 
-## Versioning Policy
+## 版本策略
 
 这个项目的主要版本定义了我们与哪个Spring-boot版本兼容。
 
-- 1.x.x  版本为 EOL，不会再收到任何更新。
+- 1.x.x 版本为 EOL，不会再收到任何更新。
 - 2.x.x 是当前的维护版本，如果有 spring-boot 或者 gRPC 版本，将进行更新。
 
 次版本定义了此项目的功能版本。 每次我们更改 spring boot 或 gRPC 版本时，我们也会增加我们的功能版本。 如果我们增加/改变主要特征，也是如此。 在大多数情况下，你不会通过升级获得任何不兼容之处，但因为gRPC 就像它的 API 一样， 这个问题不能被排除在外。 我们试图尽量减少这种影响，但不能排除这种影响。 如果您不使用高级功能，您通常不会收到通知。
@@ -36,34 +36,34 @@ This page shows the additional information about our Versioning Policy and lifec
 
 当前版本。
 
-|     版本     | spring-boot | spring-cloud |  gRPC  |      Date |
-|:----------:|:-----------:|:------------:|:------:| ---------:|
-| 2.14.0\* |   2.6.11    |   2021.0.3   | 1.49.0 |       TBA |
-|   2.13.1   |    2.5.8    |   2020.0.5   | 1.42.2 | Jan, 2022 |
-|   2.13.0   |    2.5.7    |   2020.0.4   | 1.42.1 | Nov, 2021 |
-|   2.12.0   |    2.4.5    |   2020.0.2   | 1.37.0 | Mai, 2021 |
-|   2.11.0   |    2.3.8    |    Hoxton    | 1.35.0 | Feb, 2021 |
-|   2.10.1   |    2.3.3    |    Hoxton    | 1.31.1 | Aug, 2020 |
-|   2.10.0   |    2.3.3    |    Hoxton    | 1.31.1 | Aug, 2020 |
-|   2.9.0    |    2.3.1    |    Hoxton    | 1.30.0 | Jun, 2020 |
-|   2.8.0    |    2.2.7    |    Hoxton    | 1.29.0 | Jun, 2020 |
-|   2.7.0    |    2.2.4    |    Hoxton    | 1.27.1 | Feb, 2020 |
-|   2.6.2    |    2.2.1    |    Hoxton    | 1.25.0 | Jan, 2020 |
-|   2.6.1    |    2.2.1    |    Hoxton    | 1.25.0 | Nov, 2019 |
-|   2.6.0    |    2.2.1    |    Hoxton    | 1.24.2 | Nov, 2019 |
-|   2.5.1    |    2.1.6    |  Greenwich   | 1.22.2 | Aug, 2019 |
-|   2.5.0    |    2.1.6    |  Greenwich   | 1.22.1 | Aug, 2019 |
-|   2.4.0    |    2.1.5    |   Finchley   | 1.20.0 | Jun, 2019 |
-|   2.3.0    |    2.1.4    |   Finchley   | 1.18.0 | Apr, 2019 |
-|   2.2.1    |    2.0.7    |      ?       | 1.17.1 | Jan, 2019 |
-|   2.2.0    |    2.0.6    |      ?       | 1.17.1 | Dec, 2018 |
-|   2.1.0    |    2.0.?    |      ?       | 1.14.0 | Oct, 2018 |
-|   2.0.1    |    2.0.?    |      ?       | 1.14.0 | Aug, 2018 |
-|   2.0.0    |    2.0.?    |      ?       | 1.13.1 | Aug, 2018 |
+|     版本     | spring-boot | spring-cloud |  gRPC  |       日期 |
+|:----------:|:-----------:|:------------:|:------:| --------:|
+| 2.14.0\* |   2.6.11    |   2021.0.3   | 1.49.0 |       待定 |
+|   2.13.1   |    2.5.8    |   2020.0.5   | 1.42.2 |  2022年1月 |
+|   2.13.0   |    2.5.7    |   2020.0.4   | 1.42.1 | 2021年11月 |
+|   2.12.0   |    2.4.5    |   2020.0.2   | 1.37.0 |  2021年5月 |
+|   2.11.0   |    2.3.8    |    Hoxton    | 1.35.0 |  2021年2月 |
+|   2.10.1   |    2.3.3    |    Hoxton    | 1.31.1 |  2020年8月 |
+|   2.10.0   |    2.3.3    |    Hoxton    | 1.31.1 |  2020年8月 |
+|   2.9.0    |    2.3.1    |    Hoxton    | 1.30.0 |  2020年6月 |
+|   2.8.0    |    2.2.7    |    Hoxton    | 1.29.0 |  2020年6月 |
+|   2.7.0    |    2.2.4    |    Hoxton    | 1.27.1 |  2020年2月 |
+|   2.6.2    |    2.2.1    |    Hoxton    | 1.25.0 |  2020年1月 |
+|   2.6.1    |    2.2.1    |    Hoxton    | 1.25.0 | 2019年11月 |
+|   2.6.0    |    2.2.1    |    Hoxton    | 1.24.2 | 2019年11月 |
+|   2.5.1    |    2.1.6    |  Greenwich   | 1.22.2 |  2018年8月 |
+|   2.5.0    |    2.1.6    |  Greenwich   | 1.22.1 |  2018年8月 |
+|   2.4.0    |    2.1.5    |   Finchley   | 1.20.0 |  2019年6月 |
+|   2.3.0    |    2.1.4    |   Finchley   | 1.18.0 |  2019年4月 |
+|   2.2.1    |    2.0.7    |      ?       | 1.17.1 |  2019年1月 |
+|   2.2.0    |    2.0.6    |      ?       | 1.17.1 | 2018年12月 |
+|   2.1.0    |    2.0.?    |      ?       | 1.14.0 | 2018年10月 |
+|   2.0.1    |    2.0.?    |      ?       | 1.14.0 |  2018年8月 |
+|   2.0.0    |    2.0.?    |      ?       | 1.13.1 |  2018年8月 |
 
-(\* Future versions)
+(\* 未来的版本)
 
-> The listed dependency versions here are only used during the build process and may be replaced. grpc-spring-boot-starter is usually also compatible with newer or older versions than the listed ones. If you encounter an incompatibility with a newer version, please let us know so we can update this project!
+> 这里列出的依赖版本仅在构建过程中使用，可能被替换。 grpc-spring-boot-starter 通常也与较新的版本或较旧的版本兼容。 如果您遇到了与新版本不兼容的问题，请告诉我们，这样我们就可以更新这个项目！
 
 ### 1.x 版本
 
@@ -92,4 +92,4 @@ This page shows the additional information about our Versioning Policy and lifec
 
 ---
 
-[<- Back to Index](index.md)
+[<- 返回索引](index.md)
