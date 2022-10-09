@@ -1,10 +1,10 @@
 # 测试服务
 
-[<- Back to Index](../index.md)
+[<- 返回索引](../index.md)
 
 本节介绍如何为您的 grpc-service 编写测试用例。
 
-If you want to test a component that internally uses an `@GrpcClient` annotated field or one of grpc's stubs. Please refer to [Tests with Grpc-Stubs](../client/testing.md).
+如果你想要测试一个使用了 `@GrpcClient` 注解字段或一个 grpc 的 stub。 请参阅 [测试Grpc-Stubs](../client/testing.md)。
 
 ## 目录 <!-- omit in toc -->
 
@@ -21,11 +21,11 @@ If you want to test a component that internally uses an `@GrpcClient` annotated 
 
 - [入门指南](getting-started.md)
 - [配置](configuration.md)
-- [Exception Handling](exception-handling.md)
-- [Contextual Data / Scoped Beans](contextual-data.md)
-- *Testing the Service*
-- [Server Events](events.md)
-- [Security](security.md)
+- [异常处理](exception-handling.md)
+- [上下文数据 / Bean 的作用域](contextual-data.md)
+- *测试服务*
+- [服务端事件](events.md)
+- [安全性](security.md)
 
 ## 前言
 
@@ -35,11 +35,11 @@ If you want to test a component that internally uses an `@GrpcClient` annotated 
 - [Testing with JUnit](https://junit.org/junit5/docs/current/user-guide/#writing-tests)
 - [grpc-spring-boot-starter's Tests](https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/tests/src/test/java/net/devh/boot/grpc/test)
 
-Generally there are three ways to test your grpc service:
+通常有三种方法来测试您的 grpc 服务：
 
 - [直接测试](#unit-tests)
 - [通过 grpc 测试](#integration-tests)
-- [Test them in production](#grpcurl) (in addition to automated build time tests)
+- [在生产环境中测试它们](#grpcurl) (构建时的自动化测试除外)
 
 ## 测试服务
 
@@ -73,7 +73,7 @@ public class MyServiceImpl extends MyServiceGrpc.MyServiceImplBase {
 
 在您开始编写自己的测试框架之前，您可能想要使用以下库来使您的工作更加简单。
 
-> **Note:** Spring-Boot-Test already contains some of these dependencies, so make sure you exclude conflicting versions.
+> **注意：** Spring-Boot-Test已经包含一些依赖项，所以请确保您排除掉了冲突的版本。
 
 对于Maven来说，添加以下依赖：
 
@@ -292,13 +292,13 @@ public class MyServiceIntegrationTestConfiguration {
 
 ## gRPCurl
 
-[`gRPCurl`](https://github.com/fullstorydev/grpcurl) is a small command line application, that you can use to query your application at runtime. Or as their Readme states:
+[`gRPCurl`](https://github.com/fullstorydev/grpcurl) 是一个小型的命令行应用程序， 您可以在应用程序运行时查询。 或者如它们的 Readme 说的那样：
 
-> It's basically `curl` for gRPC servers.
+> 对于 gRPC 服务，它基本上是 `curl` 工具
 
-You can even use the responses with `jq` and use it in your automation.
+您甚至可以使用 `jq` 工具来处理的响应，将它用于自动化测试中。
 
-Skip the first/this block if you already know what you wish to query.
+如果您已经知道要查询什么，跳过第一/这个部分。
 
 ````bash
 $ # First scan the server for available services
@@ -319,12 +319,12 @@ message HelloRequest {
 }
 ````
 
-> Note: `gRPCurl` supports both `.` and `/` as separator between the service name and the method name:
+> 注意： `gRPCurl` 支持 `.` 和 `/` 作为服务名称和方法名称之间的分隔符：
 > 
 > - `net.devh.boot.grpc.example.MyService.SayHello`
 > - `net.devh.boot.grpc.example.MyService/SayHello`
 > 
-> We recommend the second variant as it matches grpc's internal full method name and the method name is easier to detect in the call.
+> 我们推荐第二种方式，因为它跟 grpc 的内部全方法名称匹配，并且方法名称在调用中更容易识别到。
 
 ````bash
 $ # Finally we can call the actual method
@@ -341,7 +341,7 @@ $ grpcurl --plaintext -d '{"name": "Test"}' localhost:9090 net.devh.boot.grpc.ex
 }
 ````
 
-> Note: If you use the windows terminal or wish to use variables inside the data block then you have to use `"` instead of `'` and escape the `"` that are part of the actual json.
+> 注意：如果您使用了 window 终端或想要在数据块中使用变量，那么您必须使用 `"` 而不是 `'`，并转义实际json中的 `"` 。
 > 
 > ````cmd
 > 
@@ -352,18 +352,18 @@ $ grpcurl --plaintext -d '{"name": "Test"}' localhost:9090 net.devh.boot.grpc.ex
     }
     ````
 
-For more information regarding `gRPCurl` please refer to their [official documentation](https://github.com/fullstorydev/grpcurl)
+更多 `gRPCurl` 的信息，请参阅他们的 [官方文档](https://github.com/fullstorydev/grpcurl)
 
-## Additional Topics <!-- omit in toc -->
+## 附加主题 <!-- omit in toc -->
 
 - [入门指南](getting-started.md)
 - [配置](configuration.md)
-- [Exception Handling](exception-handling.md)
-- [Contextual Data / Scoped Beans](contextual-data.md)
-- *Testing the Service*
-- [Server Events](events.md)
-- [Security](security.md)
+- [异常处理](exception-handling.md)
+- [上下文数据 / Bean 的作用域](contextual-data.md)
+- *测试服务*
+- [服务端事件](events.md)
+- [安全性](security.md)
 
 ----------
 
-[<- Back to Index](../index.md)
+[<- 返回索引](../index.md)
