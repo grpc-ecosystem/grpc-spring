@@ -1,6 +1,6 @@
 # 参与贡献
 
-[<- Back to Index](index.md)
+[<- 返回索引](index.md)
 
 我们始终欢迎您对项目作出任何贡献。
 
@@ -10,4 +10,4 @@
 
 ----------
 
-[<- Back to Index](index.md)
+[<- 返回索引](index.md)
