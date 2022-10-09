@@ -1,12 +1,12 @@
-# Kubernetes Setup
+# Kubernetes 设置
 
-The following section assumes that you have at least some knowledge about deploying an application to Kubernetes. For more details refer to the [official documentation](https://kubernetes.io/docs/home/)
+下面的部分假设你至少有一些关于将应用程序部署到Kubernetes的知识。 更多详情，请参阅 [官方文档](https://kubernetes.io/docs/home/)
 
-Kubernetes (or more precisely most of kubernetes DNS provider's) expose enough information for grpc-java to resolve the addresses of services that run inside the cluter. Should also work for OKD/OpenShift.
+Kubernetes（或者更准确地说是大多数 kubernetes DNS 提供商）为 grpc-java 暴露了足够的信息来解析在集群内运行的服务的地址。 同样在 OKD/OpenShift 上也能正常工作。
 
-There are a few things you should keep in mind here though.
+不过，您应该记住几件事情。
 
-1. Inside your (target's) deployment, make sure that you expose the port specified by `grpc.server.port` (defaults to `9090`)
+1. 在您的（目标）deployment 中，确保您暴露 `grpc.server.port` 指定的端口 （默认为 `9090`）
 
 ````yaml
 [...]
@@ -20,9 +20,9 @@ There are a few things you should keep in mind here though.
 [...]
 ````
 
-> **Note:** Container ports can be re-used by other deployments/pods, unless you use `hostPort`s. So there is no reason not to use a default one.
+> **注意：** 容器端口可以被其他部署/pods重新使用，除非您使用 `hostPort`。 因此，没有理由不使用默认的。
 
-2. Inside your (target's) service definition, you should map that port to your preferred port.
+2. 在您的（目标） 服务定义中，您应该将该端口映射到您首选的端口。
 
 ````yaml
 apiVersion: v1
@@ -39,9 +39,9 @@ spec:
       targetPort: grpc # Use the port name from the deployment (or just the port number)
 ````
 
-> **Note:** Service ports can be re-used by other services, unless you use `hostPort`s. So there is no reason not to use a default one.
+> **注意：** Service 端口可以被其他服务重新使用，除非您使用 `hostPort`。 因此，没有理由不使用默认值。
 
-3. Inside your client application config, configure the channel address to refer to the service name:
+3. 在您的客户端应用程序配置中，配置 channel 地址指向服务名称：
 
 ````properties
 ## Choose your matching variant
@@ -57,8 +57,8 @@ grpc.client.my-grpc-server-app.address=dns:///my-grpc-server-app.example.svc.clu
 grpc.client.my-grpc-server-app.address=dns:///<serviceName>[.<namespace>[.<clusterAddress>]][:<service-port>]
 ````
 
-> **Note:** DNS-SVC lookups require the `grpclb` dependency to be present and the service's port name to be `grpclb`. Refer to grpc's official docs for more details.
+> **注意：** DNS-SVC 查找存在 `grpclb` 依赖项 ，服务端口名称必须是 `grpclb` 详情请参阅gRPC的官方文档。
 
 ----------
 
-[<- Back to Index](index.md)
+[<- 返回索引](index.md)
