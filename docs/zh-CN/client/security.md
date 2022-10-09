@@ -1,6 +1,6 @@
 # 客户端安全
 
-[<- Back to Index](../index.md)
+[<- 返回索引](../index.md)
 
 此页面描述了您如何连接到 gRPC 服务器并进行身份验证。
 
@@ -12,9 +12,9 @@
   - [信任服务器](#trusting-a-server)
 - [双向证书认证](#mutual-certificate-authentication)
 - [身份验证](#authentication)
-  - [Creating CallCredentials](#creating-callcredentials)
-  - [Using CallCredentials](#using-callcredentials)
-  - [Retry with new Authentication](#retry-with-new-authentication)
+  - [创建 CallCredentials](#creating-callcredentials)
+  - [使用 CallCredentials](#using-callcredentials)
+  - [重试时使用新的令牌做验证](#retry-with-new-authentication)
 
 ## 附加主题 <!-- omit in toc -->
 
@@ -33,7 +33,7 @@ gRPC 默认使用 `TLS` 连接服务端，因此无需执行其他任何操作�
 grpc.client.<SomeName>.negotiationType=TLS
 ````
 
-For the corresponding server configuration read the [Server Security](../server/security.md) page.
+对于服务端的配置，请参考 [服务端安全](../server/security.md) 页面。
 
 ### 基础要求
 
@@ -93,7 +93,7 @@ grpc.client.__name__.security.privateKey=file:certificates/client.key
 
 ## 身份验证
 
-### Creating CallCredentials
+### 创建 CallCredentials
 
 除了双向证书认证外，还有其他几种认证方式，如 `BasicAuth`。
 
@@ -111,7 +111,7 @@ CallCredentials bearerAuthForwardingCredentials() {
 }
 ````
 
-### Using CallCredentials
+### 使用 CallCredentials
 
 如果您的应用程序上下文中只有一个`CallCredentials`，我们将自动为您创建一个 `StubTransformer`，并配置到所有的 `Stub`上。 如果您想为每个 Stub 配置不同的凭据，那么您可以使用 [`CallCredentialsHelper`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/security/CallCredentialsHelper.html) 中提供的帮助方法。
 
@@ -124,9 +124,9 @@ MyServiceBlockingStub myServiceForUser = myService.withCallCredentials(userCrede
 return myServiceForUser.send(request);
 ````
 
-### Retry with new Authentication
+### 重试时使用新的令牌做验证
 
-If you want to retry calls that failed due to an expired token (using grpc's built-in retry mechanism), you can use the following example `ClientInterceptor` as a guide to automatically report the failure to the token store. Please note that many popular token-based authentication systems (such as OAuth) also provide a token TTL that can be used to automatically update the token before the call is even sent for the first time, rendering this obsolete.
+如果要重试由于令牌过期而失败的调用(使用 grpc 内置重试机制)， 您可以使用 以下示例 `ClientInterceptor` 作为自动向令牌存储器报告失败的指南。 请注意，许多流行的基于令牌的身份验证系统（例如 OAuth）也提供了一个令牌 TTL，可以 用于在第一次发送呼叫之前自动更新令牌，从而使这个功能变得过时。
 
 ````java
 @Override
@@ -158,7 +158,7 @@ public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
 }
 ````
 
-For more details refer to [How to retry with new auth token using builtin retry?](https://github.com/grpc/grpc-java/issues/7345#issuecomment-679295003)
+了解更多详情，请参阅 [重试时如何使用新的认证令牌？](https://github.com/grpc/grpc-java/issues/7345#issuecomment-679295003)
 
 ## 附加主题 <!-- omit in toc -->
 
@@ -168,4 +168,4 @@ For more details refer to [How to retry with new auth token using builtin retry?
 
 ----------
 
-[<- Back to Index](../index.md)
+[<- 返回索引](../index.md)
