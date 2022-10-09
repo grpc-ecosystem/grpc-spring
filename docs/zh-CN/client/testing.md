@@ -1,36 +1,36 @@
-# Tests with Grpc-Stubs
+# 使用 Grpc-Stubs 测试
 
-[<- Back to Index](../index.md)
+[<- 返回索引](../index.md)
 
-This section describes how you write tests for components that use the `@GrpcClient` annotation or grpc's stubs.
+本节描述如何为使用了 `@GrpcClient` 注解或 grpc stub 的组件编写测试用例。
 
-## Table of Contents <!-- omit in toc -->
+## 目录 <!-- omit in toc -->
 
-- [Introductory Words](#introductory-words)
-- [The Component to test](#the-component-to-test)
-- [Useful Dependencies](#useful-dependencies)
-- [Using a Mocked Stub](#using-a-mocked-stub)
-- [Running a Dummy Server](#running-a-dummy-server)
+- [前言](#introductory-words)
+- [要测试的组件](#the-component-to-test)
+- [有用的依赖项](#useful-dependencies)
+- [使用 Mocked Stub](#using-a-mocked-stub)
+- [运行一个虚拟服务](#running-a-dummy-server)
 
-## Additional Topics <!-- omit in toc -->
+## 附加主题 <!-- omit in toc -->
 
-- [Getting Started](getting-started.md)
-- [Configuration](configuration.md)
-- [Security](security.md)
-- *Tests with Grpc-Stubs*
+- [入门指南](getting-started.md)
+- [配置](configuration.md)
+- [安全性](security.md)
+- *使用 Grpc-Stubs 测试*
 
-## Introductory Words
+## 前言
 
-Generally there are two ways to test your component containing a grpc stub:
+通常有两种方法来测试你包含 grpc stub 的组件：
 
-- [Using a Mocked Stub](#using-a-mocked-stub)
-- [Running a Dummy Server](#running-a-dummy-server)
+- [使用 Mocked Stub](#using-a-mocked-stub)
+- [运行一个虚拟服务](#running-a-dummy-server)
 
-> Note: There are very important differences in both variants that might affect you during the tests. Please consider the pros and cons listed at each on the variants carefully.
+> 注意：在测试期间，这两种形式有着非常明显的差异。 请仔细考虑每种形式中列出的利弊。
 
-## The Component to test
+## 要测试的组件
 
-Let's assume that we wish to test the following component:
+让我们假设，我们希望测试以下组件：
 
 ````java
 @Component
@@ -54,13 +54,13 @@ public class MyComponent {
 }
 ````
 
-## Useful Dependencies
+## 有用的依赖项
 
-Before you start writing your own test framework, you might want to use the following libraries to make your work easier.
+在您开始编写自己的测试框架之前，您可能想要使用以下库来使您的工作更加简单。
 
-> **Note:** Spring-Boot-Test already contains some of these dependencies, so make sure you exclude conflicting versions.
+> **注意：** Spring-Boot-Test已经包含一些依赖项，所以请确保您排除掉了冲突的版本。
 
-For Maven add the following dependencies:
+对于Maven来说，添加以下依赖：
 
 ````xml
 <!-- JUnit-Test-Framework -->
@@ -101,7 +101,7 @@ For Maven add the following dependencies:
 </dependency>
 ````
 
-For Gradle use:
+Gradle 使用：
 
 ````groovy
 // JUnit-Test-Framework
@@ -118,35 +118,43 @@ testImplementation("org.springframework.boot:spring-boot-starter-test") {
 testImplementation("org.mockito:mockito-all")
 ````
 
-## Using a Mocked Stub
+## 使用 Mocked Stub
 
-In order to test the method we mock the stub and inject it using a setter.
+为了测试该方法，我们模拟 stub 并用 setter 注入它。
 
-### Pros
+### 优点
 
-- Fast
-- Supports well-known mocking frameworks
+- 快
+- 支持主流的 mocking 框架
 
-### Cons
+### 缺点
 
-- Requires "magic" to un-final the stub methods
-- Doesn't work out of the box
-- Doesn't work for beans that use the stub in `@PostContruct`
-- Doesn't work well for beans that use the stub indirectly (via other beans)
-- Doesn't work well for tests that start Spring
+- 需要“魔法”才能作用在 un-final 修饰的 stub 中
+- 无法开箱即用
+- 无法在含有 `@PostContrast` 注解且方法中有使用到 stub 的 bean 中工作
+- 间接使用 stub （通过其他 bean）的 bean 可能无法正常工作
+- 在有启动 Spring 的测试用例中可能无法正常工作
 
-### Implementation
+### 实现
 
-1. Add mockito to our dependencies (see [above](#useful-dependencies))
-2. Configure mockito to work with final classes/methods
+1. 将 mockito 添加到 dependencies 中(见</a> 上文
 
-   For this we need to create a file `src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker` containing:
+)</li> 
+   
+   2 配置 mockito 使它与 final 修饰的类/方法一起工作
+  
+  为此，我们需要创建一个文件 `src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker` 包含： 
+  
+  
 
    ````txt
    mock-maker-inline
    ````
 
-3. Write our mocks as usual and explicitly set it on your component in test
+
+3 像往常一样编写我们的 stub，并在测试过程中明确地将它设置到你的组件里 
+  
+  
 
    ````java
    public class MyComponentTest {
@@ -167,24 +175,35 @@ In order to test the method we mock the stub and inject it using a setter.
 
    }
    ````
+</ol> 
 
-## Running a Dummy Server
 
-In order to test the method we start a grpc server ourselves and connect to it during our tests.
 
-### Pros
+## 运行一个虚拟服务
 
-- No need to fake anything related to the component
-- No "magic"
+为了测试这个方法，我们自己启动了一个 grpc 服务端，并在测试中连接到它。
 
-### Cons
 
-- Requires us to fake implement the actual service
-- Requires Spring to run
 
-### Implementation
+### 优点
 
-The actual implementation of the test might look somewhat like this:
+- 无需伪造与组件有关的任何信息
+- 没有“魔法”
+
+
+
+### 缺点
+
+- 要求我们伪造实现实际的服务
+- 需要 Spring 才能运行
+
+
+
+### 实现
+
+实际的使用方式像下面这样：
+
+
 
 ````java
 @SpringBootTest(properties = {
@@ -210,7 +229,10 @@ public class MyComponentTest {
 }
 ````
 
-and the required configuration looks like this:
+
+所需的配置看起来像这样：
+
+
 
 ````java
 @Configuration
@@ -233,7 +255,10 @@ public class MyComponentIntegrationTestConfiguration {
 }
 ````
 
-and the dummy service implementation might look like this:
+
+虚拟的服务可能看起来像这样:
+
+
 
 ````java
 @GrpcService
@@ -253,13 +278,18 @@ public class ChatServiceImplForMyComponentIntegrationTest extends ChatServiceGrp
 }
 ````
 
-## Additional Topics <!-- omit in toc -->
 
-- [Getting Started](getting-started.md)
-- [Configuration](configuration.md)
-- [Security](security.md)
-- *Tests with Grpc-Stubs*
+
+
+## 附加主题 <!-- omit in toc -->
+
+- [入门指南](getting-started.md)
+- [配置](configuration.md)
+- [安全性](security.md)
+- *使用 Grpc-Stubs 测试*
+
+
 
 ----------
 
-[<- Back to Index](../index.md)
+[<- 返回索引](../index.md)
