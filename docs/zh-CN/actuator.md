@@ -1,13 +1,13 @@
 # 支持 Spring Boot Actuator
 
-[<- Back to Index](index.md)
+[<- 返回索引](index.md)
 
 此页面重点介绍与 [Spring-Boot-Actator](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html) 的集成。 这是一个可选的功能。 支持的特性
 
 - 客户端 + 服务端指标
 - 服务端的`InfoContributor`
 
-## Table of Contents <!-- omit in toc -->
+## 目录 <!-- omit in toc -->
 
 - [依赖项](#dependencies)
 - [指标](#metrics)
@@ -54,7 +54,7 @@ compile("org.springframework.boot:spring-boot-starter-actuator")
 
 - `service`: 请求的 grpc 服务名称（使用 protubuf 名称）
 - `method`: 请求的 grpc 方法名称（使用 protobuf 名称）
-- `method.type`: The type of the requested grpc method.
+- `methodType`: 请求的 grpc 方法的类型。
 
 ### 计时器
 
@@ -65,8 +65,8 @@ compile("org.springframework.boot:spring-boot-starter-actuator")
 
 - `service`: 请求的 grpc 服务名称（使用 protobuf 名称）
 - `method`: 请求的 grpc 方法名称（使用 protobuf 名称）
-- `method.type`: The type of the requested grpc method.
-- `status.code`: Response `Status.Code`
+- `methodType`: 请求的 grpc 方法的类型。
+- `statusCode`: 响应的 `Status.Code`
 
 ### 查看指标
 
@@ -142,4 +142,4 @@ net.devh.boot.grpc.server.autoconfigure.GrpcServerMetricAutoConfiguration
 
 ----------
 
-[<- Back to Index](index.md)
+[<- 返回索引](index.md)
