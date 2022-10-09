@@ -1,6 +1,6 @@
 # 配置
 
-[<- Back to Index](../index.md)
+[<- 返回索引](../index.md)
 
 本节描述您如何配置您的 grpc-spring-boot-starter 客户端。
 
@@ -14,7 +14,7 @@
   - [ClientInterceptor](#clientinterceptor)
   - [StubFactory](#stubfactory)
   - [StubTransformer](#stubtransformer)
-- [Custom NameResolverProvider](#custom-nameresolverprovider)
+- [自定义 NameResolverProvider](#custom-nameresolverprovider)
 
 ## 附加主题 <!-- omit in toc -->
 
@@ -35,7 +35,7 @@ grpc-spring-boot-starter 可以通过 Spring 的 `@ConfigurationProperties` 机�
 
 如果你希望阅读源代码，你可以查阅 [这里](https://github.com/yidongnan/grpc-spring-boot-starter/blob/master/grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/config/GrpcChannelProperties.java#L58)。
 
-Channels 的属性都是以 `grpc.client.__name__.` 或 `grpc.client.__name__.security.` 为前缀。 The channel name is taken from the `@GrpcClient("__name__")` annotation. If you wish to configure some options such as trusted certificates for all servers at once, you can do so using `GLOBAL` as name. Properties that are defined for a specific/named channel take precedence over `GLOBAL` ones.
+Channels 的属性都是以 `grpc.client.__name__.` 或 `grpc.client.__name__.security.` 为前缀。 Channel 的名称从 `@GrpcClient("__name__")` 注解中获取。 如果您想要配置一些其他的选项，如为所有服务端设置可信证书，并可以使用 `GLOBAL` 作为名称。 指定 Channel 的配置项优先于 `GLOBAL` 的配置项
 
 ### 选择目标
 
@@ -47,39 +47,24 @@ grpc.client.__name__.address=static://localhost:9090
 
 目标服务器支持多种 schemes，您可以使用它们来指定目标服务器（优先级0（低） - 10（高））：
 
-- `static` (Prio 4): \
-A simple static list of IPs (both v4 and v6), that can be use connect to the server (Supports `localhost`). \
-For resolvable hostnames please use `dns` instead. \
-Example: `static://192.168.1.1:8080,10.0.0.1:1337`
-- [`dns`](https://github.com/grpc/grpc-java/blob/master/core/src/main/java/io/grpc/internal/DnsNameResolver.java#L66) (Prio 5): \
-Resolves all addresses that are bound to the given DNS name. 地址将被缓存，只有当现有连接被关闭 / 失败时才会刷新。 \ Example: `dns:///example.my.company` \
-Notice: There is also a `dns` resolver that is included in grpclb, that has a higher priority (`6`) than the default one and also supports `SVC` lookups. See also [Kubernetes Setup](../kubernetes.md).
-- `discovery` (Prio 6): \
-(Optional) Uses spring-cloud's `DiscoveryClient` to lookup appropriate targets. 在 `HeartbeatEvent` 的时候，连接将自动刷新。 Uses the `gRPC_port` metadata to determine the port, otherwise uses the service port. \
-Example: `discovery:///service-name`
-- `self` (Prio 0): \
-The self address or scheme is a keyword that is available, if you also use `grpc-server-spring-boot-starter` and allows you to connect to the server without specifying the own address/port. 这对于需要使用随机服务器端口以避免冲突的测试特别有用。 \
-Example: `self:self`
-- `in-process`: \
-This is a special scheme that will bypass the normal channel factory and will use the `InProcessChannelFactory` instead. Use it to connect to the [`InProcessServer`](../server/configuration.md#enabling-the-inprocessserver). \
-Example: `in-process:foobar`
-- `unix` (Available on Unix based systems only): \
-This is a special scheme that uses unix's domain socket addresses to connect to a server. \ If you are using `grpc-netty` you also need the `netty-transport-native-epoll` dependency. `grpc-netty-shaded` already contains that dependency, so there is no need to add anything for it to work. \
-Example: `unix:/run/grpc-server`
-- *custom*: \
-You can define custom [`NameResolverProvider`s](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/NameResolverProvider.html) those will be picked up, by either via Java's `ServiceLoader` or from spring's application context and registered in the `NameResolverRegistry`. \
-See also [Custom NameResolverProvider](#custom-nameresolverprovider)
+- `static`（优先级 4）: 一个简单的IP静态列表 （v4 和 v6）, 可用于连接到服务端 （支持 `localhost`）。 若要解析主机名，请使用 `dns` 代替。 例如：`static://192.168.1:8080,10.0.0.1:1337`
+- [`dns`](https://github.com/grpc/grpc-java/blob/master/core/src/main/java/io/grpc/internal/DnsNameResolver.java#L66)（优先级 5）：解析并绑定到给定 DNS 名称的所有地址。 地址将被缓存，只有当现有连接被关闭 / 失败时才会刷新。 示例： `dns:///example.my.company` 注意：grpclb 中包含了一个 `dns` 解析器，并且它的优先级(`6`) 高于默认值， 同时它也支持 `SVC` 查询。 见 [Kubernetes 设置](../kubernetes.md)。
+- `discovery` (优先级 6)：(可选) 使用 Spring Cloud 的`DiscoveryClient` 去查找合适的目标。 在 `HeartbeatEvent` 的时候，连接将自动刷新。 使用 `gRPC_port` 元数据来确定端口，否则使用服务端口。 示例： `discovery:///service-name`
+- `self`（优先级 0）：如果您使用 `grpc-server-spring-boot-starter` 并且不想指定自己的地址 / 端口，则可以使用 self 关键词作为 scheme 或者 address 。 这对于需要使用随机服务器端口以避免冲突的测试特别有用。 示例： `self:self`
+- `in-process`：这是一个特殊的方案，将使用 `InProcessChannelFactory` 来替代原有正常的 ChannelFactory。 并使用它连接到 [`InProcessServer`](../server/configuration.md#enabling-the-inprocessserver)。 例如：`in-process:foobar`
+- `unix` (仅适用于基于 Unix 的系统)： 这是一个使用unix域套接字地址连接到服务器的特殊方案。 如果您在使用 `grpc-netty` ，您还需要 `nety-transport-native-epoll` 依赖性。 `grpc-netty-shaded` 已经包含了这种依赖性，所以不需要添加任何东西就能正常工作。 示例： `unix:/run/grpc-server`
+- *custom*: 您可以通过 Java 的 `ServiceLoader` 或从 Spring 的应用上下文中选择要自定义的 [`NameResolverProvider`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/NameResolverProvider.html) ，并将其注册到 `NameResolverRegistry` 上。 见 [自定义 NameResolverProvider](#custom-nameresolverprovider)
 
 如果您没有定义地址，它将按照如下方式被猜测：
 
-- If you have configured a default scheme it will try that first
-  - If only a scheme is provided, the address will be `<scheme>:///<name>`. Optionally, `:`, `:/`, or `://` can be included if the scheme requires it.
-- Then it will try it with just it's name (`<name>`)
+- 如果您已经配置了默认方案，那会先尝试它
+  - 如果只提供了一个方案，地址将是 `<scheme>://<name>`。 可选，如果方案需要它，可以选择包含 `:`, `:/`, 或 `://` 。
+- 然后它将尝试使用它的名称 (`<name>`)
 - 然后它将使用 `NameResolver.Factory` 委托的默认方案(见上面的优先级)
 
 > **注意:** 斜杠的数量很重要！ 还要确保不要连接到普通的 web / REST / 非 grpc 服务器（端口）。
 
-The `SSL`/`TLS` and other security relevant configuration is explained on the [Client Security](security.md) page.
+[客户端安全性](security.md) 页面上解释了 `SSL` / `TLS` 和其他与安全相关的配置。
 
 ## 通过Beans 配置
 
@@ -91,9 +76,9 @@ The `SSL`/`TLS` and other security relevant configuration is explained on the [C
 
 ### GrpcClientBean
 
-This annotation is used to create injectable beans from your otherwise non-injectable `@GrpcClient` instances. The annotation can be repeatedly added to any of your `@Configuration` classes.
+在您不可以通过 `@GrpcClient` 注入实例时，使用此注解可以注入bean。 这个注解可以重复添加到您的 `@Configuration` 类中。
 
-> **Note:** We recommend using either `@GrpcClientBean`s or fields annotated with `@GrpcClient` throughout your application, as mixing the two might cause confusion for future developers.
+> **注意：**我们建议在整个应用程序中使用`@GrpcClientBean`或用`@GrpcClient`注释的字段，因为这两者的混合使用可能会给未来的开发者带来混乱。
 
 ````java
 @Configuration
@@ -133,7 +118,7 @@ public class BarService {
 
 ### GrpcChannelConfigurer
 
-The grpc client configurer allows you to add your custom configuration to grpc's `ManagedChannelBuilder`s.
+Grpc 客户端配置器允许您将自定义配置添加到 gRPC 的 `ManagedChannelBuilder` 中 。
 
 ````java
 @Bean
@@ -148,27 +133,27 @@ public GrpcChannelConfigurer keepAliveClientConfigurer() {
 }
 ````
 
-> Be aware that depending on your configuration there might be different types of `ManagedChannelBuilder`s in the application context (e.g. the `InProcessChannelFactory`).
+> 注意，根据您的配置，在应用上下文中可能有不同类型的 `ManagedChannelBuilder` (例如`InProcessChannelFactory`)。
 
 ### ClientInterceptor
 
-`ClientInterceptor`s can be used for various tasks, including:
+`ClientInterceptor` 可以用于各种任务，包括：
 
-- Authentication/Authorization
-- Request validation
-- Response filtering
-- Attaching additional context to the call (e.g. tracing ids)
-- Exception to error `Status` response mapping
-- Logging
+- 认证/授权
+- 请求校验
+- 响应过滤
+- 在调用中附加上下文(例如追踪id)
+- 错误异常跟 Response `Status` 的映射
+- 日志
 - ...
 
-There are three ways to add a `ClientInterceptor` to your channel.
+向您的 Channel 添加 `ClientInterceptor` 的三种方式。
 
-- Define the `ClientInterceptor` as a global interceptor using either the `@GrpcGlobalClientInterceptor` annotation, or a `GlobalClientInterceptorConfigurer`
-- Explicitly list them in the `@GrpcClient#interceptors` or `@GrpcClient#interceptorNames` field
-- Use a `StubTransformer` and call `stub.withInterceptors(ClientInterceptor... interceptors)`
+- 使用 `@GrpcGlobalClientIntercetor` 注解或 `GlobalClientInterceptorConfigurer`将 `ClientInterceptor` 定义为一个全局拦截器
+- 在 `@GrpcClient#interceptors` 或 `@GrpcClient#interceptorNames` 字段中明确列出
+- 使用 `StubTransformer` 并调用 `stub.withInterceptors(ClientInterceptor... interceptors)`
 
-The following examples demonstrate how to use annotations to create a global client interceptor:
+以下示例演示如何使用注解创建全局客户拦截器：
 
 ````java
 @Configuration
@@ -182,7 +167,7 @@ public class GlobalInterceptorConfiguration {
 }
 ````
 
-The following example demonstrates creation via `GlobalClientInterceptorConfigurer`
+下面的示例通过 `GlobalClientInterestorConfigurer` 演示创建全局拦截器
 
 ````java
 @Configuration
@@ -196,9 +181,9 @@ public class GlobalInterceptorConfiguration {
 }
 ````
 
-These variant are very handy if you wish to add third-party interceptors to the global scope.
+如果您想要将第三方拦截器添加到全局拦截器，上述这些变种会非常简单。
 
-For your own interceptor implementations you can achieve the same result by adding the annotation to the class itself:
+对于您自己的拦截器实现功能，您可以通过添加注解到类本身来实现相同的结果：
 
 ````java
 @GrpcGlobalClientInterceptor
@@ -221,15 +206,15 @@ public class LogGrpcInterceptor implements ClientInterceptor {
 
 ### StubFactory
 
-A `StubFactory` is used to create a `Stub` of a specific type. The registered stub factories will be checked in order and the first applicable factory will be used to create the stub.
+`StubFactory` 用于创建一个特定类型的 `Stub` 。 注册的 stub 工厂将按顺序检查是否适用，第一个适用的工厂将被用来创建 stub。
 
-This library has build in support for the `Stub` types defined in grpc-java:
+该库内置了对 grpc-java 中定义的 `Stub` 类型的支持：
 
 - [`AsyncStubs`](https://grpc.github.io/grpc-java/javadoc/io/grpc/stub/AbstractAsyncStub.html)
 - [`BlockingStubs`](https://grpc.github.io/grpc-java/javadoc/io/grpc/stub/AbstractBlockingStub.html)
 - [`FutureStubs`](https://grpc.github.io/grpc-java/javadoc/io/grpc/stub/AbstractFutureStub.html)
 
-But you can easily add support for other `Stub` types by adding a custom `StubFactory` to your application context.
+但是您也可以通过向应用程序上下文添加自定义 `StubFactory` 轻松添加对其他 `Stub` 类型的支持。
 
 ````java
 @Component
@@ -254,11 +239,11 @@ public class MyCustomStubFactory implements StubFactory {
 }
 ````
 
-> **Note:** Please report missing stub types (and the corresponding library) in our issue tracker so that we can add support if possible.
+> **注意：** 请在我们的 issue 中报告缺少支持的 stub 类型(和相应的库)，以便我们添加对它的支持。
 
 ### StubTransformer
 
-The stub transformer allows you to modify `Stub`s right before they are injected to your beans. This is the recommended way to add `CallCredentials` to your stubs.
+StubTransformer 允许您在注入您的 Bean 之前修改`Stub`。 如果要往 stub 中添加 `CallCredentials` ，我们会推荐你用这种方式。
 
 ````java
 @Bean
@@ -273,33 +258,33 @@ public StubTransformer call() {
 }
 ````
 
-You can also use `StubTransformer`s to add custom `ClientInterceptor`s to your stub.
+您也可以使用 `StubTransformer`来添加自定义 `ClientInterceptor` 到你的 stub 中。
 
-> **Note**: The `StubTransformer`s are applied after the  `@GrpcClient#interceptors(Names)` have been added.
+> **注意**: `StubTransformer` 是在  `@GrpcClient#interceptors(Names)` 添加后应用的。
 
-## Custom NameResolverProvider
+## 自定义 NameResolverProvider
 
-Sometimes you might have some custom logic that decides which server you wish to connect to, you can achieve this using a custom `NameResolverProvider`.
+有时，你可能想根据一些自定义的逻辑来决定连接到哪个服务器：这时你可以使用自定义 `NameResolverProvider` 来实现。
 
-> **Note:** This can only be used to decide this on an application level and not on a per request level.
+> **注意：** 这只能用于在应用程序级别上，而不是应用在每个请求级别上。
 
-This library provides some `NameResolverProvider`s itself so you can use them as a [reference](https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/nameresolver).
+这个库内置提供了一些 `NameResolverProvider`，因此你可以直接使用 [它们](https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/nameresolver)。
 
-You can register your `NameResolverProvider` by adding it to `META-INF/services/io.grpc.NameResolverProvider` for Java's `ServiceLoader` or adding it your spring context. If you wish to use some spring beans inside your `NameResolver`, then you have to define it via spring context (unless you wish to use `static`).
+你也利用 Java 的 `ServiceLoader` ，在 `META-INF/services/io.grpc.NameResolverProvider` 文件中添加，或者通过在 spring context 中添加，以此注册自定义的 `NameResolverProvider`。 如果你想在你的 `NameResolver` 中使用一些 spring 的 bean， 那么你必须通过 spring 的 context 来定义它 (否则会使用使用 `static`)。
 
-> **Note:** `NameResolverProvider`s are registered gloablly, so might run into issues if you boot up two or more applications simulataneosly in the same JVM (e.g. during tests).
+> **注意：** `NameResolverProvider` 注册是全局的： 如果你在同一JVM中注册了两个或多个，那可能会遇到问题（例如测试期间）。
 
 ## HealthIndicator
 
-This library automatically provides a `grpcChannel` `HealthIndicator` (actuator/health) for all clients (shared). It will report the service as `OUT_OF_SERVICE` if any client has the `TRANSIENT_FAILURE` status. If you wish to exclude it and provide more specific `HealthIndicator`s, you can disable it by excluding the `GrpcClientHealthAutoConfiguration`
+这个库会自动为所有 `grpcChannel` 客户端提供 `HealthIndicator` (actuator/health)。 如果客户端有 `TRANSIENT_FAILURE` 状态，那服务为上报 `OUT_OF_SERVICE`。 如果您想要去掉它并提供更具体的 `HealthIndicator`， 您可以通过 exclude `GrpcClientHealthAutoConfiguration` 来禁用它。
 
-## Additional Topics <!-- omit in toc -->
+## 附加主题 <!-- omit in toc -->
 
-- [Getting Started](getting-started.md)
-- *Configuration*
-- [Security](security.md)
-- [Tests with Grpc-Stubs](testing.md)
+- [入门指南](getting-started.md)
+- *配置*
+- [安全性](security.md)
+- [使用 Grpc-Stubs 测试](testing.md)
 
 ----------
 
-[<- Back to Index](../index.md)
+[<- 返回索引](../index.md)
