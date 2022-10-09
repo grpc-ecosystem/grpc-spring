@@ -1,6 +1,6 @@
 # 入门指南
 
-[<- Back to Index](../index.md)
+[<- 返回索引](../index.md)
 
 本节描述了将您的应用程序接入 grpc-spring-boot-starter 项目的必要步骤。
 
@@ -18,11 +18,11 @@
 
 - *入门指南*
 - [配置](configuration.md)
-- [Exception Handling](exception-handling.md)
-- [Contextual Data / Scoped Beans](contextual-data.md)
-- [Testing the Service](testing.md)
-- [Server Events](events.md)
-- [Security](security.md)
+- [异常处理](exception-handling.md)
+- [上下文数据 / Bean 的作用域](contextual-data.md)
+- [测试服务](testing.md)
+- [服务端事件](events.md)
+- [安全性](security.md)
 
 ## 项目创建
 
@@ -220,7 +220,7 @@ buildscript {
 
 ### 客户端项目
 
-See the [client getting started page](../client/getting-started.md#client-project)
+请参阅 [客户端入门指引](../client/getting-started.md#client-project) 页面
 
 ## 创建 gRPC 服务定义
 
@@ -258,7 +258,7 @@ message HelloReply {
 配置 maven/gradle protobuf 插件使其调用 [`protoc`](https://mvnrepository.com/artifact/com.google.protobuf/protoc) 编译器，并使用 [`protoc-gen-grpc-java`](https://mvnrepository.com/artifact/io.grpc/protoc-gen-grpc-java) 插件并生成数据类、grpc 服务类 `ImplicBase`s 和 `Stub`。 请注意，其他插件，如 [reactive-grpc](https://github.com/salesforce/reactive-grpc) 可能会生成其他额外 / 替代类。 然而，它们也可以同样的方式使用。
 
 - `ImplicBase`类包含基本逻辑，映射虚拟实现到grpc 服务方法。 在 [实现服务逻辑](#implementing-the-service) 章节中有更多关于这个问题的信息。
-- `Stub`类是完整的客户端实现。 More about this on the [Getting the client started](../client/getting-started.md) page.
+- `Stub`类是完整的客户端实现。 更多信息可以参考 [客户端指引](../client/getting-started.md) 页面。
 
 ## 实现服务逻辑
 
@@ -305,7 +305,7 @@ public class MyServiceImpl extends MyServiceGrpc.MyServiceImplBase {
 
 默认情况下，grpc-server 将使用 `PLAINTEXT` 模式在端口 `9090` 中启动。
 
-You can test that your application is working as expected by running these [gRPCurl](https://github.com/fullstorydev/grpcurl) commands:
+您可以通过运行 [gRPCurl](https://github.com/fullstorydev/grpcurl) 命令来测试您的应用程序是否正常运行：
 
 ````sh
 grpcurl --plaintext localhost:9090 list
@@ -316,20 +316,20 @@ grpcurl --plaintext -d '{"name": "test"}' localhost:9090 net.devh.boot.grpc.exam
 grpcurl --plaintext -d "{\"name\": \"test\"}" localhost:9090 net.devh.boot.grpc.example.MyService/sayHello
 ````
 
-See [here](testing.md#grpcurl) for `gRPCurl` example command output and additional information.
+`gRPCurl` 的示例命令输出以及其他信息请参考此 [文档](testing.md#grpcurl) 。
 
-> Note: Don't forget to write [actual/automated tests](testing.md) for your service implementation.
+> 注意：不要忘记为您的服务实现编写 [实际/自动测试](testing.md)。
 
 ## 附加主题 <!-- omit in toc -->
 
 - *入门指南*
 - [配置](configuration.md)
-- [Exception Handling](exception-handling.md)
-- [Contextual Data / Scoped Beans](contextual-data.md)
-- [Testing the Service](testing.md)
-- [Server Events](events.md)
-- [Security](security.md)
+- [异常处理](exception-handling.md)
+- [上下文数据 / Bean 的作用域](contextual-data.md)
+- [测试服务](testing.md)
+- [服务端事件](events.md)
+- [安全性](security.md)
 
 ----------
 
-[<- Back to Index](../index.md)
+[<- 返回索引](../index.md)
