@@ -1,49 +1,49 @@
-# Server Events
+# 服务端事件
 
-[<- Back to Index](../index.md)
+[<- 返回索引](../index.md)
 
-This section describes how you can subscribe to events related to the grpc server.
+本节介绍如何订阅 grpc 服务端相关的事件。
 
-## Table of Contents <!-- omit in toc -->
+## 目录 <!-- omit in toc -->
 
-- [Event Overview](#event-overview)
+- [事件概览](#event-overview)
   - [GrpcServerLifecycleEvent](#grpcserverlifecycleevent)
   - [GrpcServerStartedEvent](#grpcserverstartedevent)
   - [GrpcServerShutdownEvent](#grpcservershutdownevent)
   - [GrpcServerTerminatedEvent](#grpcserverterminatedevent)
-- [Subscribing to Events](#subscribing-to-events)
+- [订阅事件](#subscribing-to-events)
 
-## Additional Topics <!-- omit in toc -->
+## 附加主题 <!-- omit in toc -->
 
-- [Getting Started](getting-started.md)
-- [Configuration](configuration.md)
-- [Exception Handling](exception-handling.md)
-- [Contextual Data / Scoped Beans](contextual-data.md)
-- [Testing the Service](testing.md)
-- *Server Events*
-- [Security](security.md)
+- [入门指南](getting-started.md)
+- [配置](configuration.md)
+- [异常处理](exception-handling.md)
+- [上下文数据 / Bean 的作用域](contextual-data.md)
+- [测试服务](testing.md)
+- *服务端事件*
+- [安全性](security.md)
 
-## Event Overview
+## 事件概览
 
 ### GrpcServerLifecycleEvent
 
-Abstract base class for all events related to `GrpcServerLifecycle` changes.
+与`GrpcServerLifecycle`变化有关的所有事件的抽象基类。
 
 ### GrpcServerStartedEvent
 
-This event will be fired after the server has been started.
+此事件将在服务端启动后触发。
 
 ### GrpcServerShutdownEvent
 
-This event will be fired before the server starts to shutdown. The server will no longer process new requests.
+此事件将在服务端关闭前触发。 服务端将不再处理新请求。
 
 ### GrpcServerTerminatedEvent
 
-This event will be fired after the server completed to shutdown. The server will no longer process requests.
+此事件将在服务端关闭后触发。 服务端将不再处理任何请求。
 
-## Subscribing to Events
+## 订阅事件
 
-In order to subscribe to any of these events you can just use the `@EventListener` annotation on a public method in any of your `@Component`s.
+为了订阅这些事件，你只需在你任何 `@Component` 中的 public 方法上使用 `@EventListener` 注解。
 
 ````java
 @Component
@@ -57,16 +57,16 @@ public class MyEventListenerComponent {
 }
 ````
 
-## Additional Topics <!-- omit in toc -->
+## 附加主题 <!-- omit in toc -->
 
-- [Getting Started](getting-started.md)
-- [Configuration](configuration.md)
-- [Exception Handling](exception-handling.md)
-- [Contextual Data / Scoped Beans](contextual-data.md)
-- [Testing the Service](testing.md)
-- *Server Events*
-- [Security](security.md)
+- [入门指南](getting-started.md)
+- [配置](configuration.md)
+- [异常处理](exception-handling.md)
+- [上下文数据 / Bean 的作用域](contextual-data.md)
+- [测试服务](testing.md)
+- *服务端事件*
+- [安全性](security.md)
 
 ----------
 
-[<- Back to Index](../index.md)
+[<- 返回索引](../index.md)
