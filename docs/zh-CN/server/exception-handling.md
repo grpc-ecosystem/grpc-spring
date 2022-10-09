@@ -1,32 +1,32 @@
-# Exception Handling inside GrpcService
+# GrpcService 中的 Exception 处理
 
-[<- Back to Index](../index.md)
+[<- 返回索引](../index.md)
 
-This section describes how you can handle exceptions inside GrpcService layer without cluttering up your code.
+本节将介绍如何 GrpcService 中的 Exception，并且不会使你的代码杂乱无章。
 
-## Table of Contents <!-- omit in toc -->
+## 目录 <!-- omit in toc -->
 
-- [Proper exception handling](#proper-exception-handling)
-- [Detailed explanation](#detailed-explanation)
-  - [Priority of mapped exceptions](#priority-of-mapped-exceptions)
-  - [Sending Metadata in response](#sending-metadata-in-response)
-  - [Overview of returnable types](#overview-of-returnable-types)
+- [异常处理](#proper-exception-handling)
+- [详细说明](#detailed-explanation)
+  - [异常处理的优先级](#priority-of-mapped-exceptions)
+  - [响应中发送 Metadata](#sending-metadata-in-response)
+  - [返回值类型概览](#overview-of-returnable-types)
 
-## Additional Topics <!-- omit in toc -->
+## 附加主题 <!-- omit in toc -->
 
-- [Getting Started](getting-started.md)
-- [Configuration](configuration.md)
-- [Contextual Data](contextual-data.md)
-- *Exception Handling*
-- [Testing the Service](testing.md)
-- [Server Events](events.md)
-- [Security](security.md)
+- [入门指南](getting-started.md)
+- [配置](configuration.md)
+- [上下文数据](contextual-data.md)
+- *异常处理*
+- [测试服务](testing.md)
+- [服务端事件](events.md)
+- [安全性](security.md)
 
-## Proper exception handling
+## 异常处理
 
-If you are already familiar with spring's [error handling](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-error-handling), you should see some similarities with the exception handling for gRPC.
+如果你熟悉 Spring 的 [异常处理](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-error-handling)， 你应该能看到 gRPC 异常处理与它非常相似。
 
-_An explanation for the following class:_
+_如下所示：_
 
 ```java
 @GrpcAdvice
@@ -48,19 +48,19 @@ public class GrpcExceptionAdvice {
 }
 ```
 
-- `@GrpcAdvice` marks a class to be checked up for exception handling methods
-- `@GrpcExceptionHandler` marks the annotated method to be executed, in case of the _specified_ exception being thrown
-  - f.e. if your application throws `IllegalArgumentException`, then the `handleInvalidArgument(IllegalArgumentException e)` method will be executed
-- The method must either return a `io.grpc.Status`, `StatusException`, or `StatusRuntimeException`
-- If you handle server errors, you might want to log the exception/stacktrace inside the exception handler
+- 在类中使用 `@GrpcAdvice` 注解
+- 使用 `@GrpcExceptionHandler` 标记_指定的_ Exception，在抛出指定的 Exception 时，方法将被执行。
+  - 例如： 如果您的应用程序抛出 `IllegalArgumentException` 异常，那么 `handleInvalidArgument(IllegalArgumentException e)` 方法将会被执行
+- 方法必须返回 `io.grpc.Status`, `StatusException` 或 `StatusRuntimeException`
+- 如果你处理服务端错误，你可能想要在异常处理程序中记录异常/堆栈跟踪
 
-> **Note:** Cause is not transmitted from server to client - as stated in [official docs](https://grpc.github.io/grpc-java/javadoc/io/grpc/Status.html#withCause-java.lang.Throwable-) So we recommend adding it to the `Status`/`StatusException` to avoid the loss of information on the server side.
+> **注意：** 原因不会从服务器传送到客户端 - 如 [官方文档](https://grpc.github.io/grpc-java/javadoc/io/grpc/Status.html#withCause-java.lang.Throwable-) 所述。因此我们建议将其添加到 `状态`/`状态异常` 以避免在服务端丢失异常信息。
 
-## Detailed explanation
+## 详细说明
 
-### Priority of mapped exceptions
+### 异常处理的优先级
 
-Given this method with specified exception in the annotation *and* as a method argument
+在注解中指定的异常类型跟方法参数中的异常类型，他们中间是 *and* 的关系。
 
 ```java
 @GrpcExceptionHandler(ResourceNotFoundException.class)
@@ -69,13 +69,13 @@ public StatusException handleResourceNotFoundException(ResourceNotFoundException
 }
 ```
 
-If the `GrpcExceptionHandler` annotation contains at least one exception type, then only those will be considered for exception handling for that method. The method parameters must be "compatible" with the specified exception types. If the annotation does not specify any handled exception types, then all method parameters are being used instead.
+如果 `GrpcExceptionHandler` 注解包含至少一个异常类型，那么该方法的异常处理将只会处理这些异常类型。 方法参数中的类型必须与指定的异常类型 "兼容" 如果注解中没有指定任何处理的异常类型，那么所有的方法参数都会被使用。
 
-_("Compatible" means that the exception type in annotation is either the same class or a superclass of one of the listed method parameters)_
+_("兼容"是指注解中的异常类型是 列出方法参数之一的同一个类或父类)_
 
-### Sending Metadata in response
+### 响应中发送 Metadata
 
-In case you want to send metadata in your exception response, let's have a look at the following example.
+如果你想要在异常响应中发送 metadata，可以看看下面的例子。
 
 ```java
 @GrpcExceptionHandler
@@ -86,28 +86,28 @@ public StatusRuntimeException handleResourceNotFoundException(IllegalArgumentExc
 }
 ```
 
-If you do not need `Metadata` in your response, just return your specified `Status`.
+如果您的响应不需要 `Metadata` ，只需返回您指定的 `Status`。
 
-### Overview of returnable types
+### 返回值类型概览
 
-Here is a small overview of possible mapped return types with `@GrpcExceptionHandler` and if custom `Metadata` can be returned:
+下面是关于 `@GrpcExceptionHandler` 可能的返回类型和是否支持自定义 `Metadata` 的概览。
 
-| Return Type              | Supports Custom Metadata |
-| ------------------------ | ------------------------ |
-| `Status`                 | &cross;                  |
-| `StatusException`        | &#10004;                 |
-| `StatusRuntimeException` | &#10004;                 |
+| 返回值类型                    | 支持自定义元数据 |
+| ------------------------ | -------- |
+| `Status`                 | &cross;  |
+| `StatusException`        | &#10004; |
+| `StatusRuntimeException` | &#10004; |
 
-## Additional Topics <!-- omit in toc -->
+## 附加主题 <!-- omit in toc -->
 
-- [Getting Started](getting-started.md)
-- [Configuration](configuration.md)
-- [Contextual Data](contextual-data.md)
-- *Exception Handling*
-- [Testing the Service](testing.md)
-- [Server Events](events.md)
-- [Security](security.md)
+- [入门指南](getting-started.md)
+- [配置](configuration.md)
+- [上下文数据](contextual-data.md)
+- *异常处理*
+- [测试服务](testing.md)
+- [服务端事件](events.md)
+- [安全性](security.md)
 
 ----------
 
-[<- Back to Index](../index.md)
+[<- 返回索引](../index.md)
