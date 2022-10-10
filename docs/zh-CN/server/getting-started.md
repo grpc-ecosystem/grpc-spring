@@ -6,13 +6,13 @@
 
 ## 目录 <!-- omit in toc -->
 
-- [项目创建](#project-setup)
-- [依赖项](#dependencies)
-  - [接口项目](#interface-project)
-  - [服务端项目](#server-project)
-  - [客户端项目](#client-project)
-- [创建 gRPC 服务定义](#creating-the-grpc-service-definitions)
-- [实现服务逻辑](#implementing-the-service)
+- [项目创建](#项目创建)
+- [依赖项](#依赖项)
+  - [接口项目](#接口项目)
+  - [服务端项目](#服务端项目)
+  - [客户端项目](#客户端项目)
+- [创建 gRPC 服务定义](#创建 gRPC 服务定义)
+- [实现服务逻辑](#实现服务逻辑)
 
 ## 附加主题 <!-- omit in toc -->
 
