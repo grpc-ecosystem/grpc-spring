@@ -9,14 +9,14 @@
 
 ## 目录 <!-- omit in toc -->
 
-- [依赖项](#dependencies)
-- [指标](#metrics)
-  - [计数器](#counter)
-  - [计时器](#timer)
-  - [查看指标](#viewing-the-metrics)
-  - [指标配置](#metric-configuration)
-- [InfoContributor](#infocontributor)
-- [关闭指标功能](#opt-out)
+- [依赖项](#依赖项)
+- [指标](#指标)
+  - [计数器](#计数器)
+  - [计时器](#计时器)
+  - [查看指标](#查看指标)
+  - [指标配置](#指标配置)
+- [InfoContributor](#InfoContributor)
+- [关闭指标功能](#关闭链路跟踪)
 
 ## 依赖项
 
