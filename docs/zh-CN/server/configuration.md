@@ -6,12 +6,12 @@
 
 ## 目录 <!-- omit in toc -->
 
-- [通过属性配置](#configuration-via-properties)
-  - [更改服务端端口](#changing-the-server-port)
-  - [启用 InProcessServer](#enabling-the-inprocessserver)
-- [通过 Bean 配置](#configuration-via-beans)
-  - [ServerInterceptor](#serverinterceptor)
-  - [GrpcServerConfigurer](#grpcserverconfigurer)
+- [通过属性配置](#通过属性配置)
+  - [更改服务端端口](#更改服务端端口)
+  - [启用 InProcessServer](#启用 InProcessServer)
+- [通过 Bean 配置](#通过 Bean 配置)
+  - [ServerInterceptor](#serverInterceptor)
+  - [GrpcServerConfigurer](#grpcServerConfigurer)
 
 ## 附加主题 <!-- omit in toc -->
 
