@@ -8,13 +8,13 @@
 
 ## 目录 <!-- omit in toc -->
 
-- [前言](#introductory-words)
-- [测试服务](#the-service-to-test)
-- [有用的依赖项](#useful-dependencies)
-- [单元测试](#unit-tests)
-  - [独立测试](#standalone-tests)
-  - [基于Spring的测试](#spring-based-tests)
-- [集成测试](#integration-tests)
+- [前言](#前言)
+- [测试服务](#测试服务)
+- [有用的依赖项](#有用的依赖项)
+- [单元测试](#单元测试)
+  - [独立测试](#独立测试)
+  - [基于Spring的测试](#基于Spring的测试)
+- [集成测试](#集成测试)
 - [gRPCurl](#grpcurl)
 
 ## 附加主题 <!-- omit in toc -->
