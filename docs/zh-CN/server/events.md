@@ -6,12 +6,12 @@
 
 ## 目录 <!-- omit in toc -->
 
-- [事件概览](#event-overview)
-  - [GrpcServerLifecycleEvent](#grpcserverlifecycleevent)
-  - [GrpcServerStartedEvent](#grpcserverstartedevent)
-  - [GrpcServerShutdownEvent](#grpcservershutdownevent)
-  - [GrpcServerTerminatedEvent](#grpcserverterminatedevent)
-- [订阅事件](#subscribing-to-events)
+- [事件概览](#事件概览)
+  - [GrpcServerLifecycleEvent](#grpcServerLifecycleEvent)
+  - [GrpcServerStartedEvent](#grpcServerStartedEvent)
+  - [GrpcServerShutdownEvent](#grpcServerShutdownEvent)
+  - [GrpcServerTerminatedEvent](#grpcServerTerminatedEvent)
+- [订阅事件](#订阅事件)
 
 ## 附加主题 <!-- omit in toc -->
 
