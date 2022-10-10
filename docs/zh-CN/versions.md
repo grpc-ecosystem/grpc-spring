@@ -6,12 +6,12 @@
 
 ## 目录 <!-- omit in toc -->
 
-- [版本策略](#versioning-policy)
-- [版本列表](#version-table)
-  - [2.x 版本](#version-2x)
-  - [1.x 版本](#version-1x)
-  - [升级依赖关系](#upgrading-dependencies)
-  - [发布日志](#release-notes)
+- [版本策略](#版本策略)
+- [版本列表](#版本列表)
+  - [2.x 版本](#2.x 版本)
+  - [1.x 版本](#1.x 版本)
+  - [升级依赖关系](#升级依赖关系)
+  - [发布日志](#发布日志)
 
 ## 版本策略
 
