@@ -6,15 +6,15 @@
 
 ## 目录 <!-- omit in toc -->
 
-- [通过属性配置](#configuration-via-properties)
-  - [选择目标](#choosing-the-target)
-- [通过 Bean 配置](#configuration-via-beans)
-  - [GrpcClientBean](#grpcclientbean)
-  - [GrpcChannelConfigurer](#grpcchannelconfigurer)
-  - [ClientInterceptor](#clientinterceptor)
-  - [StubFactory](#stubfactory)
-  - [StubTransformer](#stubtransformer)
-- [自定义 NameResolverProvider](#custom-nameresolverprovider)
+- [通过属性配置](#通过属性配置)
+  - [选择目标](#选择目标)
+- [通过 Bean 配置](#通过 Bean 配置)
+  - [GrpcClientBean](#grpcClientBean)
+  - [GrpcChannelConfigurer](#grpcChannelConfigurer)
+  - [ClientInterceptor](#clientInterceptor)
+  - [StubFactory](#stubFactory)
+  - [StubTransformer](#stubTransformer)
+- [自定义 NameResolverProvider](#自定义 NameResolverProvider)
 
 ## 附加主题 <!-- omit in toc -->
 
