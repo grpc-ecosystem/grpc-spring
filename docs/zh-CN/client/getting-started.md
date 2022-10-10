@@ -6,14 +6,14 @@
 
 ## 目录 <!-- omit in toc -->
 
-- [项目创建](#project-setup)
-- [依赖项](#dependencies)
-  - [接口项目](#interface-project)
-  - [服务端项目](#server-project)
-  - [客户端项目](#client-project)
-- [使用 Stubs 连接服务端](#using-the-stubs-to-connect-to-the-server)
-  - [解释客户端组件](#explaining-the-client-components)
-  - [访问客户端](#accessing-the-client)
+- [项目创建](#项目创建)
+- [依赖项](#依赖项)
+  - [接口项目](#接口项目)
+  - [服务端项目](#服务端项目)
+  - [客户端项目](#客户端项目)
+- [使用 Stubs 连接服务端](#使用 Stubs 连接服务端)
+  - [解释客户端组件](#解释客户端组件)
+  - [访问客户端](#访问客户端)
 
 ## 附加主题 <!-- omit in toc -->
 
