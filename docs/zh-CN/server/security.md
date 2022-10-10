@@ -6,13 +6,13 @@
 
 ## 目录 <!-- omit in toc -->
 
-- [启用传输图层安全](#enable-transport-layer-security)
-  - [基础要求](#prerequisites)
-  - [服务端配置](#configuring-the-server)
-- [双向证书认证](#mutual-certificate-authentication)
-- [认证和授权](#authentication-and-authorization)
-  - [配置身份验证](#configure-authentication)
-  - [配置授权](#configure-authorization)
+- [启用传输图层安全](#启用传输层安全)
+  - [基础要求](#基础要求)
+  - [服务端配置](#服务端配置)
+- [双向证书认证](#双向证书认证)
+- [认证和授权](#认证和授权)
+  - [配置身份验证](#配置身份验证)
+  - [配置授权](#配置授权)
 
 ## 附加主题 <!-- omit in toc -->
 
