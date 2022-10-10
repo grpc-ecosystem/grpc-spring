@@ -6,8 +6,8 @@
 
 ## 目录 <!-- omit in toc -->
 
-- [警告语](#a-word-of-warning)
-- [grpcRequest 作用域](#grpcrequest-scope)
+- [警告语](#警告语)
+- [grpcRequest 作用域](#grpcRequest 作用域)
 
 ## 附加主题 <!-- omit in toc -->
 
