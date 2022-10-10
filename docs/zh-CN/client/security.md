@@ -6,15 +6,15 @@
 
 ## 目录 <!-- omit in toc -->
 
-- [启用传输图层安全](#enable-transport-layer-security)
-  - [基础要求](#prerequisites)
-- [禁用传输图层安全](#disable-transport-layer-security)
-  - [信任服务器](#trusting-a-server)
-- [双向证书认证](#mutual-certificate-authentication)
-- [身份验证](#authentication)
-  - [创建 CallCredentials](#creating-callcredentials)
-  - [使用 CallCredentials](#using-callcredentials)
-  - [重试时使用新的令牌做验证](#retry-with-new-authentication)
+- [启用传输图层安全](#启用传输层安全)
+  - [基础要求](#基础要求)
+- [禁用传输图层安全](#禁用传输层安全)
+  - [信任服务器](#信任服务端)
+- [双向证书认证](#双向证书认证)
+- [身份验证](#身份认证)
+  - [创建 CallCredentials](#创建 CallCredentials)
+  - [使用 CallCredentials](#使用 CallCredentials)
+  - [重试时使用新的令牌做验证](#重试时使用新的令牌做认证)
 
 ## 附加主题 <!-- omit in toc -->
 
@@ -23,7 +23,7 @@
 - *安全性*
 - [使用 Grpc-Stubs 测试](testing.md)
 
-## 启用传输图层安全
+## 启用传输层安全
 
 gRPC 默认使用 `TLS` 连接服务端，因此无需执行其他任何操作。
 
@@ -43,7 +43,7 @@ grpc.client.<SomeName>.negotiationType=TLS
   - 包含 [grpc-netty-shaded](https://mvnrepository.com/artifact/io.grpc/grpc-netty-shaded)
   - 对于[`grpc-netty`](https://mvnrepository.com/artifact/io.grpc/grpc-netty)，还需要额外添加 [`nety-tcnative-boringssl-static`](https://mvnrepository.com/artifact/io.netty/netty-tcnative-boringssl-static) 依赖。 (请使用 [grpc-java的 Netty 安全部分](https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty) 表中列出**完全相同** (兼容)的版本)。
 
-## 禁用传输图层安全
+## 禁用传输层安全
 
 > **警告:** 请勿在生产环境中这样做。
 
@@ -91,7 +91,7 @@ grpc.client.__name__.security.certificateChain=file:certificates/client.crt
 grpc.client.__name__.security.privateKey=file:certificates/client.key
 ````
 
-## 身份验证
+## 身份认证
 
 ### 创建 CallCredentials
 
@@ -124,7 +124,7 @@ MyServiceBlockingStub myServiceForUser = myService.withCallCredentials(userCrede
 return myServiceForUser.send(request);
 ````
 
-### 重试时使用新的令牌做验证
+### 重试时使用新的令牌做认证
 
 如果要重试由于令牌过期而失败的调用(使用 grpc 内置重试机制)， 您可以使用 以下示例 `ClientInterceptor` 作为自动向令牌存储器报告失败的指南。 请注意，许多流行的基于令牌的身份验证系统（例如 OAuth）也提供了一个令牌 TTL，可以 用于在第一次发送呼叫之前自动更新令牌，从而使这个功能变得过时。
 
