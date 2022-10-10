@@ -6,11 +6,11 @@
 
 ## 目录 <!-- omit in toc -->
 
-- [前言](#introductory-words)
-- [要测试的组件](#the-component-to-test)
-- [有用的依赖项](#useful-dependencies)
-- [使用 Mocked Stub](#using-a-mocked-stub)
-- [运行一个虚拟服务](#running-a-dummy-server)
+- [前言](#前言)
+- [要测试的组件](#要测试的组件)
+- [有用的依赖项](#有用的依赖项)
+- [使用 Mocked Stub](#使用 Mocked Stub)
+- [运行一个虚拟服务](#运行一个虚拟服务)
 
 ## 附加主题 <!-- omit in toc -->
 
@@ -23,8 +23,8 @@
 
 通常有两种方法来测试你包含 grpc stub 的组件：
 
-- [使用 Mocked Stub](#using-a-mocked-stub)
-- [运行一个虚拟服务](#running-a-dummy-server)
+- [使用 Mocked Stub](#使用 Mocked Stub)
+- [运行一个虚拟服务](#运行一个虚拟服务)
 
 > 注意：在测试期间，这两种形式有着非常明显的差异。 请仔细考虑每种形式中列出的利弊。
 
@@ -137,24 +137,16 @@ testImplementation("org.mockito:mockito-all")
 
 ### 实现
 
-1. 将 mockito 添加到 dependencies 中(见</a> 上文
+1. 将 mockito 添加到 dependencies 中(见[ 上文 ](#useful-dependencies))
+2. 配置 mockito 使它与 final 修饰的类/方法一起工作
 
-)</li> 
-   
-   2 配置 mockito 使它与 final 修饰的类/方法一起工作
-  
-  为此，我们需要创建一个文件 `src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker` 包含： 
-  
-  
+   为此，我们需要创建一个文件 `src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker` 包含：
 
    ````txt
    mock-maker-inline
    ````
 
-
-3 像往常一样编写我们的 stub，并在测试过程中明确地将它设置到你的组件里 
-  
-  
+3. 像往常一样编写我们的 stub，并在测试过程中明确地将它设置到你的组件里
 
    ````java
    public class MyComponentTest {
@@ -175,35 +167,24 @@ testImplementation("org.mockito:mockito-all")
 
    }
    ````
-</ol> 
-
-
 
 ## 运行一个虚拟服务
 
 为了测试这个方法，我们自己启动了一个 grpc 服务端，并在测试中连接到它。
-
-
 
 ### 优点
 
 - 无需伪造与组件有关的任何信息
 - 没有“魔法”
 
-
-
 ### 缺点
 
 - 要求我们伪造实现实际的服务
 - 需要 Spring 才能运行
 
-
-
 ### 实现
 
 实际的使用方式像下面这样：
-
-
 
 ````java
 @SpringBootTest(properties = {
@@ -229,10 +210,7 @@ public class MyComponentTest {
 }
 ````
 
-
 所需的配置看起来像这样：
-
-
 
 ````java
 @Configuration
@@ -255,10 +233,7 @@ public class MyComponentIntegrationTestConfiguration {
 }
 ````
 
-
 虚拟的服务可能看起来像这样:
-
-
 
 ````java
 @GrpcService
@@ -278,17 +253,12 @@ public class ChatServiceImplForMyComponentIntegrationTest extends ChatServiceGrp
 }
 ````
 
-
-
-
 ## 附加主题 <!-- omit in toc -->
 
 - [入门指南](getting-started.md)
 - [配置](configuration.md)
 - [安全性](security.md)
 - *使用 Grpc-Stubs 测试*
-
-
 
 ----------
 
