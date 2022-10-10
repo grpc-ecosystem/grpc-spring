@@ -6,11 +6,11 @@
 
 ## 目录 <!-- omit in toc -->
 
-- [异常处理](#proper-exception-handling)
-- [详细说明](#detailed-explanation)
-  - [异常处理的优先级](#priority-of-mapped-exceptions)
-  - [响应中发送 Metadata](#sending-metadata-in-response)
-  - [返回值类型概览](#overview-of-returnable-types)
+- [异常处理](#异常处理)
+- [详细说明](#详细说明)
+  - [异常处理的优先级](#异常处理的优先级)
+  - [响应中发送 Metadata](#响应中发送 Metadata)
+  - [返回值类型概览](#返回值类型概览)
 
 ## 附加主题 <!-- omit in toc -->
 
