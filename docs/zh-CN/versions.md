@@ -29,7 +29,7 @@
 下表显示了该项目和 spring boot 以及 gRPC 版本的关系。 在大多数情况下，你可以升级到较新的版本，但如果是 gRPC 改变了其 API。 请将任何问题报告给我们[仓库](https://github.com/yidongnan/grpc-spring-boot-starter/issues)。
 
 > **注意**
-> 
+>
 > 如果您正在使用 non-shaded netty(和相关的库)，请 **严格** 保持这些版本跟 gRPC [文档](https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty) 一致。 (grpc-netty-shaded 通过保持这些版本同步来避免这些问题。)
 
 ### 2.x 版本

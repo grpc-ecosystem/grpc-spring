@@ -320,10 +320,10 @@ message HelloRequest {
 ````
 
 > 注意： `gRPCurl` 支持 `.` 和 `/` 作为服务名称和方法名称之间的分隔符：
-> 
+>
 > - `net.devh.boot.grpc.example.MyService.SayHello`
 > - `net.devh.boot.grpc.example.MyService/SayHello`
-> 
+>
 > 我们推荐第二种方式，因为它跟 grpc 的内部全方法名称匹配，并且方法名称在调用中更容易识别到。
 
 ````bash
@@ -342,9 +342,9 @@ $ grpcurl --plaintext -d '{"name": "Test"}' localhost:9090 net.devh.boot.grpc.ex
 ````
 
 > 注意：如果您使用了 window 终端或想要在数据块中使用变量，那么您必须使用 `"` 而不是 `'`，并转义实际json中的 `"` 。
-> 
+>
 > ````cmd
-> 
+>
 > > grpcurl --plaintext -d "{\"name\": \"Test\"}" localhost:9090 net.devh.boot.grpc.example.MyService/sayHello
     {
       "message": "Hello ==> Test",
