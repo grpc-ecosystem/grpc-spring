@@ -6,27 +6,29 @@
 
 ## 目录 <!-- omit in toc -->
 
-- [项目创建](#project-setup)
-- [依赖项](#dependencies)
-  - [接口项目](#interface-project)
-  - [服务端项目](#server-project)
-  - [客户端项目](#client-project)
-- [创建 gRPC 服务定义](#creating-the-grpc-service-definitions)
-- [实现服务逻辑](#implementing-the-service)
+- [项目创建](#项目创建)
+- [依赖项](#依赖项)
+  - [接口项目](#接口项目)
+  - [服务端项目](#服务端项目)
+  - [客户端项目](#客户端项目)
+- [创建 gRPC 服务定义](#创建 gRPC 服务定义)
+- [实现服务逻辑](#实现服务逻辑)
 
 ## 附加主题 <!-- omit in toc -->
 
 - *入门指南*
 - [配置](configuration.md)
+- [异常处理](exception-handling.md)
 - [上下文数据 / Bean 的作用域](contextual-data.md)
 - [测试服务](testing.md)
+- [服务端事件](events.md)
 - [安全性](security.md)
 
 ## 项目创建
 
 在我们开始添加依赖关系之前，让我们项目的一些设置建议开始。
 
-![project setup](/grpc-spring-boot-starter/assets/images/server-project-setup.svg)
+![项目创建](/grpc-spring-boot-starter/assets/images/server-project-setup.svg)
 
 我们建议将您的项目分为2至3个不同的模块。
 
@@ -41,19 +43,29 @@
 #### Maven (Interface)
 
 ````xml
+    <properties>
+        <protobuf.version>3.19.1</protobuf.version>
+        <protobuf-plugin.version>0.6.1</protobuf-plugin.version>
+        <grpc.version>1.42.1</grpc.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-stub</artifactId>
+            <version>${grpc.version}</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf</artifactId>
+            <version>${grpc.version}</version>
         </dependency>
         <dependency>
-            <!-- Java 9+ compatibility -->
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
+            <!-- Java 9+ compatibility - Do NOT update to 2.0.0 -->
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <version>1.3.5</version>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
@@ -62,6 +74,7 @@
             <extension>
                 <groupId>kr.motd.maven</groupId>
                 <artifactId>os-maven-plugin</artifactId>
+                <version>1.7.0</version>
             </extension>
         </extensions>
 
@@ -69,6 +82,7 @@
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
+                <version>${protobuf-plugin.version}</version>
                 <configuration>
                     <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
                     <pluginId>grpc-java</pluginId>
@@ -90,11 +104,27 @@
 #### Gradle (Interface)
 
 ````gradle
-apply plugin: 'com.google.protobuf'
+buildscript {
+    ext {
+        protobufVersion = '3.19.1'
+        protobufPluginVersion = '0.8.18'
+        grpcVersion = '1.42.1'
+    }
+}
+
+plugins {
+    id 'java-library'
+    id 'com.google.protobuf' version "${protobufPluginVersion}"
+}
+
+repositories {
+    mavenCentral()
+}
 
 dependencies {
-    compile "io.grpc:grpc-protobuf"
-    compile "io.grpc:grpc-stub"
+    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+    implementation "io.grpc:grpc-stub:${grpcVersion}"
+    compileOnly 'jakarta.annotation:jakarta.annotation-api:1.3.5' // Java 9+ compatibility - Do NOT update to 2.0.0
 }
 
 protobuf {
@@ -107,19 +137,13 @@ protobuf {
     }
     plugins {
         grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java"
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
         }
     }
     generateProtoTasks {
         all()*.plugins {
             grpc {}
         }
-    }
-}
-
-buildscript {
-    dependencies {
-        classpath "com.google.protobuf:protobuf-gradle-plugin:${protobufGradlePluginVersion}"
     }
 }
 
@@ -281,20 +305,29 @@ public class MyServiceImpl extends MyServiceGrpc.MyServiceImplBase {
 
 默认情况下，grpc-server 将使用 `PLAINTEXT` 模式在端口 `9090` 中启动。
 
-您可以通过运行 [grpcurl](https://github.com/fullstorydev/grpcurl) 命令来测试您的应用程序是否正常运行：
+您可以通过运行 [gRPCurl](https://github.com/fullstorydev/grpcurl) 命令来测试您的应用程序是否正常运行：
 
 ````sh
 grpcurl --plaintext localhost:9090 list
 grpcurl --plaintext localhost:9090 list net.devh.boot.grpc.example.MyService
+# Linux (Static content)
 grpcurl --plaintext -d '{"name": "test"}' localhost:9090 net.devh.boot.grpc.example.MyService/sayHello
+# Windows or Linux (dynamic content)
+grpcurl --plaintext -d "{\"name\": \"test\"}" localhost:9090 net.devh.boot.grpc.example.MyService/sayHello
 ````
+
+`gRPCurl` 的示例命令输出以及其他信息请参考此 [文档](testing.md#grpcurl) 。
+
+> 注意：不要忘记为您的服务实现编写 [实际/自动测试](testing.md)。
 
 ## 附加主题 <!-- omit in toc -->
 
 - *入门指南*
 - [配置](configuration.md)
+- [异常处理](exception-handling.md)
 - [上下文数据 / Bean 的作用域](contextual-data.md)
 - [测试服务](testing.md)
+- [服务端事件](events.md)
 - [安全性](security.md)
 
 ----------

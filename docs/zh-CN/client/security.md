@@ -6,20 +6,24 @@
 
 ## 目录 <!-- omit in toc -->
 
-- [启用传输图层安全](#enable-transport-layer-security)
-  - [基础要求](#prerequisites)
-- [禁用传输图层安全](#disable-transport-layer-security)
-  - [信任服务器](#trusting-a-server)
-- [双向证书认证](#mutual-certificate-authentication)
-- [身份验证](#authentication)
+- [启用传输图层安全](#启用传输层安全)
+  - [基础要求](#基础要求)
+- [禁用传输图层安全](#禁用传输层安全)
+  - [信任服务器](#信任服务端)
+- [双向证书认证](#双向证书认证)
+- [身份验证](#身份认证)
+  - [创建 CallCredentials](#创建 CallCredentials)
+  - [使用 CallCredentials](#使用 CallCredentials)
+  - [重试时使用新的令牌做验证](#重试时使用新的令牌做认证)
 
 ## 附加主题 <!-- omit in toc -->
 
 - [入门指南](getting-started.md)
 - [配置](configuration.md)
 - *安全性*
+- [使用 Grpc-Stubs 测试](testing.md)
 
-## 启用传输图层安全
+## 启用传输层安全
 
 gRPC 默认使用 `TLS` 连接服务端，因此无需执行其他任何操作。
 
@@ -39,7 +43,7 @@ grpc.client.<SomeName>.negotiationType=TLS
   - 包含 [grpc-netty-shaded](https://mvnrepository.com/artifact/io.grpc/grpc-netty-shaded)
   - 对于[`grpc-netty`](https://mvnrepository.com/artifact/io.grpc/grpc-netty)，还需要额外添加 [`nety-tcnative-boringssl-static`](https://mvnrepository.com/artifact/io.netty/netty-tcnative-boringssl-static) 依赖。 (请使用 [grpc-java的 Netty 安全部分](https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty) 表中列出**完全相同** (兼容)的版本)。
 
-## 禁用传输图层安全
+## 禁用传输层安全
 
 > **警告:** 请勿在生产环境中这样做。
 
@@ -87,11 +91,27 @@ grpc.client.__name__.security.certificateChain=file:certificates/client.crt
 grpc.client.__name__.security.privateKey=file:certificates/client.key
 ````
 
-## 身份验证
+## 身份认证
+
+### 创建 CallCredentials
 
 除了双向证书认证外，还有其他几种认证方式，如 `BasicAuth`。
 
 grpc-spring-boot-starter 除了一些帮助方法，同时提供了 BasicAuth 的实现。 然而，这里有很多库可以为 [`CallCredentials`](https://grpc.github.io/grpc-java/javadoc/io/grpc/CallCredentials.html)提供实现功能。 `CallCredentials` 是一个可扩展的组件，因为它们可以使用（第三方）服务队请求进行身份验证，并且可以自己管理和更新会话 token。
+
+````java
+@Bean
+CallCredentials basicAuthCredentials() {
+    return CallCredentialsHelper.basicAuth("user", "password");
+}
+
+@Bean
+CallCredentials bearerAuthForwardingCredentials() {
+    return CallCredentialsHelper.bearerAuth(() -> KeycloakSecurityContext.getTokenString());
+}
+````
+
+### 使用 CallCredentials
 
 如果您的应用程序上下文中只有一个`CallCredentials`，我们将自动为您创建一个 `StubTransformer`，并配置到所有的 `Stub`上。 如果您想为每个 Stub 配置不同的凭据，那么您可以使用 [`CallCredentialsHelper`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/security/CallCredentialsHelper.html) 中提供的帮助方法。
 
@@ -103,6 +123,42 @@ grpc-spring-boot-starter 除了一些帮助方法，同时提供了 BasicAuth �
 MyServiceBlockingStub myServiceForUser = myService.withCallCredentials(userCredentials);
 return myServiceForUser.send(request);
 ````
+
+### 重试时使用新的令牌做认证
+
+如果要重试由于令牌过期而失败的调用(使用 grpc 内置重试机制)， 您可以使用 以下示例 `ClientInterceptor` 作为自动向令牌存储器报告失败的指南。 请注意，许多流行的基于令牌的身份验证系统（例如 OAuth）也提供了一个令牌 TTL，可以 用于在第一次发送呼叫之前自动更新令牌，从而使这个功能变得过时。
+
+````java
+@Override
+public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+        MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
+
+    callOptions = callOptions
+            .withCallCredentials(this.credentials)
+            .withStreamTracerFactory(new ClientStreamTracer.Factory() {
+
+                @Override
+                public ClientStreamTracer newClientStreamTracer(
+                        ClientStreamTracer.StreamInfo info, Metadata headers) {
+
+                    // Make sure your implementations do _not_ block and return _immediately_
+                    final Object authToken = headers.get(AUTH_TOKEN_KEY);
+                    return new ClientStreamTracer() {
+
+                        @Override
+                        public void streamClosed(final Status status) {
+                            this.credentials.invalidate(authToken);
+                        }
+                    };
+
+                }
+            });
+
+    return next.newCall(method, callOptions);
+}
+````
+
+了解更多详情，请参阅 [重试时如何使用新的认证令牌？](https://github.com/grpc/grpc-java/issues/7345#issuecomment-679295003)
 
 ## 附加主题 <!-- omit in toc -->
 

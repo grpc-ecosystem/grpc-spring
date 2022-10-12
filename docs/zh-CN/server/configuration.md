@@ -6,18 +6,21 @@
 
 ## 目录 <!-- omit in toc -->
 
-- [通过属性配置](#configuration-via-properties)
-  - [更改服务端端口](#changing-the-server-port)
-  - [启用 InProcessServer](#enabling-the-inprocessserver)
-- [通过 Bean 配置](#configuration-via-beans)
-  - [GrpcServerConfigurer](#grpcserverconfigurer)
+- [通过属性配置](#通过属性配置)
+  - [更改服务端端口](#更改服务端端口)
+  - [启用 InProcessServer](#启用 InProcessServer)
+- [通过 Bean 配置](#通过 Bean 配置)
+  - [ServerInterceptor](#serverInterceptor)
+  - [GrpcServerConfigurer](#grpcServerConfigurer)
 
 ## 附加主题 <!-- omit in toc -->
 
 - [入门指南](getting-started.md)
 - *配置*
+- [异常处理](exception-handling.md)
 - [上下文数据 / Bean 的作用域](contextual-data.md)
 - [测试服务](testing.md)
+- [服务端事件](events.md)
 - [安全性](security.md)
 
 ## 通过属性配置
@@ -67,17 +70,39 @@ grpc.client.inProcess.address=in-process:<SomeName>
 
 这对测试特别有用，因为他们不需要打开特定的端口，因此可以并发运行(在构建 服务器上)。
 
+### 使用 Unix's Domain Sockets
+
+在基于 Unix 的系统上，您也可以使用域套接字在服务器和客户端之间进行本地通信。
+
+只需配置地址即可：
+
+````properties
+grpc.server.address=unix:/run/grpc-server
+````
+
+然后，客户端可以使用同一地址连接到服务器。
+
+如果您在使用 `grpc-netty` ，您还需要 `nety-transport-native-epoll` 依赖性。 `grpc-netty-shaded` 已经包含了这种依赖性，所以不需要添加任何东西就能正常工作。
+
 ## 通过Beans 配置
 
-虽然这个项目提供大多数功能作为配置选项，但有时会因为添加它的开销太高了，我们会选择没有添加它。 如果您觉得这是一项重要功能，请随意打开一项功能性 Pull Request。
+虽然这个项目为大多数功能提供了配置选项，但有时会因为添加它的成本太高了，我们会选择没有添加它。 如果您觉得这是一项重要功能，请随时提出一个特性请求。
 
-如果您要更改应用程序，而不是通过属性进行更改，则可以使用该项目中现有存在的扩展点。
+如果您想更改应用程序，并超出了通过属性操作的范围，则可以使用该项目中现有存在的扩展点。
 
 首先，大多数 bean 可以被自定义 bean 替换，您可以按照您想要的任何方式进行配置。 如果您不希望这么麻烦，可以使用 `GrpcServerConfigurer` 来配置你的服务端和其他组件，它不会丢失这个项目所提供的任何功能。
 
+### ServerInterceptor
+
+向您的服务端添加 ` ServerInterceptor` 的三种方式。
+
+- 使用 `@GrpcGlobalServerIntercetor` 注解或者使用 `GlobalServerIntercetorConfigurer` 将 `ServerInterceptor` 定义为全局拦截器
+- 在 `@GrpcService#interceptors` 或 `@GrpcService#interceptorNames` 字段中明确列出
+- 使用 ` GrpcServerConfigurer` 并调用 `serverBuilder.intercept(ServerInterceptor interceptor)` 方法
+
 ### GrpcServerConfigurer
 
-gRPC 服务端配置器允许您将自定义配置添加到 gRPC 的 `ServerBuilder` 。
+Grpc 服务端配置器允许您将自定义配置添加到 gRPC 的 `ServerBuilder`。
 
 ````java
 @Bean
@@ -99,8 +124,10 @@ public GrpcServerConfigurer keepAliveServerConfigurer() {
 
 - [入门指南](getting-started.md)
 - *配置*
+- [异常处理](exception-handling.md)
 - [上下文数据 / Bean 的作用域](contextual-data.md)
 - [测试服务](testing.md)
+- [服务端事件](events.md)
 - [安全性](security.md)
 
 ----------

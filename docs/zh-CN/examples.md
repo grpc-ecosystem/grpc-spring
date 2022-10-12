@@ -23,14 +23,6 @@
 - [客户端](https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/examples/cloud-grpc-client)
 - [说明](https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/examples#cloud-mode)
 
-## Cloud-Nacos 示例
-
-使用 nacos 服务发现的 Cloud 环境。
-
-- [服务端](https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/examples/cloud-grpc-server-nacos)
-- [客户端](https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/examples/cloud-grpc-client-nacos)
-- [说明](https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/examples#cloud-mode)
-
 ## 基础认证示例
 
 演示了 grpc 跟 spring security 的设置。 为了简单起见，此设置使用 Basic 身份验证，但也可以为其使用其他身份验证机制。

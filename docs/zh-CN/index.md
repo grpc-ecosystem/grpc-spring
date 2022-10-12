@@ -7,18 +7,23 @@ gRPC-Spring-Boot-Starter 将 [Google的开源高性能RPC框架](https://grpc.io
 - 服务端
   - [入门指南](server/getting-started.md)
   - [配置](server/configuration.md)
+  - [异常处理](server/exception-handling.md)
   - [上下文数据 / Bean 的作用域](server/contextual-data.md)
   - [测试服务](server/testing.md)
+  - [服务端事件](server/events.md)
   - [安全性](server/security.md)
 - 客户端
   - [入门指南](client/getting-started.md)
   - [配置](client/configuration.md)
   - [安全性](client/security.md)
+  - [使用 Grpc-Stubs 测试](client/testing.md)
 - 其他设置
 - [疑难解答](trouble-shooting.md)
 - [示例项目](examples.md)
+- [gRPC-Java 类似风格的库](flavors.md)
 - [版本概述](versions.md)
 - [支持 Spring Boot Actuator / Metrics](actuator.md)
 - [支持 Brave-Tracing / Spring Cloud Sleuth](brave.md)
+- [Kubernetes 设置](kubernetes.md)
 - [基准测试](benchmarking.md)
 - [参与贡献](contributions.md)
