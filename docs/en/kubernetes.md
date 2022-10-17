@@ -43,6 +43,10 @@ spec:
       targetPort: grpc # Use the port name from the deployment (or just the port number)
 ````
 
+> **Warning:** Do **NOT** name your services `grpc-server[-*]` or `grpc-client[-*]`.
+> Kubernetes creates an environment variable for these services called `GRPC_SERVER[_*]_PORT`/`GRPC_CLIENT[_*]_PORT`.
+> Spring will interpret these as the name of a configuration option which either reconfigures your server/client or causes property parsing/assignment errors.
+
 > **Note:** Service ports can be re-used by other services, unless you use `hostPort`s.
 > So there is no reason not to use a default one.
 
