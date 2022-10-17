@@ -26,11 +26,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -77,6 +80,42 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
      */
     public GrpcClientBeanPostProcessor(final ApplicationContext applicationContext) {
         this.applicationContext = requireNonNull(applicationContext, "applicationContext");
+    }
+
+    @PostConstruct
+    public void init() {
+        initGrpClientConstructorInjections();
+    }
+
+    /**
+     * Triggers registering grpc client beans from GrpcClientConstructorInjection.
+     */
+    private void initGrpClientConstructorInjections() {
+        Iterable<GrpcClientConstructorInjection.Registry> registries;
+        try {
+            registries = getConfigurableBeanFactory().getBean(GrpcClientConstructorInjection.class).getRegistries();
+        } catch (NoSuchBeanDefinitionException ignored) {
+            return;
+        }
+
+        for (GrpcClientConstructorInjection.Registry registry : registries) {
+            try {
+                Object clientStubInstance =
+                        processInjectionPoint(null, registry.getStubClass(), registry.getClient());
+
+                // Bind generated client stub instance to specific constructor parameter by ConstructorArgumentValues in
+                // BeanDefinition
+                registry.getTargetBeanDefinition()
+                        .getConstructorArgumentValues()
+                        .addIndexedArgumentValue(registry.getConstructorArgumentIndex(), clientStubInstance);
+
+            } catch (final Exception e) {
+                throw new BeanCreationException("@GrpcClient on class " + registry.getTargetClazz().getName(),
+                        "@GrpcClient constructor injection, parameter index=" + registry.getConstructorArgumentIndex(),
+                        "Unexpected exception while binding gRPC client stub instance to constructor parameter",
+                        e);
+            }
+        }
     }
 
     @Override
@@ -142,7 +181,6 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
      */
     private void processGrpcClientBeansAnnotations(final Class<?> clazz) {
         for (final GrpcClientBean annotation : clazz.getAnnotationsByType(GrpcClientBean.class)) {
-
             final String beanNameToCreate = getBeanName(annotation);
             try {
                 final ConfigurableListableBeanFactory beanFactory = getConfigurableBeanFactory();

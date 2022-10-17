@@ -44,6 +44,7 @@ import net.devh.boot.grpc.client.channelfactory.NettyChannelFactory;
 import net.devh.boot.grpc.client.channelfactory.ShadedNettyChannelFactory;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 import net.devh.boot.grpc.client.inject.GrpcClientBeanPostProcessor;
+import net.devh.boot.grpc.client.inject.GrpcClientConstructorInjectionBeanFactoryPostProcessor;
 import net.devh.boot.grpc.client.interceptor.AnnotationGlobalClientInterceptorConfigurer;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 import net.devh.boot.grpc.client.nameresolver.NameResolverRegistration;
@@ -67,6 +68,11 @@ public class GrpcClientAutoConfiguration {
     @Bean
     static GrpcClientBeanPostProcessor grpcClientBeanPostProcessor(final ApplicationContext applicationContext) {
         return new GrpcClientBeanPostProcessor(applicationContext);
+    }
+
+    @Bean
+    static GrpcClientConstructorInjectionBeanFactoryPostProcessor grpcClientConstructorInjectBeanFactoryPostProcessor() {
+        return new GrpcClientConstructorInjectionBeanFactoryPostProcessor();
     }
 
     @Bean
