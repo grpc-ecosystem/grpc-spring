@@ -6,25 +6,27 @@
 
 ## 目录 <!-- omit in toc -->
 
-- [启用传输图层安全](#enable-transport-layer-security)
-  - [基础要求](#prerequisites)
-  - [服务端配置](#configuring-the-server)
-- [双向证书认证](#mutual-certificate-authentication)
-- [认证和授权](#authentication-and-authorization)
-  - [配置身份验证](#configure-authentication)
-  - [配置授权](#configure-authorization)
+- [启用传输图层安全](#启用传输层安全)
+  - [基础要求](#基础要求)
+  - [服务端配置](#服务端配置)
+- [双向证书认证](#双向证书认证)
+- [认证和授权](#认证和授权)
+  - [配置身份验证](#配置身份验证)
+  - [配置授权](#配置授权)
 
 ## 附加主题 <!-- omit in toc -->
 
 - [入门指南](getting-started.md)
 - [配置](configuration.md)
+- [异常处理](exception-handling.md)
 - [上下文数据 / Bean 的作用域](contextual-data.md)
 - [测试服务](testing.md)
+- [服务端事件](events.md)
 - *安全性*
 
 ## 启用传输图层安全
 
-您可以使用 Spring 的配置机制来配置传输层安全。 与之相关的非安全性配置选项参见 [配置](configuration.md) 页面。
+您可以使用 Spring 的配置机制来配置传输层安全。 关于非安全性相关的配置选项参见 [配置](configuration.md) 页面。
 
 如果你的服务在 TLS 的反向代理后面，你可能不需要设置 `TLS/`。 如果您不熟悉安全，请咨询安全专家。 请不要忘记检查是否存在安全问题。 ^^
 
@@ -92,7 +94,7 @@ cat client*.crt > trusted-clients.crt.collection
 
 `grpc-spring-boot-starter` 原生支持 `spring-security` , 因此您可以使用众所周知的一些注解来保护您的应用程序。
 
-![server-request-security](/grpc-spring-boot-starter/assets/images/server-security.svg)
+![服务端请求安全](/grpc-spring-boot-starter/assets/images/server-security.svg)
 
 ### 配置身份验证
 
@@ -246,8 +248,10 @@ public void methodX(Request request, StreamObserver<Response> responseObserver) 
 
 - [入门指南](getting-started.md)
 - [配置](configuration.md)
+- [异常处理](exception-handling.md)
 - [上下文数据 / Bean 的作用域](contextual-data.md)
 - [测试服务](testing.md)
+- [服务端事件](events.md)
 - *安全性*
 
 ----------

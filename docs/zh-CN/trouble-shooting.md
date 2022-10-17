@@ -6,13 +6,59 @@
 
 ## 目录
 
-- [传输失败](#transport-failed)
-- [网络因未知原因关闭](#network-closed-for-unknown-reason)
-- [找不到 TLS ALPN 提供商](#could-not-find-tls-alpn-provider)
-- [证书不匹配](#dismatching-certificates)
-- [不受信任的证书](#untrusted-certificates)
-- [服务端端口被占用](#server-port-already-in-use)
-- [创建 issues / 提问题](#creating-issues)
+- [NoClassDefFoundError, ClassNotFoundException, NoSuchMethodError, AbstractMethodError](#noClassDefFoundError, ClassNotFoundException, NoSuchMethodError, AbstractMethodError)
+- [传输失败](#传输失败)
+- [网络因未知原因关闭](#网络因未知原因关闭)
+- [找不到 TLS ALPN 提供商](找不到 TLS ALPN 提供商)
+- [证书不匹配](#证书不匹配)
+- [不受信任的证书](#不受信任的证书)
+- [服务端端口被占用](#服务端端口被占用)
+- [客户端解析域名失败](#客户端解析域名失败)
+- [创建 issues / 提问题](#创建 issue)
+
+## NoClassDefFoundError, ClassNotFoundException, NoSuchMethodError, AbstractMethodError
+
+### 示例
+
+````txt
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'client' defined in file [~/.../MyGrpcClient.class]: Initialization of bean failed; nested exception is java.lang.NoClassDefFoundError: io/grpc/TlsChannelCredentials$Feature
+    at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:602)
+    [...]
+Caused by: java.lang.NoClassDefFoundError: io/grpc/TlsChannelCredentials$Feature
+    at io.grpc.netty.ProtocolNegotiators.<clinit>(ProtocolNegotiators.java:92)
+````
+
+### 问题
+
+服务端/客户端未启动，因为缺少某些类或方法。 如果Grpc库使用不同的版本，通常就会出现这样的情况。
+
+### 解决办法
+
+确保所有 `grpc-java` 版本使用完全相同的版本。
+
+将以下条目添加到您项目的 `dependencyManagement` 部分：
+
+````xml
+<dependency>
+    <groupId>io.grpc</groupId>
+    <artifactId>grpc-bom</artifactId>
+    <version>${grpcVersion}</version>
+    <type>pom</type>
+    <scope>import</scope>
+</dependency>
+````
+
+在 gradle 中你也可以使用类似的方法
+
+````groovy
+dependencyManagement {
+    imports {
+        mavenBom "io.grpc:grpc-bom:${grpcVersion}"
+````
+
+> **注意：** grpc-spring-boot-starter 并不严格绑定到 grpc-java 的特定版本。 这样你也可以使用此 方式来更改项目中使用的 grpc-java 版本。
+
+同时也可以查看 [找不到 TLS ALPN 提供商](#could-not-find-tls-alpn-provider)
 
 ## 传输失败
 
@@ -90,7 +136,7 @@ io.grpc.StatusRuntimeException: UNAVAILABLE: Network closed for unknown reason
    ````
 
    或删除`negotiationType`配置，因为默认情况下`TLS`。
-2. 使用 `grpcurl` 或类似工具，验证已配置的服务端正在运行的是 grpc 服务
+2. 使用 [`grpcurl`](https://github.com/fullstorydev/grpcurl) 或类似工具，验证已配置的服务端正在运行的是 grpc 服务
 
 ## 找不到 TLS ALPN 提供商
 
@@ -236,6 +282,30 @@ grpc 服务端尝试使用的端口被占用。
 3. 检查/更改您的配置。 此库默认使用端口 `9090`
 4. 添加`@DirtiesContext`到您的测试类和方法中，请注意，这个错误只会从第二次测试开始发生，因此你必须在你的第一个测试类上也加上这个注解！
 
+## 客户端解析域名失败
+
+### 客户端
+
+````txt
+WARN  io.grpc.internal.ManagedChannelImpl - [Failed to resolve name. status=Status{code=UNAVAILABLE, description=No servers found for `discovery-server:443`}
+ERROR n.d.b.g.c.n.DiscoveryClientNameResolver - No servers found for `discovery-server:443`
+````
+
+### 问题
+
+服务发现失败或者配置中未指定scheme，从而无法解析 `discovery-server:443` 。 如果没有服务发现，那么默认值是 `dns`， 但如果您使用了服务发现，那么它将是默认的，因而无法解决该地址。
+
+这同样适用于其他库，例如 tracing 或 上报，它们通过 grpc 向 外部服务器报告其结果。
+
+### 解决办法
+
+- 配置 (discovery service) 库以指定 `dns` 模式： 例如： `dns:///discovery-server:443`
+- 搜索 `ManagedChannelBuilder#forTarget(String)` or `NettyChannelBuilder#forTarget(String)` (或类似的方法)，确保他们使用 `dns` 方案。
+- 禁用 grpc 服务的服务发现： `spring.autoconfigure.exclude=net.devh.boot.grpc.client.autoconfigure.GrpcDiscoveryClientAutoConfiguration`
+- 或创建一个自定义 `NameResolverRegistry` bean
+
+可以查看 [客户端目标配置](client/configuration.md#choosing-the-target)。
+
 ## 创建 issue
 
 在 GitHub 上创建问题/提问并不难，但你可以稍微努力帮助我们更快地解决您的 个问题。
@@ -251,7 +321,7 @@ grpc 服务端尝试使用的端口被占用。
    - Bug 反馈
    - 功能​​​​​​​​​​​请求
 2. 你希望的结果是什么？
-3. 问题是什么？ 什么不起作用？ 缺少什么东西，为什么需要？
+3. 你遇到了什么问题？ 什么不起作用？ 缺少什么东西，为什么需要？
 4. 任何相关堆栈/日志(非常重要)
 5. 您使用的是哪个版本？
    - Spring (boot)

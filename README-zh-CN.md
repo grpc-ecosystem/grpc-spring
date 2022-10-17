@@ -1,33 +1,38 @@
 # gRPC Spring Boot Starter
 
-[![Build Status](https://travis-ci.org/yidongnan/grpc-spring-boot-starter.svg?branch=master)](https://travis-ci.org/yidongnan/grpc-spring-boot-starter)
-[![Maven Central with version prefix filter](https://img.shields.io/maven-central/v/net.devh/grpc-spring-boot-starter.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.devh%22%20grpc)
-[![MIT License](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
-[![Crowdin](https://badges.crowdin.net/grpc-spring-boot-starter/localized.svg)](https://crowdin.com/project/grpc-spring-boot-starter)
+[![Build master branch](https://github.com/yidongnan/grpc-spring-boot-starter/workflows/Build%20master%20branch/badge.svg)](https://github.com/yidongnan/grpc-spring-boot-starter/actions) [![Maven Central with version prefix filter](https://img.shields.io/maven-central/v/net.devh/grpc-spring-boot-starter.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.devh%22%20grpc) [![MIT License](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE) [![Crowdin](https://badges.crowdin.net/grpc-spring-boot-starter/localized.svg)](https://crowdin.com/project/grpc-spring-boot-starter)
 
-[![Client-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-client-spring-boot-autoconfigure.svg?label=Client-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-client-spring-boot-autoconfigure)
-[![Server-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-server-spring-boot-autoconfigure.svg?label=Server-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-server-spring-boot-autoconfigure)
-[![Common-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-common-spring-boot.svg?label=Common-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-common-spring-boot)
+[![Client-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-client-spring-boot-autoconfigure.svg?label=Client-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-client-spring-boot-autoconfigure) [![Server-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-server-spring-boot-autoconfigure.svg?label=Server-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-server-spring-boot-autoconfigure) [![Common-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-common-spring-boot.svg?label=Common-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-common-spring-boot)
 
 README: [English](README.md) | [中文](README-zh-CN.md)
 
-**文档:** [English](https://yidongnan.github.io/grpc-spring-boot-starter/en/) | [中文](https://yidongnan.github.io/grpc-spring-boot-starter/zh-CN/)
-
-QQ交流群：294712648
+**文档：** [English](https://yidongnan.github.io/grpc-spring-boot-starter/en/) | [中文](https://yidongnan.github.io/grpc-spring-boot-starter/zh-CN/)
 
 ## 特性
 
-* 在 spring boot 应用中，通过 `@GrpcService` 自动配置并运行一个嵌入式的  gRPC 服务。
+* 使用 `@GrpcService` 注解可以实现自动配置和运行 gRPC Server 端
 
-* 使用  `@GrpcClient` 自动创建和管理您的 gRPC Channels 和 stubs
+* 使用 `@GrpcClient` 注解可以实现自动创建和管理您的 gRPC Channels 和 stubs
 
-* 支持[Spring Cloud](https://spring.io/projects/spring-cloud) (向 [Consul](https://github.com/spring-cloud/spring-cloud-consul) 或 [Eureka](https://github.com/spring-cloud/spring-cloud-netflix) 或 [Nacos](https://github.com/spring-cloud-incubator/spring-cloud-alibaba) 注册服务并获取 gRPC  服务端信息)
+* 支持其他 grpc-java 的变种 (例如： [Reactive gRPC (RxJava)](https://github.com/salesforce/reactive-grpc/tree/master/rx-java), [grpc-kotlin](https://github.com/grpc/grpc-kotlin), ...)
+  * Server 端：适用于所有 grpc-java 的变种 ( 基于 `io.grpc.BindableService`)
+  * Client 端：需要自定义 `StubFactory` 当前内置支持：
+    * grpc-java
+    * (请告知我们不支持的组件，我们可以添加对它们的支持)
+
+* 支持 [Spring-Security](https://github.com/spring-projects/spring-security)
+
+* 支持 [Spring Cloud](https://spring.io/projects/spring-cloud)
+  * 服务端：向服务注册详情中添加 gRPC 端口信息。 目前原生支持：
+    * [Consul](https://github.com/spring-cloud/spring-cloud-consul)
+    * [Eureka](https://github.com/spring-cloud/spring-cloud-netflix)
+    * [Nacos](https://github.com/spring-cloud-incubator/spring-cloud-alibaba)
+    * (请告诉我们不支持的组件，我们可以添加对它们的支持)
+  * 客户端：从 Spring 的 `DiscoveryClient` (所有变种) 读取服务的目标地址
 
 * 支持[Spring Sleuth](https://github.com/spring-cloud/spring-cloud-sleuth)作为分布式链路跟踪解决方案(如果[brave-instrument-grpc](https://mvnrepository.com/artifact/io.zipkin.brave/brave-instrumentation-grpc)存在)
 
 * 支持全局和自定义的 gRPC 服务端/客户端拦截器
-
-* 支持 [Spring-Security](https://github.com/spring-projects/spring-security)
 
 * 支持metric (基于[micrometer](https://micrometer.io/)/[actuator](https://github.com/spring-projects/spring-boot/tree/master/spring-boot-project/spring-boot-actuator) )
 
@@ -35,15 +40,7 @@ QQ交流群：294712648
 
 ## 版本
 
-2.x.x.RELEASE 支持 Spring Boot 2.1.x/2.2.x 和 Spring Cloud Greenwich / Hoxton。
-
-最新版本： `2.13.1.RELEASE`
-
-( `2.4.0.RELEASE` 用于 Spring Boot 2.0.x & Spring Cloud Finchy).
-
-1.x.x.RELEASE 支持 Spring Boot 1 & Spring Cloud Edgware, Dalston, Camden.
-
-最新版本： `1.4.2.RELEASE`
+最新版本是 `2.13.1.RELEASE` 它能跟 Spring-Boot `2.5的。` 和 Spring-Cloud `2020.0.5` 搭配使用。 但它也与各种其他版本兼容。 我们的 [文档](https://yidongnan.github.io/grpc-spring-boot-starter/en/versions.html) 中可以找到所有版本及其相应的库版本的概览。
 
 **注意:** 该项目也可以在没有 Spring-Boot 的情况下使用，但是您需要手动配置一些 bean。
 
@@ -51,7 +48,7 @@ QQ交流群：294712648
 
 ### gRPC 服务端 + 客户端
 
-使用一下命令添加 Maven 依赖项：
+使用以下命令添加 Maven 依赖项：
 
 ````xml
 <dependency>
@@ -61,17 +58,17 @@ QQ交流群：294712648
 </dependency>
 ````
 
-Gradle：
+使用 Gradle 添加依赖：
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-spring-boot-starter:2.13.1.RELEASE'
+  implementation 'net.devh:grpc-spring-boot-starter:2.13.1.RELEASE'
 }
 ````
 
 ### gRPC 服务端
 
-使用一下命令添加 Maven 依赖项：
+使用以下命令添加 Maven 依赖项：
 
 ````xml
 <dependency>
@@ -81,11 +78,11 @@ dependencies {
 </dependency>
 ````
 
-Gradle：
+使用 Gradle 添加依赖项：
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-server-spring-boot-starter:2.13.1.RELEASE'
+  implementation 'net.devh:grpc-server-spring-boot-starter:2.13.1.RELEASE'
 }
 ````
 
@@ -105,7 +102,7 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
 }
 ````
 
-默认情况下，Grpc 服务器将监听端口 `9090`。 端口的配置和其他的 [设置](grpc-server-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/server/config/GrpcServerProperties.java) 可以通过 Spring 的属性机制进行更改。 服务端的配置使用 `grpc.server.` 前缀。
+默认情况下，gRPC 服务器将监听端口 `9090`。 端口的配置和其他的 [设置](grpc-server-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/server/config/GrpcServerProperties.java) 可以通过 Spring 的属性机制进行更改。 服务端的配置使用 `grpc.server.` 前缀。
 
 详情请参阅我们的[文档](https://yidongnan.github.io/grpc-spring-boot-starter/)。
 
@@ -121,7 +118,7 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
 </dependency>
 ````
 
-Gradle：
+使用 Gradle 添加依赖项：
 
 ````gradle
 dependencies {
@@ -205,19 +202,19 @@ HelloReply response = stub.sayHello(HelloRequest.newBuilder().setName(name).buil
 </dependency>
 ````
 
-Gradle：
+类似，使用 Gradle 的如下
 
 ````groovy
-compile "io.grpc:grpc-netty:${grpcVersion}"
+implementation "io.grpc:grpc-netty:${grpcVersion}"
 
-compile 'net.devh:grpc-spring-boot-starter:...' exclude group: 'io.grpc', module: 'grpc-netty-shaded' // For both
-compile 'net.devh:grpc-client-spring-boot-starter:...' exclude group: 'io.grpc', module: 'grpc-netty-shaded' // For the client (only)
-compile 'net.devh:grpc-server-spring-boot-starter:...' exclude group: 'io.grpc', module: 'grpc-netty-shaded' // For the server (only)
+implementation 'net.devh:grpc-spring-boot-starter:...' exclude group: 'io.grpc', module: 'grpc-netty-shaded' // For both
+implementation 'net.devh:grpc-client-spring-boot-starter:...' exclude group: 'io.grpc', module: 'grpc-netty-shaded' // For the client (only)
+implementation 'net.devh:grpc-server-spring-boot-starter:...' exclude group: 'io.grpc', module: 'grpc-netty-shaded' // For the server (only)
 ````
 
 ## 示例项目
 
-在 [这里](examples)可以阅读更多关于我们的示例项目。
+在 [这里](examples)可以查看更多关于该项目的示例。
 
 ## 排除故障
 
@@ -225,4 +222,4 @@ compile 'net.devh:grpc-server-spring-boot-starter:...' exclude group: 'io.grpc',
 
 ## 参与贡献
 
-我们始终欢迎您对项目作出任何贡献。 详见[CONTRIBUTING.md](CONTRIBUTING.md)。
+欢迎您对项目作出任何贡献。 详见[CONTRIBUTING.md](CONTRIBUTING.md)。

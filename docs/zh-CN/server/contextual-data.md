@@ -6,20 +6,22 @@
 
 ## 目录 <!-- omit in toc -->
 
-- [警告语](#a-word-of-warning)
-- [grpcRequest 作用域](#grpcrequest-scope)
+- [警告语](#警告语)
+- [grpcRequest 作用域](#grpcRequest 作用域)
 
 ## 附加主题 <!-- omit in toc -->
 
 - [入门指南](getting-started.md)
 - [配置](configuration.md)
+- [异常处理](exception-handling.md)
 - *上下文数据 / Bean 的作用域*
 - [测试服务](testing.md)
+- [服务端事件](events.md)
 - [安全性](security.md)
 
 ## 警告语
 
-在 grpc-java 中，消息发送 / 请求处理中的不同阶段可能在不同的线程中运行。 流式调用中也是这样。 避免在您的`ServerIntercetor` 和 grpc 服务方法实现中(在整个 gRPC 上下文中)使用 `ThreadLocal`。 When it comes down to it, the preparation phase, every single message and the completion phase might run in different threads. 如果您想要在会话中存储数据，请使用 grpc 的 `Context` 或 `grpcRequest` 作用域。
+在 grpc-java 中，消息发送 / 请求处理中的不同阶段可能在不同的线程中运行。 流式调用中也是这样。 避免在 `ServerIntercetor` 和 grpc 服务方法实现中(在整个 gRPC 上下文中)使用 `ThreadLocal`。 归根到底来说，每个单个信息都可能会在不同的线程中运行。 如果您想要在会话中存储数据，请使用 grpc 的 `Context` 或 `grpcRequest` 作用域。
 
 ## grpcRequest 作用域
 
@@ -55,8 +57,10 @@ public void grpcMethod(Request request, StreamObserver<Response> responseObserve
 
 - [入门指南](getting-started.md)
 - [配置](configuration.md)
+- [异常处理](exception-handling.md)
 - *上下文数据 / Bean 的作用域*
 - [测试服务](testing.md)
+- [服务端事件](events.md)
 - [安全性](security.md)
 
 ----------

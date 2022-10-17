@@ -6,11 +6,11 @@
 
 ## 目录 <!-- omit in toc -->
 
-- [依赖项](#dependencies)
+- [依赖项](#依赖项)
   - [Brave](#brave)
-  - [Spring Cloud Sleuth](#spring-cloud-sleuth)
-- [关闭链路跟踪](#opt-out)
-- [附加信息](#additional-notes)
+  - [Spring Cloud Sleuth](#Spring Cloud Sleuth)
+- [关闭链路跟踪](#关闭链路跟踪)
+- [附加信息](#附加信息)
 
 ## 依赖项
 

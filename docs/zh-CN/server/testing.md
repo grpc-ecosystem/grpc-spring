@@ -4,22 +4,27 @@
 
 本节介绍如何为您的 grpc-service 编写测试用例。
 
+如果你想要测试一个使用了 `@GrpcClient` 注解字段或一个 grpc 的 stub。 请参阅 [测试Grpc-Stubs](../client/testing.md)。
+
 ## 目录 <!-- omit in toc -->
 
-- [前言](#introductory-words)
-- [测试服务](#the-service-to-test)
-- [有用的依赖项](#useful-dependencies)
-- [单元测试](#unit-tests)
-  - [独立测试](#standalone-tests)
-  - [基于Spring的测试](#spring-based-tests)
-- [集成测试](#integration-tests)
+- [前言](#前言)
+- [测试服务](#测试服务)
+- [有用的依赖项](#有用的依赖项)
+- [单元测试](#单元测试)
+  - [独立测试](#独立测试)
+  - [基于Spring的测试](#基于Spring的测试)
+- [集成测试](#集成测试)
+- [gRPCurl](#grpcurl)
 
 ## 附加主题 <!-- omit in toc -->
 
 - [入门指南](getting-started.md)
 - [配置](configuration.md)
+- [异常处理](exception-handling.md)
 - [上下文数据 / Bean 的作用域](contextual-data.md)
 - *测试服务*
+- [服务端事件](events.md)
 - [安全性](security.md)
 
 ## 前言
@@ -30,10 +35,11 @@
 - [Testing with JUnit](https://junit.org/junit5/docs/current/user-guide/#writing-tests)
 - [grpc-spring-boot-starter's Tests](https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/tests/src/test/java/net/devh/boot/grpc/test)
 
-通常有两种方法来测试您的 grpc 服务：
+通常有三种方法来测试您的 grpc 服务：
 
 - [直接测试](#unit-tests)
 - [通过 grpc 测试](#integration-tests)
+- [在生产环境中测试它们](#grpcurl) (构建时的自动化测试除外)
 
 ## 测试服务
 
@@ -67,31 +73,40 @@ public class MyServiceImpl extends MyServiceGrpc.MyServiceImplBase {
 
 在您开始编写自己的测试框架之前，您可能想要使用以下库来使您的工作更加简单。
 
+> **注意：** Spring-Boot-Test已经包含一些依赖项，所以请确保您排除掉了冲突的版本。
+
 对于Maven来说，添加以下依赖：
 
 ````xml
-<！-- JUnit-elotelFramework -->
+<!-- JUnit-Test-Framework -->
 <dependency>
-    <groupId>org.junit。 upiter</groupId>
+    <groupId>org.junit.jupiter</groupId>
     <artifactId>junit-jupiter-api</artifactId>
     <scope>test</scope>
 </dependency>
 <dependency>
-    <groupId>org。 unit.jupiter</groupId>
+    <groupId>org.junit.jupiter</groupId>
     <artifactId>junit-jupiter-engine</artifactId>
     <scope>test</scope>
 </dependency>
-<- Grpc-extract Support -->
+<!-- Grpc-Test-Support -->
 <dependency>
-    <groupId>io. rpc</groupId>
+    <groupId>io.grpc</groupId>
     <artifactId>grpc-testing</artifactId>
     <scope>test</scope>
 </dependency>
-<！ - Spring-Extract Support (Optional) -->
+<!-- Spring-Test-Support (Optional) -->
 <dependency>
-    <groupId>org。 pringframework.boot</groupId>
-    <artifactId>spring-boot-start-test</artifactId>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
     <scope>test</scope>
+    <!-- Exclude the test engine you don't need -->
+    <exclusions>
+        <exclusion>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+        </exclusion>
+    </exclusions>
 </dependency>
 ````
 
@@ -104,7 +119,10 @@ testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 // Grpc-Test-Support
 testImplementation("io.grpc:grpc-testing")
 // Spring-Test-Support (Optional)
-testImplementation("org.springframework.boot:spring-boot-starter-test")
+testImplementation("org.springframework.boot:spring-boot-starter-test") {
+    // Exclude the test engine you don't need
+    exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+}
 ````
 
 ## 单元测试
@@ -272,10 +290,78 @@ public class MyServiceIntegrationTestConfiguration {
 
 > 注意：这个代码看起来可能比单元测试更短/更简单，但执行时间要长一些。
 
-## 附加主题<!-- omit in toc -->- [入门指南](getting-started.md)
+## gRPCurl
+
+[`gRPCurl`](https://github.com/fullstorydev/grpcurl) 是一个小型的命令行应用程序， 您可以在应用程序运行时查询。 或者如它们的 Readme 说的那样：
+
+> 对于 gRPC 服务，它基本上是 `curl` 工具
+
+您甚至可以使用 `jq` 工具来处理的响应，将它用于自动化测试中。
+
+如果您已经知道要查询什么，跳过第一/这个部分。
+
+````bash
+$ # First scan the server for available services
+$ grpcurl --plaintext localhost:9090 list
+net.devh.boot.grpc.example.MyService
+$ # Then list the methods available for that call
+$ grpcurl --plaintext localhost:9090 list net.devh.boot.grpc.example.MyService
+net.devh.boot.grpc.example.MyService.SayHello
+$ # Lets check the request and response types
+$ grpcurl --plaintext localhost:9090 describe net.devh.boot.grpc.example.MyService/SayHello
+net.devh.boot.grpc.example.MyService.SayHello is a method:
+rpc SayHello ( .HelloRequest ) returns ( .HelloReply );
+$ # Now we only have query for the request body structure
+$ grpcurl --plaintext localhost:9090 describe net.devh.boot.grpc.example.HelloRequest
+net.devh.boot.grpc.example.HelloRequest is a message:
+message HelloRequest {
+  string name = 1;
+}
+````
+
+> 注意： `gRPCurl` 支持 `.` 和 `/` 作为服务名称和方法名称之间的分隔符：
+>
+> - `net.devh.boot.grpc.example.MyService.SayHello`
+> - `net.devh.boot.grpc.example.MyService/SayHello`
+>
+> 我们推荐第二种方式，因为它跟 grpc 的内部全方法名称匹配，并且方法名称在调用中更容易识别到。
+
+````bash
+$ # Finally we can call the actual method
+$ grpcurl --plaintext localhost:9090 net.devh.boot.grpc.example.MyService/SayHello
+{
+  "message": "Hello ==> ",
+  "counter": 1337
+}
+$ # Or call it with a populated request body
+$ grpcurl --plaintext -d '{"name": "Test"}' localhost:9090 net.devh.boot.grpc.example.MyService/SayHello
+{
+  "message": "Hello ==> Test",
+  "counter": 1337
+}
+````
+
+> 注意：如果您使用了 window 终端或想要在数据块中使用变量，那么您必须使用 `"` 而不是 `'`，并转义实际json中的 `"` 。
+>
+> ````cmd
+>
+> > grpcurl --plaintext -d "{\"name\": \"Test\"}" localhost:9090 net.devh.boot.grpc.example.MyService/sayHello
+    {
+      "message": "Hello ==> Test",
+      "counter": 1337
+    }
+    ````
+
+更多 `gRPCurl` 的信息，请参阅他们的 [官方文档](https://github.com/fullstorydev/grpcurl)
+
+## 附加主题 <!-- omit in toc -->
+
+- [入门指南](getting-started.md)
 - [配置](configuration.md)
+- [异常处理](exception-handling.md)
 - [上下文数据 / Bean 的作用域](contextual-data.md)
 - *测试服务*
+- [服务端事件](events.md)
 - [安全性](security.md)
 
 ----------
