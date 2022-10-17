@@ -11,6 +11,7 @@ are also affected. If there is no such topic, feel free to open a new one as des
 
 - [NoClassDefFoundError, ClassNotFoundException, NoSuchMethodError, AbstractMethodError](#noclassdeffounderror-classnotfoundexception-nosuchmethoderror-abstractmethoderror)
 - [Transport failed](#transport-failed)
+- [First received frame was not SETTINGS](#first-received-frame-was-not-settings)
 - [Network closed for unknown reason](#network-closed-for-unknown-reason)
 - [Could not find TLS ALPN provider](#could-not-find-tls-alpn-provider)
 - [Dismatching certificates](#dismatching-certificates)
@@ -119,6 +120,26 @@ grpc.server.security.enabled=true
 grpc.server.security.certificateChain=file:certificates/server.crt
 grpc.server.security.privateKey=file:certificates/server.key
 ````
+
+## First received frame was not SETTINGS
+
+### Client-side
+
+````txt
+Status{code=INTERNAL, description=http2 exception, cause=...Http2Exception: First received frame was not SETTINGS. Hex dump for first 5 bytes: 485454502f
+````
+
+### The Problem
+
+`485454502f` -> `HTTP/` from `HTTP/1.1`
+
+You are probably connecting to a normal web server and not a HTTP/2 grpc server or proxy.
+
+### The Solution
+
+Check your address configuration. Make sure that you are connecting to the correct port.
+
+e.g. `dns:///my-service.grpc.example` -> `dns:///my-service.grpc.example:12345`
 
 ## Network closed for unknown reason
 
@@ -291,8 +312,8 @@ There are four common cases where this error might occur.
 2. Try searching for the port using `netstat`
 3. Check/Change your configuration. This library uses port `9090` by default
 4. Adding `@DirtiesContext` to your test classes and methods
-  Please note that the error will only occur from the second test onwards,
-  so you have to annotate the first one as well!
+   Please note that the error will only occur from the second test onwards,
+   so you have to annotate the first one as well!
 
 ## Client fails to resolve domain name
 
