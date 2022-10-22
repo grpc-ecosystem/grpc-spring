@@ -1,0 +1,12 @@
+net.devh.boot.grpc.server.autoconfigure.GrpcAdviceAutoConfiguration
+net.devh.boot.grpc.server.autoconfigure.GrpcHealthServiceAutoConfiguration
+net.devh.boot.grpc.server.autoconfigure.GrpcMetadataConsulConfiguration
+net.devh.boot.grpc.server.autoconfigure.GrpcMetadataEurekaConfiguration
+net.devh.boot.grpc.server.autoconfigure.GrpcMetadataNacosConfiguration
+net.devh.boot.grpc.server.autoconfigure.GrpcMetadataZookeeperConfiguration
+net.devh.boot.grpc.server.autoconfigure.GrpcReflectionServiceAutoConfiguration
+net.devh.boot.grpc.server.autoconfigure.GrpcServerAutoConfiguration
+net.devh.boot.grpc.server.autoconfigure.GrpcServerFactoryAutoConfiguration
+net.devh.boot.grpc.server.autoconfigure.GrpcServerMetricAutoConfiguration
+net.devh.boot.grpc.server.autoconfigure.GrpcServerSecurityAutoConfiguration
+net.devh.boot.grpc.server.autoconfigure.GrpcServerTraceAutoConfiguration
