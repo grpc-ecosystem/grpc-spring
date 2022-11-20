@@ -17,10 +17,10 @@ buildscript {
         guavaVersion = '31.1-jre'
         // https://github.com/protocolbuffers/protobuf/releases
         protobufVersion = '3.21.9'
-        protobufGradlePluginVersion = '0.8.19'
+        protobufGradlePluginVersion = '0.9.1'
 
         // https://github.com/spring-projects/spring-boot/releases
-        springBootVersion = '2.6.11'
+        springBootVersion = '2.6.13'
         // https://github.com/spring-cloud/spring-cloud-release/releases
         springCloudVersion = '2021.0.5'
         // https://github.com/alibaba/spring-cloud-alibaba/releases
@@ -59,8 +59,8 @@ if (hasProperty('buildScan')) {
 // you may use IntelliJ's project configuration to make it use the gradle version defined in the gradle script's wrapper section
 wrapper {
     // Update using:
-    // ./gradlew wrapper --gradle-version=7.4.2 --distribution-type=bin
-    gradleVersion = '7.4.2'
+    // ./gradlew wrapper --gradle-version=7.5.1 --distribution-type=bin
+    gradleVersion = '7.5.1'
 }
 
 def buildTimeAndDate = OffsetDateTime.now()
@@ -104,6 +104,7 @@ allprojects {
 
     spotless {
         java {
+            target('src/main/**/*.java', 'src/test/**/*.java')
             licenseHeaderFile rootProject.file('extra/spotless/mit-license.java')
             removeUnusedImports()
             importOrderFile rootProject.file('extra/eclipse/eclipse.importorder')
