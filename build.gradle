@@ -28,7 +28,7 @@ buildscript {
 
         lombokPluginVersion = '6.5.1'
         versioningPluginVersion = '2.15.1'
-        versionsPluginVersion = '0.43.0'
+        versionsPluginVersion = '0.44.0'
 
         kotlinVersion = "1.6.21"
     }
