@@ -30,6 +30,7 @@ buildscript {
         versioningPluginVersion = '2.15.1'
         versionsPluginVersion = '0.44.0'
 
+        // https://github.com/JetBrains/kotlin/releases
         kotlinVersion = "1.7.21"
     }
 }
@@ -185,6 +186,7 @@ allprojects { project ->
                 mavenBom "com.google.guava:guava-bom:${guavaVersion}"
                 mavenBom "io.grpc:grpc-bom:${grpcVersion}"
                 mavenBom "org.junit:junit-bom:5.9.1"
+                mavenBom "org.jetbrains.kotlin:kotlin-bom:${kotlinVersion}"
             }
         }
 
