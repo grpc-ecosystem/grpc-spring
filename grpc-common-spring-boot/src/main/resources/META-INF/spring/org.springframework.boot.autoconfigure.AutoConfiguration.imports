@@ -1,0 +1,2 @@
+net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration
+net.devh.boot.grpc.common.autoconfigure.GrpcCommonTraceAutoConfiguration

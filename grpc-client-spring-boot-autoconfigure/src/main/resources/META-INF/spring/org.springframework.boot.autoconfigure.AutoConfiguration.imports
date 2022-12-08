@@ -1,0 +1,6 @@
+net.devh.boot.grpc.client.autoconfigure.GrpcClientAutoConfiguration
+net.devh.boot.grpc.client.autoconfigure.GrpcClientMetricAutoConfiguration
+net.devh.boot.grpc.client.autoconfigure.GrpcClientHealthAutoConfiguration
+net.devh.boot.grpc.client.autoconfigure.GrpcClientSecurityAutoConfiguration
+net.devh.boot.grpc.client.autoconfigure.GrpcClientTraceAutoConfiguration
+net.devh.boot.grpc.client.autoconfigure.GrpcDiscoveryClientAutoConfiguration
