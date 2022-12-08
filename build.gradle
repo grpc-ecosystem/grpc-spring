@@ -16,7 +16,7 @@ buildscript {
         // https://github.com/google/guava/releases
         guavaVersion = '31.1-jre'
         // https://github.com/protocolbuffers/protobuf/releases
-        protobufVersion = '3.21.10'
+        protobufVersion = '3.21.11'
         protobufGradlePluginVersion = '0.9.1'
 
         // https://github.com/spring-projects/spring-boot/releases
