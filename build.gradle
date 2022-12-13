@@ -93,7 +93,7 @@ allprojects {
     }
 
     compileJava.options*.compilerArgs = [
-        '-Xlint:all', '-Xlint:-processing'
+        '-Xlint:all', '-Xlint:-processing', '-parameters'
     ]
 
     eclipse {
