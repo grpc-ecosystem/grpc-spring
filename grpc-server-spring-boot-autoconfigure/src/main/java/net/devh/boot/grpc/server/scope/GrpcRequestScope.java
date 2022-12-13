@@ -118,7 +118,8 @@ public class GrpcRequestScope implements Scope, BeanFactoryPostProcessor, Server
         ScopedBeansContainer scopedBeansContainer = GRPC_REQUEST_KEY.get();
         if (scopedBeansContainer == null) {
             throw new IllegalStateException(
-                    "Trying to access grpcRequest-Scope, but it was not started for this thread.");
+                    "Trying to access grpcRequest-Scope, but it was not assigned to this execution context.\n"
+                            + "There is either no active grpc request or you didn't transfer the correct GrpcContext to this async execution context.");
         }
         return scopedBeansContainer;
     }

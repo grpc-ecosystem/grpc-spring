@@ -8,29 +8,30 @@ buildscript {
         }
     }
     ext {
-        projectVersion = '2.14.0-SNAPSHOT'
+        projectVersion = '2.15.0-SNAPSHOT'
 
         // https://github.com/grpc/grpc-java/releases
-        grpcVersion = '1.49.2'
+        grpcVersion = '1.51.0'
 
         // https://github.com/google/guava/releases
         guavaVersion = '31.1-jre'
         // https://github.com/protocolbuffers/protobuf/releases
-        protobufVersion = '3.21.7'
-        protobufGradlePluginVersion = '0.8.19'
+        protobufVersion = '3.21.11'
+        protobufGradlePluginVersion = '0.9.1'
 
         // https://github.com/spring-projects/spring-boot/releases
-        springBootVersion = '2.6.11'
+        springBootVersion = '2.7.6'
         // https://github.com/spring-cloud/spring-cloud-release/releases
-        springCloudVersion = '2021.0.4'
+        springCloudVersion = '2021.0.5'
         // https://github.com/alibaba/spring-cloud-alibaba/releases
         springCloudAlibabaNacosVersion = '2021.1'
 
-        lombokPluginVersion = '6.5.1'
+        lombokPluginVersion = '6.6'
         versioningPluginVersion = '2.15.1'
-        versionsPluginVersion = '0.43.0'
+        versionsPluginVersion = '0.44.0'
 
-        kotlinVersion = "1.6.21"
+        // https://github.com/JetBrains/kotlin/releases
+        kotlinVersion = "1.7.22"
     }
 }
 
@@ -38,12 +39,12 @@ plugins {
     id 'java'
     id 'java-library'
     id 'org.springframework.boot' version "${springBootVersion}" apply false
-    id 'io.spring.dependency-management' version '1.0.14.RELEASE'
+    id 'io.spring.dependency-management' version '1.1.0'
     id 'net.nemerosa.versioning' version "${versioningPluginVersion}"
     id 'com.google.protobuf' version "${protobufGradlePluginVersion}"
     id 'io.freefair.lombok' version "${lombokPluginVersion}" apply false
     id 'com.github.ben-manes.versions' version "${versionsPluginVersion}" // gradle dependencyUpdates
-    id 'com.diffplug.spotless' version '6.11.0'
+    id 'com.diffplug.spotless' version '6.12.0'
     id 'org.jetbrains.kotlin.jvm' version "${kotlinVersion}" apply false
 }
 
@@ -59,8 +60,8 @@ if (hasProperty('buildScan')) {
 // you may use IntelliJ's project configuration to make it use the gradle version defined in the gradle script's wrapper section
 wrapper {
     // Update using:
-    // ./gradlew wrapper --gradle-version=7.4.2 --distribution-type=bin
-    gradleVersion = '7.4.2'
+    // ./gradlew wrapper --gradle-version=7.5.1 --distribution-type=bin
+    gradleVersion = '7.6'
 }
 
 def buildTimeAndDate = OffsetDateTime.now()
@@ -104,6 +105,7 @@ allprojects {
 
     spotless {
         java {
+            target('src/main/**/*.java', 'src/test/**/*.java')
             licenseHeaderFile rootProject.file('extra/spotless/mit-license.java')
             removeUnusedImports()
             importOrderFile rootProject.file('extra/eclipse/eclipse.importorder')
@@ -184,6 +186,7 @@ allprojects { project ->
                 mavenBom "com.google.guava:guava-bom:${guavaVersion}"
                 mavenBom "io.grpc:grpc-bom:${grpcVersion}"
                 mavenBom "org.junit:junit-bom:5.9.1"
+                mavenBom "org.jetbrains.kotlin:kotlin-bom:${kotlinVersion}"
             }
         }
 
