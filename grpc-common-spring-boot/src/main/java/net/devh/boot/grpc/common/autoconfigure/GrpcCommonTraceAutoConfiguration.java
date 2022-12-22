@@ -43,7 +43,7 @@ import brave.grpc.GrpcTracing;
 @ConditionalOnProperty(value = "spring.sleuth.grpc.enabled", matchIfMissing = true)
 @AutoConfigureAfter(name = {
         "org.springframework.cloud.sleuth.autoconfig.brave.BraveAutoConfiguration",
-        "org.springframework.cloud.sleuth.autoconfig.brave.instrument.grpc.BraveAutoConfiguration"
+        "org.springframework.cloud.sleuth.autoconfig.brave.instrument.grpc.BraveGrpcAutoConfiguration"
 })
 @ConditionalOnClass(value = {Tracing.class, GrpcTracing.class})
 public class GrpcCommonTraceAutoConfiguration {
