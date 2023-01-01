@@ -288,12 +288,12 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         boolean connected;
         try {
             log.debug("Waiting for connection to channel {}", name);
-            connected = !readyLatch.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
+            connected = readyLatch.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             connected = false;
         }
-        if (connected) {
+        if (!connected) {
             throw new IllegalStateException("Can't connect to channel " + name);
         }
         log.info("Successfully connected to channel {}", name);
