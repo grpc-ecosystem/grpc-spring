@@ -15,6 +15,7 @@ dependencies {
 
     api project(':grpc-common-spring-boot')
     api 'org.springframework.boot:spring-boot-starter'
+    optionalSupportImplementation "io.micrometer:micrometer-observation"
     optionalSupportImplementation 'org.springframework.boot:spring-boot-starter-actuator'
     optionalSupportImplementation 'org.springframework.security:spring-security-core'
     optionalSupportImplementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
