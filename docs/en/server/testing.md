@@ -101,13 +101,6 @@ For Maven add the following dependencies:
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-test</artifactId>
     <scope>test</scope>
-    <!-- Exclude the test engine you don't need -->
-    <exclusions>
-        <exclusion>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-        </exclusion>
-    </exclusions>
 </dependency>
 ````
 
@@ -120,10 +113,7 @@ testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 // Grpc-Test-Support
 testImplementation("io.grpc:grpc-testing")
 // Spring-Test-Support (Optional)
-testImplementation("org.springframework.boot:spring-boot-starter-test") {
-    // Exclude the test engine you don't need
-    exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-}
+testImplementation("org.springframework.boot:spring-boot-starter-test")
 ````
 
 ## Unit Tests
