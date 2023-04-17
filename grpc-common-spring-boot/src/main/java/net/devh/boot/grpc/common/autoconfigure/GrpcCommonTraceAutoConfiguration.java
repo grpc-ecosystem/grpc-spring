@@ -18,6 +18,7 @@
 package net.devh.boot.grpc.common.autoconfigure;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -47,6 +48,7 @@ public class GrpcCommonTraceAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnBean(Tracing.class)
     public GrpcTracing grpcTracing(final Tracing tracing) {
         return GrpcTracing.create(tracing);
     }
