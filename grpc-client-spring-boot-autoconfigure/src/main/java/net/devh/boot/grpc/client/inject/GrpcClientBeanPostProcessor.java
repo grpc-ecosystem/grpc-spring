@@ -145,6 +145,19 @@ public class GrpcClientBeanPostProcessor implements InstantiationAwareBeanPostPr
     }
 
     @Override
+    public Object postProcessBeforeInitialization(final Object bean, final String beanName) throws BeansException {
+        Class<?> clazz = bean.getClass();
+        do {
+            if (isAnnotatedWithConfiguration(clazz)) {
+                processGrpcClientBeansAnnotations(clazz);
+            }
+
+            clazz = clazz.getSuperclass();
+        } while (clazz != null);
+        return bean;
+    }
+
+    @Override
     public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName) {
         InjectionMetadata metadata = findGrpcClientMetadata(beanName, bean.getClass(), pvs);
         try {
@@ -524,10 +537,6 @@ public class GrpcClientBeanPostProcessor implements InstantiationAwareBeanPostPr
             do {
                 processFields(clazz, bean);
                 processMethods(clazz, bean);
-
-                if (isAnnotatedWithConfiguration(clazz)) {
-                    processGrpcClientBeansAnnotations(clazz);
-                }
 
                 clazz = clazz.getSuperclass();
             } while (clazz != null);
