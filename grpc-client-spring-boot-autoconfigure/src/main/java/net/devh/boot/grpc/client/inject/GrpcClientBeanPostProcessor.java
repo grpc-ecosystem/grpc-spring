@@ -19,27 +19,46 @@ package net.devh.boot.grpc.client.inject;
 
 import static java.util.Objects.requireNonNull;
 
+import java.beans.PropertyDescriptor;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.BeanInstantiationException;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.InvalidPropertyException;
+import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.annotation.InjectionMetadata;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
+import org.springframework.beans.factory.support.MergedBeanDefinitionPostProcessor;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.BridgeMethodResolver;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.annotation.MergedAnnotation;
+import org.springframework.core.annotation.MergedAnnotations;
+import org.springframework.lang.Nullable;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
 import com.google.common.collect.Lists;
@@ -51,6 +70,7 @@ import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import net.devh.boot.grpc.client.nameresolver.NameResolverRegistration;
 import net.devh.boot.grpc.client.stubfactory.FallbackStubFactory;
 import net.devh.boot.grpc.client.stubfactory.StubFactory;
+import org.springframework.util.StringUtils;
 
 /**
  * This {@link BeanPostProcessor} searches for fields and methods in beans that are annotated with {@link GrpcClient}
@@ -59,7 +79,7 @@ import net.devh.boot.grpc.client.stubfactory.StubFactory;
  * @author Michael (yidongnan@gmail.com)
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
-public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
+public class GrpcClientBeanPostProcessor implements InstantiationAwareBeanPostProcessor, MergedBeanDefinitionPostProcessor {
 
     private final ApplicationContext applicationContext;
 
@@ -72,14 +92,20 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     // For bean registration via @GrpcClientBean
     private ConfigurableListableBeanFactory configurableBeanFactory;
 
+    private final Set<Class<? extends Annotation>> grpcClientAnnotationTypes = new LinkedHashSet<>(4);
+
+    private final Map<String, InjectionMetadata> injectionMetadataCache = new ConcurrentHashMap<>(256);
+
     /**
-     * Creates a new GrpcClientBeanPostProcessor with the given ApplicationContext.
+     * Creates a new GrpcClientBeanPostProcessor with the given ApplicationContext
+     * for GrpcClient standard {@link GrpcClient @GrpcClient} annotation.
      *
      * @param applicationContext The application context that will be used to get lazy access to the
      *        {@link GrpcChannelFactory} and {@link StubTransformer}s.
      */
     public GrpcClientBeanPostProcessor(final ApplicationContext applicationContext) {
         this.applicationContext = requireNonNull(applicationContext, "applicationContext");
+        this.grpcClientAnnotationTypes.add(GrpcClient.class);
     }
 
     @PostConstruct
@@ -119,19 +145,18 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     }
 
     @Override
-    public Object postProcessBeforeInitialization(final Object bean, final String beanName) throws BeansException {
-        Class<?> clazz = bean.getClass();
-        do {
-            processFields(clazz, bean);
-            processMethods(clazz, bean);
-
-            if (isAnnotatedWithConfiguration(clazz)) {
-                processGrpcClientBeansAnnotations(clazz);
-            }
-
-            clazz = clazz.getSuperclass();
-        } while (clazz != null);
-        return bean;
+    public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName) {
+        InjectionMetadata metadata = findGrpcClientMetadata(beanName, bean.getClass(), pvs);
+        try {
+            metadata.inject(bean, beanName, pvs);
+        }
+        catch (BeanCreationException ex) {
+            throw ex;
+        }
+        catch (Throwable ex) {
+            throw new BeanCreationException(beanName, "Injection of gRPC client stub failed", ex);
+        }
+        return pvs;
     }
 
     /**
@@ -400,4 +425,112 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
         return configurationAnnotation != null;
     }
 
+    @Override
+    public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
+        InjectionMetadata metadata = findGrpcClientMetadata(beanName, beanType, null);
+        metadata.checkConfigMembers(beanDefinition);
+    }
+
+    private InjectionMetadata findGrpcClientMetadata(String beanName, Class<?> clazz, @Nullable PropertyValues pvs) {
+        // Fall back to class name as cache key, for backwards compatibility with custom callers.
+        String cacheKey = (StringUtils.hasLength(beanName) ? beanName : clazz.getName());
+        // Quick check on the concurrent map first, with minimal locking.
+        InjectionMetadata metadata = this.injectionMetadataCache.get(cacheKey);
+        if (InjectionMetadata.needsRefresh(metadata, clazz)) {
+            synchronized (this.injectionMetadataCache) {
+                metadata = this.injectionMetadataCache.get(cacheKey);
+                if (InjectionMetadata.needsRefresh(metadata, clazz)) {
+                    if (metadata != null) {
+                        metadata.clear(pvs);
+                    }
+                    metadata = buildGrpcClientMetadata(clazz);
+                    this.injectionMetadataCache.put(cacheKey, metadata);
+                }
+            }
+        }
+        return metadata;
+    }
+
+    private InjectionMetadata buildGrpcClientMetadata(Class<?> clazz) {
+        if (!AnnotationUtils.isCandidateClass(clazz, this.grpcClientAnnotationTypes)) {
+            return InjectionMetadata.EMPTY;
+        }
+
+        List<InjectionMetadata.InjectedElement> elements = new ArrayList<>();
+        Class<?> targetClass = clazz;
+
+        do {
+            final List<InjectionMetadata.InjectedElement> currElements = new ArrayList<>();
+
+            ReflectionUtils.doWithLocalFields(targetClass, field -> {
+                MergedAnnotation<?> ann = findGrpcClientAnnotation(field);
+                if (ann != null) {
+                    if (Modifier.isStatic(field.getModifiers())) {
+                        throw new IllegalStateException("GrpcClient annotation is not supported on static fields: " + field);
+                    }
+                    currElements.add(new GrpcClientMemberElement(field, null));
+                }
+            });
+
+            ReflectionUtils.doWithLocalMethods(targetClass, method -> {
+                Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
+                if (!BridgeMethodResolver.isVisibilityBridgeMethodPair(method, bridgedMethod)) {
+                    return;
+                }
+                MergedAnnotation<?> ann = findGrpcClientAnnotation(bridgedMethod);
+                if (ann != null && method.equals(ClassUtils.getMostSpecificMethod(method, clazz))) {
+                    if (Modifier.isStatic(method.getModifiers())) {
+                        throw new IllegalStateException("GrpcClient annotation is not supported on static method: " + method);
+                    }
+                    if (method.getParameterCount() == 0) {
+                        throw new IllegalStateException("GrpcClient annotation should only be used on methods with parameters: " + method);
+                    }
+                    PropertyDescriptor pd = BeanUtils.findPropertyForMethod(bridgedMethod, clazz);
+                    currElements.add(new GrpcClientMemberElement(method, pd));
+                }
+            });
+
+            elements.addAll(0, currElements);
+            targetClass = targetClass.getSuperclass();
+        }
+        while (targetClass != null && targetClass != Object.class);
+
+        return InjectionMetadata.forElements(elements, clazz);
+    }
+
+    private MergedAnnotation<?> findGrpcClientAnnotation(AccessibleObject ao) {
+        MergedAnnotations annotations = MergedAnnotations.from(ao);
+        for (Class<? extends Annotation> type : this.grpcClientAnnotationTypes) {
+            MergedAnnotation<?> annotation = annotations.get(type);
+            if (annotation.isPresent()) {
+                return annotation;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Class representing injection information about an annotated member.
+     */
+    private class GrpcClientMemberElement extends InjectionMetadata.InjectedElement {
+
+        public GrpcClientMemberElement(Member member, @Nullable PropertyDescriptor pd) {
+            super(member, pd);
+        }
+
+        @Override
+        protected void inject(Object bean, @Nullable String beanName, @Nullable PropertyValues pvs) throws Throwable {
+            Class<?> clazz = bean.getClass();
+            do {
+                processFields(clazz, bean);
+                processMethods(clazz, bean);
+
+                if (isAnnotatedWithConfiguration(clazz)) {
+                    processGrpcClientBeansAnnotations(clazz);
+                }
+
+                clazz = clazz.getSuperclass();
+            } while (clazz != null);
+        }
+    }
 }
