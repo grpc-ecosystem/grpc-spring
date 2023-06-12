@@ -14,7 +14,7 @@ buildscript {
         grpcVersion = '1.55.1'
 
         // https://github.com/google/guava/releases
-        guavaVersion = '32.0.0-jre'
+        guavaVersion = '32.0.1-jre'
         // https://github.com/protocolbuffers/protobuf/releases
         protobufVersion = '3.23.2'
         protobufGradlePluginVersion = '0.9.3'
