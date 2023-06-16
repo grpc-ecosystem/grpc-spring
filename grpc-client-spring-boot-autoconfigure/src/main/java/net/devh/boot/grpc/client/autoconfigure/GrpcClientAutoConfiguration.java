@@ -20,6 +20,7 @@ package net.devh.boot.grpc.client.autoconfigure;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -52,6 +53,8 @@ import net.devh.boot.grpc.client.stubfactory.AsyncStubFactory;
 import net.devh.boot.grpc.client.stubfactory.BlockingStubFactory;
 import net.devh.boot.grpc.client.stubfactory.FutureStubFactory;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
+import org.springframework.context.weaving.LoadTimeWeaverAware;
+import org.springframework.instrument.classloading.LoadTimeWeaver;
 
 /**
  * The auto configuration used by Spring-Boot that contains all beans to create and inject grpc clients into beans.
@@ -194,4 +197,18 @@ public class GrpcClientAutoConfiguration {
         return new InProcessChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
     }
 
+    @Configuration(proxyBeanMethods = false)
+    static class GrpcClientConstructorInjectionConfiguration implements LoadTimeWeaverAware {
+        @Autowired
+        private GrpcClientBeanPostProcessor grpcClientBeanPostProcessor;
+
+        @PostConstruct
+        public void init() {
+            grpcClientBeanPostProcessor.initGrpClientConstructorInjections();
+        }
+
+        @Override
+        public void setLoadTimeWeaver(LoadTimeWeaver ltw) {
+        }
+    }
 }

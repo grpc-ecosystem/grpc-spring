@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.PostConstruct;
 
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeanUtils;
@@ -108,15 +107,10 @@ public class GrpcClientBeanPostProcessor implements InstantiationAwareBeanPostPr
         this.grpcClientAnnotationTypes.add(GrpcClient.class);
     }
 
-    @PostConstruct
-    public void init() {
-        initGrpClientConstructorInjections();
-    }
-
     /**
      * Triggers registering grpc client beans from GrpcClientConstructorInjection.
      */
-    private void initGrpClientConstructorInjections() {
+    public void initGrpClientConstructorInjections() {
         Iterable<GrpcClientConstructorInjection.Registry> registries;
         try {
             registries = getConfigurableBeanFactory().getBean(GrpcClientConstructorInjection.class).getRegistries();
