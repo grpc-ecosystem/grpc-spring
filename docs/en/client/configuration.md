@@ -102,7 +102,7 @@ If you don't define an address it will be guessed:
 > **Note:** The number of slashes is important! Also make sure that you don't try to connect to a normal
 > web/REST/non-grpc server (port).
 
-> **Note:** Java's `URI`s do not support addresses with underscores (`_`): `dns://user_service`. Please make sure you use hyphens (`-`) or a different naming scheme instead.
+> **Note:** Java's `URI`s do not support addresses with underscores (`_`): `dns://user_service`. Please make sure you use a differeaming scheme e.g with hyphens (`-`) instead.
 
 The `SSL`/`TLS` and other security relevant configuration is explained on the [Client Security](security.md) page.
 
