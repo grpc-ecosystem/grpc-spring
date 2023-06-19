@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -31,6 +32,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.weaving.LoadTimeWeaverAware;
+import org.springframework.instrument.classloading.LoadTimeWeaver;
 
 import io.grpc.CompressorRegistry;
 import io.grpc.DecompressorRegistry;
@@ -53,8 +56,6 @@ import net.devh.boot.grpc.client.stubfactory.AsyncStubFactory;
 import net.devh.boot.grpc.client.stubfactory.BlockingStubFactory;
 import net.devh.boot.grpc.client.stubfactory.FutureStubFactory;
 import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
-import org.springframework.context.weaving.LoadTimeWeaverAware;
-import org.springframework.instrument.classloading.LoadTimeWeaver;
 
 /**
  * The auto configuration used by Spring-Boot that contains all beans to create and inject grpc clients into beans.
@@ -153,8 +154,7 @@ public class GrpcClientAutoConfiguration {
             "io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder"})
     @Bean
     @Lazy
-    GrpcChannelFactory shadedNettyGrpcChannelFactory(
-            final GrpcChannelsProperties properties,
+    GrpcChannelFactory shadedNettyGrpcChannelFactory(final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
 
@@ -171,8 +171,7 @@ public class GrpcClientAutoConfiguration {
     @ConditionalOnClass(name = {"io.netty.channel.Channel", "io.grpc.netty.NettyChannelBuilder"})
     @Bean
     @Lazy
-    GrpcChannelFactory nettyGrpcChannelFactory(
-            final GrpcChannelsProperties properties,
+    GrpcChannelFactory nettyGrpcChannelFactory(final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
 
@@ -188,8 +187,7 @@ public class GrpcClientAutoConfiguration {
     @ConditionalOnMissingBean(GrpcChannelFactory.class)
     @Bean
     @Lazy
-    GrpcChannelFactory inProcessGrpcChannelFactory(
-            final GrpcChannelsProperties properties,
+    GrpcChannelFactory inProcessGrpcChannelFactory(final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
 
@@ -208,7 +206,6 @@ public class GrpcClientAutoConfiguration {
         }
 
         @Override
-        public void setLoadTimeWeaver(LoadTimeWeaver ltw) {
-        }
+        public void setLoadTimeWeaver(LoadTimeWeaver ltw) {}
     }
 }
