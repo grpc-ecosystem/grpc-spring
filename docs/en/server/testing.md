@@ -143,7 +143,7 @@ public class MyServiceTest {
     }
 
     @Test
-    void testSayHellpo() throws Exception {
+    void testSayHello() throws Exception {
         HelloRequest request = HelloRequest.newBuilder()
                 .setName("Test")
                 .build();
@@ -184,7 +184,7 @@ public class MyServiceTest {
     private MyServiceImpl myService;
 
     @Test
-    void testSayHellpo() throws Exception {
+    void testSayHello() throws Exception {
         HelloRequest request = HelloRequest.newBuilder()
                 .setName("Test")
                 .build();
