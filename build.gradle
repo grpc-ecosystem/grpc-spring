@@ -21,6 +21,7 @@ buildscript {
 
         // https://github.com/spring-projects/spring-boot/releases
         springBootVersion = '2.7.14'
+        springBoot3Version = '3.1.3'
         // https://github.com/spring-cloud/spring-cloud-release/releases
         springCloudVersion = '2021.0.8'
         // https://github.com/alibaba/spring-cloud-alibaba/releases
@@ -38,8 +39,8 @@ buildscript {
 plugins {
     id 'java'
     id 'java-library'
-    id 'org.springframework.boot' version "${springBootVersion}" apply false
-    id 'io.spring.dependency-management' version '1.1.2'
+    id 'org.springframework.boot' version "${springBoot3Version}" apply false
+    id 'io.spring.dependency-management' version '1.1.3'
     id 'net.nemerosa.versioning' version "${versioningPluginVersion}"
     id 'com.google.protobuf' version "${protobufGradlePluginVersion}"
     id 'io.freefair.lombok' version "${lombokPluginVersion}" apply false
@@ -80,11 +81,11 @@ allprojects {
     apply plugin: 'com.diffplug.spotless'
     apply plugin: 'io.freefair.lombok'
 
-    java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(8)
-        }
-    }
+//    java {
+//        toolchain {
+//            languageVersion = JavaLanguageVersion.of(8)
+//        }
+//    }
 
     compileJava {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -175,11 +176,16 @@ if (JavaVersion.current().isJava9Compatible()) {
     javaAPIdoc = 'https://docs.oracle.com/javase/8/docs/api/'
 }
 
+
 allprojects { project ->
     buildscript {
         dependencyManagement {
             imports {
-                mavenBom "org.springframework.boot:spring-boot-starter-parent:${springBootVersion}"
+                if (project.name.contains('springboot3')) {
+                    mavenBom "org.springframework.boot:spring-boot-starter-parent:${springBoot3Version}"
+                } else {
+                    mavenBom "org.springframework.boot:spring-boot-starter-parent:${springBootVersion}"
+                }
                 mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
                 mavenBom "com.alibaba.cloud:spring-cloud-alibaba-dependencies:${springCloudAlibabaNacosVersion}"
                 mavenBom "com.google.protobuf:protobuf-bom:${protobufVersion}"

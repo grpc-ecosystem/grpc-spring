@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot'
+}
+
+
+
+java {
+    sourceCompatibility = '17'
+}
+
+compileJava {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    options.encoding = 'UTF-8'
+}
+
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation project(':grpc-client-spring-boot-starter') // replace to implementation("net.devh:grpc-client-spring-boot-starter:${springBootGrpcVersion}")
+    implementation project(':examples:grpc-lib')
+}
