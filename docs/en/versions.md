@@ -8,6 +8,7 @@ This page shows the additional information about our Versioning Policy and lifec
 
 - [Versioning Policy](#versioning-policy)
 - [Version Table](#version-table)
+  - [Version 3.x](#version-3x)
   - [Version 2.x](#version-2x)
   - [Version 1.x](#version-1x)
   - [Upgrading Dependencies](#upgrading-dependencies)
@@ -19,6 +20,7 @@ The major version of this project defines which spring-boot version we are compa
 
 - 1.x.x versions are EOL and won't receive any updates
 - 2.x.x is the current version and will be updated if there are spring-boot or gRPC releases.
+- 3.x.x is the current version and will be updated if there are spring-boot or gRPC releases.
 
 The minor version defines the feature version of this project. Every time we bump spring-boot's or gRPC's version,
 we will also increment our feature version. The same applies if we add/change major features.
@@ -41,9 +43,21 @@ Please report any issues to our [repo](https://github.com/yidongnan/grpc-spring-
 > [documented](https://github.com/grpc/grpc-java/blob/master/SECURITY.md#netty) by gRPC.
 > (grpc-netty-shaded avoids these issues by keeping these versions in sync.)
 
-### Version 2.x
+### Version 3.x
 
 Current version.
+
+| Version | spring-boot | spring-cloud |  gRPC  |      Date |
+|:-------:|:-----------:|:------------:|:------:|----------:|
+| 3.0.0\* |    3.1.4    |   2022.0.4   | 1.58.0 | Nov, 2023 |
+
+(\* Future versions)
+
+> The listed dependency versions here are only used during the build process and may be replaced.
+> grpc-spring-boot-starter is usually also compatible with newer or older versions than the listed ones.
+> If you encounter an incompatibility with a newer version, please let us know so we can update this project!
+
+### Version 2.x
 
 | Version | spring-boot | spring-cloud |  gRPC  |      Date |
 |:-------:|:-----------:| :----------: |:------:|----------:|
@@ -70,12 +84,6 @@ Current version.
 |  2.1.0  |    2.0.?    |      ?       | 1.14.0 | Oct, 2018 |
 |  2.0.1  |    2.0.?    |      ?       | 1.14.0 | Aug, 2018 |
 |  2.0.0  |    2.0.?    |      ?       | 1.13.1 | Aug, 2018 |
-
-(\* Future versions)
-
-> The listed dependency versions here are only used during the build process and may be replaced.
-> grpc-spring-boot-starter is usually also compatible with newer or older versions than the listed ones.
-> If you encounter an incompatibility with a newer version, please let us know so we can update this project!
 
 ### Version 1.x
 
