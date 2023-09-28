@@ -40,7 +40,7 @@ README: [English](README.md) | [中文](README-zh-CN.md)
 
 ## 版本
 
-最新版本是 `2.13.1.RELEASE` 它能跟 Spring-Boot `2.5的。` 和 Spring-Cloud `2020.0.5` 搭配使用。 但它也与各种其他版本兼容。 我们的 [文档](https://yidongnan.github.io/grpc-spring-boot-starter/en/versions.html) 中可以找到所有版本及其相应的库版本的概览。
+最新版本是 `2.15.0.RELEASE` 它能跟 Spring-Boot `2.7.14` 和 Spring-Cloud `2021.0.8` 搭配使用。 但它也与各种其他版本兼容。 我们的 [文档](https://yidongnan.github.io/grpc-spring-boot-starter/en/versions.html) 中可以找到所有版本及其相应的库版本的概览。
 
 **注意:** 该项目也可以在没有 Spring-Boot 的情况下使用，但是您需要手动配置一些 bean。
 
@@ -54,7 +54,7 @@ README: [English](README.md) | [中文](README-zh-CN.md)
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-spring-boot-starter</artifactId>
-  <version>2.13.1.RELEASE</version>
+  <version>2.15.0.RELEASE</version>
 </dependency>
 ````
 
@@ -62,7 +62,7 @@ README: [English](README.md) | [中文](README-zh-CN.md)
 
 ````gradle
 dependencies {
-  implementation 'net.devh:grpc-spring-boot-starter:2.13.1.RELEASE'
+  implementation 'net.devh:grpc-spring-boot-starter:2.15.0.RELEASE'
 }
 ````
 
@@ -74,7 +74,7 @@ dependencies {
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-server-spring-boot-starter</artifactId>
-  <version>2.13.1.RELEASE</version>
+  <version>2.15.0.RELEASE</version>
 </dependency>
 ````
 
@@ -82,7 +82,7 @@ dependencies {
 
 ````gradle
 dependencies {
-  implementation 'net.devh:grpc-server-spring-boot-starter:2.13.1.RELEASE'
+  implementation 'net.devh:grpc-server-spring-boot-starter:2.15.0.RELEASE'
 }
 ````
 
@@ -114,7 +114,7 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-client-spring-boot-starter</artifactId>
-  <version>2.13.1.RELEASE</version>
+  <version>2.15.0.RELEASE</version>
 </dependency>
 ````
 
@@ -122,7 +122,7 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-client-spring-boot-starter:2.13.1.RELEASE'
+  compile 'net.devh:grpc-client-spring-boot-starter:2.15.0.RELEASE'
 }
 ````
 
