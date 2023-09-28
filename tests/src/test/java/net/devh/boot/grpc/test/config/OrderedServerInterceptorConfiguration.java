@@ -17,8 +17,6 @@
 
 package net.devh.boot.grpc.test.config;
 
-import javax.annotation.Priority;
-
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -35,7 +33,7 @@ import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 public class OrderedServerInterceptorConfiguration {
 
     @GrpcGlobalServerInterceptor
-    @Priority(30)
+    @Order(30)
     @Component("SecondPriorityAnnotatedInterceptor")
     public class SecondPriorityAnnotatedInterceptor extends TestServerInterceptor {
     }
@@ -72,7 +70,7 @@ public class OrderedServerInterceptorConfiguration {
 
 
     @GrpcGlobalServerInterceptor
-    @Priority(5)
+    @Order(5)
     @Component("FirstPriorityAnnotatedInterceptor")
     public class FirstPriorityAnnotatedInterceptor extends TestServerInterceptor {
     }

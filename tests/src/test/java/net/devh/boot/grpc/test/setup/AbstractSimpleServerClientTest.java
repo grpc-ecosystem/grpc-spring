@@ -26,8 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PostConstruct;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -35,6 +33,7 @@ import com.google.protobuf.Empty;
 
 import io.grpc.Channel;
 import io.grpc.internal.testing.StreamRecorder;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.test.proto.SomeType;

@@ -19,8 +19,6 @@ package net.devh.boot.grpc.test.inject;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import javax.annotation.PostConstruct;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -30,6 +28,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import io.grpc.Channel;
 import io.grpc.stub.AbstractStub;
+import jakarta.annotation.PostConstruct;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.client.stubfactory.StandardJavaGrpcStubFactory;
 import net.devh.boot.grpc.client.stubfactory.StubFactory;

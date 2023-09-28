@@ -32,7 +32,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.convert.DataSizeUnit;
 import org.springframework.boot.convert.DurationUnit;
 import org.springframework.core.io.Resource;
-import org.springframework.util.SocketUtils;
 import org.springframework.util.unit.DataSize;
 import org.springframework.util.unit.DataUnit;
 
@@ -44,6 +43,7 @@ import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import lombok.Data;
 import net.devh.boot.grpc.common.security.KeyStoreUtils;
 import net.devh.boot.grpc.common.util.GrpcUtils;
+import net.devh.boot.grpc.common.util.SocketUtils;
 
 /**
  * The properties for the gRPC server that will be started as part of the application.
@@ -104,7 +104,7 @@ public class GrpcServerProperties {
      * The time to wait for the server to gracefully shutdown (completing all requests after the server started to
      * shutdown). If set to a negative value, the server waits forever. If set to {@code 0} the server will force
      * shutdown immediately. Defaults to {@code 30s}.
-     * 
+     *
      * @param gracefullShutdownTimeout The time to wait for a graceful shutdown.
      * @return The time to wait for a graceful shutdown.
      */
@@ -215,7 +215,7 @@ public class GrpcServerProperties {
     /**
      * The maximum size of metadata allowed to be received. If not set ({@code null}) then
      * {@link GrpcUtil#DEFAULT_MAX_HEADER_LIST_SIZE gRPC's default} should be used.
-     * 
+     *
      * @return The maximum metadata size allowed.
      */
     @DataSizeUnit(DataUnit.BYTES)
@@ -294,7 +294,7 @@ public class GrpcServerProperties {
 
         /**
          * The format of the {@link #keyStore}.
-         * 
+         *
          * <p>
          * Possible values includes:
          * </p>
@@ -305,7 +305,7 @@ public class GrpcServerProperties {
          * <li>any supported {@link KeyStore} format</li>
          * <li>Fallback to {@code KeyStore#getDefaultType()}</li>
          * </ul>
-         * 
+         *
          * @param keyStoreFormat The trust store format to use.
          * @return The trust store format to use.
          */
@@ -354,7 +354,7 @@ public class GrpcServerProperties {
 
         /**
          * The format of the {@link #trustStore}.
-         * 
+         *
          * <p>
          * Possible values includes:
          * </p>
@@ -365,7 +365,7 @@ public class GrpcServerProperties {
          * <li>any supported {@link KeyStore} format</li>
          * <li>Fallback to {@code KeyStore#getDefaultType()}</li>
          * </ul>
-         * 
+         *
          * @param trustStoreFormat The trust store format to use.
          * @return The trust store format to use.
          */

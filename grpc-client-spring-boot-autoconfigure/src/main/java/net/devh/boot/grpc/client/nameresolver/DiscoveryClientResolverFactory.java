@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
-import javax.annotation.PreDestroy;
 
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -36,6 +35,7 @@ import io.grpc.Attributes.Key;
 import io.grpc.NameResolver;
 import io.grpc.NameResolverProvider;
 import io.grpc.internal.GrpcUtil;
+import jakarta.annotation.PreDestroy;
 
 /**
  * A name resolver factory that will create a {@link DiscoveryClientNameResolver} based on the target uri.

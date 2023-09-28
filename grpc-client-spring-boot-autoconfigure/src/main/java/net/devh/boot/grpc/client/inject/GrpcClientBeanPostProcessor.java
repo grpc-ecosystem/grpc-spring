@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.InvalidPropertyException;
@@ -47,6 +45,7 @@ import com.google.common.collect.Lists;
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
 import io.grpc.stub.AbstractStub;
+import jakarta.annotation.PostConstruct;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import net.devh.boot.grpc.client.nameresolver.NameResolverRegistration;
 import net.devh.boot.grpc.client.stubfactory.FallbackStubFactory;
