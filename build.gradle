@@ -27,7 +27,7 @@ buildscript {
         springCloudAlibabaNacosVersion = '2021.1'
 
         lombokPluginVersion = '8.1.0'
-        versioningPluginVersion = '2.15.1'
+        versioningPluginVersion = '3.0.0'
         versionsPluginVersion = '0.47.0'
 
         // https://github.com/JetBrains/kotlin/releases
