@@ -40,7 +40,7 @@ README: [English](README.md) | [中文](README-zh-CN.md)
 
 ## 版本
 
-最新版本是 `2.15.0.RELEASE` 它能跟 Spring-Boot `2.7.14` 和 Spring-Cloud `2021.0.8` 搭配使用。 但它也与各种其他版本兼容。 我们的 [文档](https://yidongnan.github.io/grpc-spring-boot-starter/en/versions.html) 中可以找到所有版本及其相应的库版本的概览。
+最新版本是 `2.15.0.RELEASE` 它能跟 Spring-Boot `2.7.16` 和 Spring-Cloud `2021.0.8` 搭配使用。 但它也与各种其他版本兼容。 我们的 [文档](https://yidongnan.github.io/grpc-spring-boot-starter/en/versions.html) 中可以找到所有版本及其相应的库版本的概览。
 
 **注意:** 该项目也可以在没有 Spring-Boot 的情况下使用，但是您需要手动配置一些 bean。
 
