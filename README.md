@@ -50,7 +50,7 @@ README: [English](README.md) | [中文](README-zh-CN.md)
 
 ## Versions
 
-The latest version is `2.15.0.RELEASE` it was compiled with spring-boot `2.7.14` and spring-cloud `2021.0.8`
+The latest version is `2.15.0.RELEASE` it was compiled with spring-boot `2.7.16` and spring-cloud `2021.0.8`
 but it is also compatible with a large variety of other versions.
 An overview of all versions and their respective library versions can be found in our [documentation](https://yidongnan.github.io/grpc-spring-boot-starter/en/versions.html).
 
