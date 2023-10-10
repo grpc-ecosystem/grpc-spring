@@ -36,12 +36,12 @@ import java.lang.annotation.Target;
  * 
  * <pre>
  * {@code @GrpcExceptionHandler
- *    public Status handleIllegalArgumentException(IllegalArgumentException e){
- *      return Status.INVALID_ARGUMENT
- *                   .withDescription(e.getMessage())
- *                   .withCause(e);
- *    }
- *  }
+ * public Status handleIllegalArgumentException(IllegalArgumentException e) {
+ *     return Status.INVALID_ARGUMENT
+ *             .withDescription(e.getMessage())
+ *             .withCause(e);
+ * }
+ * }
  * </pre>
  * 
  * <b>With</b> {@link io.grpc.Metadata}:
