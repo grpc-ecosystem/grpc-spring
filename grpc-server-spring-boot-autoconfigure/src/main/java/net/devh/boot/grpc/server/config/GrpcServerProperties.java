@@ -105,7 +105,7 @@ public class GrpcServerProperties {
      * shutdown). If set to a negative value, the server waits forever. If set to {@code 0} the server will force
      * shutdown immediately. Defaults to {@code 30s}.
      *
-     * @param gracefullShutdownTimeout The time to wait for a graceful shutdown.
+     * @param shutdownGracePeriod The time to wait for a graceful shutdown.
      * @return The time to wait for a graceful shutdown.
      */
     @DurationUnit(ChronoUnit.SECONDS)
