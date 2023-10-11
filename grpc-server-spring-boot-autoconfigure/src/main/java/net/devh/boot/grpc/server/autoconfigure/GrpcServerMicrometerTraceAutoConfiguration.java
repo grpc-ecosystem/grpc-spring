@@ -26,7 +26,6 @@ import org.springframework.core.annotation.Order;
 import io.grpc.ServerInterceptor;
 import io.micrometer.core.instrument.binder.grpc.ObservationGrpcServerInterceptor;
 import io.micrometer.observation.ObservationRegistry;
-import net.devh.boot.grpc.common.autoconfigure.GrpcCommonTraceAutoConfiguration;
 import net.devh.boot.grpc.common.util.InterceptorOrder;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 
@@ -37,8 +36,7 @@ import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty(value = "management.tracing.grpc.enabled", matchIfMissing = true)
-@AutoConfigureAfter(value = GrpcCommonTraceAutoConfiguration.class,
-        name = "org.springframework.boot.actuate.autoconfigure.observation.ObservationAutoConfiguration")
+@AutoConfigureAfter(name = "org.springframework.boot.actuate.autoconfigure.observation.ObservationAutoConfiguration")
 @ConditionalOnBean(ObservationRegistry.class)
 public class GrpcServerMicrometerTraceAutoConfiguration {
 

@@ -186,8 +186,6 @@ allprojects { project ->
             }
         }
 
-        ext['micrometer.version'] = '1.10.3'
-
         ext {
             // not explicitly needed in subprojects, as the BOM for Spring Boot sets this version
             micrometerVersion = dependencyManagement.importedProperties['micrometer.version']
