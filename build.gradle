@@ -187,8 +187,8 @@ allprojects { project ->
         }
 
         ext {
+            // not explicitly needed in subprojects, as the BOM for Spring Boot sets this version
             micrometerVersion = dependencyManagement.importedProperties['micrometer.version']
-            // not explicitly needed in subprojects, as the BOM for Sprint Boot sets this version
             springFrameworkVersion = dependencyManagement.importedProperties['spring-framework.version']
             springSecurityVersion = dependencyManagement.importedProperties['spring-security.version']
             springCloudCommonsVersion = dependencyManagement.importedProperties['spring-cloud-commons.version']

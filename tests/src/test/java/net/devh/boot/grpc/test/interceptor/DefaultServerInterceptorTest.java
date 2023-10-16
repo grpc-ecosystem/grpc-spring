@@ -34,6 +34,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import io.grpc.ServerInterceptor;
 import io.micrometer.core.instrument.binder.grpc.MetricCollectingServerInterceptor;
+import io.micrometer.core.instrument.binder.grpc.ObservationGrpcServerInterceptor;
 import net.devh.boot.grpc.server.interceptor.GlobalServerInterceptorRegistry;
 import net.devh.boot.grpc.server.scope.GrpcRequestScope;
 import net.devh.boot.grpc.server.security.interceptors.AuthenticatingServerInterceptor;
@@ -63,6 +64,7 @@ class DefaultServerInterceptorTest {
         final List<ServerInterceptor> expected = new ArrayList<>();
         expected.add(this.applicationContext.getBean(GrpcRequestScope.class));
         expected.add(this.applicationContext.getBean(MetricCollectingServerInterceptor.class));
+        expected.add(this.applicationContext.getBean(ObservationGrpcServerInterceptor.class));
         expected.add(this.applicationContext.getBean(ExceptionTranslatingServerInterceptor.class));
         expected.add(this.applicationContext.getBean(AuthenticatingServerInterceptor.class));
         expected.add(this.applicationContext.getBean(AuthorizationCheckingServerInterceptor.class));
