@@ -47,9 +47,9 @@ We recommend splitting your project into 2-3 separate modules.
 
 ````xml
     <properties>
-        <protobuf.version>3.19.1</protobuf.version>
+        <protobuf.version>3.23.4</protobuf.version>
         <protobuf-plugin.version>0.6.1</protobuf-plugin.version>
-        <grpc.version>1.42.1</grpc.version>
+        <grpc.version>1.58.0</grpc.version>
     </properties>
 
     <dependencies>
@@ -109,9 +109,9 @@ We recommend splitting your project into 2-3 separate modules.
 ````gradle
 buildscript {
     ext {
-        protobufVersion = '3.19.1'
+        protobufVersion = '3.23.4'
         protobufPluginVersion = '0.8.18'
-        grpcVersion = '1.42.1'
+        grpcVersion = '1.58.0'
     }
 }
 
