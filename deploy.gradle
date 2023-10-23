@@ -30,9 +30,8 @@ publishing {
                 url = 'https://github.com/yidongnan/grpc-spring-boot-starter'
                 licenses {
                     license {
-                        name = 'MIT License'
-                        url = 'http://www.opensource.org/licenses/mit-license.php'
-                        distribution = 'repo'
+                        name = 'Apache 2.0'
+                        url = 'https://opensource.org/licenses/Apache-2.0'
                     }
                 }
                 developers {
