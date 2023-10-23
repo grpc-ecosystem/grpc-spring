@@ -28,7 +28,7 @@
 
 ## 版本列表
 
-下表显示了该项目和 spring boot 以及 gRPC 版本的关系。 在大多数情况下，你可以升级到较新的版本，但如果是 gRPC 改变了其 API。 请将任何问题报告给我们[仓库](https://github.com/yidongnan/grpc-spring-boot-starter/issues)。
+下表显示了该项目和 spring boot 以及 gRPC 版本的关系。 在大多数情况下，你可以升级到较新的版本，但如果是 gRPC 改变了其 API。 请将任何问题报告给我们[仓库](https://github.com/grpc-ecosystem/grpc-spring/issues)。
 
 > **注意**
 >
@@ -95,7 +95,7 @@
 
 有关每个版本的更改，请参考发行说明。
 
-- [grpc-spring-boot-starter](https://github.com/yidongnan/grpc-spring-boot-starter/releases)
+- [grpc-spring-boot-starter](https://github.com/grpc-ecosystem/grpc-spring/releases)
 - [spring-boot](https://github.com/spring-projects/spring-boot/releases)
 - [grpc-java](https://github.com/grpc/grpc-java/releases)
 

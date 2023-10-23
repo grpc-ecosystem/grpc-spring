@@ -34,7 +34,7 @@ We all know how important it is to test our application, so I will only refer yo
 
 - [Testing Spring](https://docs.spring.io/spring/docs/current/spring-framework-reference/testing.html)
 - [Testing with JUnit](https://junit.org/junit5/docs/current/user-guide/#writing-tests)
-- [grpc-spring-boot-starter's Tests](https://github.com/yidongnan/grpc-spring-boot-starter/tree/master/tests/src/test/java/net/devh/boot/grpc/test)
+- [grpc-spring-boot-starter's Tests](https://github.com/grpc-ecosystem/grpc-spring/tree/master/tests/src/test/java/net/devh/boot/grpc/test)
 
 Generally there are three ways to test your grpc service:
 

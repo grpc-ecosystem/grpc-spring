@@ -36,7 +36,7 @@ digraph serversetup {
 
 		label="Server-Project"
 
-		serviceimpl [label="Service implementations", width="3", URL="https://github.com/yidongnan/grpc-spring-boot-starter/blob/master/grpc-server-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/server/service/GrpcService.java#L49", target="_blank"];
+		serviceimpl [label="Service implementations", width="3", URL="https://github.com/grpc-ecosystem/grpc-spring/blob/master/grpc-server-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/server/service/GrpcService.java#L49", target="_blank"];
 
 		servicemodel -> serviceimpl [style=dashed, dir=back];
 
@@ -49,7 +49,7 @@ digraph serversetup {
 		fillColor="white";
 		fontcolor="gray50";
 
-		clientfield [label="Client/Stub usage", width="3", color="gray50", fontcolor="gray50",fillcolor="white", URL="https://github.com/yidongnan/grpc-spring-boot-starter/blob/master/grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/inject/GrpcClient.java#L69", target="_blank"];
+		clientfield [label="Client/Stub usage", width="3", color="gray50", fontcolor="gray50",fillcolor="white", URL="https://github.com/grpc-ecosystem/grpc-spring/blob/master/grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/inject/GrpcClient.java#L69", target="_blank"];
 
 		servicemodel:se -> clientfield[style=dashed, dir=back, color="gray50"];
 		servicemodel:se -> clientfield[style=dashed, dir=back, color="gray50", weight=0];

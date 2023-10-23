@@ -35,7 +35,7 @@ If you need a patched version, please open an issue.
 
 This table shows the spring and gRPC version that this library ships.
 In most cases you can upgrade to newer versions, but especially gRPC changes its API more frequently.
-Please report any issues to our [repo](https://github.com/yidongnan/grpc-spring-boot-starter/issues).
+Please report any issues to our [repo](https://github.com/grpc-ecosystem/grpc-spring/issues).
 
 > **Note**
 >
@@ -106,7 +106,7 @@ If you upgrade any of the versions we strongly recommend doing so using a bom:
 
 Refer to the release notes for more information on the changes for each version:
 
-- [grpc-spring-boot-starter](https://github.com/yidongnan/grpc-spring-boot-starter/releases)
+- [grpc-spring-boot-starter](https://github.com/grpc-ecosystem/grpc-spring/releases)
 - [spring-boot](https://github.com/spring-projects/spring-boot/releases)
 - [grpc-java](https://github.com/grpc/grpc-java/releases)
 
