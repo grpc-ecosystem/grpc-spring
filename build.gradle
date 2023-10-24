@@ -107,7 +107,7 @@ allprojects {
         java {
             target('src/main/**/*.java', 'src/test/**/*.java')
             targetExclude('**/SocketUtils.java')
-            licenseHeaderFile rootProject.file('extra/spotless/mit-license.java')
+            licenseHeaderFile rootProject.file('extra/spotless/license.java')
             removeUnusedImports()
             importOrderFile rootProject.file('extra/eclipse/eclipse.importorder')
             eclipse().configFile rootProject.file('extra/eclipse/eclipse-formatter.xml')

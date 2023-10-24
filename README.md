@@ -2,7 +2,7 @@
 
 [![Build master branch](https://github.com/grpc-ecosystem/grpc-spring/workflows/Build%20master%20branch/badge.svg)](https://github.com/grpc-ecosystem/grpc-spring/actions)
 [![Maven Central with version prefix filter](https://img.shields.io/maven-central/v/net.devh/grpc-spring-boot-starter.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.devh%22%20grpc)
-[![MIT License](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
+[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 [![Crowdin](https://badges.crowdin.net/grpc-spring-boot-starter/localized.svg)](https://crowdin.com/project/grpc-spring-boot-starter)
 
 [![Client-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-client-spring-boot-autoconfigure.svg?label=Client-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-client-spring-boot-autoconfigure)
