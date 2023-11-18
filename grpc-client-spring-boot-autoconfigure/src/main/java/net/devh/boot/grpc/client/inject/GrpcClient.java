@@ -65,7 +65,7 @@ import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
  *
  * @see GrpcClientBean Add as bean to the {@link ApplicationContext}.
  */
-@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
+@Target({ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
