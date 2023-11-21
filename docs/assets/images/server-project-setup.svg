@@ -101,7 +101,7 @@
 </g>
 <!-- serviceimpl -->
 <g id="node7" class="node"><title>serviceimpl</title>
-<g id="a_node7"><a xlink:href="https://github.com/yidongnan/grpc-spring-boot-starter/blob/master/grpc-server-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/server/service/GrpcService.java#L49" xlink:title="Service implementations" target="_blank">
+<g id="a_node7"><a xlink:href="https://github.com/grpc-ecosystem/grpc-spring/blob/master/grpc-server-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/server/service/GrpcService.java#L49" xlink:title="Service implementations" target="_blank">
 <ellipse fill="none" stroke="black" cx="679.185" cy="-122" rx="108" ry="18"/>
 <text text-anchor="middle" x="679.185" y="-118.3" font-family="Times New Roman,serif" font-size="14.00">Service implementations</text>
 </a>
@@ -114,7 +114,7 @@
 </g>
 <!-- clientfield -->
 <g id="node8" class="node"><title>clientfield</title>
-<g id="a_node8"><a xlink:href="https://github.com/yidongnan/grpc-spring-boot-starter/blob/master/grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/inject/GrpcClient.java#L69" xlink:title="Client/Stub usage" target="_blank">
+<g id="a_node8"><a xlink:href="https://github.com/grpc-ecosystem/grpc-spring/blob/master/grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/inject/GrpcClient.java#L69" xlink:title="Client/Stub usage" target="_blank">
 <ellipse fill="none" stroke="#7f7f7f" cx="679.185" cy="-39" rx="108" ry="18"/>
 <text text-anchor="middle" x="679.185" y="-35.3" font-family="Times New Roman,serif" font-size="14.00" fill="#7f7f7f">Client/Stub usage</text>
 </a>

@@ -68,7 +68,8 @@ dependencies {
     if (JavaVersion.current().isJava9Compatible()) {
         // Workaround for @javax.annotation.Generated
         // see: https://github.com/grpc/grpc-java/issues/3633
-        implementation 'jakarta.annotation:jakarta.annotation-api'
+        testCompileOnly 'org.apache.tomcat:annotations-api:6.0.53'
+        annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     }
     testImplementation 'io.grpc:grpc-testing'
     testImplementation('org.springframework.boot:spring-boot-starter-test')

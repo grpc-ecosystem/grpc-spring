@@ -1,8 +1,8 @@
 # gRPC Spring Boot Starter
 
-[![Build master branch](https://github.com/yidongnan/grpc-spring-boot-starter/workflows/Build%20master%20branch/badge.svg)](https://github.com/yidongnan/grpc-spring-boot-starter/actions)
+[![Build master branch](https://github.com/grpc-ecosystem/grpc-spring/workflows/Build%20master%20branch/badge.svg)](https://github.com/grpc-ecosystem/grpc-spring/actions)
 [![Maven Central with version prefix filter](https://img.shields.io/maven-central/v/net.devh/grpc-spring-boot-starter.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.devh%22%20grpc)
-[![MIT License](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
+[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 [![Crowdin](https://badges.crowdin.net/grpc-spring-boot-starter/localized.svg)](https://crowdin.com/project/grpc-spring-boot-starter)
 
 [![Client-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-client-spring-boot-autoconfigure.svg?label=Client-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-client-spring-boot-autoconfigure)
@@ -50,7 +50,7 @@ README: [English](README.md) | [中文](README-zh-CN.md)
 
 ## Versions
 
-The latest version is `2.14.0.RELEASE` it was compiled with spring-boot `2.6.13` and spring-cloud `2021.0.5`
+The latest version is `2.15.0.RELEASE` it was compiled with spring-boot `2.7.16` and spring-cloud `2021.0.8`
 but it is also compatible with a large variety of other versions.
 An overview of all versions and their respective library versions can be found in our [documentation](https://yidongnan.github.io/grpc-spring-boot-starter/en/versions.html).
 
@@ -66,7 +66,7 @@ To add a dependency using Maven, use the following:
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-spring-boot-starter</artifactId>
-  <version>2.14.0.RELEASE</version>
+  <version>2.15.0.RELEASE</version>
 </dependency>
 ````
 
@@ -74,7 +74,7 @@ To add a dependency using Gradle:
 
 ````gradle
 dependencies {
-  implementation 'net.devh:grpc-spring-boot-starter:2.14.0.RELEASE'
+  implementation 'net.devh:grpc-spring-boot-starter:2.15.0.RELEASE'
 }
 ````
 
@@ -86,7 +86,7 @@ To add a dependency using Maven, use the following:
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-server-spring-boot-starter</artifactId>
-  <version>2.14.0.RELEASE</version>
+  <version>2.15.0.RELEASE</version>
 </dependency>
 ````
 
@@ -94,7 +94,7 @@ To add a dependency using Gradle:
 
 ````gradle
 dependencies {
-  implementation 'net.devh:grpc-server-spring-boot-starter:2.14.0.RELEASE'
+  implementation 'net.devh:grpc-server-spring-boot-starter:2.15.0.RELEASE'
 }
 ````
 
@@ -128,7 +128,7 @@ To add a dependency using Maven, use the following:
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-client-spring-boot-starter</artifactId>
-  <version>2.14.0.RELEASE</version>
+  <version>2.15.0.RELEASE</version>
 </dependency>
 ````
 
@@ -136,7 +136,7 @@ To add a dependency using Gradle:
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-client-spring-boot-starter:2.14.0.RELEASE'
+  compile 'net.devh:grpc-client-spring-boot-starter:2.15.0.RELEASE'
 }
 ````
 

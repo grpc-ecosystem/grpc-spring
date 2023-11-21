@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: ['8', '11']
+        java: ['17']
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v1
@@ -22,7 +22,7 @@ jobs:
       - name: Set up java ${{ matrix.java }}
         uses: actions/setup-java@v3
         with:
-          distribution: temurin
+          distribution: 'temurin'
           java-version: ${{ matrix.java }}
           check-latest: true
 
@@ -35,7 +35,7 @@ jobs:
           arguments: --scan --stacktrace --warning-mode=all build
 
       - name: Deploy with Gradle
-        if: ${{ matrix.java == '8' }}
+        if: ${{ matrix.java == '17' }}
         uses: gradle/gradle-build-action@v2
         with:
           arguments: --scan publish -x check -Psigning.gnupg.executable=gpg -Psigning.gnupg.keyName=${{ secrets.GPG_NAME }} -Psigning.gnupg.passphrase=${{ secrets.GPG_PASSWORD }}
