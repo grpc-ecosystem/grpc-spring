@@ -340,7 +340,13 @@ public class CallCredentialsHelper {
         @Override
         public void applyRequestMetadata(final RequestInfo requestInfo, final Executor appExecutor,
                 final MetadataApplier applier) {
-            applier.apply(this.extraHeadersSupplier.get());
+            appExecutor.execute(() -> {
+                try {
+                    applier.apply(this.extraHeadersSupplier.get());
+                } catch (RuntimeException e) {
+                    applier.fail(Status.UNAUTHENTICATED.withCause(e));
+                }
+            });
         }
 
         @Override
