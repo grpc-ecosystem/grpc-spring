@@ -256,7 +256,7 @@ Of course, it is also possible to just use spring-security's annotations.
 For this use case you have to add the following annotation to one of your `@Configuration` classes:
 
 ````java
-@EnableGlobalMethodSecurity(___Enabled = true, proxyTargetClass = true)
+@EnableMethodSecurity(proxyTargetClass = true)
 ````
 
 > Please note that `proxyTargetClass = true` is required! If you forget to add it, you will get a lot of `UNIMPLEMENTED`
