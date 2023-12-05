@@ -24,7 +24,7 @@ buildscript {
         // https://github.com/spring-cloud/spring-cloud-release/releases
         springCloudVersion = '2022.0.4'
         // https://github.com/alibaba/spring-cloud-alibaba/releases
-        springCloudAlibabaNacosVersion = '2021.1'
+        springCloudAlibabaNacosVersion = '2022.0.0.0'
 
         lombokPluginVersion = '8.4'
         versioningPluginVersion = '3.0.0'
