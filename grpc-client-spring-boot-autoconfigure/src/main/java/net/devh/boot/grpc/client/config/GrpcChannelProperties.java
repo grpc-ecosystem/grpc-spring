@@ -422,6 +422,32 @@ public class GrpcChannelProperties {
 
     // --------------------------------------------------
 
+    private String userAgent = null;
+
+    /**
+     * Get custom User-Agent for the channel.
+     *
+     * @return custom User-Agent for the channel.
+     *
+     * @see #setUserAgent(String)
+     */
+    public String getUserAgent() {
+        return this.userAgent;
+    }
+
+    /**
+     * Sets custom User-Agent HTTP header.
+     *
+     * @param userAgent Custom User-Agent.
+     *
+     * @see ManagedChannelBuilder#userAgent(String)
+     */
+    public void setUserAgent(final String userAgent) {
+        this.userAgent = userAgent;
+    }
+
+    // --------------------------------------------------
+
     private final Security security = new Security();
 
     /**
@@ -475,6 +501,9 @@ public class GrpcChannelProperties {
         }
         if (this.immediateConnectTimeout == null) {
             this.immediateConnectTimeout = config.immediateConnectTimeout;
+        }
+        if (this.userAgent == null) {
+            this.userAgent = config.userAgent;
         }
         this.security.copyDefaultsFrom(config.security);
     }
