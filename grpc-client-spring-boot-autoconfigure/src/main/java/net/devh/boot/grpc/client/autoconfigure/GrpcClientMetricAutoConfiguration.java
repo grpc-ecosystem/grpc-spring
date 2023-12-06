@@ -29,6 +29,7 @@ import io.grpc.ClientInterceptor;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.grpc.MetricCollectingClientInterceptor;
 import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
+import net.devh.boot.grpc.client.metric.MetricsClientInterceptor;
 import net.devh.boot.grpc.common.util.InterceptorOrder;
 
 /**
@@ -54,6 +55,13 @@ public class GrpcClientMetricAutoConfiguration {
     @ConditionalOnMissingBean
     public MetricCollectingClientInterceptor metricCollectingClientInterceptor(final MeterRegistry registry) {
         return new MetricCollectingClientInterceptor(registry);
+    }
+
+    @GrpcGlobalClientInterceptor
+    @Order(InterceptorOrder.ORDER_TRACING_METRICS)
+    @ConditionalOnMissingBean
+    public MetricsClientInterceptor metricsClientInterceptor(final MeterRegistry registry) {
+        return new MetricsClientInterceptor(registry);
     }
 
 }
