@@ -18,7 +18,7 @@ package net.devh.boot.grpc.test.util;
 
 import static net.devh.boot.grpc.test.util.FutureAssertions.assertFutureEquals;
 import static net.devh.boot.grpc.test.util.FutureAssertions.assertFutureThrows;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.concurrent.ExecutionException;
@@ -78,6 +78,20 @@ public final class GrpcAssertions {
      */
     public static StatusRuntimeException assertThrowsStatus(final Executable executable) {
         return assertThrows(StatusRuntimeException.class, executable);
+    }
+
+    /**
+     * Assert that the given {@link Executable} throws a {@link StatusRuntimeException} with the expected status code.
+     *
+     * @param expectedStatus The expected status.
+     * @param executable The executable to run.
+     * @return The status contained in the exception.
+     * @see Assertions#assertThrows(Class, Executable)
+     */
+    public static Status assertThrowsStatus(final Status expectedStatus, final Executable executable) {
+        final Status actualStatus = assertThrowsStatus(expectedStatus.getCode(), executable);
+        assertEquals(expectedStatus.getDescription(), actualStatus.getDescription(), "Status description");
+        return actualStatus;
     }
 
     /**
@@ -148,7 +162,7 @@ public final class GrpcAssertions {
      */
     public static Status assertStatus(final Status.Code expectedCode, final StatusRuntimeException exception) {
         final Status status = exception.getStatus();
-        assertEquals(expectedCode, status.getCode());
+        assertEquals(expectedCode, status.getCode(), "Status code");
         return status;
     }
 

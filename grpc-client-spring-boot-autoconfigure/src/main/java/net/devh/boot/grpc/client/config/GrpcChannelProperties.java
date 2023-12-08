@@ -422,6 +422,43 @@ public class GrpcChannelProperties {
 
     // --------------------------------------------------
 
+    private Boolean retryEnabled;
+    private static final boolean DEFAULT_RETRY_ENABLED = false;
+
+    /**
+     * Gets whether retry should be enabled.
+     *
+     * @return True, if retry should be enabled. False otherwise.
+     * @see #setRetryEnabled(Boolean)
+     */
+    public boolean isRetryEnabled() {
+        return this.retryEnabled == null ? DEFAULT_RETRY_ENABLED : this.retryEnabled;
+    }
+
+    /**
+     * Set Retry enable
+     *
+     * @param retryEnabled Whether retry enabled or null to use the fallback.
+     * @see ManagedChannelBuilder#enableRetry()
+     */
+    public void setRetryEnabled(final Boolean retryEnabled) {
+        this.retryEnabled = retryEnabled;
+    }
+
+    // --------------------------------------------------
+
+    private List<MethodConfig> methodConfig;
+
+    public List<MethodConfig> getMethodConfig() {
+        return this.methodConfig;
+    }
+
+    public void setMethodConfig(final List<MethodConfig> methodConfig) {
+        this.methodConfig = methodConfig;
+    }
+
+    // --------------------------------------------------
+
     private final Security security = new Security();
 
     /**
@@ -475,6 +512,13 @@ public class GrpcChannelProperties {
         }
         if (this.immediateConnectTimeout == null) {
             this.immediateConnectTimeout = config.immediateConnectTimeout;
+        }
+        if (this.retryEnabled == null) {
+            this.retryEnabled = config.retryEnabled;
+        }
+        if (this.methodConfig == null || this.methodConfig.isEmpty()) {
+            // TBD: Should we smartly merge the method configs?
+            this.methodConfig = config.methodConfig == null ? null : MethodConfig.copy(config.methodConfig);
         }
         this.security.copyDefaultsFrom(config.security);
     }

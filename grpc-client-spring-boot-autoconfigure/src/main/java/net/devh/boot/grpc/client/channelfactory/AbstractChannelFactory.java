@@ -23,6 +23,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -47,6 +48,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties.Security;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
+import net.devh.boot.grpc.client.config.MethodConfig;
 import net.devh.boot.grpc.client.config.NegotiationType;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 
@@ -55,7 +57,6 @@ import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
  * connection pooling and thus needs to be {@link #close() closed} after usage.
  *
  * @param <T> The type of builder used by this channel factory.
- *
  * @author Michael (yidongnan@gmail.com)
  * @author Daniel Theuke (daniel.theuke@aequitas-software.de)
  * @since 5/17/16
@@ -182,9 +183,41 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         configureSecurity(builder, name);
         configureLimits(builder, name);
         configureCompression(builder, name);
+        configureRetryEnabled(builder, name);
         for (final GrpcChannelConfigurer channelConfigurer : this.channelConfigurers) {
             channelConfigurer.accept(builder, name);
         }
+    }
+
+    /**
+     * Configures the retry options that should be used by the channel.
+     *
+     * @param builder The channel builder to configure.
+     * @param name The name of the client to configure.
+     */
+    protected void configureRetryEnabled(final T builder, final String name) {
+        final GrpcChannelProperties properties = getPropertiesFor(name);
+        if (properties.isRetryEnabled()) {
+            builder.enableRetry();
+            // build retry policy by default service config
+            // TODO: Wrap field in defaultServiceConfig
+            builder.defaultServiceConfig(buildDefaultServiceConfig(properties));
+        }
+    }
+
+    /**
+     * Builds the service config object.
+     *
+     * @param properties The properties of
+     * @return The json alike service config.
+     */
+    protected Map<String, Object> buildDefaultServiceConfig(final GrpcChannelProperties properties) {
+        final Map<String, Object> serviceConfig = new LinkedHashMap<>();
+        final List<MethodConfig> methodConfigList = properties.getMethodConfig();
+        if (methodConfigList != null && !methodConfigList.isEmpty()) {
+            serviceConfig.put("methodConfig", MethodConfig.buildMaps(methodConfigList));
+        }
+        return serviceConfig;
     }
 
     /**
