@@ -182,6 +182,7 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         configureSecurity(builder, name);
         configureLimits(builder, name);
         configureCompression(builder, name);
+        configureUserAgent(builder, name);
         for (final GrpcChannelConfigurer channelConfigurer : this.channelConfigurers) {
             channelConfigurer.accept(builder, name);
         }
@@ -256,6 +257,20 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         final GrpcChannelProperties properties = getPropertiesFor(name);
         if (properties.isFullStreamDecompression()) {
             builder.enableFullStreamDecompression();
+        }
+    }
+
+    /**
+     * Configures custom User-Agent for the channel.
+     *
+     * @param builder The channel builder to configure.
+     * @param name The name of the client to configure.
+     */
+    protected void configureUserAgent(final T builder, final String name) {
+        final GrpcChannelProperties properties = getPropertiesFor(name);
+        final String userAgent = properties.getUserAgent();
+        if (userAgent != null) {
+            builder.userAgent(userAgent);
         }
     }
 
