@@ -16,8 +16,6 @@
 
 package net.devh.boot.grpc.client.metric;
 
-import java.util.function.UnaryOperator;
-
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
@@ -27,47 +25,27 @@ import io.grpc.ForwardingClientCallListener.SimpleForwardingClientCallListener;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
-import io.grpc.Status.Code;
-import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
 
 /**
- * A gRPC client interceptor that will collect metrics using StreamTracer.
+ * A gRPC client interceptor that will collect gRPC metrics.
  */
-public class MetricsClientInterceptor extends AbstractMetricClientCollectingInterceptor
-        implements ClientInterceptor {
+public class MetricsClientInterceptor implements ClientInterceptor {
 
-    private static final String METRIC_NAME_CLIENT_ATTEMPT_STARTED = "grpc.client.attempt.started";
+    private final MeterRegistry registry;
+    private final MetricsCounters metricsCounters;
 
-    public MetricsClientInterceptor(final MeterRegistry registry) {
-        super(registry);
+    public MetricsClientInterceptor(MeterRegistry meterRegistry) {
+        this.registry = meterRegistry;
+        this.metricsCounters = MetricsClientInstruments.micrometerInstruments(this.registry);
     }
-
-    public MetricsClientInterceptor(final MeterRegistry registry,
-            final UnaryOperator<Counter.Builder> counterCustomizer, final UnaryOperator<Timer.Builder> timerCustomizer,
-            final Code... eagerInitializedCodes) {
-        super(registry, counterCustomizer, timerCustomizer, eagerInitializedCodes);
-    }
-
-    @Override
-    protected Counter newAttemptCounterFor(final MethodDescriptor<?, ?> method) {
-        return this.counterCustomizer
-                .apply(prepareCounterFor(method, METRIC_NAME_CLIENT_ATTEMPT_STARTED,
-                        "Number of client call attempts started"))
-                .register(this.registry);
-    }
-
 
     @Override
     public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
             MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
 
-        final MetricSet metrics = metricsFor(method);
-
-        final CallTraceUtil.CallAttemptsTracerFactory tracerFactory =
-                new CallTraceUtil.CallAttemptsTracerFactory(method.getFullMethodName(),
-                        metrics.getAttemptCounter());
+        final MetricsClientStreamTracers.CallAttemptsTracerFactory tracerFactory =
+                new MetricsClientStreamTracers.CallAttemptsTracerFactory(method.getFullMethodName(), metricsCounters);
 
         ClientCall<ReqT, RespT> call =
                 next.newCall(method, callOptions.withStreamTracerFactory(tracerFactory));
@@ -79,7 +57,6 @@ public class MetricsClientInterceptor extends AbstractMetricClientCollectingInte
                         new SimpleForwardingClientCallListener<RespT>(responseListener) {
                             @Override
                             public void onClose(Status status, Metadata trailers) {
-                                tracerFactory.callEnded(status);
                                 super.onClose(status, trailers);
                             }
                         },
