@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.devh.boot.grpc.client.metric;
+package net.devh.boot.grpc.client.metrics;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -23,8 +23,15 @@ import java.util.concurrent.atomic.AtomicLong;
 import io.grpc.ClientStreamTracer;
 import io.grpc.ClientStreamTracer.StreamInfo;
 import io.grpc.Metadata;
+import io.grpc.StreamTracer;
 import io.micrometer.core.instrument.Tags;
 
+/**
+ * Provides factories for {@link io.grpc.StreamTracer} that records metrics.
+ *
+ * <p>
+ * On the client-side, a factory is created for each call, and the factory creates a stream tracer for each attempt.
+ */
 public class MetricsClientStreamTracers {
 
     private static final class ClientTracer extends ClientStreamTracer {
@@ -42,11 +49,11 @@ public class MetricsClientStreamTracers {
 
     static final class CallAttemptsTracerFactory extends ClientStreamTracer.Factory {
         private final String fullMethodName;
-        private final MetricsCounters metricsCounters;
+        private final MetricsMeters metricsCounters;
         private final AtomicLong attemptsPerCall = new AtomicLong();
 
         CallAttemptsTracerFactory(String fullMethodName,
-                final MetricsCounters metricsCounters) {
+                final MetricsMeters metricsCounters) {
             this.fullMethodName = checkNotNull(fullMethodName, "fullMethodName");
             this.metricsCounters = checkNotNull(metricsCounters, "metricsCounters");
 

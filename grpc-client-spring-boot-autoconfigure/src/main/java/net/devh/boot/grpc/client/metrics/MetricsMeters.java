@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package net.devh.boot.grpc.client.metric;
+package net.devh.boot.grpc.client.metrics;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Meter.MeterProvider;
 
-public class MetricsCounters {
+/*
+ * Collection of metrics meters.
+ */
+public class MetricsMeters {
 
     private MeterProvider<Counter> attemptCounter;
 
-    private MetricsCounters(Builder builder) {
+    private MetricsMeters(Builder builder) {
         this.attemptCounter = builder.attemptCounter;
     }
 
@@ -35,7 +38,7 @@ public class MetricsCounters {
         return new Builder();
     }
 
-    public static class Builder {
+    static class Builder {
 
         private MeterProvider<Counter> attemptCounter;
 
@@ -46,8 +49,8 @@ public class MetricsCounters {
             return this;
         }
 
-        public MetricsCounters build() {
-            return new MetricsCounters(this);
+        public MetricsMeters build() {
+            return new MetricsMeters(this);
         }
     }
 }

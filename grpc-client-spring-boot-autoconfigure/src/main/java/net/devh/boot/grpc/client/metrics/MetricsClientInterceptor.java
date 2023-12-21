@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.devh.boot.grpc.client.metric;
+package net.devh.boot.grpc.client.metrics;
 
 import io.grpc.CallOptions;
 import io.grpc.Channel;
@@ -33,8 +33,14 @@ import io.micrometer.core.instrument.MeterRegistry;
 public class MetricsClientInterceptor implements ClientInterceptor {
 
     private final MeterRegistry registry;
-    private final MetricsCounters metricsCounters;
+    private final MetricsMeters metricsCounters;
 
+    /**
+     * Creates a new gRPC client interceptor that will collect metrics into the given
+     * {@link io.micrometer.core.instrument.MeterRegistry}.
+     * 
+     * @param meterRegistry The meter registry to use.
+     */
     public MetricsClientInterceptor(MeterRegistry meterRegistry) {
         this.registry = meterRegistry;
         this.metricsCounters = MetricsClientInstruments.micrometerInstruments(this.registry);

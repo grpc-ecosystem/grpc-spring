@@ -14,25 +14,26 @@
  * limitations under the License.
  */
 
-package net.devh.boot.grpc.client.metric;
+package net.devh.boot.grpc.client.metrics;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 
+/*
+ * The instruments used to record metrics on client.
+ */
 public class MetricsClientInstruments {
 
     static final String CLIENT_ATTEMPT_STARTED = "grpc.client.attempt.started";
 
-    static MetricsCounters micrometerInstruments(MeterRegistry registry) {
-        MetricsCounters.Builder builder = MetricsCounters.newBuilder();
+    static MetricsMeters micrometerInstruments(MeterRegistry registry) {
+        MetricsMeters.Builder builder = MetricsMeters.newBuilder();
 
         builder.setAttemptCounter(Counter.builder(CLIENT_ATTEMPT_STARTED)
                 .description("The total number of RPC attempts started, including those that have not completed.")
                 .baseUnit("attempt")
                 .withRegistry(registry));
-
         return builder.build();
     }
-
 
 }
