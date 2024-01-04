@@ -41,13 +41,17 @@ public class MetricsClientInterceptor implements ClientInterceptor {
      * @param registry The MeterRegistry to use.
      */
     public MetricsClientInterceptor(MeterRegistry registry) {
-        this.metricsMeters = MetricsClientInstruments.instruments(registry);
+        this.metricsMeters = MetricsClientInstruments.newClientMetricsMeters(registry);
     }
 
     @Override
     public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
             MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
 
+        /*
+         * This is a per call ClientStreamTracer.Factory which creates a new stream tracer for each attempt under the
+         * same call. Each call needs a dedicated factory as they share the same method descriptor.
+         */
         final MetricsClientStreamTracers.CallAttemptsTracerFactory tracerFactory =
                 new MetricsClientStreamTracers.CallAttemptsTracerFactory(method.getFullMethodName(),
                         metricsMeters);
@@ -55,7 +59,7 @@ public class MetricsClientInterceptor implements ClientInterceptor {
         ClientCall<ReqT, RespT> call =
                 next.newCall(method, callOptions.withStreamTracerFactory(tracerFactory));
 
-        // TODO(dnvindhya): Add purpose of wrapping with SimpleForwardingClientCall
+        // TODO(dnvindhya): Collect the actual response/error in the SimpleForwardingClientCall
         return new SimpleForwardingClientCall<ReqT, RespT>(call) {
             @Override
             public void start(Listener<RespT> responseListener, Metadata headers) {

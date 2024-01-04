@@ -31,7 +31,7 @@ public class MetricsClientInstruments {
      */
     private static final String CLIENT_ATTEMPT_STARTED = "grpc.client.attempt.started";
 
-    static MetricsMeters instruments(MeterRegistry registry) {
+    static MetricsMeters newClientMetricsMeters(MeterRegistry registry) {
         MetricsMeters.Builder builder = MetricsMeters.newBuilder();
 
         builder.setAttemptCounter(Counter.builder(CLIENT_ATTEMPT_STARTED)
