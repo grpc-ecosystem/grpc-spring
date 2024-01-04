@@ -34,9 +34,9 @@ import io.micrometer.core.instrument.Tags;
 public class MetricsClientStreamTracers {
 
     private static final class ClientTracer extends ClientStreamTracer {
-        final CallAttemptsTracerFactory attemptsState;
-        final StreamInfo info;
-        final String fullMethodName;
+        private final CallAttemptsTracerFactory attemptsState;
+        private final StreamInfo info;
+        private final String fullMethodName;
 
         ClientTracer(CallAttemptsTracerFactory attemptsState, StreamInfo info, String fullMethodName) {
             this.attemptsState = attemptsState;
@@ -58,7 +58,7 @@ public class MetricsClientStreamTracers {
 
             // Record here in case newClientStreamTracer() would never be called.
             this.metricsMeters.getAttemptCounter()
-                    .withTags((Tags.of("grpc.method", fullMethodName)))
+                    .withTags(Tags.of("grpc.method", fullMethodName))
                     .increment();
         }
 

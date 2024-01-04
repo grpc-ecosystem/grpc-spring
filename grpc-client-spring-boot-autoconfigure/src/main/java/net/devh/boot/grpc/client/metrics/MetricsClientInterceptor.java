@@ -28,22 +28,20 @@ import io.grpc.Status;
 import io.micrometer.core.instrument.MeterRegistry;
 
 /**
- * A gRPC client interceptor that will collect gRPC metrics.
+ * A gRPC client interceptor that collects gRPC metrics.
  */
 public class MetricsClientInterceptor implements ClientInterceptor {
 
-    private final MeterRegistry registry;
     private final MetricsMeters metricsMeters;
 
     /**
-     * Creates a new gRPC client interceptor that will collect metrics into the given
+     * Creates a new gRPC client interceptor that collects metrics into the given
      * {@link io.micrometer.core.instrument.MeterRegistry}.
      *
-     * @param meterRegistry The meter registry to use.
+     * @param registry The MeterRegistry to use.
      */
-    public MetricsClientInterceptor(MeterRegistry meterRegistry) {
-        this.registry = meterRegistry;
-        this.metricsMeters = MetricsClientInstruments.micrometerInstruments(this.registry);
+    public MetricsClientInterceptor(MeterRegistry registry) {
+        this.metricsMeters = MetricsClientInstruments.instruments(registry);
     }
 
     @Override
@@ -57,6 +55,7 @@ public class MetricsClientInterceptor implements ClientInterceptor {
         ClientCall<ReqT, RespT> call =
                 next.newCall(method, callOptions.withStreamTracerFactory(tracerFactory));
 
+        // TODO(dnvindhya): Add purpose of wrapping with SimpleForwardingClientCall
         return new SimpleForwardingClientCall<ReqT, RespT>(call) {
             @Override
             public void start(Listener<RespT> responseListener, Metadata headers) {

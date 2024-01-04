@@ -24,13 +24,20 @@ import io.micrometer.core.instrument.MeterRegistry;
  */
 public class MetricsClientInstruments {
 
-    static final String CLIENT_ATTEMPT_STARTED = "grpc.client.attempt.started";
+    /*
+     * This is a client side metric defined in gRFC <a
+     * href="https://github.com/grpc/proposal/blob/master/A66-otel-stats.md">A66</a>. Please note that this is the name
+     * used for instrumentation and can be changed by exporters in an unpredictable manner depending on the destination.
+     */
+    private static final String CLIENT_ATTEMPT_STARTED = "grpc.client.attempt.started";
 
-    static MetricsMeters micrometerInstruments(MeterRegistry registry) {
+    static MetricsMeters instruments(MeterRegistry registry) {
         MetricsMeters.Builder builder = MetricsMeters.newBuilder();
 
         builder.setAttemptCounter(Counter.builder(CLIENT_ATTEMPT_STARTED)
-                .description("The total number of RPC attempts started, including those that have not completed.")
+                .description(
+                        "The total number of RPC attempts started from the client side, including "
+                                + "those that have not completed.")
                 .baseUnit("attempt")
                 .withRegistry(registry));
         return builder.build();
