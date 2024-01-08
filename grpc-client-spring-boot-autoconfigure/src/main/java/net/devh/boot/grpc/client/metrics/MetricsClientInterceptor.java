@@ -29,6 +29,8 @@ import io.micrometer.core.instrument.MeterRegistry;
 
 /**
  * A gRPC client interceptor that collects gRPC metrics.
+ *
+ * <b>Note:</b> This class uses experimental grpc-java-API features.
  */
 public class MetricsClientInterceptor implements ClientInterceptor {
 

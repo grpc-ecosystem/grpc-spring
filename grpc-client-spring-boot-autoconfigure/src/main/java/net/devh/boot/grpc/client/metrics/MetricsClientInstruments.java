@@ -22,7 +22,9 @@ import io.micrometer.core.instrument.MeterRegistry;
 /*
  * The instruments used to record metrics on client.
  */
-public class MetricsClientInstruments {
+public final class MetricsClientInstruments {
+
+    private MetricsClientInstruments() {}
 
     /*
      * This is a client side metric defined in gRFC <a

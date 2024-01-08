@@ -18,8 +18,6 @@ package net.devh.boot.grpc.client.metrics;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 import io.grpc.ClientStreamTracer;
 import io.grpc.ClientStreamTracer.StreamInfo;
 import io.grpc.Metadata;
@@ -30,8 +28,12 @@ import io.micrometer.core.instrument.Tags;
  *
  * <p>
  * On the client-side, a factory is created for each call, and the factory creates a stream tracer for each attempt.
+ *
+ * <b>Note:</b> This class uses experimental grpc-java-API features.
  */
-public class MetricsClientStreamTracers {
+public final class MetricsClientStreamTracers {
+
+    private MetricsClientStreamTracers() {}
 
     private static final class ClientTracer extends ClientStreamTracer {
         private final CallAttemptsTracerFactory attemptsState;
@@ -49,10 +51,9 @@ public class MetricsClientStreamTracers {
     static final class CallAttemptsTracerFactory extends ClientStreamTracer.Factory {
         private final String fullMethodName;
         private final MetricsMeters metricsMeters;
-        private final AtomicLong attemptsPerCall = new AtomicLong();
+        private boolean attemptRecorded;
 
-        CallAttemptsTracerFactory(String fullMethodName,
-                final MetricsMeters metricsMeters) {
+        CallAttemptsTracerFactory(String fullMethodName, MetricsMeters metricsMeters) {
             this.fullMethodName = checkNotNull(fullMethodName, "fullMethodName");
             this.metricsMeters = checkNotNull(metricsMeters, "metricsMeters");
 
@@ -60,17 +61,17 @@ public class MetricsClientStreamTracers {
             this.metricsMeters.getAttemptCounter()
                     .withTags(Tags.of("grpc.method", fullMethodName))
                     .increment();
+            this.attemptRecorded = true;
         }
 
         @Override
         public ClientStreamTracer newClientStreamTracer(StreamInfo info, Metadata metadata) {
-            if (attemptsPerCall.get() > 0) {
+            if (!this.attemptRecorded) {
                 this.metricsMeters.getAttemptCounter()
                         .withTags((Tags.of("grpc.method", fullMethodName)))
                         .increment();
-            }
-            if (!info.isTransparentRetry()) {
-                attemptsPerCall.incrementAndGet();
+            } else {
+                this.attemptRecorded = false;
             }
             return new ClientTracer(this, info, fullMethodName);
         }
