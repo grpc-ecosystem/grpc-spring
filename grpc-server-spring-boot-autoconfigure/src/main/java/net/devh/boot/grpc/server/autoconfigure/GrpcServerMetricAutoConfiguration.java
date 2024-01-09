@@ -75,6 +75,12 @@ public class GrpcServerMetricAutoConfiguration {
         return metricCollector;
     }
 
+    // @Bean
+    // public GrpcServerConfigurer streamTracerFactoryConfigurer(final MeterRegistry registry) {
+    // MetricsServerStreamTracers serverStreamTracers = new MetricsServerStreamTracers();
+    //git
+
+
     @Bean
     @Lazy
     InfoContributor grpcInfoContributor(final GrpcServerProperties properties,
