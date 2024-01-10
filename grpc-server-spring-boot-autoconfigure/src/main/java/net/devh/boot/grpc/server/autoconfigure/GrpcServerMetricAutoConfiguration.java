@@ -47,6 +47,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.common.util.InterceptorOrder;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
+// import net.devh.boot.grpc.server.metrics.MetricsServerStreamTracers;
+// import net.devh.boot.grpc.server.serverfactory.GrpcServerConfigurer;
 
 /**
  * Auto configuration class for Spring-Boot. This allows zero config server metrics for gRPC services.
@@ -75,11 +77,11 @@ public class GrpcServerMetricAutoConfiguration {
         return metricCollector;
     }
 
-    // @Bean
+    // @ConditionalOnMissingBean
     // public GrpcServerConfigurer streamTracerFactoryConfigurer(final MeterRegistry registry) {
     // MetricsServerStreamTracers serverStreamTracers = new MetricsServerStreamTracers();
-    //git
-
+    // return builder -> builder.addStreamTracerFactory(serverStreamTracers.getMetricsServerTracerFactory(registry));
+    // }
 
     @Bean
     @Lazy
