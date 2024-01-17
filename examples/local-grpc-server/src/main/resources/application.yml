@@ -1,19 +1,6 @@
-server:
-  port: 8085
 spring:
   application:
     name: local-grpc-server
 grpc:
   server:
     port: 9898
-
-management:
-  endpoint:
-    metrics:
-      enabled: true
-    info:
-      enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: ["prometheus", "metrics", "info"]

@@ -6,8 +6,4 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation project(':grpc-server-spring-boot-starter') // replace to implementation("net.devh:grpc-server-spring-boot-starter:${springBootGrpcVersion}")
     implementation project(':examples:grpc-lib')
-
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'io.micrometer:micrometer-registry-prometheus:1.11.5'
 }

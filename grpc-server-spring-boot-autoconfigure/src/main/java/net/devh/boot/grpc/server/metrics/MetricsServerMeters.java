@@ -17,21 +17,41 @@
 package net.devh.boot.grpc.server.metrics;
 
 import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.Meter.MeterProvider;
+import io.micrometer.core.instrument.Timer;
 
 /*
- * Collection of metrics meters.
+ * Collection of server metrics meters.
  */
 public class MetricsServerMeters {
 
     private MeterProvider<Counter> serverCallCounter;
+    private MeterProvider<DistributionSummary> sentMessageSizeDistribution;
+    private MeterProvider<DistributionSummary> receivedMessageSizeDistribution;
+    private MeterProvider<Timer> serverCallDuration;
 
     private MetricsServerMeters(Builder builder) {
         this.serverCallCounter = builder.serverCallCounter;
+        this.sentMessageSizeDistribution = builder.sentMessageSizeDistribution;
+        this.receivedMessageSizeDistribution = builder.receivedMessageSizeDistribution;
+        this.serverCallDuration = builder.serverCallDuration;
     }
 
     public MeterProvider<Counter> getServerCallCounter() {
         return this.serverCallCounter;
+    }
+
+    public MeterProvider<DistributionSummary> getSentMessageSizeDistribution() {
+        return this.sentMessageSizeDistribution;
+    }
+
+    public MeterProvider<DistributionSummary> getReceivedMessageSizeDistribution() {
+        return this.receivedMessageSizeDistribution;
+    }
+
+    public MeterProvider<Timer> getServerCallDuration() {
+        return this.serverCallDuration;
     }
 
     public static Builder newBuilder() {
@@ -41,11 +61,29 @@ public class MetricsServerMeters {
     static class Builder {
 
         private MeterProvider<Counter> serverCallCounter;
+        private MeterProvider<DistributionSummary> sentMessageSizeDistribution;
+        private MeterProvider<DistributionSummary> receivedMessageSizeDistribution;
+        private MeterProvider<Timer> serverCallDuration;
 
         private Builder() {}
 
         public Builder setServerCallCounter(MeterProvider<Counter> counter) {
             this.serverCallCounter = counter;
+            return this;
+        }
+
+        public Builder setSentMessageSizeDistribution(MeterProvider<DistributionSummary> distribution) {
+            this.sentMessageSizeDistribution = distribution;
+            return this;
+        }
+
+        public Builder setReceivedMessageSizeDistribution(MeterProvider<DistributionSummary> distribution) {
+            this.receivedMessageSizeDistribution = distribution;
+            return this;
+        }
+
+        public Builder setServerCallDuration(MeterProvider<Timer> timer) {
+            this.serverCallDuration = timer;
             return this;
         }
 

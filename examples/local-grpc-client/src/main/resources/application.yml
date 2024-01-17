@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8080
 spring:
   application:
     name: local-grpc-client
@@ -11,13 +11,3 @@ grpc:
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiationType: plaintext
-
-
-management:
-  endpoint:
-    metrics:
-      enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: ["prometheus", "metrics"]
