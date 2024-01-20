@@ -17,6 +17,7 @@
 package net.devh.boot.grpc.server.metrics;
 
 import java.time.Duration;
+import java.util.stream.DoubleStream;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.DistributionSummary;
@@ -29,7 +30,7 @@ import io.micrometer.core.instrument.binder.BaseUnits;
  */
 public final class MetricsServerInstruments {
 
-    private MetricsServerInstruments() {}
+    protected MetricsServerInstruments() {}
 
     /*
      * Server side metrics defined in gRFC <a
@@ -44,7 +45,21 @@ public final class MetricsServerInstruments {
             "grpc.server.call.rcvd_total_compressed_message_size";
     private static final String SERVER_CALL_DURATION =
             "grpc.server.call.duration";
-
+    private static final double[] DEFAULT_SIZE_BUCKETS =
+            DoubleStream.of(1024d, 2048d, 4096d, 16384d, 65536d, 262144d, 1048576d,
+                    4194304d, 16777216d, 67108864d, 268435456d, 1073741824d, 4294967296d).toArray();
+    private static final Duration[] DEFAULT_LATENCY_BUCKETS =
+            new Duration[] {Duration.ofNanos(10000), Duration.ofNanos(50000), Duration.ofNanos(100000),
+                    Duration.ofNanos(300000), Duration.ofNanos(600000), Duration.ofNanos(800000),
+                    Duration.ofMillis(1), Duration.ofMillis(2), Duration.ofMillis(3), Duration.ofMillis(4),
+                    Duration.ofMillis(5), Duration.ofMillis(6), Duration.ofMillis(8), Duration.ofMillis(10),
+                    Duration.ofMillis(13), Duration.ofMillis(16), Duration.ofMillis(20), Duration.ofMillis(25),
+                    Duration.ofMillis(30), Duration.ofMillis(40), Duration.ofMillis(50), Duration.ofMillis(65),
+                    Duration.ofMillis(80), Duration.ofMillis(100), Duration.ofMillis(130), Duration.ofMillis(160),
+                    Duration.ofMillis(200), Duration.ofMillis(250), Duration.ofMillis(300), Duration.ofMillis(400),
+                    Duration.ofMillis(500), Duration.ofMillis(650), Duration.ofMillis(800),
+                    Duration.ofSeconds(1), Duration.ofSeconds(2), Duration.ofSeconds(5), Duration.ofSeconds(10),
+                    Duration.ofSeconds(20), Duration.ofSeconds(50), Duration.ofSeconds(100)};
 
     static MetricsServerMeters newServerMetricsMeters(MeterRegistry registry) {
         MetricsServerMeters.Builder builder = MetricsServerMeters.newBuilder();
@@ -59,31 +74,19 @@ public final class MetricsServerInstruments {
                 SERVER_SENT_COMPRESSED_MESSAGE_SIZE)
                 .description("Compressed message bytes sent per server call")
                 .baseUnit(BaseUnits.BYTES)
-                .serviceLevelObjectives(1024, 2048, 4096, 16384, 65536, 262144, 1048576,
-                        4194304, 16777216, 67108864, 268435456, 1073741824, 4294967296.0)
+                .serviceLevelObjectives(DEFAULT_SIZE_BUCKETS)
                 .withRegistry(registry));
 
         builder.setReceivedMessageSizeDistribution(DistributionSummary.builder(
                 SERVER_RECEIVED_COMPRESSED_MESSAGE_SIZE)
                 .description("Compressed message bytes received per server call")
                 .baseUnit(BaseUnits.BYTES)
-                .serviceLevelObjectives(1024, 2048, 4096, 16384, 65536, 262144, 1048576,
-                        4194304, 16777216, 67108864, 268435456, 1073741824, 4294967296.0)
+                .serviceLevelObjectives(DEFAULT_SIZE_BUCKETS)
                 .withRegistry(registry));
 
         builder.setServerCallDuration(Timer.builder(SERVER_CALL_DURATION)
                 .description("Time taken to complete a call from server transport's perspective")
-                .serviceLevelObjectives(Duration.ofNanos(10000), Duration.ofNanos(50000), Duration.ofNanos(100000),
-                        Duration.ofNanos(300000), Duration.ofNanos(600000), Duration.ofNanos(800000),
-                        Duration.ofMillis(1), Duration.ofMillis(2), Duration.ofMillis(3), Duration.ofMillis(4),
-                        Duration.ofMillis(5), Duration.ofMillis(6), Duration.ofMillis(8), Duration.ofMillis(10),
-                        Duration.ofMillis(13), Duration.ofMillis(16), Duration.ofMillis(20), Duration.ofMillis(25),
-                        Duration.ofMillis(30), Duration.ofMillis(40), Duration.ofMillis(50), Duration.ofMillis(65),
-                        Duration.ofMillis(80), Duration.ofMillis(100), Duration.ofMillis(130), Duration.ofMillis(160),
-                        Duration.ofMillis(200), Duration.ofMillis(250), Duration.ofMillis(300), Duration.ofMillis(400),
-                        Duration.ofMillis(500), Duration.ofMillis(650), Duration.ofMillis(800), Duration.ofMillis(1000),
-                        Duration.ofSeconds(1), Duration.ofSeconds(2), Duration.ofSeconds(5), Duration.ofSeconds(10),
-                        Duration.ofSeconds(20), Duration.ofSeconds(50), Duration.ofSeconds(100))
+                .serviceLevelObjectives(DEFAULT_LATENCY_BUCKETS)
                 .withRegistry(registry));
 
         return builder.build();

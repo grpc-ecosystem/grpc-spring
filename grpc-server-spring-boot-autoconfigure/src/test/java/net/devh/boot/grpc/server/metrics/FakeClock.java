@@ -17,9 +17,9 @@
 package net.devh.boot.grpc.server.metrics;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.base.Supplier;
 import com.google.common.base.Ticker;
 
 /**

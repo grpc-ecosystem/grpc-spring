@@ -21,9 +21,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
+import java.util.function.Supplier;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.base.Supplier;
 
 import io.grpc.Metadata;
 import io.grpc.ServerStreamTracer;
@@ -42,7 +42,18 @@ import io.micrometer.core.instrument.Tags;
  * <b>Note:</b> This class uses experimental grpc-java-API features.
  */
 public final class MetricsServerStreamTracers {
+
+    private static final Supplier<Stopwatch> STOPWATCH_SUPPLIER = new Supplier<Stopwatch>() {
+        @Override
+        public Stopwatch get() {
+            return Stopwatch.createUnstarted();
+        }
+    };
     private final Supplier<Stopwatch> stopwatchSupplier;
+
+    public MetricsServerStreamTracers() {
+        this(STOPWATCH_SUPPLIER);
+    }
 
     public MetricsServerStreamTracers(Supplier<Stopwatch> stopwatchSupplier) {
         this.stopwatchSupplier = checkNotNull(stopwatchSupplier, "stopwatchSupplier");
@@ -108,7 +119,6 @@ public final class MetricsServerStreamTracers {
             this.metricsServerMeters.getServerCallDuration()
                     .withTags(serverMetricTags)
                     .record(callLatencyNanos, TimeUnit.NANOSECONDS);
-            // .record(callLatencyNanos * SECONDS_PER_NANO, TimeUnit.SECONDS);
             this.metricsServerMeters.getSentMessageSizeDistribution()
                     .withTags(serverMetricTags)
                     .record(outboundWireSize);
