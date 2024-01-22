@@ -16,7 +16,7 @@ buildscript {
         // https://github.com/google/guava/releases
         guavaVersion = '33.0.0-jre'
         // https://github.com/protocolbuffers/protobuf/releases
-        protobufVersion = '3.25.1'
+        protobufVersion = '3.25.2'
         protobufGradlePluginVersion = '0.9.4'
 
         // https://github.com/spring-projects/spring-boot/releases
@@ -44,7 +44,7 @@ plugins {
     id 'com.google.protobuf' version "${protobufGradlePluginVersion}"
     id 'io.freefair.lombok' version "${lombokPluginVersion}" apply false
     id 'com.github.ben-manes.versions' version "${versionsPluginVersion}" // gradle dependencyUpdates
-    id 'com.diffplug.spotless' version '6.23.3'
+    id 'com.diffplug.spotless' version '6.24.0'
     id 'org.jetbrains.kotlin.jvm' version "${kotlinVersion}" apply false
 }
 
