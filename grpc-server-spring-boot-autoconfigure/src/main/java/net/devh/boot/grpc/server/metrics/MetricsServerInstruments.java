@@ -17,7 +17,6 @@
 package net.devh.boot.grpc.server.metrics;
 
 import java.time.Duration;
-import java.util.stream.DoubleStream;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.DistributionSummary;
@@ -46,8 +45,8 @@ public final class MetricsServerInstruments {
     private static final String SERVER_CALL_DURATION =
             "grpc.server.call.duration";
     private static final double[] DEFAULT_SIZE_BUCKETS =
-            DoubleStream.of(1024d, 2048d, 4096d, 16384d, 65536d, 262144d, 1048576d,
-                    4194304d, 16777216d, 67108864d, 268435456d, 1073741824d, 4294967296d).toArray();
+            new double[] {1024d, 2048d, 4096d, 16384d, 65536d, 262144d, 1048576d,
+                    4194304d, 16777216d, 67108864d, 268435456d, 1073741824d, 4294967296d};
     private static final Duration[] DEFAULT_LATENCY_BUCKETS =
             new Duration[] {Duration.ofNanos(10000), Duration.ofNanos(50000), Duration.ofNanos(100000),
                     Duration.ofNanos(300000), Duration.ofNanos(600000), Duration.ofNanos(800000),

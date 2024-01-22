@@ -60,10 +60,22 @@ public final class MetricsServerStreamTracers {
     }
 
     /**
-     * Returns the server stream tracer factory for metrics.
+     * Returns a {@link io.grpc.ServerStreamTracer.Factory} with default metrics definitions.
+     *
+     * @param registry The MeterRegistry used to create the metrics.
      */
     public ServerStreamTracer.Factory getMetricsServerTracerFactory(MeterRegistry registry) {
         return new MetricsServerTracerFactory(registry);
+    }
+
+    /**
+     * Returns a {@link io.grpc.ServerStreamTracer.Factory} with metrics definitions from custom
+     * {@link MetricsServerMeters}.
+     *
+     * @param meters The MetricsServerMeters used to configure the metrics definitions.
+     */
+    public ServerStreamTracer.Factory getMetricsServerTracerFactory(MetricsServerMeters meters) {
+        return new MetricsServerTracerFactory(meters);
     }
 
     private static final class ServerTracer extends ServerStreamTracer {
@@ -133,7 +145,11 @@ public final class MetricsServerStreamTracers {
         private final MetricsServerMeters metricsServerMeters;
 
         MetricsServerTracerFactory(MeterRegistry registry) {
-            this.metricsServerMeters = MetricsServerInstruments.newServerMetricsMeters(registry);
+            this(MetricsServerInstruments.newServerMetricsMeters(registry));
+        }
+
+        MetricsServerTracerFactory(MetricsServerMeters metricsServerMeters) {
+            this.metricsServerMeters = metricsServerMeters;
         }
 
         @Override
