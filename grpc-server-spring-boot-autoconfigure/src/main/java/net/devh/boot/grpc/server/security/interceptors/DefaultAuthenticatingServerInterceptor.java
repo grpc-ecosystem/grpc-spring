@@ -19,6 +19,7 @@ package net.devh.boot.grpc.server.security.interceptors;
 import static java.util.Objects.requireNonNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -58,6 +59,7 @@ import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReade
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @Slf4j
+@ConditionalOnBean(AuthenticationManager.class)
 @GrpcGlobalServerInterceptor
 @Order(InterceptorOrder.ORDER_SECURITY_AUTHENTICATION)
 public class DefaultAuthenticatingServerInterceptor implements AuthenticatingServerInterceptor {

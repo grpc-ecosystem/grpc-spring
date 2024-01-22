@@ -209,6 +209,36 @@ GrpcAuthenticationReader authenticationReader() {
 
 See also [Mutual Certificate Authentication](#mutual-certificate-authentication).
 
+#### Using AuthenticationManagerResolver
+You can also use the `AuthenticationManagerResolver` to dynamically determine the authentication
+manager to use for a particular request. This can be useful for applications that support multiple authentication
+mechanisms, such as OAuth and OpenID Connect, or that want to delegate authentication to external services.
+
+To use `AuthenticationManagerResolver`, you first need to create a bean that implements 
+the `AuthenticationManagerResolver<GrpcServerRequest>` interface instead of `AuthenticationManager`. The `resolve()` method of this bean should
+return the AuthenticationManager to use for a particular request.
+
+````java
+@Bean
+AuthenticationManagerResolver<GrpcServerRequest> grpcAuthenticationManagerResolver() {
+    return new AuthenticationManagerResolver<GrpcServerRequest>() {
+        @Override
+        public AuthenticationManager resolve(GrpcServerRequest grpcServerRequest) {
+            AuthenticationManager authenticationManager = // Check the grpc request and return an authenticationManager
+            return authenticationManager;
+        }
+    };
+}
+
+@Bean
+GrpcAuthenticationReader authenticationReader() {
+    final List<GrpcAuthenticationReader> readers = new ArrayList<>();
+    // The actual token class is dependent on your spring-security library (OAuth2/JWT/...)
+    readers.add(new BearerAuthenticationReader(accessToken -> new BearerTokenAuthenticationToken(accessToken)));
+    return new CompositeGrpcAuthenticationReader(readers);
+}
+````
+
 ### Configure Authorization
 
 This step is very important as it actually secures your application against unwanted access. You can secure your
