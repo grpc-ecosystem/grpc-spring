@@ -35,20 +35,13 @@ public final class FakeClock {
                 }
             };
 
-    private final Supplier<Stopwatch> stopwatchSupplier =
-            new Supplier<Stopwatch>() {
-                @Override
-                public Stopwatch get() {
-                    return Stopwatch.createUnstarted(ticker);
-                }
-            };
+    private final Supplier<Stopwatch> stopwatchSupplier = () -> Stopwatch.createUnstarted(ticker);
 
     /**
      * Forward the time by the given duration.
      */
     public void forwardTime(long value, TimeUnit unit) {
         currentTimeNanos += unit.toNanos(value);
-        return;
     }
 
     /**

@@ -43,12 +43,7 @@ import io.micrometer.core.instrument.Tags;
  */
 public final class MetricsServerStreamTracers {
 
-    private static final Supplier<Stopwatch> STOPWATCH_SUPPLIER = new Supplier<Stopwatch>() {
-        @Override
-        public Stopwatch get() {
-            return Stopwatch.createUnstarted();
-        }
-    };
+    private static final Supplier<Stopwatch> STOPWATCH_SUPPLIER = Stopwatch::createUnstarted;
     private final Supplier<Stopwatch> stopwatchSupplier;
 
     public MetricsServerStreamTracers() {

@@ -29,7 +29,7 @@ import io.micrometer.core.instrument.binder.BaseUnits;
  */
 public final class MetricsServerInstruments {
 
-    protected MetricsServerInstruments() {}
+    private MetricsServerInstruments() {}
 
     /*
      * Server side metrics defined in gRFC <a
