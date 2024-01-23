@@ -210,6 +210,7 @@ GrpcAuthenticationReader authenticationReader() {
 See also [Mutual Certificate Authentication](#mutual-certificate-authentication).
 
 #### Using AuthenticationManagerResolver
+
 You can also use the `AuthenticationManagerResolver` to dynamically determine the authentication
 manager to use for a particular request. This can be useful for applications that support multiple authentication
 mechanisms, such as OAuth and OpenID Connect, or that want to delegate authentication to external services.
