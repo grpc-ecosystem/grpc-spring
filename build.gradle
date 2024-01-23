@@ -28,7 +28,7 @@ buildscript {
 
         lombokPluginVersion = '8.4'
         versioningPluginVersion = '3.0.0'
-        versionsPluginVersion = '0.50.0'
+        versionsPluginVersion = '0.51.0'
 
         // https://github.com/JetBrains/kotlin/releases
         kotlinVersion = "1.9.22"
