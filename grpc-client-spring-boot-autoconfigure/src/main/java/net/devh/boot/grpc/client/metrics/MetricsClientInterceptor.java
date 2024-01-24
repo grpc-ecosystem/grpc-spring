@@ -16,6 +16,10 @@
 
 package net.devh.boot.grpc.client.metrics;
 
+import java.util.function.Supplier;
+
+import com.google.common.base.Stopwatch;
+
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
@@ -34,7 +38,8 @@ import io.micrometer.core.instrument.MeterRegistry;
  */
 public class MetricsClientInterceptor implements ClientInterceptor {
 
-    private final MetricsMeters metricsMeters;
+    private final MetricsClientMeters metricsClientMeters;
+    private final Supplier<Stopwatch> stopwatchSupplier;
 
     /**
      * Creates a new gRPC client interceptor that collects metrics into the given
@@ -42,8 +47,13 @@ public class MetricsClientInterceptor implements ClientInterceptor {
      *
      * @param registry The MeterRegistry to use.
      */
-    public MetricsClientInterceptor(MeterRegistry registry) {
-        this.metricsMeters = MetricsClientInstruments.newClientMetricsMeters(registry);
+    public MetricsClientInterceptor(MeterRegistry registry, Supplier<Stopwatch> stopwatchSupplier) {
+        this(MetricsClientInstruments.newClientMetricsMeters(registry), stopwatchSupplier);
+    }
+
+    public MetricsClientInterceptor(MetricsClientMeters meters, Supplier<Stopwatch> stopwatchSupplier) {
+        this.metricsClientMeters = meters;
+        this.stopwatchSupplier = stopwatchSupplier;
     }
 
     @Override
@@ -55,13 +65,14 @@ public class MetricsClientInterceptor implements ClientInterceptor {
          * same call. Each call needs a dedicated factory as they share the same method descriptor.
          */
         final MetricsClientStreamTracers.CallAttemptsTracerFactory tracerFactory =
-                new MetricsClientStreamTracers.CallAttemptsTracerFactory(method.getFullMethodName(),
-                        metricsMeters);
+                new MetricsClientStreamTracers.CallAttemptsTracerFactory(
+                        new MetricsClientStreamTracers(stopwatchSupplier),
+                        method.getFullMethodName(),
+                        metricsClientMeters);
 
         ClientCall<ReqT, RespT> call =
                 next.newCall(method, callOptions.withStreamTracerFactory(tracerFactory));
 
-        // TODO(dnvindhya): Collect the actual response/error in the SimpleForwardingClientCall
         return new SimpleForwardingClientCall<ReqT, RespT>(call) {
             @Override
             public void start(Listener<RespT> responseListener, Metadata headers) {
@@ -69,6 +80,7 @@ public class MetricsClientInterceptor implements ClientInterceptor {
                         new SimpleForwardingClientCallListener<RespT>(responseListener) {
                             @Override
                             public void onClose(Status status, Metadata trailers) {
+                                tracerFactory.callEnded(status);
                                 super.onClose(status, trailers);
                             }
                         },
