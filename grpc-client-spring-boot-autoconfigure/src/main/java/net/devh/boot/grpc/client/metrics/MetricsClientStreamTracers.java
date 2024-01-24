@@ -48,11 +48,11 @@ final class MetricsClientStreamTracers {
     private static final Supplier<Stopwatch> STOPWATCH_SUPPLIER = Stopwatch::createUnstarted;
     private final Supplier<Stopwatch> stopwatchSupplier;
 
-    public MetricsClientStreamTracers() {
+    MetricsClientStreamTracers() {
         this(STOPWATCH_SUPPLIER);
     }
 
-    public MetricsClientStreamTracers(Supplier<Stopwatch> stopwatchSupplier) {
+    MetricsClientStreamTracers(Supplier<Stopwatch> stopwatchSupplier) {
         this.stopwatchSupplier = checkNotNull(stopwatchSupplier, "stopwatchSupplier");
     }
 

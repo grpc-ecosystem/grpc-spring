@@ -20,30 +20,19 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.InputStream;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
 
 import io.grpc.CallOptions;
-import io.grpc.Channel;
-import io.grpc.ClientCall;
-import io.grpc.ClientInterceptor;
-import io.grpc.ClientInterceptors;
 import io.grpc.ClientStreamTracer;
-import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
-import io.grpc.ServerCall;
 import io.grpc.Status;
-import io.grpc.inprocess.InProcessChannelBuilder;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.distribution.CountAtBucket;
 import io.micrometer.core.instrument.distribution.HistogramSnapshot;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -53,7 +42,6 @@ import net.devh.boot.grpc.client.metrics.MetricsClientStreamTracers.CallAttempts
  * Tests for {@link MetricsClientStreamTracers}.
  */
 class MetricsClientStreamTracersTest {
-
     private static final CallOptions.Key<String> CUSTOM_OPTION =
             CallOptions.Key.createWithDefault("option1", "default");
     private static final CallOptions CALL_OPTIONS =
@@ -108,87 +96,51 @@ class MetricsClientStreamTracersTest {
                     .setResponseMarshaller(MARSHALLER)
                     .setFullMethodName(FULL_METHOD_NAME)
                     .build();
-    @Mock
-    private ClientCall.Listener<String> mockClientCallListener;
-    @Mock
-    private ServerCall.Listener<String> mockServerCallListener;
-
-    @Captor
-    private ArgumentCaptor<Status> statusCaptor;
 
     private FakeClock fakeClock;
     private MeterRegistry meterRegistry;
-
-    private static ManagedChannel channel;
 
     @BeforeEach
     void setUp() {
         fakeClock = new FakeClock();
         meterRegistry = new SimpleMeterRegistry();
         Metrics.globalRegistry.add(meterRegistry);
-        channel = InProcessChannelBuilder.forName("test").build();
     }
 
     @AfterEach
     void tearDown() {
         meterRegistry.clear();
         Metrics.globalRegistry.clear();
-        channel.shutdownNow();
     }
 
     @Test
-    void testClientInterceptors() {
-        MetricsClientStreamTracers module =
-                new MetricsClientStreamTracers(fakeClock.getStopwatchSupplier());
-
-        final AtomicReference<CallOptions> capturedCallOptions = new AtomicReference<>();
-        ClientInterceptor callOptionsCaptureInterceptor = new ClientInterceptor() {
-            @Override
-            public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
-                    MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
-                capturedCallOptions.set(callOptions);
-                return next.newCall(method, callOptions);
-            }
-        };
-        Channel interceptedChannel =
-                ClientInterceptors.intercept(
-                        channel, callOptionsCaptureInterceptor,
-                        new MetricsClientInterceptor(meterRegistry, fakeClock.getStopwatchSupplier()));
-        ClientCall<String, String> call;
-        call = interceptedChannel.newCall(method, CALL_OPTIONS);
-
-
-        assertThat(capturedCallOptions.get().getOption(CUSTOM_OPTION)).isEqualTo("customvalue");
-        assertThat(capturedCallOptions.get().getStreamTracerFactories().size()).isEqualTo(1);
-        assertThat(capturedCallOptions.get().getStreamTracerFactories()
-                .get(0) instanceof MetricsClientStreamTracers.CallAttemptsTracerFactory).isTrue();
-    }
-
-    @Test
-    public void clientBasicMetrics() {
+    void clientBasicMetrics() {
         MetricsClientStreamTracers module =
                 new MetricsClientStreamTracers(fakeClock.getStopwatchSupplier());
         MetricsClientMeters clientMeters = MetricsClientInstruments.newClientMetricsMeters(meterRegistry);
         MetricsClientStreamTracers.CallAttemptsTracerFactory callAttemptsTracerFactory =
                 new CallAttemptsTracerFactory(module, method.getFullMethodName(), clientMeters);
-        Metadata headers = new Metadata();
         ClientStreamTracer tracer =
-                callAttemptsTracerFactory.newClientStreamTracer(STREAM_INFO, headers);
+                callAttemptsTracerFactory.newClientStreamTracer(STREAM_INFO, new Metadata());
 
         assertThat(meterRegistry.get(CLIENT_ATTEMPT_STARTED)
                 .tag(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME)
                 .counter()
                 .count()).isEqualTo(1);
 
-        fakeClock.forwardTime(30, TimeUnit.MILLISECONDS);
+        fakeClock.forwardTime(30, MILLISECONDS);
+        tracer.outboundHeaders();
+        tracer.outboundMessage(0);
         tracer.outboundWireSize(1028);
 
-        fakeClock.forwardTime(100, TimeUnit.MILLISECONDS);
+        fakeClock.forwardTime(100, MILLISECONDS);
+        tracer.outboundMessage(1);
         tracer.outboundWireSize(99);
 
-        fakeClock.forwardTime(24, TimeUnit.MILLISECONDS);
+        fakeClock.forwardTime(24, MILLISECONDS);
+        tracer.inboundMessage(0);
+        tracer.inboundMessage(1);
         tracer.inboundWireSize(111);
-
         tracer.streamClosed(Status.OK);
         callAttemptsTracerFactory.callEnded(Status.OK);
 
@@ -197,17 +149,292 @@ class MetricsClientStreamTracersTest {
                 .counter()
                 .count()).isEqualTo(1);
 
+        Tags expectedTags =
+                Tags.of(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME, GRPC_STATUS_TAG_KEY, Status.Code.OK.toString());
+
         HistogramSnapshot attemptDurationSnapshot = meterRegistry.get(CLIENT_ATTEMPT_DURATION)
-                .tag(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME)
-                .tag(GRPC_STATUS_TAG_KEY, Status.Code.OK.toString())
+                .tags(expectedTags)
                 .timer()
                 .takeSnapshot();
-        HistogramSnapshot expectedCallDurationHistogram = HistogramSnapshot.empty(1L, 154L, 40);
-        assertThat(attemptDurationSnapshot.count()).isEqualTo(expectedCallDurationHistogram.count());
-        assertThat(attemptDurationSnapshot.total(MILLISECONDS)).isEqualTo(expectedCallDurationHistogram.total());
-        assertThat(attemptDurationSnapshot.histogramCounts()).contains(new CountAtBucket(1.6E8, 1));
+        HistogramSnapshot attemptDurationHistogram = HistogramSnapshot.empty(1L, 154L, 1.54E8);
+        verifyHistogramSnapshot(true, attemptDurationSnapshot, attemptDurationHistogram,
+                new CountAtBucket(1.6E8, 1));
+
+        HistogramSnapshot callDurationSnapshot = meterRegistry.get(CLIENT_CALL_DURATION)
+                .tags(expectedTags)
+                .timer()
+                .takeSnapshot();
+        HistogramSnapshot expectedCallDurationHistogram = HistogramSnapshot.empty(1L, 154L, 1.54E8);
+        verifyHistogramSnapshot(true, callDurationSnapshot, expectedCallDurationHistogram,
+                new CountAtBucket(1.6E8, 1));
+
+        HistogramSnapshot sentAttemptMessageSizeSnapShot =
+                meterRegistry.get(CLIENT_ATTEMPT_SENT_COMPRESSED_MESSAGE_SIZE)
+                        .tags(expectedTags)
+                        .summary()
+                        .takeSnapshot();
+        HistogramSnapshot expectedAttemptSentMessageSizeHistogram = HistogramSnapshot.empty(1L, 1127L, 1127L);
+        verifyHistogramSnapshot(false, sentAttemptMessageSizeSnapShot, expectedAttemptSentMessageSizeHistogram,
+                new CountAtBucket(2048.0, 1));
+
+        HistogramSnapshot receivedAttemptMessageSizeSnapShot =
+                meterRegistry.get(CLIENT_ATTEMPT_RECEIVED_COMPRESSED_MESSAGE_SIZE)
+                        .tags(expectedTags)
+                        .summary()
+                        .takeSnapshot();
+        HistogramSnapshot expectedAttemptReceivedMessageSizeHistogram = HistogramSnapshot.empty(1L, 111L, 111L);
+        verifyHistogramSnapshot(false, receivedAttemptMessageSizeSnapShot, expectedAttemptReceivedMessageSizeHistogram,
+                new CountAtBucket(1024.0, 1));
     }
 
+    // This test is only unit-testing teh metrics recording logic. Retry behavior is faked.
+    @Test
+    void recordAttemptMetrics() {
+        MetricsClientStreamTracers module =
+                new MetricsClientStreamTracers(fakeClock.getStopwatchSupplier());
+        MetricsClientMeters clientMeters = MetricsClientInstruments.newClientMetricsMeters(meterRegistry);
+        MetricsClientStreamTracers.CallAttemptsTracerFactory callAttemptsTracerFactory =
+                new CallAttemptsTracerFactory(module, method.getFullMethodName(), clientMeters);
+        ClientStreamTracer tracer =
+                callAttemptsTracerFactory.newClientStreamTracer(STREAM_INFO, new Metadata());
 
+        assertThat(meterRegistry.get(CLIENT_ATTEMPT_STARTED)
+                .tag(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME)
+                .counter()
+                .count()).isEqualTo(1);
 
+        fakeClock.forwardTime(60, MILLISECONDS);
+        tracer.outboundHeaders();
+        fakeClock.forwardTime(120, MILLISECONDS);
+        tracer.outboundMessage(0);
+        tracer.outboundMessage(1);
+        tracer.outboundWireSize(1028);
+        fakeClock.forwardTime(24, MILLISECONDS);
+        tracer.streamClosed(Status.UNAVAILABLE);
+
+        Tags expectedUnailableStatusTags =
+                Tags.of(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME, GRPC_STATUS_TAG_KEY, Status.Code.UNAVAILABLE.toString());
+
+        assertThat(meterRegistry.get(CLIENT_ATTEMPT_STARTED)
+                .tag(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME)
+                .counter()
+                .count()).isEqualTo(1);
+        assertThat(meterRegistry.get(CLIENT_ATTEMPT_DURATION)
+                .tags(expectedUnailableStatusTags)
+                .timer()
+                .takeSnapshot()
+                .total(MILLISECONDS)).isEqualTo(60L + 120L + 24L);
+        assertThat(meterRegistry.get(CLIENT_ATTEMPT_SENT_COMPRESSED_MESSAGE_SIZE)
+                .tags(expectedUnailableStatusTags)
+                .summary()
+                .takeSnapshot()
+                .total()).isEqualTo(1028L);
+        assertThat(meterRegistry.get(CLIENT_ATTEMPT_RECEIVED_COMPRESSED_MESSAGE_SIZE)
+                .tags(expectedUnailableStatusTags)
+                .summary()
+                .takeSnapshot()
+                .total()).isEqualTo(0);
+
+        // Faking retry
+        fakeClock.forwardTime(1200, MILLISECONDS);
+
+        tracer = callAttemptsTracerFactory.newClientStreamTracer(STREAM_INFO, new Metadata());
+
+        tracer.outboundHeaders();
+        tracer.outboundMessage(0);
+        tracer.outboundMessage(1);
+        tracer.outboundWireSize(1028);
+        fakeClock.forwardTime(100, MILLISECONDS);
+        tracer.streamClosed(Status.NOT_FOUND);
+
+        Tags expectedNotFoundStatusTags =
+                Tags.of(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME, GRPC_STATUS_TAG_KEY, Status.Code.NOT_FOUND.toString());
+
+        assertThat(meterRegistry.get(CLIENT_ATTEMPT_STARTED)
+                .tag(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME)
+                .counter()
+                .count()).isEqualTo(2);
+
+        HistogramSnapshot secondAttemptDurationSnapshot = meterRegistry.get(CLIENT_ATTEMPT_DURATION)
+                .tags(expectedNotFoundStatusTags)
+                .timer()
+                .takeSnapshot();
+        HistogramSnapshot secondExpectedAttemptDurationHistogram = HistogramSnapshot.empty(1L, 100L, 1.0E8);
+        verifyHistogramSnapshot(true, secondAttemptDurationSnapshot, secondExpectedAttemptDurationHistogram,
+                new CountAtBucket(1.0E8, 1));
+
+        HistogramSnapshot secondSentAttemptMessageSizeSnapShot =
+                meterRegistry.get(CLIENT_ATTEMPT_SENT_COMPRESSED_MESSAGE_SIZE)
+                        .tags(expectedNotFoundStatusTags)
+                        .summary()
+                        .takeSnapshot();
+        HistogramSnapshot secondExpectedAttemptSentMessageSizeHistogram = HistogramSnapshot.empty(1L, 1028L, 1028.0);
+        verifyHistogramSnapshot(false, secondSentAttemptMessageSizeSnapShot,
+                secondExpectedAttemptSentMessageSizeHistogram,
+                new CountAtBucket(2048.0, 1));
+
+        assertThat(meterRegistry.get(CLIENT_ATTEMPT_RECEIVED_COMPRESSED_MESSAGE_SIZE)
+                .tags(expectedNotFoundStatusTags)
+                .summary()
+                .takeSnapshot()
+                .total()).isEqualTo(0);
+
+        // fake transparent retry
+        fakeClock.forwardTime(100, MILLISECONDS);
+
+        tracer = callAttemptsTracerFactory.newClientStreamTracer(
+                STREAM_INFO.toBuilder().setIsTransparentRetry(true).build(), new Metadata());
+
+        fakeClock.forwardTime(32, MILLISECONDS);
+        tracer.streamClosed(Status.UNAVAILABLE);
+
+        assertThat(meterRegistry.get(CLIENT_ATTEMPT_STARTED)
+                .tag(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME)
+                .counter()
+                .count()).isEqualTo(3);
+
+        HistogramSnapshot thirdAttemptDurationSnapshot = meterRegistry.get(CLIENT_ATTEMPT_DURATION)
+                .tags(expectedUnailableStatusTags)
+                .timer()
+                .takeSnapshot();
+        HistogramSnapshot thirdExpectedAttemptDurationHistogram = HistogramSnapshot.empty(2L, 204L + 32L, 2.04E8);
+        verifyHistogramSnapshot(true, thirdAttemptDurationSnapshot, thirdExpectedAttemptDurationHistogram,
+                new CountAtBucket(4.0E7, 1));
+
+        HistogramSnapshot thirdSentAttemptMessageSizeSnapShot =
+                meterRegistry.get(CLIENT_ATTEMPT_SENT_COMPRESSED_MESSAGE_SIZE)
+                        .tags(expectedUnailableStatusTags)
+                        .summary()
+                        .takeSnapshot();
+        HistogramSnapshot thirdExpectedAttemptSentMessageSizeHistogram = HistogramSnapshot.empty(2L, 1028L + 0, 1028.0);
+        verifyHistogramSnapshot(false, thirdSentAttemptMessageSizeSnapShot,
+                thirdExpectedAttemptSentMessageSizeHistogram,
+                new CountAtBucket(2048.0, 2));
+
+        HistogramSnapshot thirdReceivedAttemptMessageSizeSnapShot =
+                meterRegistry.get(CLIENT_ATTEMPT_RECEIVED_COMPRESSED_MESSAGE_SIZE)
+                        .tags(expectedUnailableStatusTags)
+                        .summary()
+                        .takeSnapshot();
+        HistogramSnapshot thirdExpectedAttemptReceivedMessageSizeHistogram = HistogramSnapshot.empty(2L, 0, 0);
+        verifyHistogramSnapshot(false, thirdReceivedAttemptMessageSizeSnapShot,
+                thirdExpectedAttemptReceivedMessageSizeHistogram,
+                new CountAtBucket(1024.0, 2));
+
+        // Fake another transparent retry
+        fakeClock.forwardTime(10, MILLISECONDS);
+
+        tracer = callAttemptsTracerFactory.newClientStreamTracer(
+                STREAM_INFO.toBuilder().setIsTransparentRetry(true).build(), new Metadata());
+
+        tracer.outboundHeaders();
+        tracer.outboundMessage(0);
+        tracer.outboundMessage(1);
+        tracer.outboundWireSize(1028);
+
+        fakeClock.forwardTime(124, MILLISECONDS);
+        tracer.inboundMessage(0);
+        tracer.inboundWireSize(33);
+
+        fakeClock.forwardTime(24, MILLISECONDS);
+        // RPC succeeded
+        tracer.streamClosed(Status.OK);
+        callAttemptsTracerFactory.callEnded(Status.OK);
+
+        Tags expectedOKStatusTags =
+                Tags.of(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME, GRPC_STATUS_TAG_KEY, Status.Code.OK.toString());
+
+        assertThat(meterRegistry.get(CLIENT_ATTEMPT_STARTED)
+                .tag(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME)
+                .counter()
+                .count()).isEqualTo(4);
+        assertThat(meterRegistry.get(CLIENT_ATTEMPT_DURATION)
+                .tags(expectedOKStatusTags)
+                .timer()
+                .takeSnapshot()
+                .total(MILLISECONDS)).isEqualTo(124L + 24L);
+        assertThat(meterRegistry.get(CLIENT_ATTEMPT_SENT_COMPRESSED_MESSAGE_SIZE)
+                .tags(expectedOKStatusTags)
+                .summary()
+                .takeSnapshot()
+                .total()).isEqualTo(1028L);
+        assertThat(meterRegistry.get(CLIENT_ATTEMPT_RECEIVED_COMPRESSED_MESSAGE_SIZE)
+                .tags(expectedOKStatusTags)
+                .summary()
+                .takeSnapshot()
+                .total()).isEqualTo(33);
+
+        HistogramSnapshot callDurationSnapshot = meterRegistry.get(CLIENT_CALL_DURATION)
+                .tags(expectedOKStatusTags)
+                .timer()
+                .takeSnapshot();
+        HistogramSnapshot expectedCallDurationHistogram =
+                HistogramSnapshot.empty(1L, 60 + 120 + 24 + 1200 + 100 + 100 + 32 + 10 + 124 + 24L, 1.794E9);
+        verifyHistogramSnapshot(true, callDurationSnapshot, expectedCallDurationHistogram,
+                new CountAtBucket(2.0E9, 1));
+    }
+
+    @Test
+    void clientStreamNeverCreatedStillRecordMetrics() {
+        MetricsClientStreamTracers module =
+                new MetricsClientStreamTracers(fakeClock.getStopwatchSupplier());
+        MetricsClientMeters clientMeters = MetricsClientInstruments.newClientMetricsMeters(meterRegistry);
+        MetricsClientStreamTracers.CallAttemptsTracerFactory callAttemptsTracerFactory =
+                new CallAttemptsTracerFactory(module, method.getFullMethodName(), clientMeters);
+
+        fakeClock.forwardTime(3000, MILLISECONDS);
+        Status status = Status.DEADLINE_EXCEEDED.withDescription("5 seconds");
+
+        callAttemptsTracerFactory.callEnded(status);
+
+        Tags expectedDeadlineExceededStatusTags =
+                Tags.of(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME, GRPC_STATUS_TAG_KEY,
+                        Status.Code.DEADLINE_EXCEEDED.toString());
+
+        HistogramSnapshot attemptDurationSnapshot = meterRegistry.get(CLIENT_ATTEMPT_DURATION)
+                .tags(expectedDeadlineExceededStatusTags)
+                .timer()
+                .takeSnapshot();
+        HistogramSnapshot expectedAttemptDurationHistogram = HistogramSnapshot.empty(1L, 0, 0);
+        verifyHistogramSnapshot(true, attemptDurationSnapshot, expectedAttemptDurationHistogram,
+                new CountAtBucket(10000.0, 1));
+
+        HistogramSnapshot sentAttemptMessageSizeSnapShot =
+                meterRegistry.get(CLIENT_ATTEMPT_SENT_COMPRESSED_MESSAGE_SIZE)
+                        .tags(expectedDeadlineExceededStatusTags)
+                        .summary()
+                        .takeSnapshot();
+        HistogramSnapshot expectedAttemptSentMessageSizeHistogram = HistogramSnapshot.empty(1L, 0, 0);
+        verifyHistogramSnapshot(false, sentAttemptMessageSizeSnapShot, expectedAttemptSentMessageSizeHistogram,
+                new CountAtBucket(1024.0, 1));
+
+        HistogramSnapshot receivedAttemptMessageSizeSnapShot =
+                meterRegistry.get(CLIENT_ATTEMPT_RECEIVED_COMPRESSED_MESSAGE_SIZE)
+                        .tags(expectedDeadlineExceededStatusTags)
+                        .summary()
+                        .takeSnapshot();
+        HistogramSnapshot expectedAttemptReceivedMessageSizeHistogram = HistogramSnapshot.empty(1L, 0, 0);
+        verifyHistogramSnapshot(false, receivedAttemptMessageSizeSnapShot, expectedAttemptReceivedMessageSizeHistogram,
+                new CountAtBucket(1024.0, 1));
+
+        HistogramSnapshot callDurationSnapshot = meterRegistry.get(CLIENT_CALL_DURATION)
+                .tags(expectedDeadlineExceededStatusTags)
+                .timer()
+                .takeSnapshot();
+        HistogramSnapshot expectedCallDurationHistogram = HistogramSnapshot.empty(1L, 3000, 3.0E9);
+        verifyHistogramSnapshot(true, callDurationSnapshot, expectedCallDurationHistogram,
+                new CountAtBucket(5.0E9, 1));
+    }
+
+    static void verifyHistogramSnapshot(boolean isTimer, HistogramSnapshot actual, HistogramSnapshot expected,
+            CountAtBucket expectedHistogramBucketWithValue) {
+        if (isTimer) {
+            assertThat(actual.total(MILLISECONDS)).isEqualTo(expected.total());
+        } else {
+            assertThat(actual.total()).isEqualTo(expected.total());
+        }
+        assertThat(actual.count()).isEqualTo(expected.count());
+        assertThat(actual.max()).isEqualTo(expected.max());
+        assertThat(actual.histogramCounts()).contains(expectedHistogramBucketWithValue);
+    }
 }

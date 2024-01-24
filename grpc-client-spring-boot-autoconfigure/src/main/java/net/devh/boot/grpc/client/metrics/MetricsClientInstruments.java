@@ -32,9 +32,10 @@ public final class MetricsClientInstruments {
     private MetricsClientInstruments() {}
 
     /*
-     * This is a client side metric defined in gRFC <a
-     * href="https://github.com/grpc/proposal/blob/master/A66-otel-stats.md">A66</a>. Please note that this is the name
-     * used for instrumentation and can be changed by exporters in an unpredictable manner depending on the destination.
+     * Client side metrics defined in gRFC <a
+     * href="https://github.com/grpc/proposal/blob/master/A66-otel-stats.md">A66</a>. Please note that these are the
+     * names used for instrumentation and can be changed by exporters in an unpredictable manner depending on the
+     * destination.
      */
     private static final String CLIENT_ATTEMPT_STARTED = "grpc.client.attempt.started";
     private static final String CLIENT_ATTEMPT_SENT_COMPRESSED_MESSAGE_SIZE =
