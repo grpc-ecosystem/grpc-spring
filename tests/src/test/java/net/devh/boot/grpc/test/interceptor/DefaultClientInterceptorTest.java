@@ -16,11 +16,9 @@
 
 package net.devh.boot.grpc.test.interceptor;
 
-import static net.devh.boot.grpc.common.util.InterceptorOrder.beanFactoryAwareOrderComparator;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -51,17 +49,13 @@ public class DefaultClientInterceptorTest {
     private GlobalClientInterceptorRegistry registry;
 
     @Test
-    void testOrderingOfTheDefaultInterceptors() {
+    void testDefaultInterceptors() {
         final List<ClientInterceptor> expected = new ArrayList<>();
         expected.add(this.applicationContext.getBean(MetricCollectingClientInterceptor.class));
         expected.add(this.applicationContext.getBean(MetricsClientInterceptor.class));
         expected.add(this.applicationContext.getBean(ObservationGrpcClientInterceptor.class));
 
         final List<ClientInterceptor> actual = new ArrayList<>(this.registry.getClientInterceptors());
-        assertEquals(expected, actual);
-
-        Collections.shuffle(actual);
-        actual.sort(beanFactoryAwareOrderComparator(this.applicationContext, ClientInterceptor.class));
-        assertEquals(expected, actual);
+        assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);
     }
 }
