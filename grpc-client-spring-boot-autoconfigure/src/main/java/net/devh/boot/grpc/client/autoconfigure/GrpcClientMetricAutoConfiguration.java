@@ -16,19 +16,25 @@
 
 package net.devh.boot.grpc.client.autoconfigure;
 
+import java.util.function.Supplier;
+
 import org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegistryAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+
+import com.google.common.base.Stopwatch;
 
 import io.grpc.ClientInterceptor;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.grpc.MetricCollectingClientInterceptor;
 import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
+import net.devh.boot.grpc.client.metrics.MetricsClientInterceptor;
 import net.devh.boot.grpc.common.util.InterceptorOrder;
 
 /**
@@ -40,8 +46,9 @@ import net.devh.boot.grpc.common.util.InterceptorOrder;
 @AutoConfigureAfter(CompositeMeterRegistryAutoConfiguration.class)
 @AutoConfigureBefore(GrpcClientAutoConfiguration.class)
 @ConditionalOnBean(MeterRegistry.class)
-@ConditionalOnClass(MetricCollectingClientInterceptor.class)
+@ConditionalOnClass({MetricCollectingClientInterceptor.class, MetricsClientInterceptor.class})
 public class GrpcClientMetricAutoConfiguration {
+    private static final Supplier<Stopwatch> STOPWATCH_SUPPLIER = Stopwatch::createUnstarted;
 
     /**
      * Creates a {@link ClientInterceptor} that collects metrics about incoming and outgoing requests and responses.
@@ -54,6 +61,20 @@ public class GrpcClientMetricAutoConfiguration {
     @ConditionalOnMissingBean
     public MetricCollectingClientInterceptor metricCollectingClientInterceptor(final MeterRegistry registry) {
         return new MetricCollectingClientInterceptor(registry);
+    }
+
+    /**
+     * Creates a {@link ClientInterceptor} that collects metrics about client attempts and client calls.
+     *
+     * @param registry The registry used to create the metrics.
+     * @return The newly created MetricsClientInterceptor bean.
+     */
+    @ConditionalOnProperty(prefix = "grpc", name = "metricsA66Enabled", matchIfMissing = true)
+    @GrpcGlobalClientInterceptor
+    @Order(InterceptorOrder.ORDER_TRACING_METRICS)
+    @ConditionalOnMissingBean
+    public MetricsClientInterceptor metricsClientInterceptor(final MeterRegistry registry) {
+        return new MetricsClientInterceptor(registry, STOPWATCH_SUPPLIER);
     }
 
 }

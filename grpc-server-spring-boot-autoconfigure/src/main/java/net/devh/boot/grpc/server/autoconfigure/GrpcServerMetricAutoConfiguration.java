@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 
 import org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegistryAutoConfiguration;
 import org.springframework.boot.actuate.info.InfoContributor;
@@ -33,10 +34,13 @@ import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.annotation.Order;
+
+import com.google.common.base.Stopwatch;
 
 import io.grpc.BindableService;
 import io.grpc.MethodDescriptor;
@@ -47,6 +51,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.common.util.InterceptorOrder;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
+import net.devh.boot.grpc.server.metrics.MetricsServerStreamTracers;
+import net.devh.boot.grpc.server.serverfactory.GrpcServerConfigurer;
 
 /**
  * Auto configuration class for Spring-Boot. This allows zero config server metrics for gRPC services.
@@ -58,8 +64,9 @@ import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 @AutoConfigureAfter(CompositeMeterRegistryAutoConfiguration.class)
 @AutoConfigureBefore(GrpcServerAutoConfiguration.class)
 @ConditionalOnBean(MeterRegistry.class)
-@ConditionalOnClass(MetricCollectingServerInterceptor.class)
+@ConditionalOnClass({MetricCollectingServerInterceptor.class, MetricsServerStreamTracers.class})
 public class GrpcServerMetricAutoConfiguration {
+    private static final Supplier<Stopwatch> STOPWATCH_SUPPLIER = Stopwatch::createUnstarted;
 
     @GrpcGlobalServerInterceptor
     @Order(InterceptorOrder.ORDER_TRACING_METRICS)
@@ -73,6 +80,14 @@ public class GrpcServerMetricAutoConfiguration {
             metricCollector.preregisterService(service);
         }
         return metricCollector;
+    }
+
+    @ConditionalOnProperty(prefix = "grpc", name = "metricsA66Enabled", matchIfMissing = true)
+    @Bean
+    public GrpcServerConfigurer streamTracerFactoryConfigurer(final MeterRegistry registry) {
+        MetricsServerStreamTracers metricsServerStreamTracers = new MetricsServerStreamTracers(STOPWATCH_SUPPLIER);
+        return builder -> builder
+                .addStreamTracerFactory(metricsServerStreamTracers.getMetricsServerTracerFactory(registry));
     }
 
     @Bean
