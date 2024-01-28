@@ -222,12 +222,9 @@ return the AuthenticationManager to use for a particular request.
 ````java
 @Bean
 AuthenticationManagerResolver<GrpcServerRequest> grpcAuthenticationManagerResolver() {
-    return new AuthenticationManagerResolver<GrpcServerRequest>() {
-        @Override
-        public AuthenticationManager resolve(GrpcServerRequest grpcServerRequest) {
-            AuthenticationManager authenticationManager = // Check the grpc request and return an authenticationManager
-            return authenticationManager;
-        }
+    return grpcServerRequest -> {
+        AuthenticationManager authenticationManager = // Check the grpc request and return an authenticationManager
+        return authenticationManager;
     };
 }
 

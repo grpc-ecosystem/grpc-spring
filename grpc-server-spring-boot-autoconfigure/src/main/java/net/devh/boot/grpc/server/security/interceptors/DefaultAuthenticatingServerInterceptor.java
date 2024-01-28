@@ -22,7 +22,6 @@ import net.devh.boot.grpc.common.util.InterceptorOrder;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -47,7 +46,6 @@ import static java.util.Objects.requireNonNull;
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @Slf4j
-@ConditionalOnBean(AuthenticationManager.class)
 @GrpcGlobalServerInterceptor
 @Order(InterceptorOrder.ORDER_SECURITY_AUTHENTICATION)
 public class DefaultAuthenticatingServerInterceptor extends AbstractAuthenticatingServerInterceptor {
@@ -58,18 +56,19 @@ public class DefaultAuthenticatingServerInterceptor extends AbstractAuthenticati
      * Creates a new DefaultAuthenticatingServerInterceptor with the given authentication manager and reader.
      *
      * @param authenticationManager The authentication manager used to verify the credentials.
-     * @param authenticationReader The authentication reader used to extract the credentials from the call.
+     * @param authenticationReader  The authentication reader used to extract the credentials from the call.
      */
     @Autowired
     public DefaultAuthenticatingServerInterceptor(final AuthenticationManager authenticationManager,
-            final GrpcAuthenticationReader authenticationReader) {
+                                                  final GrpcAuthenticationReader authenticationReader) {
         super(authenticationReader);
         this.authenticationManager = requireNonNull(authenticationManager, "authenticationManager");
     }
 
     @Override
-    public <ReqT, RespT> AuthenticationManager getAuthenticationManager(final ServerCall<ReqT, RespT> call,
-                                                          final Metadata headers) {
+    public AuthenticationManager getAuthenticationManager(
+            final ServerCall<?, ?> call,
+            final Metadata headers) {
         return authenticationManager;
     }
 }

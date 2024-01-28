@@ -22,7 +22,6 @@ import net.devh.boot.grpc.common.util.InterceptorOrder;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
@@ -48,7 +47,6 @@ import static java.util.Objects.requireNonNull;
  * @author Sajad Mehrabi (mehrabisajad@gmail.com)
  */
 @Slf4j
-@ConditionalOnBean(parameterizedContainer = AuthenticationManagerResolver.class, value = GrpcServerRequest.class)
 @GrpcGlobalServerInterceptor
 @Order(InterceptorOrder.ORDER_SECURITY_AUTHENTICATION)
 public class ManagerResolverAuthenticatingServerInterceptor extends AbstractAuthenticatingServerInterceptor {
@@ -62,16 +60,18 @@ public class ManagerResolverAuthenticatingServerInterceptor extends AbstractAuth
      * @param authenticationReader          The authentication reader used to extract the credentials from the call.
      */
     @Autowired
-    public ManagerResolverAuthenticatingServerInterceptor(final AuthenticationManagerResolver<GrpcServerRequest> authenticationManagerResolver,
-                                                          final GrpcAuthenticationReader authenticationReader) {
+    public ManagerResolverAuthenticatingServerInterceptor(
+            final AuthenticationManagerResolver<GrpcServerRequest> authenticationManagerResolver,
+            final GrpcAuthenticationReader authenticationReader) {
         super(authenticationReader);
         this.authenticationManagerResolver = requireNonNull(authenticationManagerResolver, "authenticationManagerResolver");
     }
 
 
     @Override
-    protected <ReqT, RespT> AuthenticationManager getAuthenticationManager(final ServerCall<ReqT, RespT> call,
-                                                                           final Metadata headers) {
+    protected AuthenticationManager getAuthenticationManager(
+            final ServerCall<?, ?> call,
+            final Metadata headers) {
         GrpcServerRequest grpcServerRequest = new GrpcServerRequest(call, headers);
         return this.authenticationManagerResolver.resolve(grpcServerRequest);
     }
