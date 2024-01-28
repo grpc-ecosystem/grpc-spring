@@ -66,7 +66,6 @@ public final class MetricsServerInstruments {
         builder.setServerCallCounter(Counter.builder(SERVER_CALL_STARTED)
                 .description("The total number of RPC attempts started from the server side, including "
                         + "those that have not completed.")
-                .baseUnit("call")
                 .withRegistry(registry));
 
         builder.setSentMessageSizeDistribution(DistributionSummary.builder(
