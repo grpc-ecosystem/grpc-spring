@@ -69,7 +69,6 @@ public final class MetricsClientInstruments {
                 .description(
                         "The total number of RPC attempts started from the client side, including "
                                 + "those that have not completed.")
-                .baseUnit("attempt")
                 .withRegistry(registry));
 
         builder.setSentMessageSizeDistribution(DistributionSummary.builder(
