@@ -24,7 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.function.Supplier;
 
 import org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegistryAutoConfiguration;
 import org.springframework.boot.actuate.info.InfoContributor;
@@ -64,9 +63,8 @@ import net.devh.boot.grpc.server.serverfactory.GrpcServerConfigurer;
 @AutoConfigureAfter(CompositeMeterRegistryAutoConfiguration.class)
 @AutoConfigureBefore(GrpcServerAutoConfiguration.class)
 @ConditionalOnBean(MeterRegistry.class)
-@ConditionalOnClass({MetricCollectingServerInterceptor.class, MetricsServerStreamTracers.class})
+@ConditionalOnClass(MetricCollectingServerInterceptor.class)
 public class GrpcServerMetricAutoConfiguration {
-    private static final Supplier<Stopwatch> STOPWATCH_SUPPLIER = Stopwatch::createUnstarted;
 
     @GrpcGlobalServerInterceptor
     @Order(InterceptorOrder.ORDER_TRACING_METRICS)
@@ -85,7 +83,8 @@ public class GrpcServerMetricAutoConfiguration {
     @ConditionalOnProperty(prefix = "grpc", name = "metricsA66Enabled", matchIfMissing = true)
     @Bean
     public GrpcServerConfigurer streamTracerFactoryConfigurer(final MeterRegistry registry) {
-        MetricsServerStreamTracers metricsServerStreamTracers = new MetricsServerStreamTracers(STOPWATCH_SUPPLIER);
+        MetricsServerStreamTracers metricsServerStreamTracers = new MetricsServerStreamTracers(
+                Stopwatch::createUnstarted);
         return builder -> builder
                 .addStreamTracerFactory(metricsServerStreamTracers.getMetricsServerTracerFactory(registry));
     }

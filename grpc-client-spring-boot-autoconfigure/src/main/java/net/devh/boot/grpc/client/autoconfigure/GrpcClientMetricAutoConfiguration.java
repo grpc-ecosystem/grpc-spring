@@ -16,7 +16,6 @@
 
 package net.devh.boot.grpc.client.autoconfigure;
 
-import java.util.function.Supplier;
 
 import org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegistryAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -46,9 +45,8 @@ import net.devh.boot.grpc.common.util.InterceptorOrder;
 @AutoConfigureAfter(CompositeMeterRegistryAutoConfiguration.class)
 @AutoConfigureBefore(GrpcClientAutoConfiguration.class)
 @ConditionalOnBean(MeterRegistry.class)
-@ConditionalOnClass({MetricCollectingClientInterceptor.class, MetricsClientInterceptor.class})
+@ConditionalOnClass(MetricCollectingClientInterceptor.class)
 public class GrpcClientMetricAutoConfiguration {
-    private static final Supplier<Stopwatch> STOPWATCH_SUPPLIER = Stopwatch::createUnstarted;
 
     /**
      * Creates a {@link ClientInterceptor} that collects metrics about incoming and outgoing requests and responses.
@@ -74,7 +72,7 @@ public class GrpcClientMetricAutoConfiguration {
     @Order(InterceptorOrder.ORDER_TRACING_METRICS)
     @ConditionalOnMissingBean
     public MetricsClientInterceptor metricsClientInterceptor(final MeterRegistry registry) {
-        return new MetricsClientInterceptor(registry, STOPWATCH_SUPPLIER);
+        return new MetricsClientInterceptor(registry, Stopwatch::createUnstarted);
     }
 
 }
