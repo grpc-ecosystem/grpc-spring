@@ -126,4 +126,3 @@ you need to follow
 the [Grafana Query User Guide](https://cloud.google.com/stackdriver/docs/managed-prometheus/query)
 to set up the Grafana server
 and [data source syncer](https://github.com/GoogleCloudPlatform/prometheus-engine/tree/main/cmd/datasource-syncer).
-
