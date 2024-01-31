@@ -1,0 +1,12 @@
+apiVersion: monitoring.googleapis.com/v1
+kind: PodMonitoring
+metadata:
+  name: prometheus
+spec:
+  selector:
+    matchLabels:
+      monitor: prometheus
+  endpoints:
+  - port: monitoring
+    path: /actuator/prometheus
+    interval: 30s

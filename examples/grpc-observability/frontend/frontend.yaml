@@ -1,0 +1,49 @@
+# Copyright 2023 gRPC Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+        monitor: prometheus
+    spec:
+      containers:
+      - name: frontend
+        # Please upload the docker image of grpc-observability/grpc-spring-example-frontend to an image registry, such as https://cloud.google.com/artifact-registry.
+        image: <your image of the frontend>
+        imagePullPolicy: Always
+        ports:
+        - name: monitoring
+          containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  clusterIP: None
+  selector:
+    app: frontend
+  ports:
+  - name: monitoring
+    port: 8080
