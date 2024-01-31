@@ -97,7 +97,7 @@ kubectl apply -f ./examples/grpc-observability/frontend/frontend.yaml
 ## Set up the Prometheus to collect the gRPC metrics
 
 Once the frontend/backend microservices are deployed (either locally or on
-cloud), you may set up the Prometheus to start scrape the metrics from them.
+cloud), you may set up the Prometheus to start scraping the metrics from them.
 Depends on where you run the frontend/backend microservices, you may need to
 deploy the Prometheus to a proper location to be able to access them, such as,
 the same cloud, etc.
@@ -106,6 +106,7 @@ If you
 use [Google Managed Prometheus](https://cloud.google.com/stackdriver/docs/managed-prometheus),
 you may need to configure the PodMonitoring resource to tell where are endpoints
 to scrape the Prometheus metrics.
+
 ```
 kubectl apply -f ./examples/grpc-observability/pod_monitoring.yaml
 ```
@@ -118,7 +119,8 @@ server to visualize them.
 - Set up a Grafana server, deploy it to a place where can connect the Prometheus
   server as its data source.
 - Create a Grafana dashboard by importing the
-  grpc-observability/grafana/prometheus/microservices-grpc-dashboard.json file.
+  [examples/grpc-observability/grafana/prometheus/microservices-grpc-dashboard.json](http://github.com/grpc-ecosystem/grpc-spring/blob/master/examples/grpc-observability/grafana/prometheus/microservices-grpc-dashboard.json)
+  file.
 
 If you
 use [Google Managed Prometheus](https://cloud.google.com/stackdriver/docs/managed-prometheus),
