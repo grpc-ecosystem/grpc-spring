@@ -69,7 +69,7 @@ There are a number of supported schemes, that you can use to determine the targe
 - `discovery` (Prio 6): \
   (Optional) Uses spring-cloud's `DiscoveryClient` to lookup appropriate targets. The connections will be refreshed
   automatically during `HeartbeatEvent`s. Uses the `gRPC_port` metadata to determine the port, otherwise uses the
-  service port. \
+  service port. Uses the `gRPC_service_config` metadata to determine [service config](https://grpc.github.io/grpc/core/md_doc_service_config.html). \
   Example: `discovery:///service-name`
 - `self` (Prio 0): \
   The self address or scheme is a keyword that is available, if you also use `grpc-server-spring-boot-starter` and
