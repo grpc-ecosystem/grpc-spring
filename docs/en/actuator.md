@@ -194,8 +194,9 @@ net.devh.boot.grpc.client.autoconfigure.GrpcClientMetricAutoConfiguration,\
 net.devh.boot.grpc.server.autoconfigure.GrpcServerMetricAutoConfiguration
 ````
 
+You can opt out from collecting gRPC A66 metrics using `grpc.metricsA66Enabled=false`.
+
 ----------
 
-You can opt out from collecting gRPC A66 metrics using `grpc.metricsA66Enabled=false`.
 
 [<- Back to Index](index.md)
