@@ -20,7 +20,7 @@ buildscript {
         protobufGradlePluginVersion = '0.9.4'
 
         // https://github.com/spring-projects/spring-boot/releases
-        springBootVersion = '3.2.1'
+        springBootVersion = '3.2.2'
         // https://github.com/spring-cloud/spring-cloud-release/releases
         springCloudVersion = '2023.0.0'
         // https://github.com/alibaba/spring-cloud-alibaba/releases
@@ -28,7 +28,7 @@ buildscript {
 
         lombokPluginVersion = '8.4'
         versioningPluginVersion = '3.0.0'
-        versionsPluginVersion = '0.50.0'
+        versionsPluginVersion = '0.51.0'
 
         // https://github.com/JetBrains/kotlin/releases
         kotlinVersion = "1.9.22"
@@ -44,7 +44,7 @@ plugins {
     id 'com.google.protobuf' version "${protobufGradlePluginVersion}"
     id 'io.freefair.lombok' version "${lombokPluginVersion}" apply false
     id 'com.github.ben-manes.versions' version "${versionsPluginVersion}" // gradle dependencyUpdates
-    id 'com.diffplug.spotless' version '6.24.0'
+    id 'com.diffplug.spotless' version '6.25.0'
     id 'org.jetbrains.kotlin.jvm' version "${kotlinVersion}" apply false
 }
 

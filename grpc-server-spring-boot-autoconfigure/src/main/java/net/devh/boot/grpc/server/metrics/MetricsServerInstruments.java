@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.devh.boot.grpc.client.metrics;
+package net.devh.boot.grpc.server.metrics;
 
 import java.time.Duration;
 
@@ -25,27 +25,25 @@ import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.binder.BaseUnits;
 
 /*
- * The instruments used to record metrics on client.
+ * The instruments used to record metrics on server.
  */
-public final class MetricsClientInstruments {
+public final class MetricsServerInstruments {
 
-    private MetricsClientInstruments() {}
+    private MetricsServerInstruments() {}
 
     /*
-     * Client side metrics defined in gRFC <a
+     * Server side metrics defined in gRFC <a
      * href="https://github.com/grpc/proposal/blob/master/A66-otel-stats.md">A66</a>. Please note that these are the
      * names used for instrumentation and can be changed by exporters in an unpredictable manner depending on the
      * destination.
      */
-    private static final String CLIENT_ATTEMPT_STARTED = "grpc.client.attempt.started";
-    private static final String CLIENT_ATTEMPT_SENT_COMPRESSED_MESSAGE_SIZE =
-            "grpc.client.attempt.sent_total_compressed_message_size";
-    private static final String CLIENT_ATTEMPT_RECEIVED_COMPRESSED_MESSAGE_SIZE =
-            "grpc.client.attempt.rcvd_total_compressed_message_size";
-    private static final String CLIENT_ATTEMPT_DURATION =
-            "grpc.client.attempt.duration";
-    private static final String CLIENT_CALL_DURATION =
-            "grpc.client.call.duration";
+    private static final String SERVER_CALL_STARTED = "grpc.server.call.started";
+    private static final String SERVER_SENT_COMPRESSED_MESSAGE_SIZE =
+            "grpc.server.call.sent_total_compressed_message_size";
+    private static final String SERVER_RECEIVED_COMPRESSED_MESSAGE_SIZE =
+            "grpc.server.call.rcvd_total_compressed_message_size";
+    private static final String SERVER_CALL_DURATION =
+            "grpc.server.call.duration";
     private static final double[] DEFAULT_SIZE_BUCKETS =
             new double[] {1024d, 2048d, 4096d, 16384d, 65536d, 262144d, 1048576d,
                     4194304d, 16777216d, 67108864d, 268435456d, 1073741824d, 4294967296d};
@@ -62,40 +60,33 @@ public final class MetricsClientInstruments {
                     Duration.ofSeconds(1), Duration.ofSeconds(2), Duration.ofSeconds(5), Duration.ofSeconds(10),
                     Duration.ofSeconds(20), Duration.ofSeconds(50), Duration.ofSeconds(100)};
 
-    static MetricsClientMeters newClientMetricsMeters(MeterRegistry registry) {
-        MetricsClientMeters.Builder builder = MetricsClientMeters.newBuilder();
+    static MetricsServerMeters newServerMetricsMeters(MeterRegistry registry) {
+        MetricsServerMeters.Builder builder = MetricsServerMeters.newBuilder();
 
-        builder.setAttemptCounter(Counter.builder(CLIENT_ATTEMPT_STARTED)
-                .description(
-                        "The total number of RPC attempts started from the client side, including "
-                                + "those that have not completed.")
+        builder.setServerCallCounter(Counter.builder(SERVER_CALL_STARTED)
+                .description("The total number of RPC attempts started from the server side, including "
+                        + "those that have not completed.")
                 .withRegistry(registry));
 
         builder.setSentMessageSizeDistribution(DistributionSummary.builder(
-                CLIENT_ATTEMPT_SENT_COMPRESSED_MESSAGE_SIZE)
-                .description("Compressed message bytes sent per client call attempt")
+                SERVER_SENT_COMPRESSED_MESSAGE_SIZE)
+                .description("Compressed message bytes sent per server call")
                 .baseUnit(BaseUnits.BYTES)
                 .serviceLevelObjectives(DEFAULT_SIZE_BUCKETS)
                 .withRegistry(registry));
 
         builder.setReceivedMessageSizeDistribution(DistributionSummary.builder(
-                CLIENT_ATTEMPT_RECEIVED_COMPRESSED_MESSAGE_SIZE)
-                .description("Compressed message bytes received per call attempt")
+                SERVER_RECEIVED_COMPRESSED_MESSAGE_SIZE)
+                .description("Compressed message bytes received per server call")
                 .baseUnit(BaseUnits.BYTES)
                 .serviceLevelObjectives(DEFAULT_SIZE_BUCKETS)
                 .withRegistry(registry));
 
-        builder.setClientAttemptDuration(Timer.builder(CLIENT_ATTEMPT_DURATION)
-                .description("Time taken to complete a client call attempt")
-                .serviceLevelObjectives(DEFAULT_LATENCY_BUCKETS)
-                .withRegistry(registry));
-
-        builder.setClientCallDuration(Timer.builder(CLIENT_CALL_DURATION)
-                .description("Time taken by gRPC to complete an RPC from application's perspective")
+        builder.setServerCallDuration(Timer.builder(SERVER_CALL_DURATION)
+                .description("Time taken to complete a call from server transport's perspective")
                 .serviceLevelObjectives(DEFAULT_LATENCY_BUCKETS)
                 .withRegistry(registry));
 
         return builder.build();
     }
-
 }
