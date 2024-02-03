@@ -16,6 +16,13 @@
 
 package net.devh.boot.grpc.test.security;
 
+import static io.grpc.Status.Code.PERMISSION_DENIED;
+
+import org.junit.jupiter.api.TestFactory;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.test.config.*;
@@ -23,15 +30,10 @@ import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceBlockingStub;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceFutureStub;
 import net.devh.boot.grpc.test.proto.TestServiceGrpc.TestServiceStub;
 import net.devh.boot.grpc.test.util.DynamicTestCollection;
-import org.junit.jupiter.api.TestFactory;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-
-import static io.grpc.Status.Code.PERMISSION_DENIED;
 
 /**
- * A test checking that the server and client can start and connect to each other with minimal config by authentication manager resolver.
+ * A test checking that the server and client can start and connect to each other with minimal config by authentication
+ * manager resolver.
  */
 @Slf4j
 @SpringBootTest

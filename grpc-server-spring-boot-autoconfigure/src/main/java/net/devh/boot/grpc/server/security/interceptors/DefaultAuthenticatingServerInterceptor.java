@@ -16,18 +16,19 @@
 
 package net.devh.boot.grpc.server.security.interceptors;
 
-import io.grpc.*;
-import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.common.util.InterceptorOrder;
-import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
-import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
+import static java.util.Objects.requireNonNull;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import static java.util.Objects.requireNonNull;
+import io.grpc.*;
+import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.common.util.InterceptorOrder;
+import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
+import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
 
 /**
  * A server interceptor that tries to {@link GrpcAuthenticationReader read} the credentials from the client and
@@ -56,11 +57,11 @@ public class DefaultAuthenticatingServerInterceptor extends AbstractAuthenticati
      * Creates a new DefaultAuthenticatingServerInterceptor with the given authentication manager and reader.
      *
      * @param authenticationManager The authentication manager used to verify the credentials.
-     * @param authenticationReader  The authentication reader used to extract the credentials from the call.
+     * @param authenticationReader The authentication reader used to extract the credentials from the call.
      */
     @Autowired
     public DefaultAuthenticatingServerInterceptor(final AuthenticationManager authenticationManager,
-                                                  final GrpcAuthenticationReader authenticationReader) {
+            final GrpcAuthenticationReader authenticationReader) {
         super(authenticationReader);
         this.authenticationManager = requireNonNull(authenticationManager, "authenticationManager");
     }

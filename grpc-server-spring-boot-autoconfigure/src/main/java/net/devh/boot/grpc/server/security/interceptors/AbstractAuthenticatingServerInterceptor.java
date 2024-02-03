@@ -16,10 +16,8 @@
 
 package net.devh.boot.grpc.server.security.interceptors;
 
-import io.grpc.*;
-import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
-import org.springframework.beans.factory.annotation.Autowired;
+import static java.util.Objects.requireNonNull;
+
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
@@ -27,7 +25,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import static java.util.Objects.requireNonNull;
+import io.grpc.*;
+import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
 
 
 /**
@@ -60,7 +60,7 @@ public abstract class AbstractAuthenticatingServerInterceptor implements Authent
 
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(final ServerCall<ReqT, RespT> call,
-                                                                 final Metadata headers, final ServerCallHandler<ReqT, RespT> next) {
+            final Metadata headers, final ServerCallHandler<ReqT, RespT> next) {
         Authentication authentication;
         try {
             authentication = this.grpcAuthenticationReader.readAuthentication(call, headers);
@@ -105,7 +105,8 @@ public abstract class AbstractAuthenticatingServerInterceptor implements Authent
         final SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         securityContext.setAuthentication(authentication);
         SecurityContextHolder.setContext(securityContext);
-        @SuppressWarnings("deprecation") final Context grpcContext = Context.current().withValues(
+        @SuppressWarnings("deprecation")
+        final Context grpcContext = Context.current().withValues(
                 SECURITY_CONTEXT_KEY, securityContext,
                 AUTHENTICATION_CONTEXT_KEY, authentication);
         final Context previousContext = grpcContext.attach();
@@ -128,13 +129,14 @@ public abstract class AbstractAuthenticatingServerInterceptor implements Authent
     }
 
     /**
-     * Retrieves the appropriate AuthenticationManager to handle authentication for the given gRPC request.
-     * Subclasses must implement this method to provide a mechanism for determining the appropriate AuthenticationManager
-     * based on the specific request context. This allows for dynamic selection of authentication strategies based on
-     * factors such as request headers, request payload, or other criteria.
+     * Retrieves the appropriate AuthenticationManager to handle authentication for the given gRPC request. Subclasses
+     * must implement this method to provide a mechanism for determining the appropriate AuthenticationManager based on
+     * the specific request context. This allows for dynamic selection of authentication strategies based on factors
+     * such as request headers, request payload, or other criteria.
      *
-     * @param call    The gRPC ServerCall representing the incoming request.
-     * @param headers The metadata associated with the request, containing potentially relevant authentication information.
+     * @param call The gRPC ServerCall representing the incoming request.
+     * @param headers The metadata associated with the request, containing potentially relevant authentication
+     *        information.
      * @return The AuthenticationManager responsible for authenticating the request.
      */
     protected abstract AuthenticationManager getAuthenticationManager(
@@ -157,8 +159,8 @@ public abstract class AbstractAuthenticatingServerInterceptor implements Authent
      * By default, this method does nothing.
      * </p>
      *
-     * @param call           The call instance to receive response messages.
-     * @param headers        The headers associated with the call.
+     * @param call The call instance to receive response messages.
+     * @param headers The headers associated with the call.
      * @param authentication The successful authentication instance.
      */
     protected void onSuccessfulAuthentication(
@@ -184,9 +186,9 @@ public abstract class AbstractAuthenticatingServerInterceptor implements Authent
      * By default, this method does nothing.
      * </p>
      *
-     * @param call    The call instance to receive response messages.
+     * @param call The call instance to receive response messages.
      * @param headers The headers associated with the call.
-     * @param failed  The exception related to the unsuccessful authentication.
+     * @param failed The exception related to the unsuccessful authentication.
      */
     protected void onUnsuccessfulAuthentication(
             final ServerCall<?, ?> call,
@@ -220,12 +222,12 @@ public abstract class AbstractAuthenticatingServerInterceptor implements Authent
          * Creates a new AuthenticatingServerCallListener which will attach the given security context before delegating
          * to the given listener.
          *
-         * @param delegate        The listener to delegate to.
-         * @param grpcContext     The context to attach.
+         * @param delegate The listener to delegate to.
+         * @param grpcContext The context to attach.
          * @param securityContext The security context instance to attach.
          */
         public AuthenticatingServerCallListener(final ServerCall.Listener<ReqT> delegate, final Context grpcContext,
-                                                final SecurityContext securityContext) {
+                final SecurityContext securityContext) {
             super(delegate, grpcContext);
             this.securityContext = securityContext;
         }

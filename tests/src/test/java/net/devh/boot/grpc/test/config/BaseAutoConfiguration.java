@@ -24,10 +24,12 @@ import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 import net.devh.boot.grpc.server.autoconfigure.GrpcServerAutoConfiguration;
 import net.devh.boot.grpc.server.autoconfigure.GrpcServerFactoryAutoConfiguration;
 import net.devh.boot.grpc.server.autoconfigure.GrpcServerSecurityAutoConfiguration;
+import net.devh.boot.grpc.server.autoconfigure.GrpcServerSecurityWithManagerResolverAutoConfiguration;
 
 @Configuration
 @ImportAutoConfiguration({GrpcCommonCodecAutoConfiguration.class, GrpcServerAutoConfiguration.class,
         GrpcServerFactoryAutoConfiguration.class, GrpcServerSecurityAutoConfiguration.class,
+        GrpcServerSecurityWithManagerResolverAutoConfiguration.class,
         GrpcClientAutoConfiguration.class})
 public class BaseAutoConfiguration {
 

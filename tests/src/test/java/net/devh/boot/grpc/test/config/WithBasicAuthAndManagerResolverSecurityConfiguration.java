@@ -16,16 +16,15 @@
 
 package net.devh.boot.grpc.test.config;
 
-import com.google.common.collect.ImmutableMap;
-import io.grpc.CallCredentials;
-import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.client.inject.StubTransformer;
-import net.devh.boot.grpc.client.security.CallCredentialsHelper;
-import net.devh.boot.grpc.server.security.authentication.*;
-import net.devh.boot.grpc.server.security.interceptors.GrpcServerRequest;
+import static net.devh.boot.grpc.client.security.CallCredentialsHelper.basicAuth;
+import static net.devh.boot.grpc.common.security.SecurityConstants.AUTHORIZATION_HEADER;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AnonymousAuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
@@ -37,12 +36,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import com.google.common.collect.ImmutableMap;
 
-import static net.devh.boot.grpc.client.security.CallCredentialsHelper.basicAuth;
-import static net.devh.boot.grpc.common.security.SecurityConstants.AUTHORIZATION_HEADER;
+import io.grpc.CallCredentials;
+import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.client.inject.StubTransformer;
+import net.devh.boot.grpc.client.security.CallCredentialsHelper;
+import net.devh.boot.grpc.server.security.authentication.*;
+import net.devh.boot.grpc.server.security.interceptors.GrpcServerRequest;
 
 @Slf4j
 @Configuration

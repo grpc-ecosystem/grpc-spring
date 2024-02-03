@@ -16,19 +16,19 @@
 
 package net.devh.boot.grpc.server.security.interceptors;
 
-import io.grpc.*;
-import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.common.util.InterceptorOrder;
-import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
-import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
+import static java.util.Objects.requireNonNull;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-
-import static java.util.Objects.requireNonNull;
+import io.grpc.*;
+import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.common.util.InterceptorOrder;
+import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
+import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
 
 /**
  * A server interceptor that tries to {@link GrpcAuthenticationReader read} the credentials from the client and
@@ -54,17 +54,19 @@ public class ManagerResolverAuthenticatingServerInterceptor extends AbstractAuth
     private final AuthenticationManagerResolver<GrpcServerRequest> authenticationManagerResolver;
 
     /**
-     * Creates a new ManagerResolverAuthenticatingServerInterceptor with the given authentication manager resolver and reader.
+     * Creates a new ManagerResolverAuthenticatingServerInterceptor with the given authentication manager resolver and
+     * reader.
      *
      * @param authenticationManagerResolver The authentication manager resolver used to verify the credentials.
-     * @param authenticationReader          The authentication reader used to extract the credentials from the call.
+     * @param authenticationReader The authentication reader used to extract the credentials from the call.
      */
     @Autowired
     public ManagerResolverAuthenticatingServerInterceptor(
             final AuthenticationManagerResolver<GrpcServerRequest> authenticationManagerResolver,
             final GrpcAuthenticationReader authenticationReader) {
         super(authenticationReader);
-        this.authenticationManagerResolver = requireNonNull(authenticationManagerResolver, "authenticationManagerResolver");
+        this.authenticationManagerResolver =
+                requireNonNull(authenticationManagerResolver, "authenticationManagerResolver");
     }
 
 
