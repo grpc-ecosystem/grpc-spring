@@ -128,7 +128,7 @@ CallCredentials bearerAuthForwardingCredentials() {
 If you have exactly one `CallCredentials` in your application context, we'll automatically create a `StubTransformer`
 for you and configure all `Stub`s to use it. If you wish to configure different credentials per stub, then you use our
 helper methods in the
-[`CallCredentialsHelper`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/security/CallCredentialsHelper.html)
+[`CallCredentialsHelper`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/security/CallCredentialsHelper.html)
 utility.
 
 > **Note:** `StubTransformer`s can only automatically configure injected `Stub`s. They are unable to modify raw

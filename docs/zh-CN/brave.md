@@ -65,7 +65,7 @@ spring.sleuth.grpc.enabled=false
 
 ## 附加信息
 
-Spring-Cloud-Sleuth 提供了一些类，例如[`SpringAwareManagedChannelBuilder`](https://javadoc.io/page/org.springframework.cloud/spring-cloud-sleuth-core/latest/org/springframework/cloud/sleuth/instrument/grpc/SpringAwareManagedChannelBuilder.html)，这些类仅仅由于与其他的库兼容而存在。 不要跟那个项目一期使用。 grpc-spring-boot-starter 通过 [`GrpcChannelFactory`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/channelfactory/GrpcChannelFactory.html) 和相关类提供相同 / 扩展的功能提供了开箱即用的能力。 相关阅读 [sleuth's javadoc note](https://github.com/spring-cloud/spring-cloud-sleuth/blob/59216c32f7848ec337fb68d1dbec8e87eeb6bf59/spring-cloud-sleuth-core/src/main/java/org/springframework/cloud/sleuth/instrument/grpc/SpringAwareManagedChannelBuilder.java#L31-L34)。
+Spring-Cloud-Sleuth 提供了一些类，例如[`SpringAwareManagedChannelBuilder`](https://javadoc.io/page/org.springframework.cloud/spring-cloud-sleuth-core/latest/org/springframework/cloud/sleuth/instrument/grpc/SpringAwareManagedChannelBuilder.html)，这些类仅仅由于与其他的库兼容而存在。 不要跟那个项目一期使用。 grpc-spring-boot-starter 通过 [`GrpcChannelFactory`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/channelfactory/GrpcChannelFactory.html) 和相关类提供相同 / 扩展的功能提供了开箱即用的能力。 相关阅读 [sleuth's javadoc note](https://github.com/spring-cloud/spring-cloud-sleuth/blob/59216c32f7848ec337fb68d1dbec8e87eeb6bf59/spring-cloud-sleuth-core/src/main/java/org/springframework/cloud/sleuth/instrument/grpc/SpringAwareManagedChannelBuilder.java#L31-L34)。
 
 ----------
 

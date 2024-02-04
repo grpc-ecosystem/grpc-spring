@@ -102,7 +102,7 @@ This section assumes that you have already defined and generated your [Protobuf 
 The following list contains all features that you might encounter on the client side.
 If you don't wish to use any advanced features, then the first two elements are probably all you need to use.
 
-- [`@GrpcClient`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/GrpcClient.html):
+- [`@GrpcClient`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/inject/GrpcClient.html):
   The annotation that marks fields and setters for auto injection of clients.
   Support for constructor and `@Bean` factory method parameters is experimental.
   Supports `Channel`s, and all kinds of `Stub`s.
@@ -110,7 +110,7 @@ If you don't wish to use any advanced features, then the first two elements are 
   **Note:** Services provided by the same application can only be accessed/called in/after the
   `ApplicationStartedEvent`. Stubs connecting to services outside of the application can be used earlier; starting with
   `@PostConstruct` / `InitializingBean#afterPropertiesSet()`.
-- [`@GrpcClientBean`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/GrpcClientBean.html):
+- [`@GrpcClientBean`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/inject/GrpcClientBean.html):
   The annotation helps to register `@GrpcClient` beans in the Spring context to be used with `@Autowired` and
   `@Qualifier`. The annotation can be repeatedly added to any of your `@Configuration` classes.
 - [`Channel`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/Channel.html):
@@ -128,9 +128,9 @@ If you don't wish to use any advanced features, then the first two elements are 
   Intercepts every call before they are handed to the `Channel`. Can be used for logging, monitoring, metadata handling,
   and request/response rewriting.
   grpc-spring-boot-starter will automatically pick up all client interceptors that are annotated with
-  [`@GrpcGlobalClientInterceptor`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/interceptor/GrpcGlobalClientInterceptor.html)
+  [`@GrpcGlobalClientInterceptor`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/interceptor/GrpcGlobalClientInterceptor.html)
   or are manually registered to the
-  [`GlobalClientInterceptorRegistry`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/interceptor/GlobalClientInterceptorRegistry.html).
+  [`GlobalClientInterceptorRegistry`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/interceptor/GlobalClientInterceptorRegistry.html).
   See also [Configuration -> ClientInterceptor](configuration.md#clientinterceptor).
 - [`CallCredentials`](https://javadoc.io/page/io.grpc/grpc-all/latest/io/grpc/CallCredentials.html):
   A potentially active component that manages the authentication for the calls. It can be used to store credentials or
@@ -138,12 +138,12 @@ If you don't wish to use any advanced features, then the first two elements are 
   as OAuth) to authorize the actual request. In addition to that, it is able to renew the token, if it expired and
   re-sent the request. If exactly one `CallCredentials` bean is present on your application context then spring will
   automatically attach it to all `Stub`s (**NOT** `Channel`s). The
-  [`CallCredentialsHelper`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/security/CallCredentialsHelper.html)
+  [`CallCredentialsHelper`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/security/CallCredentialsHelper.html)
   utility class helps you to create commonly used `CallCredentials` types and related `StubTransformer`.
-- [`StubFactory`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/stubfactory/StubFactory.html):
+- [`StubFactory`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/stubfactory/StubFactory.html):
   A factory that can be used to create a specfic `Stub` type from a `Channel`. Multiple `StubFactory`s can be registered to support different stub types.
   See also [Configuration -> StubFactory](configuration.md#stubfactory).
-- [`StubTransformer`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/inject/StubTransformer.html):
+- [`StubTransformer`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/inject/StubTransformer.html):
   A transformer that will be applied to all client `Stub`s before they are injected.
   See also [Configuration -> StubTransformer](configuration.md#stubtransformer).
 

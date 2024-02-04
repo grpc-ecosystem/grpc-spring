@@ -29,11 +29,11 @@ grpc-spring-boot-starter 可以通过 Spring 的 `@ConfigurationProperties` 机�
 
 您可以在这里找到所有内置配置属性：
 
-- [`GrpcChannelsProperties`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/config/GrpcChannelsProperties.html)
-- [`GrpcChannelProperties`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/config/GrpcChannelProperties.html)
-- [`GrpcServerProperties.Security`](https://static.javadoc.io/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/config/GrpcChannelProperties.Security.html)
+- [`GrpcChannelsProperties`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/config/GrpcChannelsProperties.html)
+- [`GrpcChannelProperties`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/config/GrpcChannelProperties.html)
+- [`GrpcServerProperties.Security`](https://static.javadoc.io/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/config/GrpcChannelProperties.Security.html)
 
-如果你希望阅读源代码，你可以查阅 [这里](https://github.com/grpc-ecosystem/grpc-spring/blob/master/grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/config/GrpcChannelProperties.java#L58)。
+如果你希望阅读源代码，你可以查阅 [这里](https://github.com/grpc-ecosystem/grpc-spring/blob/master/grpc-client-spring-boot-starter/src/main/java/net/devh/boot/grpc/client/config/GrpcChannelProperties.java#L58)。
 
 Channels 的属性都是以 `grpc.client.__name__.` 或 `grpc.client.__name__.security.` 为前缀。 Channel 的名称从 `@GrpcClient("__name__")` 注解中获取。 如果您想要配置一些其他的选项，如为所有服务端设置可信证书，并可以使用 `GLOBAL` 作为名称。 指定 Channel 的配置项优先于 `GLOBAL` 的配置项
 
@@ -268,7 +268,7 @@ public StubTransformer call() {
 
 > **注意：** 这只能用于在应用程序级别上，而不是应用在每个请求级别上。
 
-这个库内置提供了一些 `NameResolverProvider`，因此你可以直接使用 [它们](https://github.com/grpc-ecosystem/grpc-spring/tree/master/grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/nameresolver)。
+这个库内置提供了一些 `NameResolverProvider`，因此你可以直接使用 [它们](https://github.com/grpc-ecosystem/grpc-spring/tree/master/grpc-client-spring-boot-starter/src/main/java/net/devh/boot/grpc/client/nameresolver)。
 
 你也利用 Java 的 `ServiceLoader` ，在 `META-INF/services/io.grpc.NameResolverProvider` 文件中添加，或者通过在 spring context 中添加，以此注册自定义的 `NameResolverProvider`。 如果你想在你的 `NameResolver` 中使用一些 spring 的 bean， 那么你必须通过 spring 的 context 来定义它 (否则会使用使用 `static`)。
 
