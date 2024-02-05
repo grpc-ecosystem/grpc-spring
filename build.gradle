@@ -181,7 +181,7 @@ allprojects { project ->
                 mavenBom "com.google.protobuf:protobuf-bom:${protobufVersion}"
                 mavenBom "com.google.guava:guava-bom:${guavaVersion}"
                 mavenBom "io.grpc:grpc-bom:${grpcVersion}"
-                mavenBom "org.junit:junit-bom:5.10.1"
+                mavenBom "org.junit:junit-bom:5.10.2"
                 mavenBom "org.jetbrains.kotlin:kotlin-bom:${kotlinVersion}"
             }
         }
