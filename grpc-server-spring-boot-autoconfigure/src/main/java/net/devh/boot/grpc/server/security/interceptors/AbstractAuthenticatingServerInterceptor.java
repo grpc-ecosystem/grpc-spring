@@ -84,14 +84,10 @@ public abstract class AbstractAuthenticatingServerInterceptor implements Authent
         }
         log.debug("Credentials found: Authenticating '{}'", authentication.getName());
 
-        AuthenticationManager authenticationManager = this.getAuthenticationManager(call, headers);
+        AuthenticationManager authenticationManager = getAuthenticationManager(call, headers);
         if (authenticationManager == null) {
-            log.debug("No authentication manager found: Continuing unauthenticated");
-            try {
-                return next.startCall(call, headers);
-            } catch (final AccessDeniedException e) {
-                throw newNoCredentialsException(e);
-            }
+            log.debug("No authentication manager found");
+            throw new InternalAuthenticationServiceException("No authentication manager found");
         }
 
         try {

@@ -17,7 +17,6 @@
 package net.devh.boot.grpc.test.config;
 
 import static net.devh.boot.grpc.client.security.CallCredentialsHelper.basicAuth;
-import static net.devh.boot.grpc.common.security.SecurityConstants.AUTHORIZATION_HEADER;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +34,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -75,17 +75,33 @@ public class WithBasicAuthAndManagerResolverSecurityConfiguration {
         return provider;
     }
 
+    InMemoryUserDetailsManager inMemoryUserDetailsManager() {
+        PasswordEncoder passwordEncoder = passwordEncoder();
+        InMemoryUserDetailsManager userDetailsService = new InMemoryUserDetailsManager();
+        userDetailsService.createUser(new User("client1", passwordEncoder.encode("client1"),
+                List.of(new SimpleGrantedAuthority("ROLE_CLIENT1"))));
+        userDetailsService.createUser(new User("client2", passwordEncoder.encode("client2"),
+                List.of(new SimpleGrantedAuthority("ROLE_CLIENT2"))));
+        return userDetailsService;
+    }
+
+    DaoAuthenticationProvider daoAuthenticationProviderInMemory() {
+        final DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(inMemoryUserDetailsManager());
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
 
     @Bean
     AuthenticationManagerResolver<GrpcServerRequest> authenticationManager() {
         return context -> {
-            String token = context.headers().get(AUTHORIZATION_HEADER);
-            if (token != null && token.startsWith("Basic")) {
+            String methodName = context.methodDescriptor().getFullMethodName();
+            if (methodName.equals("TestService/normal")) {
+                return daoAuthenticationProviderInMemory()::authenticate;
+            } else {
                 final List<AuthenticationProvider> providers = new ArrayList<>();
                 providers.add(daoAuthenticationProvider());
                 return new ProviderManager(providers);
-            } else {
-                return null;
             }
         };
     }
