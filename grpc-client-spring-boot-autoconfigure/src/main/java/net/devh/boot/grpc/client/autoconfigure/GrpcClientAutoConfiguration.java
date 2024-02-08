@@ -29,11 +29,14 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.weaving.LoadTimeWeaverAware;
+import org.springframework.instrument.classloading.LoadTimeWeaver;
 
 import io.grpc.CompressorRegistry;
 import io.grpc.DecompressorRegistry;
 import io.grpc.NameResolverProvider;
 import io.grpc.NameResolverRegistry;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
@@ -149,8 +152,7 @@ public class GrpcClientAutoConfiguration {
             "io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder"})
     @Bean
     @Lazy
-    GrpcChannelFactory shadedNettyGrpcChannelFactory(
-            final GrpcChannelsProperties properties,
+    GrpcChannelFactory shadedNettyGrpcChannelFactory(final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
 
@@ -167,8 +169,7 @@ public class GrpcClientAutoConfiguration {
     @ConditionalOnClass(name = {"io.netty.channel.Channel", "io.grpc.netty.NettyChannelBuilder"})
     @Bean
     @Lazy
-    GrpcChannelFactory nettyGrpcChannelFactory(
-            final GrpcChannelsProperties properties,
+    GrpcChannelFactory nettyGrpcChannelFactory(final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
 
@@ -184,8 +185,7 @@ public class GrpcClientAutoConfiguration {
     @ConditionalOnMissingBean(GrpcChannelFactory.class)
     @Bean
     @Lazy
-    GrpcChannelFactory inProcessGrpcChannelFactory(
-            final GrpcChannelsProperties properties,
+    GrpcChannelFactory inProcessGrpcChannelFactory(final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
 
@@ -193,4 +193,17 @@ public class GrpcClientAutoConfiguration {
         return new InProcessChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
     }
 
+    @Configuration(proxyBeanMethods = false)
+    static class GrpcClientConstructorInjectionConfiguration implements LoadTimeWeaverAware {
+        @Autowired
+        private GrpcClientBeanPostProcessor grpcClientBeanPostProcessor;
+
+        @PostConstruct
+        public void init() {
+            grpcClientBeanPostProcessor.initGrpClientConstructorInjections();
+        }
+
+        @Override
+        public void setLoadTimeWeaver(LoadTimeWeaver ltw) {}
+    }
 }
