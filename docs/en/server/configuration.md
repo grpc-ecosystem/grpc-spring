@@ -31,11 +31,11 @@ spring's `@ConfigurationProperties` mechanism.
 
 You can find all build-in configuration properties here:
 
-- [`GrpcServerProperties`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-autoconfigure/latest/net/devh/boot/grpc/server/config/GrpcServerProperties.html)
-- [`GrpcServerProperties.Security`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-autoconfigure/latest/net/devh/boot/grpc/server/config/GrpcServerProperties.Security.html)
+- [`GrpcServerProperties`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-starter/latest/net/devh/boot/grpc/server/config/GrpcServerProperties.html)
+- [`GrpcServerProperties.Security`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-starter/latest/net/devh/boot/grpc/server/config/GrpcServerProperties.Security.html)
 
 If you prefer to read the sources instead, you can do so
-[here](https://github.com/grpc-ecosystem/grpc-spring/blob/master/grpc-server-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/server/config/GrpcServerProperties.java#L50).
+[here](https://github.com/grpc-ecosystem/grpc-spring/blob/master/grpc-server-spring-boot-starter/src/main/java/net/devh/boot/grpc/server/config/GrpcServerProperties.java#L50).
 
 The properties for the server are all prefixed with `grpc.server.` and `grpc.server.security.` respectively.
 

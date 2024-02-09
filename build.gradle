@@ -217,7 +217,7 @@ allprojects { project ->
         }
     }
 
-    if (project.name == 'grpc-common-spring-boot' || project.name == 'grpc-client-spring-boot-autoconfigure' || project.name == 'grpc-server-spring-boot-autoconfigure') {
+    if (project.name == 'grpc-common-spring-boot' || project.name == 'grpc-client-spring-boot-starter' || project.name == 'grpc-server-spring-boot-starter') {
         java {
             registerFeature('optionalSupport') {
                 usingSourceSet(sourceSets.main)
