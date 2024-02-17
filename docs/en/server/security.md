@@ -111,19 +111,19 @@ your application.
 
 In order to support authentication from grpc-clients, you have to define how the clients are allowed to authenticate.
 You can do so by defining a
-[`GrpcAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-autoconfigure/latest/net/devh/boot/grpc/server/security/authentication/GrpcAuthenticationReader.html).
+[`GrpcAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-starter/latest/net/devh/boot/grpc/server/security/authentication/GrpcAuthenticationReader.html).
 
 grpc-spring-boot-starter comes with a number of build-in implementations:
 
-- [`AnonymousAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-autoconfigure/latest/net/devh/boot/grpc/server/security/authentication/AnonymousAuthenticationReader.html)
+- [`AnonymousAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-starter/latest/net/devh/boot/grpc/server/security/authentication/AnonymousAuthenticationReader.html)
   for spring's anonymous auth.
-- [`BasicGrpcAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-autoconfigure/latest/net/devh/boot/grpc/server/security/authentication/BasicGrpcAuthenticationReader.html)
+- [`BasicGrpcAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-starter/latest/net/devh/boot/grpc/server/security/authentication/BasicGrpcAuthenticationReader.html)
   for basic auth.
-- [`BearerAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-autoconfigure/latest/net/devh/boot/grpc/server/security/authentication/BearerAuthenticationReader.html)
+- [`BearerAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-starter/latest/net/devh/boot/grpc/server/security/authentication/BearerAuthenticationReader.html)
   for OAuth and similar protocols.
-- [`SSLContextGrpcAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-autoconfigure/latest/net/devh/boot/grpc/server/security/authentication/SSLContextGrpcAuthenticationReader.html)
+- [`SSLContextGrpcAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-starter/latest/net/devh/boot/grpc/server/security/authentication/SSLContextGrpcAuthenticationReader.html)
   for certificate based authentication.
-- [`CompositeGrpcAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-autoconfigure/latest/net/devh/boot/grpc/server/security/authentication/CompositeGrpcAuthenticationReader.html)
+- [`CompositeGrpcAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-starter/latest/net/devh/boot/grpc/server/security/authentication/CompositeGrpcAuthenticationReader.html)
   to try multiple readers in order.
 
 Your bean definition will look similar to this example:
@@ -245,7 +245,7 @@ grpc-server in two ways.
 #### gRPC security checks
 
 One way to secure your application is adding
-[`GrpcSecurityMetadataSource`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-autoconfigure/latest/net/devh/boot/grpc/server/security/check/GrpcSecurityMetadataSource.html)
+[`GrpcSecurityMetadataSource`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-starter/latest/net/devh/boot/grpc/server/security/check/GrpcSecurityMetadataSource.html)
 bean to your application context. It allows you to return the security conditions on a per grpc method level.
 
 An example bean definition (using hard coded rules) might look like this:

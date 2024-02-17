@@ -29,10 +29,10 @@ grpc-spring-boot-starter 可以通过 Spring 的 `@ConfigurationProperties` 机�
 
 您可以在这里找到所有内置配置属性：
 
-- [`GrpcServerProperties`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-autoconfigure/latest/net/devh/boot/grpc/server/config/GrpcServerProperties.html)
-- [`GrpcServerProperties.Security`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-autoconfigure/latest/net/devh/boot/grpc/server/config/GrpcServerProperties.Security.html)
+- [`GrpcServerProperties`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-starter/latest/net/devh/boot/grpc/server/config/GrpcServerProperties.html)
+- [`GrpcServerProperties.Security`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-starter/latest/net/devh/boot/grpc/server/config/GrpcServerProperties.Security.html)
 
-如果你希望阅读源代码，你可以查阅 [这里](https://github.com/grpc-ecosystem/grpc-spring/blob/master/grpc-server-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/server/config/GrpcServerProperties.java#L50)。
+如果你希望阅读源代码，你可以查阅 [这里](https://github.com/grpc-ecosystem/grpc-spring/blob/master/grpc-server-spring-boot-starter/src/main/java/net/devh/boot/grpc/server/config/GrpcServerProperties.java#L50)。
 
 Channels 的属性都是以 `grpc.server..` 或 `grpc.client..security.` 为前缀。
 

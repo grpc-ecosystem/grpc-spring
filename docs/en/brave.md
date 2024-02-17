@@ -73,7 +73,7 @@ Spring-Cloud-Sleuth provides a few classes such as
 [`SpringAwareManagedChannelBuilder`](https://javadoc.io/page/org.springframework.cloud/spring-cloud-sleuth-core/latest/org/springframework/cloud/sleuth/instrument/grpc/SpringAwareManagedChannelBuilder.html),
 those classes solely exists for compatibility reasons with a different library. Do not use them with this library.
 grpc-spring-boot-starter provides the same/extended functionality out of the box with the
-[`GrpcChannelFactory`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/channelfactory/GrpcChannelFactory.html)
+[`GrpcChannelFactory`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/channelfactory/GrpcChannelFactory.html)
 and related classes. See also
 [sleuth's javadoc note](https://github.com/spring-cloud/spring-cloud-sleuth/blob/59216c32f7848ec337fb68d1dbec8e87eeb6bf59/spring-cloud-sleuth-core/src/main/java/org/springframework/cloud/sleuth/instrument/grpc/SpringAwareManagedChannelBuilder.java#L31-L34).
 

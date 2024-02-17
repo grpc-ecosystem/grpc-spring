@@ -31,12 +31,12 @@ spring's `@ConfigurationProperties` mechanism.
 
 You can find all build-in configuration properties here:
 
-- [`GrpcChannelsProperties`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/config/GrpcChannelsProperties.html)
-- [`GrpcChannelProperties`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/config/GrpcChannelProperties.html)
-- [`GrpcServerProperties.Security`](https://static.javadoc.io/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/config/GrpcChannelProperties.Security.html)
+- [`GrpcChannelsProperties`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/config/GrpcChannelsProperties.html)
+- [`GrpcChannelProperties`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/config/GrpcChannelProperties.html)
+- [`GrpcServerProperties.Security`](https://static.javadoc.io/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/config/GrpcChannelProperties.Security.html)
 
 If you prefer to read the sources instead, you can do so
-[here](https://github.com/grpc-ecosystem/grpc-spring/blob/master/grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/config/GrpcChannelProperties.java#L58).
+[here](https://github.com/grpc-ecosystem/grpc-spring/blob/master/grpc-client-spring-boot-starter/src/main/java/net/devh/boot/grpc/client/config/GrpcChannelProperties.java#L58).
 
 The properties for the channels are all prefixed with `grpc.client.__name__.` and `grpc.client.__name__.security.`
 respectively. The channel name is taken from the `@GrpcClient("__name__")` annotation.
@@ -322,7 +322,7 @@ using a custom `NameResolverProvider`.
 > **Note:** This can only be used to decide this on an application level and not on a per request level.
 
 This library provides some `NameResolverProvider`s itself so you can use them as a
-[reference](https://github.com/grpc-ecosystem/grpc-spring/tree/master/grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/nameresolver).
+[reference](https://github.com/grpc-ecosystem/grpc-spring/tree/master/grpc-client-spring-boot-starter/src/main/java/net/devh/boot/grpc/client/nameresolver).
 
 You can register your `NameResolverProvider` by adding it to `META-INF/services/io.grpc.NameResolverProvider` for Java's
 `ServiceLoader` or adding it your spring context. If you wish to use some spring beans inside your `NameResolver`, then

@@ -5,8 +5,8 @@
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 [![Crowdin](https://badges.crowdin.net/grpc-spring-boot-starter/localized.svg)](https://crowdin.com/project/grpc-spring-boot-starter)
 
-[![Client-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-client-spring-boot-autoconfigure.svg?label=Client-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-client-spring-boot-autoconfigure)
-[![Server-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-server-spring-boot-autoconfigure.svg?label=Server-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-server-spring-boot-autoconfigure)
+[![Client-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-client-spring-boot-starter.svg?label=Client-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-client-spring-boot-starter)
+[![Server-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-server-spring-boot-starter.svg?label=Server-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-server-spring-boot-starter)
 [![Common-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-common-spring-boot.svg?label=Common-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-common-spring-boot)
 
 README: [English](README.md) | [中文](README-zh-CN.md)
@@ -115,7 +115,7 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
 ````
 
 By default, the grpc server will listen to port `9090`. These and other
-[settings](grpc-server-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/server/config/GrpcServerProperties.java)
+[settings](grpc-server-spring-boot-starter/src/main/java/net/devh/boot/grpc/server/config/GrpcServerProperties.java)
 can be changed via Spring's property mechanism. The server uses the `grpc.server.` prefix.
 
 Refer to our [documentation](https://yidongnan.github.io/grpc-spring-boot-starter/) for more details.
@@ -164,7 +164,7 @@ You can customize the default url mapping via `NameResolver.Factory` beans. If y
 then the default uri will be guessed using the default scheme and the name (e.g.: `dns:/<name>`):
 
 These and other
-[settings](grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/config/GrpcChannelProperties.java)
+[settings](grpc-client-spring-boot-starter/src/main/java/net/devh/boot/grpc/client/config/GrpcChannelProperties.java)
 can be changed via Spring's property mechanism. The clients use the `grpc.client.(serverName).` prefix.
 
 Refer to our [documentation](https://yidongnan.github.io/grpc-spring-boot-starter/) for more details.
