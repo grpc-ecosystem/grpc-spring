@@ -8,7 +8,7 @@ buildscript {
         }
     }
     ext {
-        projectVersion = '3.0.0-SNAPSHOT'
+        projectVersion = '3.0.0.RELEASE'
 
         // https://github.com/grpc/grpc-java/releases
         grpcVersion = '1.60.1'
