@@ -49,7 +49,7 @@ Current version.
 
 | Version | spring-boot | spring-cloud |  gRPC  |      Date |
 |:-------:|:-----------:|:------------:|:------:|----------:|
-| 3.0.0\* |    3.1.4    |   2022.0.4   | 1.58.0 | Nov, 2023 |
+| 3.0.0 |    3.2.2    |   2023.0.0   | 1.60.1 | Feb, 2024 |
 
 (\* Future versions)
 
