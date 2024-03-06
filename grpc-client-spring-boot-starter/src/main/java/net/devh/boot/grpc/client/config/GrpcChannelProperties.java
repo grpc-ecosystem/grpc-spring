@@ -337,9 +337,10 @@ public class GrpcChannelProperties {
     private DataSize maxInboundMetadataSize = null;
 
     /**
-     * Sets the maximum size of metadata in bytes allowed to be received.
-     * If not set ({@code null}) then it will default to gRPC's default. The default is implementation-dependent, but is not generally less than 8 KiB and may be unlimited.
-     * If set to {@code -1} then it will use the highest possible limit (not recommended). Integer.MAX_VALUE disables the enforcement.
+     * Sets the maximum size of metadata in bytes allowed to be received. If not set ({@code null}) then it will default
+     * to gRPC's default. The default is implementation-dependent, but is not generally less than 8 KiB and may be
+     * unlimited. If set to {@code -1} then it will use the highest possible limit (not recommended). Integer.MAX_VALUE
+     * disables the enforcement.
      *
      * @return The maximum size of metadata in bytes allowed to be received or null if the default should be used.
      *
@@ -350,12 +351,13 @@ public class GrpcChannelProperties {
     }
 
     /**
-     * Sets the maximum size of metadata in bytes allowed to be received.
-     * If not set ({@code null}) then it will default.The default is implementation-dependent, but is not generally less than 8 KiB and may be unlimited.
-     * If set to {@code -1} then it will use the highest possible limit (not recommended). Integer.MAX_VALUE disables the enforcement.
+     * Sets the maximum size of metadata in bytes allowed to be received. If not set ({@code null}) then it will
+     * default.The default is implementation-dependent, but is not generally less than 8 KiB and may be unlimited. If
+     * set to {@code -1} then it will use the highest possible limit (not recommended). Integer.MAX_VALUE disables the
+     * enforcement.
      *
-     * @param maxInboundMetadataSize The new maximum size of metadata in bytes allowed to be received. {@code -1} for max
-     *        possible. Null to use the gRPC's default.
+     * @param maxInboundMetadataSize The new maximum size of metadata in bytes allowed to be received. {@code -1} for
+     *        max possible. Null to use the gRPC's default.
      *
      * @see ManagedChannelBuilder#maxInboundMetadataSize(int) (int)
      */
