@@ -24,12 +24,12 @@ jobs:
           check-latest: true
 
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           arguments: --scan --stacktrace --warning-mode=all build
 
       # Avoid publish errors when upgrading gradle version and dependencyManager plugin
       - name: Try publishToMavenLocal
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           arguments: publishToMavenLocal
