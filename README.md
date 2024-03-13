@@ -1,3 +1,9 @@
+# Survey - gRPC/Spring
+
+Dear gRPC/Spring users, in order to enhance the user experience of
+grpc-ecosystem/grpc-spring, we have developed [this survey](https://docs.google.com/forms/d/e/1FAIpQLSfHgvh_Z0_wwX7JQLERanJ-AAXjiKh23_kSI3Rl5mnKVQ8Bpw/viewform?resourcekey=0-mEilI6lFvIfVXiUniEyCog) as a means of
+establishing a direct line of communication. Your feedback is highly appreciated.
+
 # gRPC Spring Boot Starter
 
 [![Build master branch](https://github.com/grpc-ecosystem/grpc-spring/workflows/Build%20master%20branch/badge.svg)](https://github.com/grpc-ecosystem/grpc-spring/actions)
