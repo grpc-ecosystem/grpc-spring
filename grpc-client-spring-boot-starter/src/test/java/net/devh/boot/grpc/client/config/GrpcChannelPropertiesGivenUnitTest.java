@@ -33,7 +33,8 @@ import org.springframework.util.unit.DataSize;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties = {
         "grpc.client.test.keepAliveTime=42m",
-        "grpc.client.test.maxInboundMessageSize=5MB"
+        "grpc.client.test.maxInboundMessageSize=5MB",
+        "grpc.client.test.maxInboundMetadataSize=3MB"
 })
 class GrpcChannelPropertiesGivenUnitTest {
 
@@ -45,6 +46,7 @@ class GrpcChannelPropertiesGivenUnitTest {
         final GrpcChannelProperties properties = this.grpcChannelsProperties.getChannel("test");
         assertEquals(Duration.ofMinutes(42), properties.getKeepAliveTime());
         assertEquals(DataSize.ofMegabytes(5), properties.getMaxInboundMessageSize());
+        assertEquals(DataSize.ofMegabytes(3), properties.getMaxInboundMetadataSize());
     }
 
 }

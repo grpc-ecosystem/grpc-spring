@@ -333,6 +333,43 @@ public class GrpcChannelProperties {
         }
     }
 
+    @DataSizeUnit(DataUnit.BYTES)
+    private DataSize maxInboundMetadataSize = null;
+
+    /**
+     * Sets the maximum size of metadata in bytes allowed to be received. If not set ({@code null}) then it will default
+     * to gRPC's default. The default is implementation-dependent, but is not generally less than 8 KiB and may be
+     * unlimited. If set to {@code -1} then it will use the highest possible limit (not recommended). Integer.MAX_VALUE
+     * disables the enforcement.
+     *
+     * @return The maximum size of metadata in bytes allowed to be received or null if the default should be used.
+     *
+     * @see ManagedChannelBuilder#maxInboundMetadataSize(int) (int)
+     */
+    public DataSize getMaxInboundMetadataSize() {
+        return maxInboundMetadataSize;
+    }
+
+    /**
+     * Sets the maximum size of metadata in bytes allowed to be received. If not set ({@code null}) then it will
+     * default.The default is implementation-dependent, but is not generally less than 8 KiB and may be unlimited. If
+     * set to {@code -1} then it will use the highest possible limit (not recommended). Integer.MAX_VALUE disables the
+     * enforcement.
+     *
+     * @param maxInboundMetadataSize The new maximum size of metadata in bytes allowed to be received. {@code -1} for
+     *        max possible. Null to use the gRPC's default.
+     *
+     * @see ManagedChannelBuilder#maxInboundMetadataSize(int) (int)
+     */
+    public void setMaxInboundMetadataSize(DataSize maxInboundMetadataSize) {
+        if (maxInboundMetadataSize == null || maxInboundMetadataSize.toBytes() >= 0) {
+            this.maxInboundMetadataSize = maxInboundMetadataSize;
+        } else if (maxInboundMetadataSize.toBytes() == -1) {
+            this.maxInboundMetadataSize = DataSize.ofBytes(Integer.MAX_VALUE);
+        } else {
+            throw new IllegalArgumentException("Unsupported maxInboundMetadataSize: " + maxInboundMetadataSize);
+        }
+    }
     // --------------------------------------------------
 
     private Boolean fullStreamDecompression;
