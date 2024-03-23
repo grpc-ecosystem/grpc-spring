@@ -17,7 +17,7 @@ establishing a direct line of communication. Your feedback is highly appreciated
 
 README: [English](README.md) | [中文](README-zh-CN.md)
 
-**Documentation:** [English](https://yidongnan.github.io/grpc-spring-boot-starter/en/) | [中文](https://yidongnan.github.io/grpc-spring-boot-starter/zh-CN/)
+**Documentation:** [English](https://grpc-ecosystem.github.io/grpc-spring/en/) | [中文](https://grpc-ecosystem.github.io/grpc-spring/zh-CN/)
 
 ## Features
 
