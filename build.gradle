@@ -61,7 +61,7 @@ if (hasProperty('buildScan')) {
 wrapper {
     // Update using:
     // ./gradlew wrapper --gradle-version=8.4 --distribution-type=bin
-    gradleVersion = '8.6'
+    gradleVersion = '8.7'
 }
 
 def buildTimeAndDate = OffsetDateTime.now()
