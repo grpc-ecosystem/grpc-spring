@@ -54,13 +54,6 @@
 			"defaultValue": false
 		},
 		{
-			"name": "grpc.client.GLOBAL.full-stream-decompression",
-			"type": "java.lang.Boolean",
-			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties",
-			"description": "Whether full-stream decompression of inbound streams should be enabled.",
-			"defaultValue": false
-		},
-		{
 			"name": "grpc.client.GLOBAL.keep-alive-time",
 			"type": "java.time.Duration",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties",
