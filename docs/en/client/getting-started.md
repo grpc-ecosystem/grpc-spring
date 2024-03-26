@@ -26,7 +26,7 @@ This section deals with how to get Spring to connect to a grpc server and manage
 
 Before we start adding the dependencies lets start with some of our recommendation for your project setup.
 
-![project setup](/grpc-spring-boot-starter/assets/images/client-project-setup.svg)
+![project setup](https://grpc-ecosystem.github.io/grpc-spring/assets/images/client-project-setup.svg)
 
 We recommend splitting your project into 2-3 separate modules.
 
