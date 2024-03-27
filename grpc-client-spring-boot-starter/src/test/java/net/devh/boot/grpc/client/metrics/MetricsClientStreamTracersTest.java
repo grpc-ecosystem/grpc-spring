@@ -159,8 +159,8 @@ class MetricsClientStreamTracersTest {
 
         HistogramSnapshot attemptDurationSnapshot = meterRegistry.get(CLIENT_ATTEMPT_DURATION)
                 .tags(expectedTags)
-                .tags(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE,
-                        INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
+                .tag(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE)
+                .tag(INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
                 .timer()
                 .takeSnapshot();
         HistogramSnapshot attemptDurationHistogram = HistogramSnapshot.empty(1L, 154L, 1.54E8);
@@ -178,8 +178,8 @@ class MetricsClientStreamTracersTest {
         HistogramSnapshot sentAttemptMessageSizeSnapShot =
                 meterRegistry.get(CLIENT_ATTEMPT_SENT_COMPRESSED_MESSAGE_SIZE)
                         .tags(expectedTags)
-                        .tags(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE,
-                                INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
+                        .tag(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE)
+                        .tag(INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
                         .summary()
                         .takeSnapshot();
         HistogramSnapshot expectedAttemptSentMessageSizeHistogram = HistogramSnapshot.empty(1L, 1127L, 1127L);
