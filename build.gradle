@@ -225,13 +225,14 @@ allprojects { project ->
         }
 
         File versionsFile = file("${projectDir}/src/main/java/net/devh/boot/grpc/common/util/Versions.java")
-        task fixFile {
+        task replaceVersion {
             ant.replaceregexp(
                 file: versionsFile,
                 match: 'VERSIONS_STRING_PLACEHOLDER',
                 replace: "v${projectVersion}",
                 flags: 'g',
-                byline: true)
+                byline: true,
+            )
         }
 
         // Javadoc Task
