@@ -24,7 +24,7 @@ public final class Versions {
     /**
      * A constant that defines, the current version of the library.
      */
-    public static final String PROJECT_VERSION = "v3.0.0.RELEASE";
+    public static final String PROJECT_VERSION = "VERSIONS_STRING_PLACEHOLDER";
 
     private Versions() {}
 
