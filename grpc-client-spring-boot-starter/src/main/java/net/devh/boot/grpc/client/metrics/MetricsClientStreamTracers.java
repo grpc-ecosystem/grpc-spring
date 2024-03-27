@@ -35,7 +35,6 @@ import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.Status.Code;
 import io.micrometer.core.instrument.Tags;
-
 import net.devh.boot.grpc.common.util.Versions;
 
 /**

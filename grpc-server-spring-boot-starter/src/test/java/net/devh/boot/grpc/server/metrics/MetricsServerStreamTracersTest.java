@@ -38,7 +38,6 @@ import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.distribution.CountAtBucket;
 import io.micrometer.core.instrument.distribution.HistogramSnapshot;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-
 import net.devh.boot.grpc.common.util.Versions;
 
 /**
