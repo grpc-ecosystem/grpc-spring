@@ -53,7 +53,7 @@ public class SSLContextGrpcAuthenticationReader implements GrpcAuthenticationRea
             log.trace("Peer not verified via certificate", e);
             return null;
         }
-        return fromCertificate(certs[certs.length - 1]);
+        return fromCertificate(certs[0]);
     }
 
     /**
