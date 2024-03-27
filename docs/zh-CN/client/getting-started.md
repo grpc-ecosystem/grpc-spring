@@ -26,7 +26,7 @@
 
 在我们开始添加依赖关系之前，让我们项目的一些设置建议开始。
 
-![项目创建](https://grpc-ecosystem.github.io/grpc-spring/assets/images/client-project-setup.svg)
+![项目创建](/grpc-spring/assets/images/client-project-setup.svg)
 
 我们建议将您的项目分为2至3个不同的模块。
 
