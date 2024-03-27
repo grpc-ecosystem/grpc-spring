@@ -36,7 +36,9 @@ import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.distribution.CountAtBucket;
 import io.micrometer.core.instrument.distribution.HistogramSnapshot;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+
 import net.devh.boot.grpc.client.metrics.MetricsClientStreamTracers.CallAttemptsTracerFactory;
+import net.devh.boot.grpc.common.util.Versions;
 
 /**
  * Tests for {@link MetricsClientStreamTracers}.
@@ -61,6 +63,10 @@ class MetricsClientStreamTracersTest {
     private static final String GRPC_METHOD_TAG_KEY = "grpc.method";
     private static final String GRPC_STATUS_TAG_KEY = "grpc.status";
     private static final String FULL_METHOD_NAME = "package1.service1/method1";
+    private static final String INSTRUMENTATION_SOURCE_TAG_KEY = "instrumentation_source";
+    private static final String INSTRUMENTATION_SOURCE_TAG_VALUE = "grpc-spring";
+    private static final String INSTRUMENTATION_VERSION_TAG_KEY = "instrumentation_version";
+    private static final String INSTRUMENTATION_VERSION_TAG_VALUE = Versions.PROJECT_VERSION;
 
     private static class StringInputStream extends InputStream {
         final String string;
@@ -154,6 +160,8 @@ class MetricsClientStreamTracersTest {
 
         HistogramSnapshot attemptDurationSnapshot = meterRegistry.get(CLIENT_ATTEMPT_DURATION)
                 .tags(expectedTags)
+                .tags(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE,
+                      INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
                 .timer()
                 .takeSnapshot();
         HistogramSnapshot attemptDurationHistogram = HistogramSnapshot.empty(1L, 154L, 1.54E8);
@@ -171,6 +179,8 @@ class MetricsClientStreamTracersTest {
         HistogramSnapshot sentAttemptMessageSizeSnapShot =
                 meterRegistry.get(CLIENT_ATTEMPT_SENT_COMPRESSED_MESSAGE_SIZE)
                         .tags(expectedTags)
+                        .tags(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE,
+                              INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
                         .summary()
                         .takeSnapshot();
         HistogramSnapshot expectedAttemptSentMessageSizeHistogram = HistogramSnapshot.empty(1L, 1127L, 1127L);

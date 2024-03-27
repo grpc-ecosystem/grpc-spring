@@ -36,6 +36,8 @@ import io.grpc.Status;
 import io.grpc.Status.Code;
 import io.micrometer.core.instrument.Tags;
 
+import net.devh.boot.grpc.common.util.Versions;
+
 /**
  * Provides factories for {@link io.grpc.StreamTracer} that records metrics.
  *
@@ -127,7 +129,10 @@ final class MetricsClientStreamTracers {
 
         void recordFinishedAttempt() {
             Tags attemptMetricTags =
-                    Tags.of("grpc.method", fullMethodName, "grpc.status", statusCode.toString());
+                    Tags.of("grpc.method", fullMethodName,
+                            "grpc.status", statusCode.toString(),
+                            "instrumentation_source", "grpc-spring",
+                            "instrumentation_version", Versions.PROJECT_VERSION);
             this.metricsClientMeters.getClientAttemptDuration()
                     .withTags(attemptMetricTags)
                     .record(attemptNanos, TimeUnit.NANOSECONDS);
