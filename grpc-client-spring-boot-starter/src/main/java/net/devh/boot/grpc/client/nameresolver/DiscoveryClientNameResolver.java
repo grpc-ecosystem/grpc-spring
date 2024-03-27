@@ -369,13 +369,11 @@ public class DiscoveryClientNameResolver extends NameResolver {
                 return KEEP_PREVIOUS;
             }
 
-            final ResolutionResult.Builder result = ResolutionResult.newBuilder()
-                    .setAddresses(toTargets(newInstanceList))
-                    .setServiceConfig(resolveServiceConfig(newInstanceList));
-
             // Set new servers
             log.debug("Ready to update server list for {}", getName());
-            this.savedListener.onResult(result.build());
+            this.savedListener.onResult(ResolutionResult.newBuilder()
+                    .setAddresses(toTargets(newInstanceList))
+                    .setServiceConfig(resolveServiceConfig(newInstanceList)).build());
             log.info("Done updating server list for {}", getName());
             return newInstanceList;
         }
