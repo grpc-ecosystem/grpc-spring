@@ -72,6 +72,20 @@ ext {
     buildRevision = versioning.info.commit
 }
 
+task createVersionFile {
+    new File("${projectDir}/grpc-common-spring-boot/src/main/java/net/devh/boot/grpc/common/util/Versions.java").text = """
+package net.devh.boot.grpc.common.util;
+public final class Versions {
+    public static final String PROJECT_VERSION = "v${projectVersion}";
+    private Versions() {}
+}
+    """
+}
+
+clean.doFirst {
+    delete "${projectDir}/grpc-common-spring-boot/src/main/java/net/devh/boot/grpc/common/util/Versions.java"
+}
+
 allprojects {
     apply plugin: 'java'
     apply plugin: 'idea'
@@ -222,17 +236,6 @@ allprojects { project ->
             registerFeature('optionalSupport') {
                 usingSourceSet(sourceSets.main)
             }
-        }
-
-        File versionsFile = file("${projectDir}/src/main/java/net/devh/boot/grpc/common/util/Versions.java")
-        task replaceVersion {
-            ant.replaceregexp(
-                file: versionsFile,
-                match: 'VERSIONS_STRING_PLACEHOLDER',
-                replace: "v${projectVersion}",
-                flags: 'g',
-                byline: true,
-            )
         }
 
         // Javadoc Task
