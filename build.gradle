@@ -72,8 +72,17 @@ ext {
     buildRevision = versioning.info.commit
 }
 
+task createVersionsFile(type: Copy) {
+    from("grpc-common-spring-boot/src/main/java/net/devh/boot/grpc/common/util/Versions.java.template") {
+        rename "Versions.java.template", "Versions.java"
+        filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [
+            versionStringPlaceholder: "v${projectVersion}".toString(),
+        ])
+    }
+    into "grpc-common-spring-boot/src/main/java/net/devh/boot/grpc/common/util"
+}
 clean.doFirst {
-    delete "${projectDir}/grpc-common-spring-boot/src/main/java/net/devh/boot/grpc/common/util/Versions.java"
+    delete "grpc-common-spring-boot/src/main/java/net/devh/boot/grpc/common/util/Versions.java"
 }
 
 allprojects {
@@ -140,15 +149,6 @@ allprojects {
         }
     }
 
-    task createVersionsFile(type: Copy) {
-        from("src/main/java/net/devh/boot/grpc/common/util/Versions.java.template") {
-            rename "Versions.java.template", "Versions.java"
-            filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [
-                versionStringPlaceholder: "v${projectVersion}".toString(),
-            ])
-        }
-        into "src/main/java/net/devh/boot/grpc/common/util"
-    }
     compileJava.dependsOn createVersionsFile
     spotlessJava.dependsOn createVersionsFile
 
@@ -238,6 +238,10 @@ allprojects { project ->
             registerFeature('optionalSupport') {
                 usingSourceSet(sourceSets.main)
             }
+        }
+
+        delombok {
+            dependsOn createVersionsFile
         }
 
         // Javadoc Task
