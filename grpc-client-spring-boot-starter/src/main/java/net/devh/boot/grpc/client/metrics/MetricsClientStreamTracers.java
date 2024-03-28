@@ -173,8 +173,8 @@ final class MetricsClientStreamTracers {
             // Record here in case newClientStreamTracer() would never be called.
             this.metricsClientMeters.getAttemptCounter()
                     .withTags(Tags.of("grpc.method", fullMethodName,
-                                      "instrumentation_source", Constants.INSTRUMENTATION_SOURCE_TAG_VALUE,
-                                      "instrumentation_version", Constants.PROJECT_VERSION))
+                            "instrumentation_source", Constants.INSTRUMENTATION_SOURCE_TAG_VALUE,
+                            "instrumentation_version", Constants.PROJECT_VERSION))
                     .increment();
         }
 
@@ -195,8 +195,8 @@ final class MetricsClientStreamTracers {
             if (attemptsPerCall.get() > 0) {
                 this.metricsClientMeters.getAttemptCounter()
                         .withTags((Tags.of("grpc.method", fullMethodName,
-                                           "instrumentation_source", Constants.INSTRUMENTATION_SOURCE_TAG_VALUE,
-                                           "instrumentation_version", Constants.PROJECT_VERSION)))
+                                "instrumentation_source", Constants.INSTRUMENTATION_SOURCE_TAG_VALUE,
+                                "instrumentation_version", Constants.PROJECT_VERSION)))
                         .increment();
             }
             if (!info.isTransparentRetry()) {

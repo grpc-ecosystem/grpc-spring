@@ -102,8 +102,8 @@ public final class MetricsServerStreamTracers {
         public void serverCallStarted(ServerCallInfo<?, ?> callInfo) {
             this.metricsServerMeters.getServerCallCounter()
                     .withTags(Tags.of("grpc.method", this.fullMethodName,
-                                      "instrumentation_source", Constants.INSTRUMENTATION_SOURCE_TAG_VALUE,
-                                      "instrumentation_version", Constants.PROJECT_VERSION))
+                            "instrumentation_source", Constants.INSTRUMENTATION_SOURCE_TAG_VALUE,
+                            "instrumentation_version", Constants.PROJECT_VERSION))
                     .increment();
         }
 
