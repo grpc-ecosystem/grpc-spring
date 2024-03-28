@@ -72,9 +72,9 @@ ext {
     buildRevision = versioning.info.commit
 }
 
-task createVersionsFile(type: Copy) {
-    from("grpc-common-spring-boot/src/main/java/net/devh/boot/grpc/common/util/Versions.java.template") {
-        rename "Versions.java.template", "Versions.java"
+task createConstantsFile(type: Copy) {
+    from("grpc-common-spring-boot/src/main/java/net/devh/boot/grpc/common/util/Constants.java.template") {
+        rename "Constants.java.template", "Constants.java"
         filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [
             versionStringPlaceholder: "v${projectVersion}".toString(),
         ])
@@ -82,7 +82,7 @@ task createVersionsFile(type: Copy) {
     into "grpc-common-spring-boot/src/main/java/net/devh/boot/grpc/common/util"
 }
 clean.doFirst {
-    delete "grpc-common-spring-boot/src/main/java/net/devh/boot/grpc/common/util/Versions.java"
+    delete "grpc-common-spring-boot/src/main/java/net/devh/boot/grpc/common/util/Constants.java"
 }
 
 allprojects {
@@ -147,11 +147,11 @@ allprojects {
             include 'LICENSE'
             into 'META-INF'
         }
-        dependsOn createVersionsFile
+        dependsOn createConstantsFile
     }
 
-    compileJava.dependsOn createVersionsFile
-    spotlessJava.dependsOn createVersionsFile
+    compileJava.dependsOn createConstantsFile
+    spotlessJava.dependsOn createConstantsFile
 
     // Generate MANIFEST.MF
     jar {
@@ -242,7 +242,7 @@ allprojects { project ->
         }
 
         delombok {
-            dependsOn createVersionsFile
+            dependsOn createConstantsFile
         }
 
         // Javadoc Task

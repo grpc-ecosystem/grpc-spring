@@ -17,15 +17,22 @@
 package net.devh.boot.grpc.common.util;
 
 /**
- * Class that contains version strings
+ * Class that contains shared constants
  */
-public final class Versions {
+public final class Constants {
 
     /**
-     * A constant that defines, the current version of the library.
+     * A constant that defines the current version of the library.
      */
     public static final String PROJECT_VERSION = "@versionStringPlaceholder@";
 
-    private Versions() {}
+
+    /**
+     * A constant that defines the instrumentation_source metric tag value
+     */
+	public static final String INSTRUMENTATION_SOURCE_TAG_VALUE = "grpc-spring";
+
+
+    private Constants() {}
 
 }

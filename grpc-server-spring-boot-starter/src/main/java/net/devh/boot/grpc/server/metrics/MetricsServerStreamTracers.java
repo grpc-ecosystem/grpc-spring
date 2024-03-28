@@ -30,7 +30,7 @@ import io.grpc.ServerStreamTracer;
 import io.grpc.Status;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
-import net.devh.boot.grpc.common.util.Versions;
+import net.devh.boot.grpc.common.util.Constants;
 
 /**
  * Provides factories for {@link io.grpc.StreamTracer} that records metrics.
@@ -102,8 +102,8 @@ public final class MetricsServerStreamTracers {
         public void serverCallStarted(ServerCallInfo<?, ?> callInfo) {
             this.metricsServerMeters.getServerCallCounter()
                     .withTags(Tags.of("grpc.method", this.fullMethodName,
-                                      "instrumentation_source", "grpc-spring",
-                                      "instrumentation_version", Versions.PROJECT_VERSION))
+                                      "instrumentation_source", Constants.INSTRUMENTATION_SOURCE_TAG_VALUE,
+                                      "instrumentation_version", Constants.PROJECT_VERSION))
                     .increment();
         }
 
@@ -127,8 +127,8 @@ public final class MetricsServerStreamTracers {
             Tags serverMetricTags =
                     Tags.of("grpc.method", this.fullMethodName,
                             "grpc.status", status.getCode().toString(),
-                            "instrumentation_source", "grpc-spring",
-                            "instrumentation_version", Versions.PROJECT_VERSION);
+                            "instrumentation_source", Constants.INSTRUMENTATION_SOURCE_TAG_VALUE,
+                            "instrumentation_version", Constants.PROJECT_VERSION);
             this.metricsServerMeters.getServerCallDuration()
                     .withTags(serverMetricTags)
                     .record(callLatencyNanos, TimeUnit.NANOSECONDS);

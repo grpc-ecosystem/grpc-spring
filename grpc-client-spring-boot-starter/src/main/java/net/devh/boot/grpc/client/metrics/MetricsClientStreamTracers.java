@@ -35,7 +35,7 @@ import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.Status.Code;
 import io.micrometer.core.instrument.Tags;
-import net.devh.boot.grpc.common.util.Versions;
+import net.devh.boot.grpc.common.util.Constants;
 
 /**
  * Provides factories for {@link io.grpc.StreamTracer} that records metrics.
@@ -130,8 +130,8 @@ final class MetricsClientStreamTracers {
             Tags attemptMetricTags =
                     Tags.of("grpc.method", fullMethodName,
                             "grpc.status", statusCode.toString(),
-                            "instrumentation_source", "grpc-spring",
-                            "instrumentation_version", Versions.PROJECT_VERSION);
+                            "instrumentation_source", Constants.INSTRUMENTATION_SOURCE_TAG_VALUE,
+                            "instrumentation_version", Constants.PROJECT_VERSION);
             this.metricsClientMeters.getClientAttemptDuration()
                     .withTags(attemptMetricTags)
                     .record(attemptNanos, TimeUnit.NANOSECONDS);
@@ -173,8 +173,8 @@ final class MetricsClientStreamTracers {
             // Record here in case newClientStreamTracer() would never be called.
             this.metricsClientMeters.getAttemptCounter()
                     .withTags(Tags.of("grpc.method", fullMethodName,
-                                      "instrumentation_source", "grpc-spring",
-                                      "instrumentation_version", Versions.PROJECT_VERSION))
+                                      "instrumentation_source", Constants.INSTRUMENTATION_SOURCE_TAG_VALUE,
+                                      "instrumentation_version", Constants.PROJECT_VERSION))
                     .increment();
         }
 
@@ -195,8 +195,8 @@ final class MetricsClientStreamTracers {
             if (attemptsPerCall.get() > 0) {
                 this.metricsClientMeters.getAttemptCounter()
                         .withTags((Tags.of("grpc.method", fullMethodName,
-                                           "instrumentation_source", "grpc-spring",
-                                           "instrumentation_version", Versions.PROJECT_VERSION)))
+                                           "instrumentation_source", Constants.INSTRUMENTATION_SOURCE_TAG_VALUE,
+                                           "instrumentation_version", Constants.PROJECT_VERSION)))
                         .increment();
             }
             if (!info.isTransparentRetry()) {
@@ -258,8 +258,8 @@ final class MetricsClientStreamTracers {
             Tags clientCallMetricTags =
                     Tags.of("grpc.method", this.fullMethodName,
                             "grpc.status", status.getCode().toString(),
-                            "instrumentation_source", "grpc-spring",
-                            "instrumentation_version", Versions.PROJECT_VERSION);
+                            "instrumentation_source", Constants.INSTRUMENTATION_SOURCE_TAG_VALUE,
+                            "instrumentation_version", Constants.PROJECT_VERSION);
             this.metricsClientMeters.getClientCallDuration()
                     .withTags(clientCallMetricTags)
                     .record(callLatencyNanos, TimeUnit.NANOSECONDS);
