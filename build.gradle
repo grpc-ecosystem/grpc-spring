@@ -72,16 +72,6 @@ ext {
     buildRevision = versioning.info.commit
 }
 
-task createVersionFile {
-    new File("${projectDir}/grpc-common-spring-boot/src/main/java/net/devh/boot/grpc/common/util/Versions.java").text = """
-package net.devh.boot.grpc.common.util;
-public final class Versions {
-    public static final String PROJECT_VERSION = "v${projectVersion}";
-    private Versions() {}
-}
-    """
-}
-
 clean.doFirst {
     delete "${projectDir}/grpc-common-spring-boot/src/main/java/net/devh/boot/grpc/common/util/Versions.java"
 }
@@ -150,7 +140,18 @@ allprojects {
         }
     }
 
-    // Generate MANIFEST.MF
+    task createVersionsFile(type: Copy) {
+        from("src/main/java/net/devh/boot/grpc/common/util/Versions.java.template") {
+            rename "Versions.java.template", "Versions.java"
+        }
+        into "src/main/java/net/devh/boot/grpc/common/util"
+        filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [
+            'VERSIONS_STRING_PLACEHOLDER': "v${projectVersion}".toString(),
+        ])
+    }
+    compileJava.dependsOn createVersionsFile
+
+    // Generate.MF
     jar {
         manifest {
             attributes(
