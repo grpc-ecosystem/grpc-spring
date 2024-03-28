@@ -115,6 +115,7 @@ allprojects {
             removeUnusedImports()
             importOrderFile rootProject.file('extra/eclipse/eclipse.importorder')
             eclipse().configFile rootProject.file('extra/eclipse/eclipse-formatter.xml')
+            dependsOn createVersionsFile
         }
         format('misc') {
             target('**/*.gradle', '**/*.md', '**/*.yml')
