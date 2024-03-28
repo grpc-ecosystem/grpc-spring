@@ -143,11 +143,11 @@ allprojects {
     task createVersionsFile(type: Copy) {
         from("src/main/java/net/devh/boot/grpc/common/util/Versions.java.template") {
             rename "Versions.java.template", "Versions.java"
+            filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [
+                versionStringPlaceholder: "v${projectVersion}".toString(),
+            ])
         }
         into "src/main/java/net/devh/boot/grpc/common/util"
-        filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [
-            'VERSIONS_STRING_PLACEHOLDER': "v${projectVersion}".toString(),
-        ])
     }
     compileJava.dependsOn createVersionsFile
 
