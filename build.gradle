@@ -147,7 +147,7 @@ allprojects {
             include 'LICENSE'
             into 'META-INF'
         }
-		dependsOn createVersionsFile
+        dependsOn createVersionsFile
     }
 
     compileJava.dependsOn createVersionsFile
