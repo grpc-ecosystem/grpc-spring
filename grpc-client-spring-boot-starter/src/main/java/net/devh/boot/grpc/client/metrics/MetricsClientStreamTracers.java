@@ -172,7 +172,9 @@ final class MetricsClientStreamTracers {
 
             // Record here in case newClientStreamTracer() would never be called.
             this.metricsClientMeters.getAttemptCounter()
-                    .withTags(Tags.of("grpc.method", fullMethodName))
+                    .withTags(Tags.of("grpc.method", fullMethodName,
+                                      "instrumentation_source", "grpc-spring",
+                                      "instrumentation_version", Versions.PROJECT_VERSION))
                     .increment();
         }
 
@@ -192,7 +194,9 @@ final class MetricsClientStreamTracers {
             // attempt, as first attempt cannot be a transparent retry.
             if (attemptsPerCall.get() > 0) {
                 this.metricsClientMeters.getAttemptCounter()
-                        .withTags((Tags.of("grpc.method", fullMethodName)))
+                        .withTags((Tags.of("grpc.method", fullMethodName,
+                                           "instrumentation_source", "grpc-spring",
+                                           "instrumentation_version", Versions.PROJECT_VERSION)))
                         .increment();
             }
             if (!info.isTransparentRetry()) {
@@ -252,7 +256,10 @@ final class MetricsClientStreamTracers {
             }
             callLatencyNanos = clientCallStopWatch.elapsed(TimeUnit.NANOSECONDS);
             Tags clientCallMetricTags =
-                    Tags.of("grpc.method", this.fullMethodName, "grpc.status", status.getCode().toString());
+                    Tags.of("grpc.method", this.fullMethodName,
+                            "grpc.status", status.getCode().toString(),
+                            "instrumentation_source", "grpc-spring",
+                            "instrumentation_version", Versions.PROJECT_VERSION);
             this.metricsClientMeters.getClientCallDuration()
                     .withTags(clientCallMetricTags)
                     .record(callLatencyNanos, TimeUnit.NANOSECONDS);

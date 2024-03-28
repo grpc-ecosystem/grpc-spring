@@ -130,6 +130,8 @@ class MetricsClientStreamTracersTest {
 
         assertThat(meterRegistry.get(CLIENT_ATTEMPT_STARTED)
                 .tag(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME)
+                .tag(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE)
+                .tag(INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
                 .counter()
                 .count()).isEqualTo(1);
 
@@ -151,16 +153,19 @@ class MetricsClientStreamTracersTest {
 
         assertThat(meterRegistry.get(CLIENT_ATTEMPT_STARTED)
                 .tag(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME)
+                .tag(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE)
+                .tag(INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
                 .counter()
                 .count()).isEqualTo(1);
 
         Tags expectedTags =
-                Tags.of(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME, GRPC_STATUS_TAG_KEY, Status.Code.OK.toString());
+                Tags.of(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME,
+                    GRPC_STATUS_TAG_KEY, Status.Code.OK.toString(),
+                    INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE,
+                    INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE);
 
         HistogramSnapshot attemptDurationSnapshot = meterRegistry.get(CLIENT_ATTEMPT_DURATION)
                 .tags(expectedTags)
-                .tag(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE)
-                .tag(INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
                 .timer()
                 .takeSnapshot();
         HistogramSnapshot attemptDurationHistogram = HistogramSnapshot.empty(1L, 154L, 1.54E8);
@@ -178,8 +183,6 @@ class MetricsClientStreamTracersTest {
         HistogramSnapshot sentAttemptMessageSizeSnapShot =
                 meterRegistry.get(CLIENT_ATTEMPT_SENT_COMPRESSED_MESSAGE_SIZE)
                         .tags(expectedTags)
-                        .tag(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE)
-                        .tag(INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
                         .summary()
                         .takeSnapshot();
         HistogramSnapshot expectedAttemptSentMessageSizeHistogram = HistogramSnapshot.empty(1L, 1127L, 1127L);
@@ -209,6 +212,8 @@ class MetricsClientStreamTracersTest {
 
         assertThat(meterRegistry.get(CLIENT_ATTEMPT_STARTED)
                 .tag(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME)
+                .tag(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE)
+                .tag(INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
                 .counter()
                 .count()).isEqualTo(1);
 
@@ -222,10 +227,15 @@ class MetricsClientStreamTracersTest {
         tracer.streamClosed(Status.UNAVAILABLE);
 
         Tags expectedUnailableStatusTags =
-                Tags.of(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME, GRPC_STATUS_TAG_KEY, Status.Code.UNAVAILABLE.toString());
+                Tags.of(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME,
+                    GRPC_STATUS_TAG_KEY, Status.Code.UNAVAILABLE.toString(),
+                    INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE,
+                    INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE);
 
         assertThat(meterRegistry.get(CLIENT_ATTEMPT_STARTED)
                 .tag(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME)
+                .tag(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE)
+                .tag(INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
                 .counter()
                 .count()).isEqualTo(1);
         assertThat(meterRegistry.get(CLIENT_ATTEMPT_DURATION)
@@ -257,10 +267,15 @@ class MetricsClientStreamTracersTest {
         tracer.streamClosed(Status.NOT_FOUND);
 
         Tags expectedNotFoundStatusTags =
-                Tags.of(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME, GRPC_STATUS_TAG_KEY, Status.Code.NOT_FOUND.toString());
+                Tags.of(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME,
+                    GRPC_STATUS_TAG_KEY, Status.Code.NOT_FOUND.toString(),
+                    INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE,
+                    INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE);
 
         assertThat(meterRegistry.get(CLIENT_ATTEMPT_STARTED)
                 .tag(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME)
+                .tag(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE)
+                .tag(INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
                 .counter()
                 .count()).isEqualTo(2);
 
@@ -299,6 +314,8 @@ class MetricsClientStreamTracersTest {
 
         assertThat(meterRegistry.get(CLIENT_ATTEMPT_STARTED)
                 .tag(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME)
+                .tag(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE)
+                .tag(INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
                 .counter()
                 .count()).isEqualTo(3);
 
@@ -351,10 +368,15 @@ class MetricsClientStreamTracersTest {
         callAttemptsTracerFactory.callEnded(Status.OK);
 
         Tags expectedOKStatusTags =
-                Tags.of(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME, GRPC_STATUS_TAG_KEY, Status.Code.OK.toString());
+                Tags.of(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME,
+                    GRPC_STATUS_TAG_KEY, Status.Code.OK.toString(),
+                    INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE,
+                    INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE);
 
         assertThat(meterRegistry.get(CLIENT_ATTEMPT_STARTED)
                 .tag(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME)
+                .tag(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE)
+                .tag(INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
                 .counter()
                 .count()).isEqualTo(4);
         assertThat(meterRegistry.get(CLIENT_ATTEMPT_DURATION)
@@ -397,8 +419,10 @@ class MetricsClientStreamTracersTest {
         callAttemptsTracerFactory.callEnded(status);
 
         Tags expectedDeadlineExceededStatusTags =
-                Tags.of(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME, GRPC_STATUS_TAG_KEY,
-                        Status.Code.DEADLINE_EXCEEDED.toString());
+                Tags.of(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME,
+                    GRPC_STATUS_TAG_KEY, Status.Code.DEADLINE_EXCEEDED.toString(),
+                    INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE,
+                    INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE);
 
         HistogramSnapshot attemptDurationSnapshot = meterRegistry.get(CLIENT_ATTEMPT_DURATION)
                 .tags(expectedDeadlineExceededStatusTags)

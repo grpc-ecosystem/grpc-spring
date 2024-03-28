@@ -101,7 +101,9 @@ public final class MetricsServerStreamTracers {
         @Override
         public void serverCallStarted(ServerCallInfo<?, ?> callInfo) {
             this.metricsServerMeters.getServerCallCounter()
-                    .withTags(Tags.of("grpc.method", this.fullMethodName))
+                    .withTags(Tags.of("grpc.method", this.fullMethodName,
+                                      "instrumentation_source", "grpc-spring",
+                                      "instrumentation_version", Versions.PROJECT_VERSION))
                     .increment();
         }
 

@@ -155,6 +155,8 @@ class MetricsServerStreamTracersTest {
 
         assertThat(meterRegistry.get(SERVER_CALL_STARTED)
                 .tag(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME)
+                .tag(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE)
+                .tag(INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
                 .counter()
                 .count()).isEqualTo(1);
 
