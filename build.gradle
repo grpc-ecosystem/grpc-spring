@@ -147,6 +147,7 @@ allprojects {
             include 'LICENSE'
             into 'META-INF'
         }
+		dependsOn createVersionsFile
     }
 
     compileJava.dependsOn createVersionsFile
@@ -241,10 +242,6 @@ allprojects { project ->
         }
 
         delombok {
-            dependsOn createVersionsFile
-        }
-
-        sourcesJar {
             dependsOn createVersionsFile
         }
 
