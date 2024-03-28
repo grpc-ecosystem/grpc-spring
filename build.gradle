@@ -151,7 +151,7 @@ allprojects {
     }
     compileJava.dependsOn createVersionsFile
 
-    // Generate.MF
+    // Generate MANIFEST.MF
     jar {
         manifest {
             attributes(
