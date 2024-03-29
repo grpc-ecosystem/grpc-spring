@@ -28,7 +28,7 @@ public final class Constants {
 
 
     /**
-     * A constant that defines the instrumentation_source metric tag value
+     * A constant that defines the library name that can be used as metric tags
      */
     public static final String LIBRARY_NAME = "grpc-spring";
 
