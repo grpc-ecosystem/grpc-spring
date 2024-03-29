@@ -59,7 +59,7 @@ class SSLContextGrpcAuthenticationReaderTest {
     void setUp() throws Exception {
         this.root = certificateHelper.rootCertificate("CN=Root");
         this.intermediate = certificateHelper.intermediateCertificate("CN=Intermediate", root);
-        this.server = certificateHelper.leafCertificate("CN=Server", intermediate);
+        this.server = certificateHelper.leafCertificate("CN=Server", root);
         this.client = certificateHelper.leafCertificate("CN=Client", root);
         this.clientWithIntermediate = certificateHelper.leafCertificate("CN=ClientWithIntermediate", intermediate);
     }
@@ -68,7 +68,7 @@ class SSLContextGrpcAuthenticationReaderTest {
     void readAuthentication() throws Exception {
         var serverKeyManager = new AdvancedTlsX509KeyManager();
         serverKeyManager.updateIdentityCredentials(server.keyPair().getPrivate(),
-                new X509Certificate[] {server.certificate(), intermediate.certificate()});
+                new X509Certificate[] {server.certificate()});
 
         var clientKeyManager = new AdvancedTlsX509KeyManager();
         clientKeyManager.updateIdentityCredentials(client.keyPair().getPrivate(),
@@ -85,7 +85,7 @@ class SSLContextGrpcAuthenticationReaderTest {
     void readAuthenticationWithIntermediateCertificate() throws Exception {
         var serverKeyManager = new AdvancedTlsX509KeyManager();
         serverKeyManager.updateIdentityCredentials(server.keyPair().getPrivate(),
-                new X509Certificate[] {server.certificate(), intermediate.certificate()});
+                new X509Certificate[] {server.certificate()});
 
         var clientKeyManager = new AdvancedTlsX509KeyManager();
         clientKeyManager.updateIdentityCredentials(clientWithIntermediate.keyPair().getPrivate(),
