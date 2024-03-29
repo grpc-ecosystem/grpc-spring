@@ -17,7 +17,7 @@
 package net.devh.boot.grpc.common.util;
 
 /**
- * Class that contains shared constants
+ * Class that contains shared constants.
  */
 public final class Constants {
 
@@ -26,12 +26,10 @@ public final class Constants {
      */
     public static final String VERSION = "v" + Constants.class.getPackage().getImplementationVersion();
 
-
     /**
-     * A constant that defines the library name that can be used as metric tags
+     * A constant that defines the library name that can be used as metric tags.
      */
     public static final String LIBRARY_NAME = "grpc-spring";
-
 
     private Constants() {}
 
