@@ -56,9 +56,9 @@ class MetricsServerStreamTracersTest {
     private static final String GRPC_METHOD_TAG_KEY = "grpc.method";
     private static final String GRPC_STATUS_TAG_KEY = "grpc.status";
     private static final String INSTRUMENTATION_SOURCE_TAG_KEY = "instrumentation_source";
-    private static final String INSTRUMENTATION_SOURCE_TAG_VALUE = Constants.INSTRUMENTATION_SOURCE_TAG_VALUE;
+    private static final String INSTRUMENTATION_SOURCE_TAG_VALUE = Constants.LIBRARY_NAME;
     private static final String INSTRUMENTATION_VERSION_TAG_KEY = "instrumentation_version";
-    private static final String INSTRUMENTATION_VERSION_TAG_VALUE = Constants.PROJECT_VERSION;
+    private static final String INSTRUMENTATION_VERSION_TAG_VALUE = Constants.VERSION;
 
 
     private static class StringInputStream extends InputStream {

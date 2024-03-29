@@ -24,13 +24,13 @@ public final class Constants {
     /**
      * A constant that defines the current version of the library.
      */
-    public static final String PROJECT_VERSION = "@versionStringPlaceholder@";
+    public static final String VERSION = "@versionStringPlaceholder@";
 
 
     /**
      * A constant that defines the instrumentation_source metric tag value
      */
-    public static final String INSTRUMENTATION_SOURCE_TAG_VALUE = "grpc-spring";
+    public static final String LIBRARY_NAME = "grpc-spring";
 
 
     private Constants() {}
