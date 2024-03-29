@@ -24,7 +24,7 @@ public final class Constants {
     /**
      * A constant that defines the current version of the library.
      */
-    public static final String VERSION = "@versionStringPlaceholder@";
+    public static final String VERSION = Constants.class.getPackage().getImplementationVersion();
 
 
     /**

@@ -26,6 +26,3 @@ bin/
 ## VSCode
 .vscode/
 .devcontainer/
-
-## build generated file
-grpc-common-spring-boot/src/main/java/net/devh/boot/grpc/common/util/Constants.java

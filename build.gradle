@@ -72,19 +72,6 @@ ext {
     buildRevision = versioning.info.commit
 }
 
-task createConstantsFile(type: Copy) {
-    from("grpc-common-spring-boot/src/main/java/net/devh/boot/grpc/common/util/Constants.java.template") {
-        rename "Constants.java.template", "Constants.java"
-        filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [
-            versionStringPlaceholder: "v${projectVersion}".toString(),
-        ])
-    }
-    into "grpc-common-spring-boot/src/main/java/net/devh/boot/grpc/common/util"
-}
-clean.doFirst {
-    delete "grpc-common-spring-boot/src/main/java/net/devh/boot/grpc/common/util/Constants.java"
-}
-
 allprojects {
     apply plugin: 'java'
     apply plugin: 'idea'
@@ -147,11 +134,7 @@ allprojects {
             include 'LICENSE'
             into 'META-INF'
         }
-        dependsOn createConstantsFile
     }
-
-    compileJava.dependsOn createConstantsFile
-    spotlessJava.dependsOn createConstantsFile
 
     // Generate MANIFEST.MF
     jar {
@@ -239,10 +222,6 @@ allprojects { project ->
             registerFeature('optionalSupport') {
                 usingSourceSet(sourceSets.main)
             }
-        }
-
-        delombok {
-            dependsOn createConstantsFile
         }
 
         // Javadoc Task
