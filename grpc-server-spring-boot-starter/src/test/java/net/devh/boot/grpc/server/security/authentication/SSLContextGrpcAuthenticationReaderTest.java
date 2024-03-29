@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.core.Authentication;
 
 import io.grpc.Grpc;
+import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCall.Listener;
@@ -52,107 +53,93 @@ class SSLContextGrpcAuthenticationReaderTest {
     CertificateAndKeys intermediate;
     CertificateAndKeys server;
     CertificateAndKeys client;
-    CertificateAndKeys clientNoIntermediate;
+    CertificateAndKeys clientWithIntermediate;
 
     @BeforeEach
     void setUp() throws Exception {
         this.root = certificateHelper.rootCertificate("CN=Root");
         this.intermediate = certificateHelper.intermediateCertificate("CN=Intermediate", root);
         this.server = certificateHelper.leafCertificate("CN=Server", intermediate);
-        this.client = certificateHelper.leafCertificate("CN=Client", intermediate);
-        this.clientNoIntermediate = certificateHelper.leafCertificate("CN=NoIntermediate", root);
+        this.client = certificateHelper.leafCertificate("CN=Client", root);
+        this.clientWithIntermediate = certificateHelper.leafCertificate("CN=ClientWithIntermediate", intermediate);
     }
 
     @Test
     void readAuthentication() throws Exception {
-        var trustManager = AdvancedTlsX509TrustManager.newBuilder().build();
-        trustManager.updateTrustCredentials(new X509Certificate[] {root.certificate()});
-
         var serverKeyManager = new AdvancedTlsX509KeyManager();
         serverKeyManager.updateIdentityCredentials(server.keyPair().getPrivate(),
                 new X509Certificate[] {server.certificate(), intermediate.certificate()});
-        var serverCredentials = TlsServerCredentials.newBuilder()
-                .trustManager(trustManager)
-                .keyManager(serverKeyManager)
-                .clientAuth(ClientAuth.REQUIRE)
-                .build();
-
-        var interceptor = new AuthenticationReaderServerInterceptor();
-        var healthStatusManager = new HealthStatusManager();
-        var server = Grpc.newServerBuilderForPort(0, serverCredentials)
-                .addService(healthStatusManager.getHealthService())
-                .intercept(interceptor)
-                .build();
-        server.start();
-
-        var clientKeyManager = new AdvancedTlsX509KeyManager();
-        clientKeyManager.updateIdentityCredentials(clientNoIntermediate.keyPair().getPrivate(),
-                new X509Certificate[] {clientNoIntermediate.certificate()});
-        var clientCredentials = TlsChannelCredentials.newBuilder()
-                .trustManager(trustManager)
-                .keyManager(clientKeyManager)
-                .build();
-
-        var channel = Grpc.newChannelBuilderForAddress("localhost", server.getPort(), clientCredentials).build();
-        var client = HealthGrpc.newStub(channel);
-
-        var clientCallComplete = new CompletableFuture<Void>();
-        client.check(HealthCheckRequest.getDefaultInstance(), new FutureStreamObserver(clientCallComplete));
-        clientCallComplete.get();
-
-        var authentication = interceptor.authenticationFuture().get();
-        assertNotNull(authentication);
-        assertInstanceOf(X509Certificate.class, authentication.getCredentials());
-        X509Certificate certificate = (X509Certificate) authentication.getCredentials();
-        assertEquals("CN=NoIntermediate", certificate.getSubjectX500Principal().toString());
-    }
-
-    @Test
-    void readAuthenticationWithIntermediateCertificate() throws Exception {
-        var trustManager = AdvancedTlsX509TrustManager.newBuilder().build();
-        trustManager.updateTrustCredentials(new X509Certificate[] {root.certificate()});
-
-        var serverKeyManager = new AdvancedTlsX509KeyManager();
-        serverKeyManager.updateIdentityCredentials(server.keyPair().getPrivate(),
-                new X509Certificate[] {server.certificate(), intermediate.certificate()});
-        var serverCredentials = TlsServerCredentials.newBuilder()
-                .trustManager(trustManager)
-                .keyManager(serverKeyManager)
-                .clientAuth(ClientAuth.REQUIRE)
-                .build();
-
-        var interceptor = new AuthenticationReaderServerInterceptor();
-        var healthStatusManager = new HealthStatusManager();
-        var server = Grpc.newServerBuilderForPort(0, serverCredentials)
-                .addService(healthStatusManager.getHealthService())
-                .intercept(interceptor)
-                .build();
-        server.start();
 
         var clientKeyManager = new AdvancedTlsX509KeyManager();
         clientKeyManager.updateIdentityCredentials(client.keyPair().getPrivate(),
-                new X509Certificate[] {client.certificate(), intermediate.certificate()});
-        var clientCredentials = TlsChannelCredentials.newBuilder()
-                .trustManager(trustManager)
-                .keyManager(clientKeyManager)
-                .build();
+                new X509Certificate[] {client.certificate()});
 
-        var channel = Grpc.newChannelBuilderForAddress("localhost", server.getPort(), clientCredentials).build();
-        var client = HealthGrpc.newStub(channel);
-
-        var clientCallComplete = new CompletableFuture<Void>();
-        client.check(HealthCheckRequest.getDefaultInstance(), new FutureStreamObserver(clientCallComplete));
-        clientCallComplete.get();
-
-        var authentication = interceptor.authenticationFuture().get();
+        var authentication = readAuthentication(serverKeyManager, clientKeyManager);
         assertNotNull(authentication);
         assertInstanceOf(X509Certificate.class, authentication.getCredentials());
         X509Certificate certificate = (X509Certificate) authentication.getCredentials();
         assertEquals("CN=Client", certificate.getSubjectX500Principal().toString());
     }
 
-    record FutureStreamObserver(CompletableFuture<Void> clientCallComplete)
-            implements StreamObserver<HealthCheckResponse> {
+    @Test
+    void readAuthenticationWithIntermediateCertificate() throws Exception {
+        var serverKeyManager = new AdvancedTlsX509KeyManager();
+        serverKeyManager.updateIdentityCredentials(server.keyPair().getPrivate(),
+                new X509Certificate[] {server.certificate(), intermediate.certificate()});
+
+        var clientKeyManager = new AdvancedTlsX509KeyManager();
+        clientKeyManager.updateIdentityCredentials(clientWithIntermediate.keyPair().getPrivate(),
+                new X509Certificate[] {clientWithIntermediate.certificate(), intermediate.certificate()});
+
+        var authentication = readAuthentication(serverKeyManager, clientKeyManager);
+        assertNotNull(authentication);
+        assertInstanceOf(X509Certificate.class, authentication.getCredentials());
+        X509Certificate certificate = (X509Certificate) authentication.getCredentials();
+        assertEquals("CN=ClientWithIntermediate", certificate.getSubjectX500Principal().toString());
+    }
+
+    private Authentication readAuthentication(AdvancedTlsX509KeyManager serverKeyManager,
+            AdvancedTlsX509KeyManager clientKeyManager) throws Exception {
+        var trustManager = AdvancedTlsX509TrustManager.newBuilder().build();
+        trustManager.updateTrustCredentials(new X509Certificate[] {root.certificate()});
+
+        var serverCredentials = TlsServerCredentials.newBuilder()
+                .trustManager(trustManager)
+                .keyManager(serverKeyManager)
+                .clientAuth(ClientAuth.REQUIRE)
+                .build();
+
+        var interceptor = new AuthenticationReaderServerInterceptor();
+        var healthStatusManager = new HealthStatusManager();
+        var server = Grpc.newServerBuilderForPort(0, serverCredentials)
+                .addService(healthStatusManager.getHealthService())
+                .intercept(interceptor)
+                .build();
+        server.start();
+        ManagedChannel channel = null;
+        try {
+            var clientCredentials = TlsChannelCredentials.newBuilder()
+                    .trustManager(trustManager)
+                    .keyManager(clientKeyManager)
+                    .build();
+
+            channel = Grpc.newChannelBuilderForAddress("localhost", server.getPort(), clientCredentials).build();
+            var client = HealthGrpc.newStub(channel);
+
+            var clientCallComplete = new CompletableFuture<Void>();
+            client.check(HealthCheckRequest.getDefaultInstance(), new FutureStreamObserver(clientCallComplete));
+            clientCallComplete.get();
+
+            return interceptor.authenticationFuture().get();
+        } finally {
+            if (channel != null) {
+                channel.shutdownNow();
+            }
+            server.shutdownNow();
+        }
+    }
+
+    record FutureStreamObserver(CompletableFuture<Void> clientCallComplete) implements StreamObserver<HealthCheckResponse> {
 
     @Override
     public void onNext(HealthCheckResponse healthCheckResponse) {}
@@ -174,7 +161,7 @@ class SSLContextGrpcAuthenticationReaderTest {
             CompletableFuture<Authentication> authenticationFuture) implements ServerInterceptor {
 
     public AuthenticationReaderServerInterceptor() {
-            this(new SSLContextGrpcAuthenticationReader(), new CompletableFuture<>());
+                this(new SSLContextGrpcAuthenticationReader(), new CompletableFuture<>());
         }
 
     @Override
