@@ -234,7 +234,7 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
     }
 
     /**
-     * Configures limits such as max message sizes that should be used by the channel.
+     * Configures limits such as max message or metadata sizes that should be used by the channel.
      *
      * @param builder The channel builder to configure.
      * @param name The name of the client to configure.
@@ -244,6 +244,10 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         final DataSize maxInboundMessageSize = properties.getMaxInboundMessageSize();
         if (maxInboundMessageSize != null) {
             builder.maxInboundMessageSize((int) maxInboundMessageSize.toBytes());
+        }
+        final DataSize maxInboundMetadataSize = properties.getMaxInboundMetadataSize();
+        if (maxInboundMetadataSize != null) {
+            builder.maxInboundMetadataSize((int) maxInboundMetadataSize.toBytes());
         }
     }
 

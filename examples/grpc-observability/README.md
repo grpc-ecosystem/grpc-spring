@@ -45,7 +45,9 @@ The backend microservice will
 
 - listen on the TCP port 9091 for the gRPC calls from the frontend microservice.
 - listen on the TCP port 8081 for the Prometheus scrape requests.
-  The frontend microservice will
+
+The frontend microservice will
+
 - send the unary/client streaming/server streaming/bidi streaming calls to the
   backend microservices via TCP port 9091.
 - listen on the TCP port 8080 for the Prometheus scrape requests.

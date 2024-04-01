@@ -8,30 +8,30 @@ buildscript {
         }
     }
     ext {
-        projectVersion = '3.0.0-SNAPSHOT'
+        projectVersion = '3.0.0.RELEASE'
 
         // https://github.com/grpc/grpc-java/releases
         grpcVersion = '1.60.1'
 
         // https://github.com/google/guava/releases
-        guavaVersion = '33.0.0-jre'
+        guavaVersion = '33.1.0-jre'
         // https://github.com/protocolbuffers/protobuf/releases
-        protobufVersion = '3.25.2'
+        protobufVersion = '3.25.3'
         protobufGradlePluginVersion = '0.9.4'
 
         // https://github.com/spring-projects/spring-boot/releases
-        springBootVersion = '3.2.2'
+        springBootVersion = '3.2.4'
         // https://github.com/spring-cloud/spring-cloud-release/releases
         springCloudVersion = '2023.0.0'
         // https://github.com/alibaba/spring-cloud-alibaba/releases
         springCloudAlibabaNacosVersion = '2022.0.0.0'
 
-        lombokPluginVersion = '8.4'
-        versioningPluginVersion = '3.0.0'
+        lombokPluginVersion = '8.6'
+        versioningPluginVersion = '3.1.0'
         versionsPluginVersion = '0.51.0'
 
         // https://github.com/JetBrains/kotlin/releases
-        kotlinVersion = "1.9.22"
+        kotlinVersion = "1.9.23"
     }
 }
 
@@ -61,7 +61,7 @@ if (hasProperty('buildScan')) {
 wrapper {
     // Update using:
     // ./gradlew wrapper --gradle-version=8.4 --distribution-type=bin
-    gradleVersion = '8.5'
+    gradleVersion = '8.6'
 }
 
 def buildTimeAndDate = OffsetDateTime.now()
