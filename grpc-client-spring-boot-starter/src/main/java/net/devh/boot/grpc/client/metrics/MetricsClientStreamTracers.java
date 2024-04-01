@@ -35,6 +35,7 @@ import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.Status.Code;
 import io.micrometer.core.instrument.Tags;
+import net.devh.boot.grpc.common.util.Constants;
 
 /**
  * Provides factories for {@link io.grpc.StreamTracer} that records metrics.
@@ -47,6 +48,8 @@ import io.micrometer.core.instrument.Tags;
 final class MetricsClientStreamTracers {
     private static final Supplier<Stopwatch> STOPWATCH_SUPPLIER = Stopwatch::createUnstarted;
     private final Supplier<Stopwatch> stopwatchSupplier;
+    private static final String INSTRUMENTATION_SOURCE_TAG_KEY = "instrumentation_source";
+    private static final String INSTRUMENTATION_VERSION_TAG_KEY = "instrumentation_version";
 
     MetricsClientStreamTracers() {
         this(STOPWATCH_SUPPLIER);
@@ -127,7 +130,10 @@ final class MetricsClientStreamTracers {
 
         void recordFinishedAttempt() {
             Tags attemptMetricTags =
-                    Tags.of("grpc.method", fullMethodName, "grpc.status", statusCode.toString());
+                    Tags.of("grpc.method", fullMethodName,
+                            "grpc.status", statusCode.toString(),
+                            INSTRUMENTATION_SOURCE_TAG_KEY, Constants.LIBRARY_NAME,
+                            INSTRUMENTATION_VERSION_TAG_KEY, Constants.VERSION);
             this.metricsClientMeters.getClientAttemptDuration()
                     .withTags(attemptMetricTags)
                     .record(attemptNanos, TimeUnit.NANOSECONDS);
@@ -168,7 +174,9 @@ final class MetricsClientStreamTracers {
 
             // Record here in case newClientStreamTracer() would never be called.
             this.metricsClientMeters.getAttemptCounter()
-                    .withTags(Tags.of("grpc.method", fullMethodName))
+                    .withTags(Tags.of("grpc.method", fullMethodName,
+                            INSTRUMENTATION_SOURCE_TAG_KEY, Constants.LIBRARY_NAME,
+                            INSTRUMENTATION_VERSION_TAG_KEY, Constants.VERSION))
                     .increment();
         }
 
@@ -188,7 +196,9 @@ final class MetricsClientStreamTracers {
             // attempt, as first attempt cannot be a transparent retry.
             if (attemptsPerCall.get() > 0) {
                 this.metricsClientMeters.getAttemptCounter()
-                        .withTags((Tags.of("grpc.method", fullMethodName)))
+                        .withTags((Tags.of("grpc.method", fullMethodName,
+                                INSTRUMENTATION_SOURCE_TAG_KEY, Constants.LIBRARY_NAME,
+                                INSTRUMENTATION_VERSION_TAG_KEY, Constants.VERSION)))
                         .increment();
             }
             if (!info.isTransparentRetry()) {
@@ -248,7 +258,10 @@ final class MetricsClientStreamTracers {
             }
             callLatencyNanos = clientCallStopWatch.elapsed(TimeUnit.NANOSECONDS);
             Tags clientCallMetricTags =
-                    Tags.of("grpc.method", this.fullMethodName, "grpc.status", status.getCode().toString());
+                    Tags.of("grpc.method", this.fullMethodName,
+                            "grpc.status", status.getCode().toString(),
+                            INSTRUMENTATION_SOURCE_TAG_KEY, Constants.LIBRARY_NAME,
+                            INSTRUMENTATION_VERSION_TAG_KEY, Constants.VERSION);
             this.metricsClientMeters.getClientCallDuration()
                     .withTags(clientCallMetricTags)
                     .record(callLatencyNanos, TimeUnit.NANOSECONDS);
