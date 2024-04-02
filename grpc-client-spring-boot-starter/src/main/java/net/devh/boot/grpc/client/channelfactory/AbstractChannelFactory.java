@@ -213,15 +213,28 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         final GrpcChannelProperties properties = getPropertiesFor(name);
         final Security security = properties.getSecurity();
 
-        if (properties.getNegotiationType() != NegotiationType.TLS // non-default
-                || isNonNullAndNonBlank(security.getAuthorityOverride())
-                || security.getCertificateChain() != null
-                || security.getPrivateKey() != null
-                || security.getTrustCertCollection() != null) {
+        if (isSecurityConfigured(properties, security)) {
             throw new IllegalStateException(
                     "Security is configured but this implementation does not support security!");
         }
     }
+
+    private boolean isSecurityConfigured(GrpcChannelProperties properties, Security security) {
+        return isNonDefaultNegotiationType(properties)
+                || isSecurityDetailsPresent(security);
+    }
+
+    private boolean isNonDefaultNegotiationType(GrpcChannelProperties properties) {
+        return properties.getNegotiationType() != NegotiationType.TLS;
+    }
+
+    private boolean isSecurityDetailsPresent(Security security) {
+        return isNonNullAndNonBlank(security.getAuthorityOverride())
+                || security.getCertificateChain() != null
+                || security.getPrivateKey() != null
+                || security.getTrustCertCollection() != null;
+    }
+
 
     /**
      * Checks whether the given value is non null and non blank.
@@ -335,6 +348,13 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
             return;
         }
         this.shutdown = true;
+        final List<ShutdownRecord> shutdownEntries = prepareShutdownEntries();
+        awaitChannelTermination(shutdownEntries);
+        forceShutdownRemainingChannels();
+        logShutdownCompletion(this.channels.size());
+    }
+
+    private List<ShutdownRecord> prepareShutdownEntries() {
         final List<ShutdownRecord> shutdownEntries = new ArrayList<>();
         for (final Entry<String, ManagedChannel> entry : this.channels.entrySet()) {
             final ManagedChannel channel = entry.getValue();
@@ -342,6 +362,10 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
             final long gracePeriod = this.properties.getChannel(entry.getKey()).getShutdownGracePeriod().toMillis();
             shutdownEntries.add(new ShutdownRecord(entry.getKey(), channel, gracePeriod));
         }
+        return shutdownEntries;
+    }
+
+    private void awaitChannelTermination(List<ShutdownRecord> shutdownEntries) {
         try {
             final long start = System.currentTimeMillis();
             shutdownEntries.sort(comparingLong(ShutdownRecord::getGracePeriod));
@@ -363,15 +387,19 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             log.debug("We got interrupted - Speeding up shutdown process");
-        } finally {
-            for (final ManagedChannel channel : this.channels.values()) {
-                if (!channel.isTerminated()) {
-                    log.debug("Channel not terminated yet - force shutdown now: {} ", channel);
-                    channel.shutdownNow();
-                }
+        }
+    }
+
+    private void forceShutdownRemainingChannels() {
+        for (final ManagedChannel channel : this.channels.values()) {
+            if (!channel.isTerminated()) {
+                log.debug("Channel not terminated yet - force shutdown now: {} ", channel);
+                channel.shutdownNow();
             }
         }
-        final int channelCount = this.channels.size();
+    }
+
+    private void logShutdownCompletion(int channelCount) {
         this.channels.clear();
         this.channelStates.clear();
         log.debug("GrpcChannelFactory closed (including {} channels)", channelCount);
