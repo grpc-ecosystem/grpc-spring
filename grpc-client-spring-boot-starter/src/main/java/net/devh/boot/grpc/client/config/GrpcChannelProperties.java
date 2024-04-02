@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import lombok.Getter;
 import org.springframework.boot.convert.DataSizeUnit;
 import org.springframework.boot.convert.DurationUnit;
 import org.springframework.core.io.Resource;
@@ -505,12 +506,10 @@ public class GrpcChannelProperties {
         if (this.userAgent == null) {
             this.userAgent = config.userAgent;
         }
+
         this.security.copyDefaultsFrom(config.security);
     }
 
-    /**
-     * A container with options for the channel's transport security.
-     */
     @ToString
     @EqualsAndHashCode
     public static class Security {
@@ -965,5 +964,8 @@ public class GrpcChannelProperties {
         }
 
     }
+
+
+
 
 }

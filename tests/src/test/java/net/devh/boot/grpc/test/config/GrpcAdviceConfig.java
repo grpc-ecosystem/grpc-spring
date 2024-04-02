@@ -44,87 +44,28 @@ public class GrpcAdviceConfig {
 
     @GrpcService
     public static class TestGrpcAdviceService extends TestServiceGrpc.TestServiceImplBase {
-
-        private Supplier<? extends RuntimeException> throwableToSimulate;
-        private LocationToThrow throwLocation;
+        private ExceptionSimulator exceptionSimulator = new ExceptionSimulator();
 
         @Override
         public void normal(final Empty request, final StreamObserver<SomeType> responseObserver) {
-
-            Assertions.assertThat(this.throwableToSimulate).isNotNull();
-            switch (this.throwLocation) {
-                case METHOD:
-                    throw this.throwableToSimulate.get();
-                case RESPONSE_OBSERVER:
-                    responseObserver.onError(this.throwableToSimulate.get());
-                    break;
-                default:
-                    throw new UnsupportedOperationException("Unsupported LocationToThrow: " + this.throwLocation);
-            }
+            exceptionSimulator.simulateException(responseObserver);
         }
 
         @Override
         public StreamObserver<SomeType> echo(final StreamObserver<SomeType> responseObserver) {
-            Assertions.assertThat(this.throwableToSimulate).isNotNull();
-            switch (this.throwLocation) {
-                case METHOD:
-                    throw this.throwableToSimulate.get();
-                case RESPONSE_OBSERVER:
-                    responseObserver.onError(this.throwableToSimulate.get());
-                    return responseObserver;
-                case REQUEST_OBSERVER_ON_NEXT:
-                    return new StreamObserver<SomeType>() {
-
-                        @Override
-                        public void onNext(final SomeType value) {
-                            throw TestGrpcAdviceService.this.throwableToSimulate.get();
-                        }
-
-                        @Override
-                        public void onError(final Throwable t) {
-                            responseObserver.onError(t);
-                        }
-
-                        @Override
-                        public void onCompleted() {
-                            responseObserver.onCompleted();
-                        }
-
-                    };
-                case REQUEST_OBSERVER_ON_COMPLETION:
-                    return new StreamObserver<SomeType>() {
-
-                        @Override
-                        public void onNext(final SomeType value) {
-                            responseObserver.onNext(value);
-                        }
-
-                        @Override
-                        public void onError(final Throwable t) {
-                            responseObserver.onError(t);
-                        }
-
-                        @Override
-                        public void onCompleted() {
-                            throw TestGrpcAdviceService.this.throwableToSimulate.get();
-                        }
-
-                    };
-                default:
-                    throw new UnsupportedOperationException("Unsupported LocationToThrow: " + this.throwLocation);
-            }
+            exceptionSimulator.simulateException(responseObserver);
+            return responseObserver;
         }
 
         public void setExceptionToSimulate(final Supplier<? extends RuntimeException> exception) {
-            this.throwableToSimulate = exception;
+            exceptionSimulator.setExceptionToSimulate(exception);
         }
 
         public void setThrowLocation(final LocationToThrow throwLocation) {
-            this.throwLocation = throwLocation;
+            exceptionSimulator.setThrowLocation(throwLocation);
         }
-
-
     }
+
 
     @GrpcAdvice
     @Bean
