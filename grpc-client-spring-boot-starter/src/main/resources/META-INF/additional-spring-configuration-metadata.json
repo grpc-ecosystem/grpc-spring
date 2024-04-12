@@ -54,13 +54,6 @@
 			"defaultValue": false
 		},
 		{
-			"name": "grpc.client.GLOBAL.full-stream-decompression",
-			"type": "java.lang.Boolean",
-			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties",
-			"description": "Whether full-stream decompression of inbound streams should be enabled.",
-			"defaultValue": false
-		},
-		{
 			"name": "grpc.client.GLOBAL.keep-alive-time",
 			"type": "java.time.Duration",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties",
@@ -93,6 +86,12 @@
 			"type": "org.springframework.util.unit.DataSize",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties",
 			"description": "The maximum message size allowed to be received by the channel.\nIf not set (null) then it will default to gRPC's default.\nIf set to -1 then it will use the highest possible limit (not recommended)."
+		},
+		{
+			"name": "grpc.client.GLOBAL.max-inbound-metadata-size",
+			"type": "org.springframework.util.unit.DataSize",
+			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties",
+			"description": "the maximum size of metadata in bytes allowed to be received. \nIf not set (null) then it will default to gRPC's default. \nIf set to {@code -1} then it will use the highest possible limit (not recommended)."
 		},
 		{
 			"name": "grpc.client.GLOBAL.negotiation-type",

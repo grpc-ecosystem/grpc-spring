@@ -38,6 +38,7 @@ import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.distribution.CountAtBucket;
 import io.micrometer.core.instrument.distribution.HistogramSnapshot;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import net.devh.boot.grpc.common.util.Constants;
 
 /**
  * Tests for {@link MetricsServerStreamTracers}.
@@ -54,6 +55,10 @@ class MetricsServerStreamTracersTest {
     private static final String FULL_METHOD_NAME = "package1.service1/method1";
     private static final String GRPC_METHOD_TAG_KEY = "grpc.method";
     private static final String GRPC_STATUS_TAG_KEY = "grpc.status";
+    private static final String INSTRUMENTATION_SOURCE_TAG_KEY = "instrumentation_source";
+    private static final String INSTRUMENTATION_SOURCE_TAG_VALUE = Constants.LIBRARY_NAME;
+    private static final String INSTRUMENTATION_VERSION_TAG_KEY = "instrumentation_version";
+    private static final String INSTRUMENTATION_VERSION_TAG_VALUE = Constants.VERSION;
 
 
     private static class StringInputStream extends InputStream {
@@ -150,6 +155,8 @@ class MetricsServerStreamTracersTest {
 
         assertThat(meterRegistry.get(SERVER_CALL_STARTED)
                 .tag(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME)
+                .tag(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE)
+                .tag(INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
                 .counter()
                 .count()).isEqualTo(1);
 
@@ -170,6 +177,8 @@ class MetricsServerStreamTracersTest {
         HistogramSnapshot sentMessageSizeSnapShot = meterRegistry.get(SERVER_SENT_COMPRESSED_MESSAGE_SIZE)
                 .tag(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME)
                 .tag(GRPC_STATUS_TAG_KEY, Status.Code.CANCELLED.toString())
+                .tag(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE)
+                .tag(INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
                 .summary()
                 .takeSnapshot();
         HistogramSnapshot expectedSentMessageSizeHistogram = HistogramSnapshot.empty(1L, 1127L, 1127L);
@@ -181,6 +190,8 @@ class MetricsServerStreamTracersTest {
                 meterRegistry.get(SERVER_RECEIVED_COMPRESSED_MESSAGE_SIZE)
                         .tag(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME)
                         .tag(GRPC_STATUS_TAG_KEY, Status.Code.CANCELLED.toString())
+                        .tag(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE)
+                        .tag(INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
                         .summary()
                         .takeSnapshot();
         HistogramSnapshot expectedReceivedMessageSizeHistogram = HistogramSnapshot.empty(1L, 188L, 188L);
@@ -197,6 +208,8 @@ class MetricsServerStreamTracersTest {
         HistogramSnapshot callDurationSnapshot = meterRegistry.get(SERVER_CALL_DURATION)
                 .tag(GRPC_METHOD_TAG_KEY, FULL_METHOD_NAME)
                 .tag(GRPC_STATUS_TAG_KEY, Status.Code.CANCELLED.toString())
+                .tag(INSTRUMENTATION_SOURCE_TAG_KEY, INSTRUMENTATION_SOURCE_TAG_VALUE)
+                .tag(INSTRUMENTATION_VERSION_TAG_KEY, INSTRUMENTATION_VERSION_TAG_VALUE)
                 .timer()
                 .takeSnapshot();
         HistogramSnapshot expectedCallDurationHistogram = HistogramSnapshot.empty(1L, 40L, 40);

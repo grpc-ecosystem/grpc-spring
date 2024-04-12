@@ -41,6 +41,11 @@ public final class GrpcUtils {
     public static final String CLOUD_DISCOVERY_METADATA_PORT = "gRPC_port";
 
     /**
+     * The cloud discovery metadata key used to identify service config.
+     */
+    public static final String CLOUD_DISCOVERY_METADATA_SERVICE_CONFIG = "gRPC_service_config";
+
+    /**
      * The constant for the grpc server port, -1 represents don't start an inter process server.
      */
     public static final int INTER_PROCESS_DISABLE = -1;

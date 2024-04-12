@@ -333,35 +333,43 @@ public class GrpcChannelProperties {
         }
     }
 
-    // --------------------------------------------------
-
-    private Boolean fullStreamDecompression;
-    private static final boolean DEFAULT_FULL_STREAM_DECOMPRESSION = false;
+    @DataSizeUnit(DataUnit.BYTES)
+    private DataSize maxInboundMetadataSize = null;
 
     /**
-     * Gets whether full-stream decompression of inbound streams should be enabled.
+     * Sets the maximum size of metadata in bytes allowed to be received. If not set ({@code null}) then it will default
+     * to gRPC's default. The default is implementation-dependent, but is not generally less than 8 KiB and may be
+     * unlimited. If set to {@code -1} then it will use the highest possible limit (not recommended). Integer.MAX_VALUE
+     * disables the enforcement.
      *
-     * @return True, if full-stream decompression of inbound streams should be enabled. False otherwise.
+     * @return The maximum size of metadata in bytes allowed to be received or null if the default should be used.
      *
-     * @see #setFullStreamDecompression(Boolean)
+     * @see ManagedChannelBuilder#maxInboundMetadataSize(int) (int)
      */
-    public boolean isFullStreamDecompression() {
-        return this.fullStreamDecompression == null ? DEFAULT_FULL_STREAM_DECOMPRESSION : this.fullStreamDecompression;
+    public DataSize getMaxInboundMetadataSize() {
+        return maxInboundMetadataSize;
     }
 
     /**
-     * Sets whether full-stream decompression of inbound streams should be enabled. This will cause the channel's
-     * outbound headers to advertise support for GZIP compressed streams, and gRPC servers which support the feature may
-     * respond with a GZIP compressed stream.
+     * Sets the maximum size of metadata in bytes allowed to be received. If not set ({@code null}) then it will
+     * default.The default is implementation-dependent, but is not generally less than 8 KiB and may be unlimited. If
+     * set to {@code -1} then it will use the highest possible limit (not recommended). Integer.MAX_VALUE disables the
+     * enforcement.
      *
-     * @param fullStreamDecompression Whether full stream decompression should be enabled or null to use the fallback.
+     * @param maxInboundMetadataSize The new maximum size of metadata in bytes allowed to be received. {@code -1} for
+     *        max possible. Null to use the gRPC's default.
      *
-     * @see ManagedChannelBuilder#enableFullStreamDecompression()
+     * @see ManagedChannelBuilder#maxInboundMetadataSize(int) (int)
      */
-    public void setFullStreamDecompression(final Boolean fullStreamDecompression) {
-        this.fullStreamDecompression = fullStreamDecompression;
+    public void setMaxInboundMetadataSize(DataSize maxInboundMetadataSize) {
+        if (maxInboundMetadataSize == null || maxInboundMetadataSize.toBytes() >= 0) {
+            this.maxInboundMetadataSize = maxInboundMetadataSize;
+        } else if (maxInboundMetadataSize.toBytes() == -1) {
+            this.maxInboundMetadataSize = DataSize.ofBytes(Integer.MAX_VALUE);
+        } else {
+            throw new IllegalArgumentException("Unsupported maxInboundMetadataSize: " + maxInboundMetadataSize);
+        }
     }
-
     // --------------------------------------------------
 
     private NegotiationType negotiationType;
@@ -492,9 +500,6 @@ public class GrpcChannelProperties {
         }
         if (this.maxInboundMessageSize == null) {
             this.maxInboundMessageSize = config.maxInboundMessageSize;
-        }
-        if (this.fullStreamDecompression == null) {
-            this.fullStreamDecompression = config.fullStreamDecompression;
         }
         if (this.negotiationType == null) {
             this.negotiationType = config.negotiationType;

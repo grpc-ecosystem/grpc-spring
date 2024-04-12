@@ -181,7 +181,6 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         configureKeepAlive(builder, name);
         configureSecurity(builder, name);
         configureLimits(builder, name);
-        configureCompression(builder, name);
         configureUserAgent(builder, name);
         for (final GrpcChannelConfigurer channelConfigurer : this.channelConfigurers) {
             channelConfigurer.accept(builder, name);
@@ -234,7 +233,7 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
     }
 
     /**
-     * Configures limits such as max message sizes that should be used by the channel.
+     * Configures limits such as max message or metadata sizes that should be used by the channel.
      *
      * @param builder The channel builder to configure.
      * @param name The name of the client to configure.
@@ -245,18 +244,9 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
         if (maxInboundMessageSize != null) {
             builder.maxInboundMessageSize((int) maxInboundMessageSize.toBytes());
         }
-    }
-
-    /**
-     * Configures the compression options that should be used by the channel.
-     *
-     * @param builder The channel builder to configure.
-     * @param name The name of the client to configure.
-     */
-    protected void configureCompression(final T builder, final String name) {
-        final GrpcChannelProperties properties = getPropertiesFor(name);
-        if (properties.isFullStreamDecompression()) {
-            builder.enableFullStreamDecompression();
+        final DataSize maxInboundMetadataSize = properties.getMaxInboundMetadataSize();
+        if (maxInboundMetadataSize != null) {
+            builder.maxInboundMetadataSize((int) maxInboundMetadataSize.toBytes());
         }
     }
 
