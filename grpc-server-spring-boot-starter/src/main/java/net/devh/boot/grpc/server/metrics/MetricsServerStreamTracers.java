@@ -30,6 +30,7 @@ import io.grpc.ServerStreamTracer;
 import io.grpc.Status;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
+import net.devh.boot.grpc.common.util.Constants;
 
 /**
  * Provides factories for {@link io.grpc.StreamTracer} that records metrics.
@@ -45,6 +46,8 @@ public final class MetricsServerStreamTracers {
 
     private static final Supplier<Stopwatch> STOPWATCH_SUPPLIER = Stopwatch::createUnstarted;
     private final Supplier<Stopwatch> stopwatchSupplier;
+    private static final String INSTRUMENTATION_SOURCE_TAG_KEY = "instrumentation_source";
+    private static final String INSTRUMENTATION_VERSION_TAG_KEY = "instrumentation_version";
 
     public MetricsServerStreamTracers() {
         this(STOPWATCH_SUPPLIER);
@@ -100,7 +103,9 @@ public final class MetricsServerStreamTracers {
         @Override
         public void serverCallStarted(ServerCallInfo<?, ?> callInfo) {
             this.metricsServerMeters.getServerCallCounter()
-                    .withTags(Tags.of("grpc.method", this.fullMethodName))
+                    .withTags(Tags.of("grpc.method", this.fullMethodName,
+                            INSTRUMENTATION_SOURCE_TAG_KEY, Constants.LIBRARY_NAME,
+                            INSTRUMENTATION_VERSION_TAG_KEY, Constants.VERSION))
                     .increment();
         }
 
@@ -122,7 +127,10 @@ public final class MetricsServerStreamTracers {
             long callLatencyNanos = stopwatch.elapsed(TimeUnit.NANOSECONDS);
 
             Tags serverMetricTags =
-                    Tags.of("grpc.method", this.fullMethodName, "grpc.status", status.getCode().toString());
+                    Tags.of("grpc.method", this.fullMethodName,
+                            "grpc.status", status.getCode().toString(),
+                            INSTRUMENTATION_SOURCE_TAG_KEY, Constants.LIBRARY_NAME,
+                            INSTRUMENTATION_VERSION_TAG_KEY, Constants.VERSION);
             this.metricsServerMeters.getServerCallDuration()
                     .withTags(serverMetricTags)
                     .record(callLatencyNanos, TimeUnit.NANOSECONDS);
