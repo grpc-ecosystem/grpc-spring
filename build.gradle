@@ -11,7 +11,7 @@ buildscript {
         projectVersion = '3.0.0.RELEASE'
 
         // https://github.com/grpc/grpc-java/releases
-        grpcVersion = '1.60.1'
+        grpcVersion = '1.63.0'
 
         // https://github.com/google/guava/releases
         guavaVersion = '33.1.0-jre'
@@ -61,7 +61,7 @@ if (hasProperty('buildScan')) {
 wrapper {
     // Update using:
     // ./gradlew wrapper --gradle-version=8.4 --distribution-type=bin
-    gradleVersion = '8.6'
+    gradleVersion = '8.7'
 }
 
 def buildTimeAndDate = OffsetDateTime.now()
