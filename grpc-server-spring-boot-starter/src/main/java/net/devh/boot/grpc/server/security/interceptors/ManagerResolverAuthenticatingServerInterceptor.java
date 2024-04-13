@@ -68,6 +68,7 @@ public class ManagerResolverAuthenticatingServerInterceptor extends AbstractAuth
         this.authenticationManagerResolver =
                 requireNonNull(authenticationManagerResolver, "authenticationManagerResolver");
     }
+
     @Override
     protected AuthenticationManager getAuthenticationManager(
             final ServerCall<?, ?> call,
