@@ -18,7 +18,6 @@ package net.devh.boot.grpc.server.security.interceptors;
 
 import static java.util.Objects.requireNonNull;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
