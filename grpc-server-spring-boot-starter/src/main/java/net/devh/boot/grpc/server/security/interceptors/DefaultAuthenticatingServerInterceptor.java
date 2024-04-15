@@ -59,7 +59,6 @@ public class DefaultAuthenticatingServerInterceptor extends AbstractAuthenticati
      * @param authenticationManager The authentication manager used to verify the credentials.
      * @param authenticationReader The authentication reader used to extract the credentials from the call.
      */
-    @Autowired
     public DefaultAuthenticatingServerInterceptor(final AuthenticationManager authenticationManager,
             final GrpcAuthenticationReader authenticationReader) {
         super(authenticationReader);

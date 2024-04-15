@@ -60,7 +60,6 @@ public class ManagerResolverAuthenticatingServerInterceptor extends AbstractAuth
      * @param authenticationManagerResolver The authentication manager resolver used to verify the credentials.
      * @param authenticationReader The authentication reader used to extract the credentials from the call.
      */
-    @Autowired
     public ManagerResolverAuthenticatingServerInterceptor(
             final AuthenticationManagerResolver<GrpcServerRequest> authenticationManagerResolver,
             final GrpcAuthenticationReader authenticationReader) {
