@@ -22,6 +22,7 @@ import static java.util.Objects.requireNonNull;
 import static net.devh.boot.grpc.client.nameresolver.DiscoveryClientResolverFactory.DISCOVERY_INSTANCE_ID_KEY;
 import static net.devh.boot.grpc.client.nameresolver.DiscoveryClientResolverFactory.DISCOVERY_SERVICE_NAME_KEY;
 import static net.devh.boot.grpc.common.util.GrpcUtils.CLOUD_DISCOVERY_METADATA_PORT;
+import static net.devh.boot.grpc.common.util.GrpcUtils.CLOUD_DISCOVERY_METADATA_SERVICE_CONFIG;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -35,6 +36,8 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import io.grpc.Attributes;
 import io.grpc.Attributes.Builder;
@@ -58,6 +61,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
     @Deprecated
     private static final String LEGACY_CLOUD_DISCOVERY_METADATA_PORT = "gRPC.port";
     private static final List<ServiceInstance> KEEP_PREVIOUS = null;
+    private static final Gson GSON = new Gson();
 
     private final String name;
     private final DiscoveryClient client;
@@ -65,6 +69,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
     private final Consumer<DiscoveryClientNameResolver> shutdownHook;
     private final SharedResourceHolder.Resource<Executor> executorResource;
     private final boolean usingExecutorResource;
+    private final ServiceConfigParser serviceConfigParser;
 
     // The field must be accessed from syncContext, although the methods on an Listener2 can be called
     // from any thread.
@@ -93,6 +98,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
         this.executor = args.getOffloadExecutor();
         this.usingExecutorResource = this.executor == null;
         this.executorResource = executorResource;
+        this.serviceConfigParser = args.getServiceConfigParser();
     }
 
     /**
@@ -185,6 +191,55 @@ public class DiscoveryClientNameResolver extends NameResolver {
             // TODO: How to handle this case?
             throw new IllegalArgumentException("Failed to parse gRPC port information from: " + instance, e);
         }
+    }
+
+    /**
+     * Extracts and parse gRPC service config from the given service instances.
+     *
+     * @param instances The list of instances to extract the service config from.
+     * @return Parsed gRPC service config or null.
+     */
+    private ConfigOrError resolveServiceConfig(List<ServiceInstance> instances) {
+        final String serviceConfig = getServiceConfig(instances);
+        if (serviceConfig == null) {
+            return null;
+        }
+        log.debug("Found service config for {}", getName());
+        if (log.isTraceEnabled()) {
+            // This is to avoid blowing log into several lines if newlines present in service config string.
+            final String logStr = serviceConfig.replace("\r", "\\r").replace("\n", "\\n");
+            log.trace("Service config for {}: {}", getName(), logStr);
+        }
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, ?> parsedServiceConfig = GSON.fromJson(serviceConfig, Map.class);
+            return serviceConfigParser.parseServiceConfig(parsedServiceConfig);
+        } catch (JsonSyntaxException e) {
+            return ConfigOrError.fromError(
+                    Status.UNKNOWN
+                            .withDescription("Failed to parse grpc service config")
+                            .withCause(e));
+        }
+    }
+
+    /**
+     * Extracts the gRPC service config string from the given service instances.
+     *
+     * @param instances The list of instances to extract the service config from.
+     * @return The gRPC service config or null.
+     */
+    protected String getServiceConfig(final List<ServiceInstance> instances) {
+        for (final ServiceInstance inst : instances) {
+            final Map<String, String> metadata = inst.getMetadata();
+            if (metadata == null || metadata.isEmpty()) {
+                continue;
+            }
+            final String metaValue = metadata.get(CLOUD_DISCOVERY_METADATA_SERVICE_CONFIG);
+            if (metaValue != null && !metaValue.isEmpty()) {
+                return metaValue;
+            }
+        }
+        return null;
     }
 
     /**
@@ -318,6 +373,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
             log.debug("Ready to update server list for {}", getName());
             this.savedListener.onResult(ResolutionResult.newBuilder()
                     .setAddresses(toTargets(newInstanceList))
+                    .setServiceConfig(resolveServiceConfig(newInstanceList))
                     .build());
             log.info("Done updating server list for {}", getName());
             return newInstanceList;

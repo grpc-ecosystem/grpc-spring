@@ -372,35 +372,6 @@ public class GrpcChannelProperties {
     }
     // --------------------------------------------------
 
-    private Boolean fullStreamDecompression;
-    private static final boolean DEFAULT_FULL_STREAM_DECOMPRESSION = false;
-
-    /**
-     * Gets whether full-stream decompression of inbound streams should be enabled.
-     *
-     * @return True, if full-stream decompression of inbound streams should be enabled. False otherwise.
-     *
-     * @see #setFullStreamDecompression(Boolean)
-     */
-    public boolean isFullStreamDecompression() {
-        return this.fullStreamDecompression == null ? DEFAULT_FULL_STREAM_DECOMPRESSION : this.fullStreamDecompression;
-    }
-
-    /**
-     * Sets whether full-stream decompression of inbound streams should be enabled. This will cause the channel's
-     * outbound headers to advertise support for GZIP compressed streams, and gRPC servers which support the feature may
-     * respond with a GZIP compressed stream.
-     *
-     * @param fullStreamDecompression Whether full stream decompression should be enabled or null to use the fallback.
-     *
-     * @see ManagedChannelBuilder#enableFullStreamDecompression()
-     */
-    public void setFullStreamDecompression(final Boolean fullStreamDecompression) {
-        this.fullStreamDecompression = fullStreamDecompression;
-    }
-
-    // --------------------------------------------------
-
     private NegotiationType negotiationType;
     private static final NegotiationType DEFAULT_NEGOTIATION_TYPE = NegotiationType.TLS;
 
@@ -529,9 +500,6 @@ public class GrpcChannelProperties {
         }
         if (this.maxInboundMessageSize == null) {
             this.maxInboundMessageSize = config.maxInboundMessageSize;
-        }
-        if (this.fullStreamDecompression == null) {
-            this.fullStreamDecompression = config.fullStreamDecompression;
         }
         if (this.negotiationType == null) {
             this.negotiationType = config.negotiationType;
