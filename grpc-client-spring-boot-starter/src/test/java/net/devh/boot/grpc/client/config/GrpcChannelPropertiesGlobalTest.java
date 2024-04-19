@@ -26,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.unit.DataSize;
 
 /**
  * Tests whether the global property fallback works.
@@ -34,6 +35,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @SpringBootTest(properties = {
         "grpc.client.GLOBAL.keepAliveTime=23m",
         "grpc.client.GLOBAL.keepAliveTimeout=31s",
+        "grpc.client.GLOBAL.maxInboundMessageSize=5MB",
+        "grpc.client.GLOBAL.maxInboundMetadataSize=3MB",
         "grpc.client.test.keepAliveTime=42m"})
 class GrpcChannelPropertiesGlobalTest {
 
@@ -52,4 +55,11 @@ class GrpcChannelPropertiesGlobalTest {
         assertEquals(Duration.ofSeconds(31), this.grpcChannelsProperties.getChannel("test").getKeepAliveTimeout());
     }
 
+    @Test
+    void testCopyDefaults() {
+        assertEquals(DataSize.ofMegabytes(5),
+                this.grpcChannelsProperties.getChannel("test").getMaxInboundMessageSize());
+        assertEquals(DataSize.ofMegabytes(3),
+                this.grpcChannelsProperties.getChannel("test").getMaxInboundMetadataSize());
+    }
 }
