@@ -501,6 +501,9 @@ public class GrpcChannelProperties {
         if (this.maxInboundMessageSize == null) {
             this.maxInboundMessageSize = config.maxInboundMessageSize;
         }
+        if (this.maxInboundMetadataSize == null) {
+            this.maxInboundMetadataSize = config.maxInboundMetadataSize;
+        }
         if (this.negotiationType == null) {
             this.negotiationType = config.negotiationType;
         }
