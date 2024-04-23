@@ -152,7 +152,8 @@ public class GrpcClientAutoConfiguration {
             "io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder"})
     @Bean
     @Lazy
-    GrpcChannelFactory shadedNettyGrpcChannelFactory(final GrpcChannelsProperties properties,
+    GrpcChannelFactory shadedNettyGrpcChannelFactory(
+            final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
 
@@ -169,7 +170,8 @@ public class GrpcClientAutoConfiguration {
     @ConditionalOnClass(name = {"io.netty.channel.Channel", "io.grpc.netty.NettyChannelBuilder"})
     @Bean
     @Lazy
-    GrpcChannelFactory nettyGrpcChannelFactory(final GrpcChannelsProperties properties,
+    GrpcChannelFactory nettyGrpcChannelFactory(
+            final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
 
@@ -185,7 +187,8 @@ public class GrpcClientAutoConfiguration {
     @ConditionalOnMissingBean(GrpcChannelFactory.class)
     @Bean
     @Lazy
-    GrpcChannelFactory inProcessGrpcChannelFactory(final GrpcChannelsProperties properties,
+    GrpcChannelFactory inProcessGrpcChannelFactory(
+            final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
 
