@@ -73,6 +73,50 @@ Once the dependencies are added grpc-spring-boot-starter will automatically conf
 - `methodType`: The type of the requested grpc method.
 - `statusCode`: Response `Status.Code`
 
+## gRPC A66 Metrics
+
+In addition to above listed metrics, once the dependencies are added grpc-spring-boot-starter will automatically configure to gather [gRPC A66](https://github.com/grpc/proposal/blob/master/A66-otel-stats.md) metrics.
+
+### Client Metrics
+
+### Counter
+
+- `grpc.client.attempt.started`: The total number of RPC attempts started, including those that have not completed.
+  - Tags: `grpc.method`
+
+### Distribution
+
+- `grpc.client.attempt.sent_total_compressed_message_size`: Total bytes (compressed but not encrypted) sent across all request messages (metadata excluded) per RPC attempt.
+  - Tags: `grpc.method`, `grpc.status`
+- `grpc.client.attempt.rcvd_total_compressed_message_size`: Total bytes (compressed but not encrypted) received across all response messages (metadata excluded) per RPC attempt.
+  - Tags: `grpc.method`, `grpc.status`
+
+### Timer
+
+- `grpc.client.attempt.duration`: The total time taken to complete an RPC attempt including the time it takes to pick a sub channel.
+  - Tags: `grpc.method`, `grpc.status`
+- `grpc.client.call.duration`: The total time taken by gRPC library to complete an RPC from the application’s perspective.
+  - Tags: `grpc.method`, `grpc.status`
+
+### Server Metrics
+
+### Counter
+
+- `grpc.server.call.started`: The total number of RPCs started, including those that have not completed.
+  - Tags: `grpc.method`
+
+### Distribution
+
+- `grpc.server.call.sent_total_compressed_message_size`: Total bytes (compressed but not encrypted) sent across all response messages (metadata excluded) per RPC.
+  - Tags: `grpc.method`, `grpc.status`
+- `grpc.server.call.rcvd_total_compressed_message_size`: Total bytes (compressed but not encrypted) received across all request messages (metadata excluded) per RPC.
+  - Tags: `grpc.method`, `grpc.status`
+
+### Timer
+
+- `grpc.server.call.duration`: The total time an RPC takes from the server transport’s perspective.
+  - Tags: `grpc.method`, `grpc.status`
+
 ### Viewing the metrics
 
 You can view the grpc metrics along with your other metrics at `/actuator/metrics` (requires a web-server) or via JMX.
@@ -149,6 +193,8 @@ spring.autoconfigure.exclude=\
 net.devh.boot.grpc.client.autoconfigure.GrpcClientMetricAutoConfiguration,\
 net.devh.boot.grpc.server.autoconfigure.GrpcServerMetricAutoConfiguration
 ````
+
+You can opt out from collecting gRPC A66 metrics using `grpc.metricsA66Enabled=false`.
 
 ----------
 

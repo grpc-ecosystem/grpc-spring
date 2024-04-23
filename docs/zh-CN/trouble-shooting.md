@@ -158,7 +158,7 @@ Caused by: java.lang.IllegalStateException: Could not find TLS ALPN provider; no
 ````txt
 [...]
 Caused by: java.lang.IllegalStateException: Failed to create channel: <name>
-    at net.devh.boot.grpc.client.inject.GrpcClientBeanPostProcessor.processInjectionPoint(GrpcClientBeanPostProcessor.java:118) ~[grpc-client-spring-boot-autoconfigure-2.4.0.RELEASE.jar:2.4.0.RELEASE]
+    at net.devh.boot.grpc.client.inject.GrpcClientBeanPostProcessor.processInjectionPoint(GrpcClientBeanPostProcessor.java:118) ~[grpc-client-spring-boot-starter-2.4.0.RELEASE.jar:2.4.0.RELEASE]
     at net.devh.boot.grpc.client.inject.GrpcClientBeanPostProcessor.postProcessBeforeInitialization(GrpcClientBeanPostProcessor.java:77)
     [...]
 Caused by: java.lang.IllegalStateException: Could not find TLS ALPN provider; no working netty-tcnative, Conscrypt, or Jetty NPN/ALPN available
@@ -252,14 +252,14 @@ grpc.client.__name__.security.trustCertCollection=file:certificates/trusted-serv
 
 ````txt
 Caused by: java.lang.IllegalStateException: Failed to start the grpc server
-    at net.devh.boot.grpc.server.serverfactory.GrpcServerLifecycle.start(GrpcServerLifecycle.java:51) ~[grpc-server-spring-boot-autoconfigure-2.4.0.RELEASE.jar:2.4.0.RELEASE]
+    at net.devh.boot.grpc.server.serverfactory.GrpcServerLifecycle.start(GrpcServerLifecycle.java:51) ~[grpc-server-spring-boot-starter-2.4.0.RELEASE.jar:2.4.0.RELEASE]
     [...]
 Caused by: java.io.IOException: Failed to bind
     at io.grpc.netty.shaded.io.grpc.netty.NettyServer.start(NettyServer.java:246) ~[grpc-netty-shaded-1.21.0.jar:1.21.0]
     at io.grpc.internal.ServerImpl.start(ServerImpl.java:177) ~[grpc-core-1.21.0.jar:1.21.0]
     at io.grpc.internal.ServerImpl.start(ServerImpl.java:85) ~[grpc-core-1.21.0.jar:1.21.0]
-    at net.devh.boot.grpc.server.serverfactory.GrpcServerLifecycle.createAndStartGrpcServer(GrpcServerLifecycle.java:90) ~[grpc-server-spring-boot-autoconfigure-2.4.0.RELEASE.jar:2.4.0.RELEASE]
-    at net.devh.boot.grpc.server.serverfactory.GrpcServerLifecycle.start(GrpcServerLifecycle.java:49) ~[grpc-server-spring-boot-autoconfigure-2.4.0.RELEASE.jar:2.4.0.RELEASE]
+    at net.devh.boot.grpc.server.serverfactory.GrpcServerLifecycle.createAndStartGrpcServer(GrpcServerLifecycle.java:90) ~[grpc-server-spring-boot-starter-2.4.0.RELEASE.jar:2.4.0.RELEASE]
+    at net.devh.boot.grpc.server.serverfactory.GrpcServerLifecycle.start(GrpcServerLifecycle.java:49) ~[grpc-server-spring-boot-starter-2.4.0.RELEASE.jar:2.4.0.RELEASE]
     ... 13 common frames omitted
 Caused by: java.net.BindException: Address already in use: bind
 ````

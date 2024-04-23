@@ -1,3 +1,9 @@
+# Survey - gRPC/Spring
+
+Dear gRPC/Spring users, in order to enhance the user experience of
+grpc-ecosystem/grpc-spring, we have developed [this survey](https://docs.google.com/forms/d/e/1FAIpQLSfHgvh_Z0_wwX7JQLERanJ-AAXjiKh23_kSI3Rl5mnKVQ8Bpw/viewform?resourcekey=0-mEilI6lFvIfVXiUniEyCog) as a means of
+establishing a direct line of communication. Your feedback is highly appreciated.
+
 # gRPC Spring Boot Starter
 
 [![Build master branch](https://github.com/grpc-ecosystem/grpc-spring/workflows/Build%20master%20branch/badge.svg)](https://github.com/grpc-ecosystem/grpc-spring/actions)
@@ -5,13 +11,13 @@
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 [![Crowdin](https://badges.crowdin.net/grpc-spring-boot-starter/localized.svg)](https://crowdin.com/project/grpc-spring-boot-starter)
 
-[![Client-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-client-spring-boot-autoconfigure.svg?label=Client-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-client-spring-boot-autoconfigure)
-[![Server-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-server-spring-boot-autoconfigure.svg?label=Server-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-server-spring-boot-autoconfigure)
+[![Client-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-client-spring-boot-starter.svg?label=Client-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-client-spring-boot-starter)
+[![Server-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-server-spring-boot-starter.svg?label=Server-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-server-spring-boot-starter)
 [![Common-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-common-spring-boot.svg?label=Common-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-common-spring-boot)
 
 README: [English](README.md) | [中文](README-zh-CN.md)
 
-**Documentation:** [English](https://yidongnan.github.io/grpc-spring-boot-starter/en/) | [中文](https://yidongnan.github.io/grpc-spring-boot-starter/zh-CN/)
+**Documentation:** [English](https://grpc-ecosystem.github.io/grpc-spring/en/) | [中文](https://grpc-ecosystem.github.io/grpc-spring/zh-CN/)
 
 ## Features
 
@@ -50,7 +56,7 @@ README: [English](README.md) | [中文](README-zh-CN.md)
 
 ## Versions
 
-The latest version is `2.15.0.RELEASE` it was compiled with spring-boot `2.7.16` and spring-cloud `2021.0.8`
+The latest version is `3.1.0.RELEASE` it was compiled with spring-boot `3.2.4` and spring-cloud `2023.0.0`
 but it is also compatible with a large variety of other versions.
 An overview of all versions and their respective library versions can be found in our [documentation](https://yidongnan.github.io/grpc-spring-boot-starter/en/versions.html).
 
@@ -66,7 +72,7 @@ To add a dependency using Maven, use the following:
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-spring-boot-starter</artifactId>
-  <version>2.15.0.RELEASE</version>
+  <version>3.1.0.RELEASE</version>
 </dependency>
 ````
 
@@ -74,7 +80,7 @@ To add a dependency using Gradle:
 
 ````gradle
 dependencies {
-  implementation 'net.devh:grpc-spring-boot-starter:2.15.0.RELEASE'
+  implementation 'net.devh:grpc-spring-boot-starter:3.1.0.RELEASE'
 }
 ````
 
@@ -86,7 +92,7 @@ To add a dependency using Maven, use the following:
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-server-spring-boot-starter</artifactId>
-  <version>2.15.0.RELEASE</version>
+  <version>3.1.0.RELEASE</version>
 </dependency>
 ````
 
@@ -94,7 +100,7 @@ To add a dependency using Gradle:
 
 ````gradle
 dependencies {
-  implementation 'net.devh:grpc-server-spring-boot-starter:2.15.0.RELEASE'
+  implementation 'net.devh:grpc-server-spring-boot-starter:3.1.0.RELEASE'
 }
 ````
 
@@ -115,7 +121,7 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
 ````
 
 By default, the grpc server will listen to port `9090`. These and other
-[settings](grpc-server-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/server/config/GrpcServerProperties.java)
+[settings](grpc-server-spring-boot-starter/src/main/java/net/devh/boot/grpc/server/config/GrpcServerProperties.java)
 can be changed via Spring's property mechanism. The server uses the `grpc.server.` prefix.
 
 Refer to our [documentation](https://yidongnan.github.io/grpc-spring-boot-starter/) for more details.
@@ -128,7 +134,7 @@ To add a dependency using Maven, use the following:
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-client-spring-boot-starter</artifactId>
-  <version>2.15.0.RELEASE</version>
+  <version>3.1.0.RELEASE</version>
 </dependency>
 ````
 
@@ -136,7 +142,7 @@ To add a dependency using Gradle:
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-client-spring-boot-starter:2.15.0.RELEASE'
+  compile 'net.devh:grpc-client-spring-boot-starter:3.1.0.RELEASE'
 }
 ````
 
@@ -164,7 +170,7 @@ You can customize the default url mapping via `NameResolver.Factory` beans. If y
 then the default uri will be guessed using the default scheme and the name (e.g.: `dns:/<name>`):
 
 These and other
-[settings](grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/config/GrpcChannelProperties.java)
+[settings](grpc-client-spring-boot-starter/src/main/java/net/devh/boot/grpc/client/config/GrpcChannelProperties.java)
 can be changed via Spring's property mechanism. The clients use the `grpc.client.(serverName).` prefix.
 
 Refer to our [documentation](https://yidongnan.github.io/grpc-spring-boot-starter/) for more details.

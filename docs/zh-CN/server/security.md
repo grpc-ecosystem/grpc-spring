@@ -98,15 +98,15 @@ cat client*.crt > trusted-clients.crt.collection
 
 ### 配置身份验证
 
-为了支持来自 grpc 客户端的身份验证，您必须定义客户端如何被允许进行身份验证。 您可以通过自定义 [`GrpcAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-autoconfigure/latest/net/devh/boot/grpc/server/security/authentication/GrpcAuthenticationReader.html) 来实现。
+为了支持来自 grpc 客户端的身份验证，您必须定义客户端如何被允许进行身份验证。 您可以通过自定义 [`GrpcAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-starter/latest/net/devh/boot/grpc/server/security/authentication/GrpcAuthenticationReader.html) 来实现。
 
 grpc-spring-boot-starter 提供了一些内置实现：
 
-- [`AnonymousAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-autoconfigure/latest/net/devh/boot/grpc/server/security/authentication/AnonymousAuthenticationReader.html) Spring 的匿名身份认证。
-- [`BasicGrpcAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-autoconfigure/latest/net/devh/boot/grpc/server/security/authentication/BasicGrpcAuthenticationReader.html) 基础身份认证。
-- [`BearerAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-autoconfigure/latest/net/devh/boot/grpc/server/security/authentication/BearerAuthenticationReader.html) OAuth 以及类似协议的身份认证。
-- [`SSLContextGrpcAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-autoconfigure/latest/net/devh/boot/grpc/server/security/authentication/SSLContextGrpcAuthenticationReader.html) 基于证书的身份认证。
-- [`CompositeGrpcAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-autoconfigure/latest/net/devh/boot/grpc/server/security/authentication/CompositeGrpcAuthenticationReader.html) 依次尝试多个身份验证器。
+- [`AnonymousAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-starter/latest/net/devh/boot/grpc/server/security/authentication/AnonymousAuthenticationReader.html) Spring 的匿名身份认证。
+- [`BasicGrpcAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-starter/latest/net/devh/boot/grpc/server/security/authentication/BasicGrpcAuthenticationReader.html) 基础身份认证。
+- [`BearerAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-starter/latest/net/devh/boot/grpc/server/security/authentication/BearerAuthenticationReader.html) OAuth 以及类似协议的身份认证。
+- [`SSLContextGrpcAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-starter/latest/net/devh/boot/grpc/server/security/authentication/SSLContextGrpcAuthenticationReader.html) 基于证书的身份认证。
+- [`CompositeGrpcAuthenticationReader`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-starter/latest/net/devh/boot/grpc/server/security/authentication/CompositeGrpcAuthenticationReader.html) 依次尝试多个身份验证器。
 
 您 Bean 的定义将跟下面这个示例类似：
 
@@ -190,7 +190,7 @@ GrpcAuthenticationReader authenticationReader() {
 
 #### gRPC 安全检查
 
-保护应用程序安全的一种方式是将 [`GrpcSecurityMetadataSource`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-autoconfigure/latest/net/devh/boot/grpc/server/security/check/GrpcSecurityMetadataSource.html) bean 添加到您的应用商家文中。 它允许您在每个 grpc 方法级别返回安全条件。
+保护应用程序安全的一种方式是将 [`GrpcSecurityMetadataSource`](https://javadoc.io/page/net.devh/grpc-server-spring-boot-starter/latest/net/devh/boot/grpc/server/security/check/GrpcSecurityMetadataSource.html) bean 添加到您的应用商家文中。 它允许您在每个 grpc 方法级别返回安全条件。
 
 一个示例 bean 定义 (使用硬代码规则) 可能如下所示：
 

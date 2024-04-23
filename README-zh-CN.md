@@ -2,7 +2,7 @@
 
 [![Build master branch](https://github.com/grpc-ecosystem/grpc-spring/workflows/Build%20master%20branch/badge.svg)](https://github.com/grpc-ecosystem/grpc-spring/actions) [![Maven Central with version prefix filter](https://img.shields.io/maven-central/v/net.devh/grpc-spring-boot-starter.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.devh%22%20grpc) [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE) [![Crowdin](https://badges.crowdin.net/grpc-spring-boot-starter/localized.svg)](https://crowdin.com/project/grpc-spring-boot-starter)
 
-[![Client-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-client-spring-boot-autoconfigure.svg?label=Client-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-client-spring-boot-autoconfigure) [![Server-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-server-spring-boot-autoconfigure.svg?label=Server-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-server-spring-boot-autoconfigure) [![Common-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-common-spring-boot.svg?label=Common-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-common-spring-boot)
+[![Client-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-client-spring-boot-starter.svg?label=Client-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-client-spring-boot-starter) [![Server-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-server-spring-boot-starter.svg?label=Server-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-server-spring-boot-starter) [![Common-Javadoc](https://www.javadoc.io/badge/net.devh/grpc-common-spring-boot.svg?label=Common-Javadoc)](https://www.javadoc.io/doc/net.devh/grpc-common-spring-boot)
 
 README: [English](README.md) | [中文](README-zh-CN.md)
 
@@ -40,7 +40,7 @@ README: [English](README.md) | [中文](README-zh-CN.md)
 
 ## 版本
 
-最新版本是 `2.15.0.RELEASE` 它能跟 Spring-Boot `2.7.16` 和 Spring-Cloud `2021.0.8` 搭配使用。 但它也与各种其他版本兼容。 我们的 [文档](https://yidongnan.github.io/grpc-spring-boot-starter/en/versions.html) 中可以找到所有版本及其相应的库版本的概览。
+最新版本是 `3.1.0.RELEASE` 它能跟 Spring-Boot `3.2.4` 和 Spring-Cloud `2023.0.0` 搭配使用。 但它也与各种其他版本兼容。 我们的 [文档](https://yidongnan.github.io/grpc-spring-boot-starter/en/versions.html) 中可以找到所有版本及其相应的库版本的概览。
 
 **注意:** 该项目也可以在没有 Spring-Boot 的情况下使用，但是您需要手动配置一些 bean。
 
@@ -54,7 +54,7 @@ README: [English](README.md) | [中文](README-zh-CN.md)
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-spring-boot-starter</artifactId>
-  <version>2.15.0.RELEASE</version>
+  <version>3.1.0.RELEASE</version>
 </dependency>
 ````
 
@@ -62,7 +62,7 @@ README: [English](README.md) | [中文](README-zh-CN.md)
 
 ````gradle
 dependencies {
-  implementation 'net.devh:grpc-spring-boot-starter:2.15.0.RELEASE'
+  implementation 'net.devh:grpc-spring-boot-starter:3.1.0.RELEASE'
 }
 ````
 
@@ -74,7 +74,7 @@ dependencies {
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-server-spring-boot-starter</artifactId>
-  <version>2.15.0.RELEASE</version>
+  <version>3.1.0.RELEASE</version>
 </dependency>
 ````
 
@@ -82,7 +82,7 @@ dependencies {
 
 ````gradle
 dependencies {
-  implementation 'net.devh:grpc-server-spring-boot-starter:2.15.0.RELEASE'
+  implementation 'net.devh:grpc-server-spring-boot-starter:3.1.0.RELEASE'
 }
 ````
 
@@ -102,7 +102,7 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
 }
 ````
 
-默认情况下，gRPC 服务器将监听端口 `9090`。 端口的配置和其他的 [设置](grpc-server-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/server/config/GrpcServerProperties.java) 可以通过 Spring 的属性机制进行更改。 服务端的配置使用 `grpc.server.` 前缀。
+默认情况下，gRPC 服务器将监听端口 `9090`。 端口的配置和其他的 [设置](grpc-server-spring-boot-starter/src/main/java/net/devh/boot/grpc/server/config/GrpcServerProperties.java) 可以通过 Spring 的属性机制进行更改。 服务端的配置使用 `grpc.server.` 前缀。
 
 详情请参阅我们的[文档](https://yidongnan.github.io/grpc-spring-boot-starter/)。
 
@@ -114,7 +114,7 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
 <dependency>
   <groupId>net.devh</groupId>
   <artifactId>grpc-client-spring-boot-starter</artifactId>
-  <version>2.15.0.RELEASE</version>
+  <version>3.1.0.RELEASE</version>
 </dependency>
 ````
 
@@ -122,7 +122,7 @@ public class GrpcServerService extends GreeterGrpc.GreeterImplBase {
 
 ````gradle
 dependencies {
-  compile 'net.devh:grpc-client-spring-boot-starter:2.15.0.RELEASE'
+  compile 'net.devh:grpc-client-spring-boot-starter:3.1.0.RELEASE'
 }
 ````
 
@@ -145,7 +145,7 @@ HelloReply response = stub.sayHello(HelloRequest.newBuilder().setName(name).buil
 
 可以单独配置每个客户端的目标地址。 但在某些情况下，您可以仅依靠默认配置。 您可以通过 `NameResolver.Factory` Bean 类自定义默认的 url 映射。 如果您没有配置那个Bean，那么默认的 uri 将使用默认方案和名称(如：`dns:<name>`)：
 
-这些配置和其他的 [设置](grpc-client-spring-boot-autoconfigure/src/main/java/net/devh/boot/grpc/client/config/GrpcChannelProperties.java) 可以通过 Spring 的属性机制进行更改。 客户端使用`grpc.client.(serverName)。` 前缀。
+这些配置和其他的 [设置](grpc-client-spring-boot-starter/src/main/java/net/devh/boot/grpc/client/config/GrpcChannelProperties.java) 可以通过 Spring 的属性机制进行更改。 客户端使用`grpc.client.(serverName)。` 前缀。
 
 详情请参阅我们的[文档](https://yidongnan.github.io/grpc-spring-boot-starter/)。
 

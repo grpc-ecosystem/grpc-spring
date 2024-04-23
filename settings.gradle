@@ -1,9 +1,7 @@
 rootProject.name = 'grpc-spring-boot-starter'
 
 include "grpc-common-spring-boot"
-include "grpc-client-spring-boot-autoconfigure"
 include "grpc-client-spring-boot-starter"
-include "grpc-server-spring-boot-autoconfigure"
 include "grpc-server-spring-boot-starter"
 
 include "tests"
@@ -17,3 +15,6 @@ include "examples:cloud-grpc-client"
 include "examples:cloud-grpc-server"
 include "examples:security-grpc-client"
 include "examples:security-grpc-server"
+include "examples:grpc-observability:backend"
+include "examples:grpc-observability:frontend"
+include "examples:grpc-observability:proto"

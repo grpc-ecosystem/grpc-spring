@@ -113,7 +113,7 @@ CallCredentials bearerAuthForwardingCredentials() {
 
 ### 使用 CallCredentials
 
-如果您的应用程序上下文中只有一个`CallCredentials`，我们将自动为您创建一个 `StubTransformer`，并配置到所有的 `Stub`上。 如果您想为每个 Stub 配置不同的凭据，那么您可以使用 [`CallCredentialsHelper`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-autoconfigure/latest/net/devh/boot/grpc/client/security/CallCredentialsHelper.html) 中提供的帮助方法。
+如果您的应用程序上下文中只有一个`CallCredentials`，我们将自动为您创建一个 `StubTransformer`，并配置到所有的 `Stub`上。 如果您想为每个 Stub 配置不同的凭据，那么您可以使用 [`CallCredentialsHelper`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/security/CallCredentialsHelper.html) 中提供的帮助方法。
 
 > **注意:** `StubTransformer` 只能自动配置注入的 `Stub`。 它们无法修改原始的  `Channel`。
 
