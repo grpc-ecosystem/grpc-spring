@@ -33,7 +33,7 @@ You can find all build-in configuration properties here:
 
 - [`GrpcChannelsProperties`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/config/GrpcChannelsProperties.html)
 - [`GrpcChannelProperties`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/config/GrpcChannelProperties.html)
-- [`GrpcServerProperties.Security`](https://static.javadoc.io/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/config/GrpcChannelProperties.Security.html)
+- [`GrpcChannelProperties.Security`](https://static.javadoc.io/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/config/GrpcChannelProperties.Security.html)
 
 If you prefer to read the sources instead, you can do so
 [here](https://github.com/grpc-ecosystem/grpc-spring/blob/master/grpc-client-spring-boot-starter/src/main/java/net/devh/boot/grpc/client/config/GrpcChannelProperties.java#L58).
