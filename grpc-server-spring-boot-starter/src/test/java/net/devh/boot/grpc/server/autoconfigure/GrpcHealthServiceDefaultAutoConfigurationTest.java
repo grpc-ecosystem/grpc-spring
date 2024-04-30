@@ -36,7 +36,9 @@ import io.grpc.health.v1.HealthGrpc.HealthStub;
 @ImportAutoConfiguration({
         GrpcServerAutoConfiguration.class,
         GrpcServerFactoryAutoConfiguration.class,
-        GrpcHealthServiceAutoConfiguration.class})
+        GrpcHealthServiceAutoConfiguration.class,
+        GrpcActuatoHealthServiceAutoConfiguration.class
+})
 @DirtiesContext
 class GrpcHealthServiceDefaultAutoConfigurationTest {
 

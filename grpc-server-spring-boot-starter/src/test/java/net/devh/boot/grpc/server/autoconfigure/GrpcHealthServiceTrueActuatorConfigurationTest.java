@@ -16,21 +16,15 @@
 
 package net.devh.boot.grpc.server.autoconfigure;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.type;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
-import io.grpc.Status;
-import io.grpc.Status.Code;
-import io.grpc.StatusRuntimeException;
-import io.grpc.health.v1.HealthCheckResponse;
-
 @SpringBootTest(classes = GrpcHealthServiceDefaultAutoConfigurationTest.TestConfig.class,
-        properties = "grpc.server.health-service-enabled=false")
+        properties = {
+                "grpc.server.health-service-enabled=true",
+                "grpc.server.health-service-type=actuator",
+        })
 @ImportAutoConfiguration({
         GrpcServerAutoConfiguration.class,
         GrpcServerFactoryAutoConfiguration.class,
@@ -38,15 +32,5 @@ import io.grpc.health.v1.HealthCheckResponse;
         GrpcActuatoHealthServiceAutoConfiguration.class
 })
 @DirtiesContext
-class GrpcHealthServiceFalseAutoConfigurationTest extends GrpcHealthServiceDefaultAutoConfigurationTest {
-
-    @Override
-    void checkResult(final AwaitableStreamObserver<HealthCheckResponse> resultObserver) {
-        final Throwable error = assertDoesNotThrow(resultObserver::getError);
-        assertThat(error).asInstanceOf(type(StatusRuntimeException.class))
-                .extracting(StatusRuntimeException::getStatus)
-                .extracting(Status::getCode)
-                .isEqualTo(Code.UNIMPLEMENTED);
-    }
-
+class GrpcHealthServiceTrueActuatorConfigurationTest extends GrpcHealthServiceDefaultAutoConfigurationTest {
 }
