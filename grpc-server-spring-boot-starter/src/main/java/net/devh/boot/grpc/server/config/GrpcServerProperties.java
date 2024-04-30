@@ -229,6 +229,11 @@ public class GrpcServerProperties {
     private boolean healthServiceEnabled = true;
 
     /**
+     * @TODO
+     */
+    private String healthServiceType = "grpc";
+
+    /**
      * Whether proto reflection service is enabled or not. Defaults to {@code true}.
      *
      * @param reflectionServiceEnabled Whether gRPC reflection service is enabled.

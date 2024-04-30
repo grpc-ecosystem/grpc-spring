@@ -16,7 +16,12 @@
 
 package net.devh.boot.grpc.server.autoconfigure;
 
+import net.devh.boot.grpc.server.health.ActuatorGrpcHealth;
+import org.springframework.boot.actuate.autoconfigure.health.HealthEndpointAutoConfiguration;
+import org.springframework.boot.actuate.health.HealthEndpoint;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -36,6 +41,7 @@ import net.devh.boot.grpc.server.service.GrpcService;
 @ConditionalOnClass(HealthStatusManager.class)
 @ConditionalOnProperty(prefix = "grpc.server", name = "health-service-enabled", matchIfMissing = true)
 @AutoConfigureBefore(GrpcServerFactoryAutoConfiguration.class)
+@AutoConfigureAfter(HealthEndpointAutoConfiguration.class)
 public class GrpcHealthServiceAutoConfiguration {
 
     /**
@@ -51,8 +57,16 @@ public class GrpcHealthServiceAutoConfiguration {
 
     @Bean
     @GrpcService
+    @ConditionalOnProperty(prefix = "grpc.server", name = "health-service-type", havingValue = "grpc", matchIfMissing = true)
     BindableService grpcHealthService(final HealthStatusManager healthStatusManager) {
         return healthStatusManager.getHealthService();
     }
 
+    @Bean
+    @GrpcService
+    @ConditionalOnProperty(prefix = "grpc.server", name = "health-service-type", havingValue = "actuator")
+    @ConditionalOnBean(HealthEndpoint.class)
+    BindableService grpcHealthServiceActuator(final HealthEndpoint healthStatusManager) {
+        return new ActuatorGrpcHealth(healthStatusManager);
+    }
 }

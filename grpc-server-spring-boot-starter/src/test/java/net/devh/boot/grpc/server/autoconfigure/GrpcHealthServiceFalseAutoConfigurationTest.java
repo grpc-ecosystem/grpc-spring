@@ -34,8 +34,7 @@ import io.grpc.health.v1.HealthCheckResponse;
 @ImportAutoConfiguration({
         GrpcServerAutoConfiguration.class,
         GrpcServerFactoryAutoConfiguration.class,
-        GrpcHealthServiceAutoConfiguration.class,
-        GrpcActuatoHealthServiceAutoConfiguration.class
+        GrpcHealthServiceAutoConfiguration.class
 })
 @DirtiesContext
 class GrpcHealthServiceFalseAutoConfigurationTest extends GrpcHealthServiceDefaultAutoConfigurationTest {
