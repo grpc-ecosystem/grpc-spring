@@ -27,5 +27,9 @@ public enum HealthType {
     /**
      * Uses a bridge to the Spring Boot Actuator health service.
      */
-    ACTUATOR
+    ACTUATOR,
+    /**
+     * No health service will be created.
+     */
+    NONE
 }
