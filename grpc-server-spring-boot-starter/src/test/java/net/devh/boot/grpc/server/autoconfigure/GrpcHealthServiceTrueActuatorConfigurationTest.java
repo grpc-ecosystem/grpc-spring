@@ -16,14 +16,8 @@
 
 package net.devh.boot.grpc.server.autoconfigure;
 
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
-import io.grpc.health.v1.HealthCheckRequest;
-import io.grpc.health.v1.HealthCheckResponse;
-import io.grpc.health.v1.HealthGrpc;
-import io.grpc.health.v1.HealthGrpc.HealthStub;
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.health.HealthEndpointAutoConfiguration;
@@ -35,7 +29,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 
-import static org.junit.jupiter.api.Assertions.*;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import io.grpc.health.v1.HealthCheckRequest;
+import io.grpc.health.v1.HealthCheckResponse;
+import io.grpc.health.v1.HealthGrpc;
+import io.grpc.health.v1.HealthGrpc.HealthStub;
 
 @SpringBootTest(classes = {
         GrpcHealthServiceDefaultAutoConfigurationTest.TestConfig.class,
@@ -121,8 +122,8 @@ class GrpcHealthServiceTrueActuatorConfigurationTest extends GrpcHealthServiceDe
                     .build(), resultObserver);
 
             var error = resultObserver.getError();
-            assertInstanceOf( StatusRuntimeException.class, error);
-            assertEquals(Status.NOT_FOUND.getCode(),((StatusRuntimeException) error).getStatus().getCode());
+            assertInstanceOf(StatusRuntimeException.class, error);
+            assertEquals(Status.NOT_FOUND.getCode(), ((StatusRuntimeException) error).getStatus().getCode());
         } finally {
             channel.shutdown();
         }

@@ -16,7 +16,6 @@
 
 package net.devh.boot.grpc.server.autoconfigure;
 
-import net.devh.boot.grpc.server.health.ActuatorGrpcHealth;
 import org.springframework.boot.actuate.autoconfigure.health.HealthEndpointAutoConfiguration;
 import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -30,6 +29,7 @@ import org.springframework.context.annotation.Configuration;
 
 import io.grpc.BindableService;
 import io.grpc.protobuf.services.HealthStatusManager;
+import net.devh.boot.grpc.server.health.ActuatorGrpcHealth;
 import net.devh.boot.grpc.server.service.GrpcService;
 
 /**
@@ -57,7 +57,8 @@ public class GrpcHealthServiceAutoConfiguration {
 
     @Bean
     @GrpcService
-    @ConditionalOnProperty(prefix = "grpc.server", name = "health-service-type", havingValue = "GRPC", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "grpc.server", name = "health-service-type", havingValue = "GRPC",
+            matchIfMissing = true)
     BindableService grpcHealthService(final HealthStatusManager healthStatusManager) {
         return healthStatusManager.getHealthService();
     }
