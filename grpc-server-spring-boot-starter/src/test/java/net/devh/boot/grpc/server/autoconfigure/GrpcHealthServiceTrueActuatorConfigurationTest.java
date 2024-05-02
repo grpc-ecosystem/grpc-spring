@@ -40,17 +40,14 @@ import io.grpc.health.v1.HealthGrpc.HealthStub;
 
 @SpringBootTest(classes = {
         GrpcHealthServiceDefaultAutoConfigurationTest.TestConfig.class,
-        GrpcHealthServiceTrueActuatorConfigurationTest.TestConfig.class
-},
+        GrpcHealthServiceTrueActuatorConfigurationTest.TestConfig.class},
         properties = {
-                "grpc.server.health-service-type=ACTUATOR",
-        })
+                "grpc.server.health-service-type=ACTUATOR"})
 @ImportAutoConfiguration({
         GrpcServerAutoConfiguration.class,
         GrpcServerFactoryAutoConfiguration.class,
         GrpcHealthServiceAutoConfiguration.class,
-        HealthEndpointAutoConfiguration.class
-})
+        HealthEndpointAutoConfiguration.class})
 @DirtiesContext
 class GrpcHealthServiceTrueActuatorConfigurationTest extends GrpcHealthServiceDefaultAutoConfigurationTest {
     @Configuration

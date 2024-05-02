@@ -25,8 +25,7 @@ import org.springframework.test.annotation.DirtiesContext;
 @ImportAutoConfiguration({
         GrpcServerAutoConfiguration.class,
         GrpcServerFactoryAutoConfiguration.class,
-        GrpcHealthServiceAutoConfiguration.class
-})
+        GrpcHealthServiceAutoConfiguration.class})
 @DirtiesContext
 class GrpcHealthServiceTrueAutoConfigurationTest extends GrpcHealthServiceDefaultAutoConfigurationTest {
 }

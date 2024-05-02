@@ -183,7 +183,7 @@ You can turn of the service listing (for both actuator and grpc) using `grpc.ser
 
 By default, the health endpoint will use the standard gRPC implementation for health, which does not integrate with Spring Boot Actuator.
 
-The server provides an optional integration with Actuator health information using the [gRPC Health API](https://grpc.io/docs/guides/health-checking/). 
+The server provides an optional integration with Actuator health information using the [gRPC Health API](https://grpc.io/docs/guides/health-checking/).
 
 This integration enables the server to respond to gRPC health checks based on the `HealthEndpoint` from Actuator, which is the same used for the web version.
 
@@ -194,7 +194,7 @@ grpc.server.health-service-type=ACTUATOR
 ````
 
 The integration allows you to check the health status for the whole service or specific health indicators, where the `service` is the name of the healthindicator.
-`Watch` is not supported because actuator is pull-based and does not automatically tries to determine the status of the service to notify clients. 
+`Watch` is not supported because actuator is pull-based and does not automatically tries to determine the status of the service to notify clients.
 
 
 ## Opt-Out
