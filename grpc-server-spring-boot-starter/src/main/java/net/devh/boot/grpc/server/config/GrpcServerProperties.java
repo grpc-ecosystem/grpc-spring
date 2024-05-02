@@ -229,9 +229,12 @@ public class GrpcServerProperties {
     private boolean healthServiceEnabled = true;
 
     /**
-     * @TODO
+     * Implementation of gRPC health service. Defaults to {@link HealthType#GRPC GRPC}.
+     *
+     * @param healthServiceType The implementation of gRPC health service.
+     * @return GRPC or Actuator.
      */
-    private String healthServiceType = "grpc";
+    private HealthType healthServiceType = HealthType.GRPC;
 
     /**
      * Whether proto reflection service is enabled or not. Defaults to {@code true}.

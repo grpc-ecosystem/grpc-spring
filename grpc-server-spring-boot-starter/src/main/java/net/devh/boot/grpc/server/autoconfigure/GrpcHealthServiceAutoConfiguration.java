@@ -57,14 +57,14 @@ public class GrpcHealthServiceAutoConfiguration {
 
     @Bean
     @GrpcService
-    @ConditionalOnProperty(prefix = "grpc.server", name = "health-service-type", havingValue = "grpc", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "grpc.server", name = "health-service-type", havingValue = "GRPC", matchIfMissing = true)
     BindableService grpcHealthService(final HealthStatusManager healthStatusManager) {
         return healthStatusManager.getHealthService();
     }
 
     @Bean
     @GrpcService
-    @ConditionalOnProperty(prefix = "grpc.server", name = "health-service-type", havingValue = "actuator")
+    @ConditionalOnProperty(prefix = "grpc.server", name = "health-service-type", havingValue = "ACTUATOR")
     @ConditionalOnBean(HealthEndpoint.class)
     BindableService grpcHealthServiceActuator(final HealthEndpoint healthStatusManager) {
         return new ActuatorGrpcHealth(healthStatusManager);

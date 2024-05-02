@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
         GrpcHealthServiceTrueActuatorConfigurationTest.TestConfig.class
 },
         properties = {
-                "grpc.server.health-service-type=actuator",
+                "grpc.server.health-service-type=ACTUATOR",
         })
 @ImportAutoConfiguration({
         GrpcServerAutoConfiguration.class,
