@@ -31,7 +31,7 @@ grpc-spring-boot-starter 可以通过 Spring 的 `@ConfigurationProperties` 机�
 
 - [`GrpcChannelsProperties`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/config/GrpcChannelsProperties.html)
 - [`GrpcChannelProperties`](https://javadoc.io/page/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/config/GrpcChannelProperties.html)
-- [`GrpcServerProperties.Security`](https://static.javadoc.io/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/config/GrpcChannelProperties.Security.html)
+- [`GrpcChannelProperties.Security`](https://static.javadoc.io/net.devh/grpc-client-spring-boot-starter/latest/net/devh/boot/grpc/client/config/GrpcChannelProperties.Security.html)
 
 如果你希望阅读源代码，你可以查阅 [这里](https://github.com/grpc-ecosystem/grpc-spring/blob/master/grpc-client-spring-boot-starter/src/main/java/net/devh/boot/grpc/client/config/GrpcChannelProperties.java#L58)。
 
