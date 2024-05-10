@@ -97,11 +97,11 @@ class ActuatorGrpcHealthTest {
 
         assertEquals(0, response.getValues().size());
 
-        var error = response.getError();
+        Throwable error = response.getError();
         assertNotNull(error);
         assertInstanceOf(StatusException.class, error);
 
-        var statusException = (StatusException) error;
+        StatusException statusException = (StatusException) error;
         assertEquals(io.grpc.Status.NOT_FOUND.getCode(), statusException.getStatus().getCode());
     }
 

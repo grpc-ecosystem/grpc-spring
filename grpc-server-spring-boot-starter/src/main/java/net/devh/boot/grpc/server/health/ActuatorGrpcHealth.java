@@ -16,11 +16,13 @@
 
 package net.devh.boot.grpc.server.health;
 
-import java.util.Objects;
 
+import static io.grpc.Status.NOT_FOUND;
+
+import org.springframework.boot.actuate.health.HealthComponent;
 import org.springframework.boot.actuate.health.HealthEndpoint;
+import org.springframework.boot.actuate.health.Status;
 
-import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.health.v1.HealthCheckRequest;
 import io.grpc.health.v1.HealthCheckResponse;
@@ -37,20 +39,20 @@ public class ActuatorGrpcHealth extends HealthGrpc.HealthImplBase {
     public void check(HealthCheckRequest request, StreamObserver<HealthCheckResponse> responseObserver) {
 
         if (!request.getService().isEmpty()) {
-            var health = healthEndpoint.healthForPath(request.getService());
+            HealthComponent health = healthEndpoint.healthForPath(request.getService());
             if (health == null) {
-                responseObserver.onError(new StatusException(
-                        Status.NOT_FOUND.withDescription("unknown service " + request.getService())));
+                responseObserver.onError(
+                        new StatusException(NOT_FOUND.withDescription("unknown service " + request.getService())));
                 return;
             }
-            var status = health.getStatus();
+            Status status = health.getStatus();
             HealthCheckResponse.ServingStatus result = resolveStatus(status);
             HealthCheckResponse response = HealthCheckResponse.newBuilder().setStatus(result).build();
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         } else {
 
-            var status = healthEndpoint.health().getStatus();
+            Status status = healthEndpoint.health().getStatus();
             HealthCheckResponse.ServingStatus result = resolveStatus(status);
             HealthCheckResponse response = HealthCheckResponse.newBuilder().setStatus(result).build();
             responseObserver.onNext(response);
@@ -59,12 +61,11 @@ public class ActuatorGrpcHealth extends HealthGrpc.HealthImplBase {
 
     }
 
-    private HealthCheckResponse.ServingStatus resolveStatus(org.springframework.boot.actuate.health.Status status) {
-        if (Objects.equals(org.springframework.boot.actuate.health.Status.UP.getCode(), status.getCode())) {
+    private HealthCheckResponse.ServingStatus resolveStatus(Status status) {
+        if (Status.UP.equals(status)) {
             return HealthCheckResponse.ServingStatus.SERVING;
         }
-        if (Objects.equals(org.springframework.boot.actuate.health.Status.DOWN.getCode(), status.getCode()) || Objects
-                .equals(org.springframework.boot.actuate.health.Status.OUT_OF_SERVICE.getCode(), status.getCode())) {
+        if (Status.DOWN.equals(status) || Status.OUT_OF_SERVICE.equals(status)) {
             return HealthCheckResponse.ServingStatus.NOT_SERVING;
         }
         return HealthCheckResponse.ServingStatus.UNKNOWN;

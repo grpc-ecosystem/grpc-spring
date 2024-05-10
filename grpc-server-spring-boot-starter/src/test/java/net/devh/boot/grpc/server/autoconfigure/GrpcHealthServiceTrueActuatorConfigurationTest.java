@@ -119,7 +119,7 @@ class GrpcHealthServiceTrueActuatorConfigurationTest extends GrpcHealthServiceDe
                     .setService("someservice")
                     .build(), resultObserver);
 
-            var error = resultObserver.getError();
+            Throwable error = resultObserver.getError();
             assertInstanceOf(StatusRuntimeException.class, error);
             assertEquals(Status.NOT_FOUND.getCode(), ((StatusRuntimeException) error).getStatus().getCode());
         } finally {
