@@ -50,6 +50,7 @@ import io.grpc.health.v1.HealthGrpc.HealthStub;
         HealthEndpointAutoConfiguration.class})
 @DirtiesContext
 class GrpcHealthServiceTrueActuatorConfigurationTest extends GrpcHealthServiceDefaultAutoConfigurationTest {
+
     @Configuration
     static class TestConfig {
         @Bean
