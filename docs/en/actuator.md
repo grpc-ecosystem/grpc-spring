@@ -194,7 +194,7 @@ grpc.server.health-service-type=ACTUATOR
 ````
 
 The integration allows you to check the health status for the whole service or specific health indicators, where the `service` is the name of the healthindicator.
-`Watch` is not supported because actuator is pull-based and does not automatically tries to determine the status of the service to notify clients.
+`Watch` is not yet supported because actuator is pull-based and does not automatically tries to determine the status of the service to notify clients.
 
 
 ## Opt-Out
