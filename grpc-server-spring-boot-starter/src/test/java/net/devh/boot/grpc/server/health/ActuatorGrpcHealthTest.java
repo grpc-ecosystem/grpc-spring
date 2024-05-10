@@ -37,6 +37,7 @@ import io.grpc.internal.testing.StreamRecorder;
 
 @ExtendWith(MockitoExtension.class)
 class ActuatorGrpcHealthTest {
+
     @Mock
     HealthEndpoint healthEndpoint;
 
