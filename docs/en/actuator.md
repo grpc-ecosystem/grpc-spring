@@ -195,8 +195,6 @@ grpc.server.health-service-type=ACTUATOR
 
 The integration allows you to check the health status for the whole service or specific health indicators, where the `service` is the key of the [`HealthIndicator`](https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html#actuator.endpoints.health.auto-configured-health-indicators).
 `Watch` is not yet supported because actuator is pull-based and does not automatically tries to determine the status of the service to notify clients.
-
-
 ## Opt-Out
 
 You can opt out from the actuator autoconfiguration using the following annotation:
