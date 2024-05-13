@@ -190,7 +190,7 @@ This integration enables the server to respond to gRPC health checks based on th
 To enable this integration, add the following properties to your application configuration:
 
 ````properties
-grpc.server.health-service-type=ACTUATOR
+grpc.server.health-service.type=ACTUATOR
 ````
 
 The integration allows you to check the health status for the whole service or specific health indicators, where the `service` is the key of the [`HealthIndicator`](https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html#actuator.endpoints.health.auto-configured-health-indicators).

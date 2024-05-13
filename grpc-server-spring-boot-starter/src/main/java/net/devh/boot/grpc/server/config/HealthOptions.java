@@ -16,26 +16,21 @@
 
 package net.devh.boot.grpc.server.config;
 
+import lombok.Data;
 
 /**
- * Enum to specify the type of health service to use in GRPC.
+ * GRPC Health service options.
  */
-public enum HealthType {
+@Data
+public class HealthOptions {
+
     /**
-     * Use the standard GRPC health service from io.grpc.
-     * 
-     * @see net.devh.boot.grpc.server.autoconfigure.GrpcHealthServiceAutoConfiguration#grpcHealthService
+     * Implementation of gRPC health service. Defaults to {@link HealthType#GRPC GRPC}. To disable health service set to
+     * {@link HealthType#NONE NONE}.
+     *
+     * @see net.devh.boot.grpc.server.autoconfigure.GrpcHealthServiceAutoConfiguration
+     * @param type The implementation of gRPC health service.
+     * @return GRPC, ACTUATOR or NONE.
      */
-    GRPC,
-    /**
-     * Uses a bridge to the Spring Boot Actuator health service.
-     * 
-     * @see net.devh.boot.grpc.server.autoconfigure.GrpcHealthServiceAutoConfiguration#grpcHealthServiceActuator
-     * @see net.devh.boot.grpc.server.health.ActuatorGrpcHealth
-     */
-    ACTUATOR,
-    /**
-     * No health service will be created.
-     */
-    NONE
+    private HealthType type = HealthType.GRPC;
 }

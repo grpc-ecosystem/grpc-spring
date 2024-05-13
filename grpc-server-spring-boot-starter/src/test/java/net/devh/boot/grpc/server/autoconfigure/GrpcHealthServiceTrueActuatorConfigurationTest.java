@@ -42,7 +42,7 @@ import io.grpc.health.v1.HealthGrpc.HealthStub;
         GrpcHealthServiceDefaultAutoConfigurationTest.TestConfig.class,
         GrpcHealthServiceTrueActuatorConfigurationTest.TestConfig.class},
         properties = {
-                "grpc.server.health-service-type=ACTUATOR"})
+                "grpc.server.health-service.type=ACTUATOR"})
 @ImportAutoConfiguration({
         GrpcServerAutoConfiguration.class,
         GrpcServerFactoryAutoConfiguration.class,
