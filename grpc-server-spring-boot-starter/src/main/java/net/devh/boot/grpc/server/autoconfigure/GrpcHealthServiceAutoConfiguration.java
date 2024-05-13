@@ -51,6 +51,8 @@ public class GrpcHealthServiceAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "grpc.server", name = "health-service-type", havingValue = "GRPC",
+            matchIfMissing = true)
     HealthStatusManager healthStatusManager() {
         return new HealthStatusManager();
     }
