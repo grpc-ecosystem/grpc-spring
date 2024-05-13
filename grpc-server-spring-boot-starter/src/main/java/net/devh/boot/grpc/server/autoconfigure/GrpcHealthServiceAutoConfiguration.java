@@ -20,7 +20,6 @@ import org.springframework.boot.actuate.autoconfigure.health.HealthEndpointAutoC
 import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -68,7 +67,6 @@ public class GrpcHealthServiceAutoConfiguration {
     @Bean
     @GrpcService
     @ConditionalOnProperty(prefix = "grpc.server", name = "health-service-type", havingValue = "ACTUATOR")
-    @ConditionalOnBean(HealthEndpoint.class)
     BindableService grpcHealthServiceActuator(final HealthEndpoint healthStatusManager) {
         return new ActuatorGrpcHealth(healthStatusManager);
     }
