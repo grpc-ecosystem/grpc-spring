@@ -30,7 +30,7 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.health.v1.HealthCheckResponse;
 
 @SpringBootTest(classes = GrpcHealthServiceDefaultAutoConfigurationTest.TestConfig.class,
-        properties = "grpc.server.health-service-enabled=false")
+        properties = "grpc.server.health-service.type=NONE")
 @ImportAutoConfiguration({
         GrpcServerAutoConfiguration.class,
         GrpcServerFactoryAutoConfiguration.class,

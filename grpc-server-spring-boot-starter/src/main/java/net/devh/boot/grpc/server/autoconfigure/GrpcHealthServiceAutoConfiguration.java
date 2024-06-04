@@ -16,6 +16,9 @@
 
 package net.devh.boot.grpc.server.autoconfigure;
 
+import org.springframework.boot.actuate.autoconfigure.health.HealthEndpointAutoConfiguration;
+import org.springframework.boot.actuate.health.HealthEndpoint;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -25,6 +28,7 @@ import org.springframework.context.annotation.Configuration;
 
 import io.grpc.BindableService;
 import io.grpc.protobuf.services.HealthStatusManager;
+import net.devh.boot.grpc.server.health.ActuatorGrpcHealth;
 import net.devh.boot.grpc.server.service.GrpcService;
 
 /**
@@ -36,6 +40,7 @@ import net.devh.boot.grpc.server.service.GrpcService;
 @ConditionalOnClass(HealthStatusManager.class)
 @ConditionalOnProperty(prefix = "grpc.server", name = "health-service-enabled", matchIfMissing = true)
 @AutoConfigureBefore(GrpcServerFactoryAutoConfiguration.class)
+@AutoConfigureAfter(HealthEndpointAutoConfiguration.class)
 public class GrpcHealthServiceAutoConfiguration {
 
     /**
@@ -45,14 +50,24 @@ public class GrpcHealthServiceAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "grpc.server", name = "health-service.type", havingValue = "GRPC",
+            matchIfMissing = true)
     HealthStatusManager healthStatusManager() {
         return new HealthStatusManager();
     }
 
     @Bean
     @GrpcService
+    @ConditionalOnProperty(prefix = "grpc.server", name = "health-service.type", havingValue = "GRPC",
+            matchIfMissing = true)
     BindableService grpcHealthService(final HealthStatusManager healthStatusManager) {
         return healthStatusManager.getHealthService();
     }
 
+    @Bean
+    @GrpcService
+    @ConditionalOnProperty(prefix = "grpc.server", name = "health-service.type", havingValue = "ACTUATOR")
+    BindableService grpcHealthServiceActuator(final HealthEndpoint healthStatusManager) {
+        return new ActuatorGrpcHealth(healthStatusManager);
+    }
 }
