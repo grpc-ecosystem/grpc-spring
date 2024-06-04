@@ -143,13 +143,13 @@ public class GrpcClientAutoConfiguration {
         return Collections.emptyList();
     }
 
-    // First try the shaded netty channel factory
+    // First try the shaded netty channel factory and in process factory
     @ConditionalOnMissingBean(GrpcChannelFactory.class)
     @ConditionalOnClass(name = {"io.grpc.netty.shaded.io.netty.channel.Channel",
-            "io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder"})
+            "io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder", "io.grpc.inprocess.InProcessChannelBuilder"})
     @Bean
     @Lazy
-    GrpcChannelFactory shadedNettyGrpcChannelFactory(
+    GrpcChannelFactory inProcessOrShadedNettyGrpcChannelFactory(
             final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
@@ -162,12 +162,13 @@ public class GrpcClientAutoConfiguration {
         return new InProcessOrAlternativeChannelFactory(properties, inProcessChannelFactory, channelFactory);
     }
 
-    // Then try the normal netty channel factory
+    // Then try the normal netty channel factory and in process factory
     @ConditionalOnMissingBean(GrpcChannelFactory.class)
-    @ConditionalOnClass(name = {"io.netty.channel.Channel", "io.grpc.netty.NettyChannelBuilder"})
+    @ConditionalOnClass(name = {"io.netty.channel.Channel", "io.grpc.netty.NettyChannelBuilder",
+            "io.grpc.inprocess.InProcessChannelBuilder"})
     @Bean
     @Lazy
-    GrpcChannelFactory nettyGrpcChannelFactory(
+    GrpcChannelFactory inProcessOrNettyGrpcChannelFactory(
             final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
@@ -180,8 +181,38 @@ public class GrpcClientAutoConfiguration {
         return new InProcessOrAlternativeChannelFactory(properties, inProcessChannelFactory, channelFactory);
     }
 
+    // Then try the shaded netty channel factory
+    @ConditionalOnMissingBean(GrpcChannelFactory.class)
+    @ConditionalOnClass(name = {"io.grpc.netty.shaded.io.netty.channel.Channel",
+            "io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder"})
+    @Bean
+    @Lazy
+    GrpcChannelFactory shadedNettyGrpcChannelFactory(
+            final GrpcChannelsProperties properties,
+            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
+            final List<GrpcChannelConfigurer> channelConfigurers) {
+
+        log.info("Detected grpc-netty-shaded: Creating ShadedNettyChannelFactory");
+        return new ShadedNettyChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
+    }
+
+    // Then try the normal netty channel factory
+    @ConditionalOnMissingBean(GrpcChannelFactory.class)
+    @ConditionalOnClass(name = {"io.netty.channel.Channel", "io.grpc.netty.NettyChannelBuilder"})
+    @Bean
+    @Lazy
+    GrpcChannelFactory nettyGrpcChannelFactory(
+            final GrpcChannelsProperties properties,
+            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
+            final List<GrpcChannelConfigurer> channelConfigurers) {
+
+        log.info("Detected grpc-netty: Creating NettyChannelFactory");
+        return new NettyChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
+    }
+
     // Finally try the in process channel factory
     @ConditionalOnMissingBean(GrpcChannelFactory.class)
+    @ConditionalOnClass(name = {"io.grpc.inprocess.InProcessChannelBuilder"})
     @Bean
     @Lazy
     GrpcChannelFactory inProcessGrpcChannelFactory(
