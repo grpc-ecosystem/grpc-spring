@@ -1,0 +1,9 @@
+spring.application.ame: local-grpc-kt
+
+grpc:
+  server:
+    in-process-name: hello
+    port: -1
+  client.hello:
+    address: in-process:hello
+    negotiationType: plaintext
