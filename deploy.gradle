@@ -27,7 +27,7 @@ publishing {
             pom {
                 name = 'gRPC Spring Boot Starter'
                 description = 'gRPC Spring Boot Starter'
-                url = 'https://github.com/yidongnan/grpc-spring-boot-starter'
+                url = 'https://github.com/grpc-ecosystem/grpc-spring'
                 licenses {
                     license {
                         name = 'Apache 2.0'
@@ -50,9 +50,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = 'scm:git:git://github.com/yidongnan/grpc-spring-boot-starter.git'
-                    developerConnection = 'scm:git:ssh@github.com:yidongnan/grpc-spring-boot-starter.git'
-                    url = 'https://github.com/yidongnan/grpc-spring-boot-starter'
+                    connection = 'scm:git:git://github.com/grpc-ecosystem/grpc-spring.git'
+                    developerConnection = 'scm:git:ssh@github.com/grpc-ecosystem/grpc-spring.git'
+                    url = 'https://github.com/grpc-ecosystem/grpc-spring'
                 }
             }
 
