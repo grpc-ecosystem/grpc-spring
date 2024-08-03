@@ -108,6 +108,12 @@
 			"defaultValue": 0
 		},
 		{
+			"name": "grpc.client.GLOBAL.deadline",
+			"type": "java.time.Duration",
+			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties",
+			"description": "A deadline is used to specify a point in time past which a client is unwilling to wait for a response from a server"
+		},
+		{
 			"name": "grpc.client.GLOBAL.security.authority-override",
 			"type": "java.lang.String",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties$Security",

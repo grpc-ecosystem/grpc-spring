@@ -33,6 +33,7 @@ import io.grpc.ClientInterceptor;
 import io.micrometer.core.instrument.binder.grpc.MetricCollectingClientInterceptor;
 import io.micrometer.core.instrument.binder.grpc.ObservationGrpcClientInterceptor;
 import net.devh.boot.grpc.client.autoconfigure.GrpcClientAutoConfiguration;
+import net.devh.boot.grpc.client.interceptor.DeadlineSetupClientInterceptor;
 import net.devh.boot.grpc.client.interceptor.GlobalClientInterceptorRegistry;
 import net.devh.boot.grpc.client.metrics.MetricsClientInterceptor;
 
@@ -54,6 +55,7 @@ public class DefaultClientInterceptorTest {
         expected.add(this.applicationContext.getBean(MetricCollectingClientInterceptor.class));
         expected.add(this.applicationContext.getBean(MetricsClientInterceptor.class));
         expected.add(this.applicationContext.getBean(ObservationGrpcClientInterceptor.class));
+        expected.add(this.applicationContext.getBean(DeadlineSetupClientInterceptor.class));
 
         final List<ClientInterceptor> actual = new ArrayList<>(this.registry.getClientInterceptors());
         assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);

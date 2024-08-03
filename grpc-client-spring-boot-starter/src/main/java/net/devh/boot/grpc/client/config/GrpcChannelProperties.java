@@ -119,6 +119,34 @@ public class GrpcChannelProperties {
     }
 
     // --------------------------------------------------
+    // Target Deadline
+    // --------------------------------------------------
+
+    private Duration deadline = null;
+
+    /**
+     * Gets the connection deadline.
+     *
+     * @return The connection deadline or null
+     * @see #setDeadline(Duration)
+     */
+    public Duration getDeadline() {
+        return this.deadline;
+    }
+
+    /**
+     * Set the deadline for the stub. If nothing is configured then the deadline will not be used by default. If zero
+     * value is configured then the deadline will immediately.
+     *
+     * @param deadline The connection deadline or null.
+     *
+     * @see #setDeadline(Duration)
+     */
+    public void setDeadline(Duration deadline) {
+        this.deadline = deadline;
+    }
+
+    // --------------------------------------------------
     // defaultLoadBalancingPolicy
     // --------------------------------------------------
 
@@ -479,6 +507,9 @@ public class GrpcChannelProperties {
         }
         if (this.address == null) {
             this.address = config.address;
+        }
+        if (this.deadline == null) {
+            this.deadline = config.deadline;
         }
         if (this.defaultLoadBalancingPolicy == null) {
             this.defaultLoadBalancingPolicy = config.defaultLoadBalancingPolicy;
