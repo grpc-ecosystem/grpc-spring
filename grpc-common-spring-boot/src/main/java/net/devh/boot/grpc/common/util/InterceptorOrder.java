@@ -45,7 +45,7 @@ public final class InterceptorOrder {
     /**
      * The order value for global exception handling interceptors.
      */
-    public static final int ORDER_GLOBAL_EXCEPTION_HANDLING = 0;
+    public static final int ORDER_GLOBAL_EXCEPTION_HANDLING = 3000;
     /**
      * The order value for tracing and metrics collecting interceptors.
      */
@@ -67,6 +67,8 @@ public final class InterceptorOrder {
      * {@link Ordered#LOWEST_PRECEDENCE}. This is the default for interceptors without specified priority.
      */
     public static final int ORDER_LAST = Ordered.LOWEST_PRECEDENCE;
+
+    private InterceptorOrder() {}
 
     /**
      * Creates a new Comparator that takes {@link Order} annotations on bean factory methods into account.
@@ -100,7 +102,5 @@ public final class InterceptorOrder {
             return null;
         });
     }
-
-    private InterceptorOrder() {}
 
 }
