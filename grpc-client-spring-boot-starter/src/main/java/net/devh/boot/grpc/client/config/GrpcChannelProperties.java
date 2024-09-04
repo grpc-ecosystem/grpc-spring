@@ -125,7 +125,7 @@ public class GrpcChannelProperties {
     private Duration deadline = null;
 
     /**
-     * Gets the connection deadline.
+     * Gets the default deadline for each new call.
      *
      * @return The connection deadline or null
      * @see #setDeadline(Duration)
