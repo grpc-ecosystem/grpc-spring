@@ -25,7 +25,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import io.grpc.CallOptions;
-import io.grpc.stub.AbstractStub;
+import io.grpc.Channel;
+import io.grpc.MethodDescriptor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
@@ -55,11 +56,12 @@ public class GrpcClientDeadlineAutoConfiguration {
             CallOptions.Key.createWithDefault("deadlineDuration", null);
 
     /**
-     * Creates a {@link StubTransformer} bean that will add the call credentials to the created stubs.
+     * Creates a {@link StubTransformer} bean that will add the deadlineDuration to the callOptions for using in
+     * DeadlineSetupClientInterceptor.
      *
      * @param props The properties for deadline configuration.
-     * @return The StubTransformer bean that will add the deadline from properties.
-     * @see AbstractStub#withDeadline(io.grpc.Deadline)
+     * @return The StubTransformer bean that will add the deadlineDuration from properties to the callOptions.
+     * @see DeadlineSetupClientInterceptor#interceptCall(MethodDescriptor, CallOptions, Channel)
      */
     @Bean
     StubTransformer deadlineStubTransformer(final GrpcChannelsProperties props) {
@@ -67,7 +69,8 @@ public class GrpcClientDeadlineAutoConfiguration {
 
         return (name, stub) -> {
             GrpcChannelProperties channelProps = props.getChannel(name);
-            if (channelProps != null && channelProps.getDeadline() != null) {
+            if (channelProps != null && channelProps.getDeadline() != null
+                    && channelProps.getDeadline().toMillis() > 0L) {
                 return stub.withOption(deadlineDuration, channelProps.getDeadline());
             } else {
                 return stub;

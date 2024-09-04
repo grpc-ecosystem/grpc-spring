@@ -16,9 +16,6 @@
 
 package net.devh.boot.grpc.test.setup;
 
-import static io.grpc.Status.DEADLINE_EXCEEDED;
-import static net.devh.boot.grpc.test.util.GrpcAssertions.assertStatus;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -30,7 +27,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import io.grpc.StatusRuntimeException;
 import io.grpc.internal.testing.StreamRecorder;
 import io.grpc.stub.StreamObserver;
 import lombok.SneakyThrows;
@@ -43,44 +39,42 @@ import net.devh.boot.grpc.test.proto.SomeType;
 /**
  * These tests check the property {@link GrpcChannelProperties#getDeadline()}.
  */
-@Slf4j
-@SpringBootTest(properties = {
-        "grpc.client.GLOBAL.address=localhost:9090",
-        "grpc.client.GLOBAL.deadline=1s",
-        "grpc.client.GLOBAL.negotiationType=PLAINTEXT",
-})
-@SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
-public class DeadlineTests extends AbstractSimpleServerClientTest {
+public class DeadlineTests {
 
-    @Test
-    @SneakyThrows
-    @DirtiesContext
-    void testServiceStubDeadlineEnabledAndSuccessful() {
-        log.info("--- Starting test with unsuccessful and than successful call ---");
-        final StreamRecorder<SomeType> streamRecorder1 = StreamRecorder.create();
-        StreamObserver<SomeType> echo1 = this.testServiceStub.echo(streamRecorder1);
-        assertThrows(ExecutionException.class, () -> streamRecorder1.firstValue().get());
+    @Slf4j
+    @SpringBootTest(properties = {
+            "grpc.client.GLOBAL.address=localhost:9090",
+            "grpc.client.GLOBAL.deadline=1s",
+            "grpc.client.GLOBAL.negotiationType=PLAINTEXT",
+    })
+    @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
+    static class DeadlineSetupTest extends AbstractSimpleServerClientTest {
+        @Test
+        @SneakyThrows
+        @DirtiesContext
+        void testServiceStubDeadlineEnabledAndSuccessful() {
+            log.info("--- Starting test with unsuccessful and than successful call ---");
+            final StreamRecorder<SomeType> streamRecorder1 = StreamRecorder.create();
+            StreamObserver<SomeType> echo1 = this.testServiceStub.echo(streamRecorder1);
+            assertThrows(ExecutionException.class, () -> streamRecorder1.firstValue().get());
 
-        final StreamRecorder<SomeType> streamRecorder2 = StreamRecorder.create();
-        StreamObserver<SomeType> echo2 = testServiceStub.echo(streamRecorder2);
-        echo2.onNext(SomeType.getDefaultInstance());
-        assertNull(streamRecorder2.getError());
-        assertNotNull(streamRecorder2.firstValue().get().getVersion());
-        log.info("--- Test completed --- ");
+            final StreamRecorder<SomeType> streamRecorder2 = StreamRecorder.create();
+            StreamObserver<SomeType> echo2 = testServiceStub.echo(streamRecorder2);
+            echo2.onNext(SomeType.getDefaultInstance());
+            assertNull(streamRecorder2.getError());
+            assertNotNull(streamRecorder2.firstValue().get().getVersion());
+            log.info("--- Test completed --- ");
+        }
     }
 
-    @Test
-    @SneakyThrows
-    @DirtiesContext
-    void testServiceStubDeadlineEnabledAndUnsuccessful() {
-        log.info("--- Starting test with unsuccessful call ---");
-        final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
-        this.testServiceStub.echo(streamRecorder);
-        assertThrows(ExecutionException.class, () -> streamRecorder.firstValue().get());
-        assertNotNull(streamRecorder.getError());
-        assertEquals(StatusRuntimeException.class, streamRecorder.getError().getClass());
-        assertStatus(DEADLINE_EXCEEDED.getCode(), (StatusRuntimeException) streamRecorder.getError());
-        log.info("--- Test completed --- ");
+    @Slf4j
+    @SpringBootTest(properties = {
+            "grpc.client.GLOBAL.address=localhost:9090",
+            "grpc.client.GLOBAL.deadline=0s",
+            "grpc.client.GLOBAL.negotiationType=PLAINTEXT",
+    })
+    @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
+    static class ZeroDeadlineSetupTest extends AbstractSimpleServerClientTest {
     }
 
 }

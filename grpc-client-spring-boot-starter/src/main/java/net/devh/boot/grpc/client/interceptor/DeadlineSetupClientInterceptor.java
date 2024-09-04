@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Deadline setup client interceptor that create new deadline object.
+ * Deadline setup client interceptor that create new deadline instance from deadlineDuration.
  *
  * @author Sergei Batsura (batsura.sa@gmail.com)
  */

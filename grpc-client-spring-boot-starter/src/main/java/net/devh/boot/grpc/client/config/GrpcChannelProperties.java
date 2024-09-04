@@ -32,6 +32,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.unit.DataSize;
 import org.springframework.util.unit.DataUnit;
 
+import io.grpc.CallOptions;
 import io.grpc.LoadBalancerRegistry;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.NameResolverProvider;
@@ -135,13 +136,12 @@ public class GrpcChannelProperties {
     }
 
     /**
-     * Set the default deadline duration for new calls (on a per call basis). 
-     * If nothing is configured then the deadline will not be used by default.
-     * If zero value is configured, then the call will timeout immediately.
+     * Set the default deadline duration for new calls (on a per call basis). If nothing is configured then the deadline
+     * will not be used by default. If zero value is configured, the deadline will not be used.
      *
      * @param deadline The connection deadline or null.
      *
-     * @see #setDeadline(Duration)
+     * @see CallOptions#withDeadlineAfter(long, TimeUnit)
      */
     public void setDeadline(Duration deadline) {
         this.deadline = deadline;
