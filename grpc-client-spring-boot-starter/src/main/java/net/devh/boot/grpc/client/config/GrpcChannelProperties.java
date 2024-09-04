@@ -135,8 +135,9 @@ public class GrpcChannelProperties {
     }
 
     /**
-     * Set the deadline for the stub. If nothing is configured then the deadline will not be used by default. If zero
-     * value is configured then the deadline will immediately.
+     * Set the default deadline duration for new calls (on a per call basis). 
+     * If nothing is configured then the deadline will not be used by default.
+     * If zero value is configured, then the call will timeout immediately.
      *
      * @param deadline The connection deadline or null.
      *
