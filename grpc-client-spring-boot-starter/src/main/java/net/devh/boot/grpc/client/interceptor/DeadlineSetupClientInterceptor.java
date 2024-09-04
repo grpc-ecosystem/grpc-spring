@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Deadline setup client interceptor that create new deadline instance from deadlineDuration.
+ * Deadline setup client interceptor that create new deadline instance from defaultDeadline.
  *
  * @author Sergei Batsura (batsura.sa@gmail.com)
  */
@@ -37,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class DeadlineSetupClientInterceptor implements ClientInterceptor {
 
-    private final CallOptions.Key<Duration> deadlineDuration;
+    private final Duration defaultDeadline;
 
     @Override
     public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
@@ -45,9 +45,9 @@ public class DeadlineSetupClientInterceptor implements ClientInterceptor {
             final CallOptions callOptions,
             final Channel next) {
 
-        Duration duration = callOptions.getOption(deadlineDuration);
-        if (duration != null) {
-            return next.newCall(method, callOptions.withDeadlineAfter(duration.toMillis(), TimeUnit.MILLISECONDS));
+        if (defaultDeadline != null) {
+            return next.newCall(method,
+                    callOptions.withDeadlineAfter(defaultDeadline.toMillis(), TimeUnit.MILLISECONDS));
         } else {
             return next.newCall(method, callOptions);
         }

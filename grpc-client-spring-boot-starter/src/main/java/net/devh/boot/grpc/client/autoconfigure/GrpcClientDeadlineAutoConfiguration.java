@@ -18,8 +18,6 @@ package net.devh.boot.grpc.client.autoconfigure;
 
 import static java.util.Objects.requireNonNull;
 
-import java.time.Duration;
-
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,7 +30,6 @@ import net.devh.boot.grpc.client.config.GrpcChannelProperties;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 import net.devh.boot.grpc.client.inject.StubTransformer;
 import net.devh.boot.grpc.client.interceptor.DeadlineSetupClientInterceptor;
-import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
 
 /**
  * The deadline autoconfiguration for the client.
@@ -52,15 +49,13 @@ import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;
 @AutoConfigureBefore(GrpcClientAutoConfiguration.class)
 public class GrpcClientDeadlineAutoConfiguration {
 
-    private final CallOptions.Key<Duration> deadlineDuration =
-            CallOptions.Key.createWithDefault("deadlineDuration", null);
-
     /**
-     * Creates a {@link StubTransformer} bean that will add the deadlineDuration to the callOptions for using in
-     * DeadlineSetupClientInterceptor.
+     * Creates a {@link StubTransformer} bean with interceptor that will call withDeadlineAfter with deadline from
+     * props.
+     *
      *
      * @param props The properties for deadline configuration.
-     * @return The StubTransformer bean that will add the deadlineDuration from properties to the callOptions.
+     * @return The StubTransformer bean with interceptor if deadline is configured.
      * @see DeadlineSetupClientInterceptor#interceptCall(MethodDescriptor, CallOptions, Channel)
      */
     @Bean
@@ -71,16 +66,11 @@ public class GrpcClientDeadlineAutoConfiguration {
             GrpcChannelProperties channelProps = props.getChannel(name);
             if (channelProps != null && channelProps.getDeadline() != null
                     && channelProps.getDeadline().toMillis() > 0L) {
-                return stub.withOption(deadlineDuration, channelProps.getDeadline());
+                return stub.withInterceptors(new DeadlineSetupClientInterceptor(channelProps.getDeadline()));
             } else {
                 return stub;
             }
         };
-    }
-
-    @GrpcGlobalClientInterceptor
-    DeadlineSetupClientInterceptor deadlineClientInterceptor() {
-        return new DeadlineSetupClientInterceptor(deadlineDuration);
     }
 
 }
