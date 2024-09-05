@@ -33,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
  * @author Sergei Batsura (batsura.sa@gmail.com)
  */
 @Slf4j
-@GrpcGlobalClientInterceptor
 @RequiredArgsConstructor
 public class DeadlineSetupClientInterceptor implements ClientInterceptor {
 
