@@ -18,6 +18,8 @@ package net.devh.boot.grpc.client.autoconfigure;
 
 import static java.util.Objects.requireNonNull;
 
+import java.time.Duration;
+
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,9 +28,8 @@ import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.MethodDescriptor;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.client.config.GrpcChannelProperties;
+import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
-import net.devh.boot.grpc.client.inject.StubTransformer;
 import net.devh.boot.grpc.client.interceptor.DeadlineSetupClientInterceptor;
 
 /**
@@ -50,25 +51,21 @@ import net.devh.boot.grpc.client.interceptor.DeadlineSetupClientInterceptor;
 public class GrpcClientDeadlineAutoConfiguration {
 
     /**
-     * Creates a {@link StubTransformer} bean with interceptor that will call withDeadlineAfter with deadline from
+     * Creates a {@link GrpcChannelConfigurer} bean with interceptor that will call withDeadlineAfter with deadline from
      * props.
-     *
      *
      * @param props The properties for deadline configuration.
      * @return The StubTransformer bean with interceptor if deadline is configured.
      * @see DeadlineSetupClientInterceptor#interceptCall(MethodDescriptor, CallOptions, Channel)
      */
     @Bean
-    StubTransformer deadlineStubTransformer(final GrpcChannelsProperties props) {
+    GrpcChannelConfigurer deadlineGrpcChannelConfigurer(final GrpcChannelsProperties props) {
         requireNonNull(props, "properties");
 
-        return (name, stub) -> {
-            GrpcChannelProperties channelProps = props.getChannel(name);
-            if (channelProps != null && channelProps.getDeadline() != null
-                    && channelProps.getDeadline().toMillis() > 0L) {
-                return stub.withInterceptors(new DeadlineSetupClientInterceptor(channelProps.getDeadline()));
-            } else {
-                return stub;
+        return (channel, name) -> {
+            Duration deadline = props.getChannel(name).getDeadline();
+            if (deadline != null && deadline.toMillis() > 0L) {
+                channel.intercept(new DeadlineSetupClientInterceptor(deadline));
             }
         };
     }
