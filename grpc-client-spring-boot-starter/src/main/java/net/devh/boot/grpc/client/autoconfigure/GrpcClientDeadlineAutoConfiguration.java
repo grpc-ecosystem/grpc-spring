@@ -56,7 +56,7 @@ public class GrpcClientDeadlineAutoConfiguration {
      *
      * @param props The properties for deadline configuration.
      * @return The StubTransformer bean with interceptor if deadline is configured.
-     * @see DeadlineSetupClientInterceptor#interceptCall(MethodDescriptor, CallOptions, Channel)
+     * @see DeadlineSetupClientInterceptor
      */
     @Bean
     GrpcChannelConfigurer deadlineGrpcChannelConfigurer(final GrpcChannelsProperties props) {
