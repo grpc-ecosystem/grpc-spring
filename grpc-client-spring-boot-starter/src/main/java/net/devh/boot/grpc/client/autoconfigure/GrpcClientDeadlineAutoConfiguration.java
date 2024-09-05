@@ -51,8 +51,7 @@ import net.devh.boot.grpc.client.interceptor.DeadlineSetupClientInterceptor;
 public class GrpcClientDeadlineAutoConfiguration {
 
     /**
-     * Creates a {@link GrpcChannelConfigurer} bean with interceptor that will call withDeadlineAfter with deadline from
-     * props.
+     * Creates a {@link GrpcChannelConfigurer} bean applying the default deadline from config to each new call using a {@link ClientInterceptor}.
      *
      * @param props The properties for deadline configuration.
      * @return The StubTransformer bean with interceptor if deadline is configured.
