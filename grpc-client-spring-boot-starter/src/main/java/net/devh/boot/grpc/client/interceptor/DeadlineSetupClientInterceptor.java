@@ -45,7 +45,7 @@ public class DeadlineSetupClientInterceptor implements ClientInterceptor {
             final CallOptions callOptions,
             final Channel next) {
 
-        if (defaultDeadline != null) {
+        if (defaultDeadline != null && callOptions.getDeadline() == null) {
             return next.newCall(method,
                     callOptions.withDeadlineAfter(defaultDeadline.toMillis(), TimeUnit.MILLISECONDS));
         } else {
