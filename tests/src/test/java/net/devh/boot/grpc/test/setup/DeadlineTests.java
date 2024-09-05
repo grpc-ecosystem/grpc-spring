@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -55,7 +56,7 @@ public class DeadlineTests {
         void testServiceStubDeadlineEnabledAndSuccessful() {
             log.info("--- Starting test with unsuccessful and than successful call ---");
             final StreamRecorder<SomeType> streamRecorder1 = StreamRecorder.create();
-            StreamObserver<SomeType> echo1 = this.testServiceStub.echo(streamRecorder1);
+            this.testServiceStub.echo(streamRecorder1);
             assertThrows(ExecutionException.class, () -> streamRecorder1.firstValue().get());
 
             final StreamRecorder<SomeType> streamRecorder2 = StreamRecorder.create();
@@ -75,6 +76,18 @@ public class DeadlineTests {
     })
     @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
     static class ZeroDeadlineSetupTest extends AbstractSimpleServerClientTest {
+
+        @Test
+        @SneakyThrows
+        @DirtiesContext
+        void testServiceStubManuallyConfiguredDeadlineTakesPrecedenceOfTheConfigOne() {
+            log.info("--- Starting test that manually configured deadline takes precedence of the config one ---");
+            final StreamRecorder<SomeType> streamRecorder1 = StreamRecorder.create();
+            this.testServiceStub.withDeadlineAfter(1L, TimeUnit.SECONDS).echo(streamRecorder1);
+            assertThrows(ExecutionException.class, () -> streamRecorder1.firstValue().get());
+            log.info("--- Test completed --- ");
+        }
+
     }
 
 }

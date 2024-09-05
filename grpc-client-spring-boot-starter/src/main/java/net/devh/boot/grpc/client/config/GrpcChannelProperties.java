@@ -136,9 +136,9 @@ public class GrpcChannelProperties {
     }
 
     /**
-     * Set the default deadline duration for new calls (on a per call basis).
-     * By default and if zero value is configured, the deadline will not be used.
-     * The default deadline will be ignored, if a deadline has been applied manually.
+     * Set the default deadline duration for new calls (on a per call basis). By default and if zero value is
+     * configured, the deadline will not be used. The default deadline will be ignored, if a deadline has been applied
+     * manually.
      *
      * @param deadline The connection deadline or null.
      *

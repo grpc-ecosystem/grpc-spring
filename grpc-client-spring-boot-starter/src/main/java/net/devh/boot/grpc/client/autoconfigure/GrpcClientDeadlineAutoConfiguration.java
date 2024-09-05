@@ -24,9 +24,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import io.grpc.CallOptions;
-import io.grpc.Channel;
-import io.grpc.MethodDescriptor;
+import io.grpc.ClientInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
@@ -51,10 +49,11 @@ import net.devh.boot.grpc.client.interceptor.DeadlineSetupClientInterceptor;
 public class GrpcClientDeadlineAutoConfiguration {
 
     /**
-     * Creates a {@link GrpcChannelConfigurer} bean applying the default deadline from config to each new call using a {@link ClientInterceptor}.
+     * Creates a {@link GrpcChannelConfigurer} bean applying the default deadline from config to each new call using a
+     * {@link ClientInterceptor}.
      *
      * @param props The properties for deadline configuration.
-     * @return The StubTransformer bean with interceptor if deadline is configured.
+     * @return The GrpcChannelConfigurer bean with interceptor if deadline is configured.
      * @see DeadlineSetupClientInterceptor
      */
     @Bean
