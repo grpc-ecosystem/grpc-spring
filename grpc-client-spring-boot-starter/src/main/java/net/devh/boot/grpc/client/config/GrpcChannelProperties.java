@@ -120,31 +120,32 @@ public class GrpcChannelProperties {
     }
 
     // --------------------------------------------------
-    // Target Timeout
+    // Target DefaultRequestTimeout
     // --------------------------------------------------
 
-    private Duration timeout = null;
+    private Duration defaultRequestTimeout = null;
 
     /**
-     * Gets the default timeout for each new call.
+     * Gets the default request timeout for each new call.
      *
-     * @return The connection timeout or null
-     * @see #setTimeout(Duration)
+     * @return The default request timeout or null
+     * @see #setDefaultRequestTimeout(Duration)
      */
-    public Duration getTimeout() {
-        return this.timeout;
+    public Duration getDefaultRequestTimeout() {
+        return this.defaultRequestTimeout;
     }
 
     /**
-     * Set the default timeout duration for new calls (on a per call basis). By default and if zero value is configured,
-     * the timeout will not be used. The default timeout will be ignored, if a deadline has been applied manually.
+     * Set the default request timeout duration for new calls (on a per call basis). By default and if zero value is
+     * configured, the timeout will not be used. The default request timeout will be ignored, if a deadline has been
+     * applied manually.
      *
-     * @param timeout The connection timeout or null.
+     * @param defaultRequestTimeout the default request timeout or null.
      *
      * @see CallOptions#withDeadlineAfter(long, TimeUnit)
      */
-    public void setTimeout(Duration timeout) {
-        this.timeout = timeout;
+    public void setDefaultRequestTimeout(Duration defaultRequestTimeout) {
+        this.defaultRequestTimeout = defaultRequestTimeout;
     }
 
     // --------------------------------------------------
@@ -509,8 +510,8 @@ public class GrpcChannelProperties {
         if (this.address == null) {
             this.address = config.address;
         }
-        if (this.timeout == null) {
-            this.timeout = config.timeout;
+        if (this.defaultRequestTimeout == null) {
+            this.defaultRequestTimeout = config.defaultRequestTimeout;
         }
         if (this.defaultLoadBalancingPolicy == null) {
             this.defaultLoadBalancingPolicy = config.defaultLoadBalancingPolicy;

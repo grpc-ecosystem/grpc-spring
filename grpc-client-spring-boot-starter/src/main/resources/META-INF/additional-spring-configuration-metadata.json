@@ -108,7 +108,7 @@
 			"defaultValue": 0
 		},
 		{
-			"name": "grpc.client.GLOBAL.timeout",
+			"name": "grpc.client.GLOBAL.defaultRequestTimeout",
 			"type": "java.time.Duration",
 			"sourceType": "net.devh.boot.grpc.client.config.GrpcChannelProperties",
 			"description": "The default timeout is applied to each new call. By default, and if a zero value is configured, the timeout will not be set. The default timeout will be ignored if a deadline has been set manually."

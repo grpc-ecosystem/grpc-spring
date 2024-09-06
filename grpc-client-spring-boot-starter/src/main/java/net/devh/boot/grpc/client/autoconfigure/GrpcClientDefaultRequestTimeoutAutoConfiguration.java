@@ -28,17 +28,17 @@ import io.grpc.ClientInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
-import net.devh.boot.grpc.client.interceptor.TimeoutSetupClientInterceptor;
+import net.devh.boot.grpc.client.interceptor.DefaultRequestTimeoutSetupClientInterceptor;
 
 /**
- * The request timeout autoconfiguration for the client.
+ * The default request timeout autoconfiguration for the client.
  *
  * <p>
  * You can disable this config by using:
  * </p>
  *
  * <pre>
- * <code>@ImportAutoConfiguration(exclude = GrpcClientTimeoutAutoConfiguration.class)</code>
+ * <code>@ImportAutoConfiguration(exclude = GrpcClientDefaultRequestTimeoutAutoConfiguration.class)</code>
  * </pre>
  *
  * @author Sergei Batsura (batsura.sa@gmail.com)
@@ -46,7 +46,7 @@ import net.devh.boot.grpc.client.interceptor.TimeoutSetupClientInterceptor;
 @Slf4j
 @Configuration(proxyBeanMethods = false)
 @AutoConfigureBefore(GrpcClientAutoConfiguration.class)
-public class GrpcClientTimeoutAutoConfiguration {
+public class GrpcClientDefaultRequestTimeoutAutoConfiguration {
 
     /**
      * Creates a {@link GrpcChannelConfigurer} bean applying the default request timeout from config to each new call
@@ -54,16 +54,16 @@ public class GrpcClientTimeoutAutoConfiguration {
      *
      * @param props The properties for timeout configuration.
      * @return The GrpcChannelConfigurer bean with interceptor if timeout is configured.
-     * @see TimeoutSetupClientInterceptor
+     * @see DefaultRequestTimeoutSetupClientInterceptor
      */
     @Bean
     GrpcChannelConfigurer timeoutGrpcChannelConfigurer(final GrpcChannelsProperties props) {
         requireNonNull(props, "properties");
 
         return (channel, name) -> {
-            Duration timeout = props.getChannel(name).getTimeout();
+            Duration timeout = props.getChannel(name).getDefaultRequestTimeout();
             if (timeout != null && timeout.toMillis() > 0L) {
-                channel.intercept(new TimeoutSetupClientInterceptor(timeout));
+                channel.intercept(new DefaultRequestTimeoutSetupClientInterceptor(timeout));
             }
         };
     }

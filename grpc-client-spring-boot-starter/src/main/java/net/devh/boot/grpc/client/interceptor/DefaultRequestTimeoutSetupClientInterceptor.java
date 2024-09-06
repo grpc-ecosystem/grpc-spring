@@ -34,12 +34,12 @@ import lombok.extern.slf4j.Slf4j;
  * @author Sergei Batsura (batsura.sa@gmail.com)
  */
 @Slf4j
-public class TimeoutSetupClientInterceptor implements ClientInterceptor {
+public class DefaultRequestTimeoutSetupClientInterceptor implements ClientInterceptor {
 
-    private final Duration timeout;
+    private final Duration defaultRequestTimeout;
 
-    public TimeoutSetupClientInterceptor(Duration timeout) {
-        this.timeout = requireNonNull(timeout, "timeout");
+    public DefaultRequestTimeoutSetupClientInterceptor(Duration defaultRequestTimeout) {
+        this.defaultRequestTimeout = requireNonNull(defaultRequestTimeout, "defaultRequestTimeout");
     }
 
     @Override
@@ -50,7 +50,7 @@ public class TimeoutSetupClientInterceptor implements ClientInterceptor {
 
         if (callOptions.getDeadline() == null) {
             return next.newCall(method,
-                    callOptions.withDeadlineAfter(timeout.toMillis(), TimeUnit.MILLISECONDS));
+                    callOptions.withDeadlineAfter(defaultRequestTimeout.toMillis(), TimeUnit.MILLISECONDS));
         } else {
             return next.newCall(method, callOptions);
         }

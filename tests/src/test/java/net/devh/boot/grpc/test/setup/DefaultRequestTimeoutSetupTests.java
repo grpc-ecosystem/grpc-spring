@@ -38,18 +38,18 @@ import net.devh.boot.grpc.test.config.ServiceConfiguration;
 import net.devh.boot.grpc.test.proto.SomeType;
 
 /**
- * These tests check the property {@link GrpcChannelProperties#getTimeout()} ()}.
+ * These tests check the property {@link GrpcChannelProperties#getDefaultRequestTimeout()}}.
  */
-public class TimeoutSetupTests {
+public class DefaultRequestTimeoutSetupTests {
 
     @Slf4j
     @SpringBootTest(properties = {
             "grpc.client.GLOBAL.address=localhost:9090",
-            "grpc.client.GLOBAL.timeout=1s",
+            "grpc.client.GLOBAL.defaultRequestTimeout=1s",
             "grpc.client.GLOBAL.negotiationType=PLAINTEXT",
     })
     @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
-    static class TimeoutSetupTest extends AbstractSimpleServerClientTest {
+    static class DefaultRequestTimeoutSetupTest extends AbstractSimpleServerClientTest {
 
         @Test
         @SneakyThrows
@@ -72,7 +72,8 @@ public class TimeoutSetupTests {
         @SneakyThrows
         @DirtiesContext
         void testServiceStubManuallyConfiguredDeadlineTakesPrecedenceOfTheConfigOne() {
-            log.info("--- Starting test that manually configured deadline takes precedence of the config timeout ---");
+            log.info(
+                    "--- Starting test that manually configured deadline takes precedence of the config default request timeout ---");
             final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
             StreamObserver<SomeType> echo =
                     this.testServiceStub.withDeadlineAfter(5L, TimeUnit.SECONDS).echo(streamRecorder);
@@ -87,11 +88,11 @@ public class TimeoutSetupTests {
     @Slf4j
     @SpringBootTest(properties = {
             "grpc.client.GLOBAL.address=localhost:9090",
-            "grpc.client.GLOBAL.timeout=0s",
+            "grpc.client.GLOBAL.defaultRequestTimeout=0s",
             "grpc.client.GLOBAL.negotiationType=PLAINTEXT",
     })
     @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
-    static class ZeroTimeoutSetupTest extends AbstractSimpleServerClientTest {
+    static class ZeroDefaultRequestTimeoutSetupTest extends AbstractSimpleServerClientTest {
     }
 
 }
