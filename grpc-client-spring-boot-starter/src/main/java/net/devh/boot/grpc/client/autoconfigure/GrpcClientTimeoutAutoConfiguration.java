@@ -31,7 +31,7 @@ import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
 import net.devh.boot.grpc.client.interceptor.TimeoutSetupClientInterceptor;
 
 /**
- * The timeout autoconfiguration for the client.
+ * The request timeout autoconfiguration for the client.
  *
  * <p>
  * You can disable this config by using:
