@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Timeout setup client interceptor that create new deadline instance from the timeout.
+ * A client interceptor configuring the default request timeout / deadline for each call.
  *
  * @author Sergei Batsura (batsura.sa@gmail.com)
  */
