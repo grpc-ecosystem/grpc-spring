@@ -50,6 +50,7 @@ public class TimeoutSetupTests {
     })
     @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
     static class TimeoutSetupTest extends AbstractSimpleServerClientTest {
+
         @Test
         @SneakyThrows
         @DirtiesContext
@@ -66,6 +67,21 @@ public class TimeoutSetupTests {
             assertNotNull(streamRecorder2.firstValue().get().getVersion());
             log.info("--- Test completed --- ");
         }
+
+        @Test
+        @SneakyThrows
+        @DirtiesContext
+        void testServiceStubManuallyConfiguredDeadlineTakesPrecedenceOfTheConfigOne() {
+            log.info("--- Starting test that manually configured deadline takes precedence of the config timeout ---");
+            final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
+            StreamObserver<SomeType> echo =
+                    this.testServiceStub.withDeadlineAfter(5L, TimeUnit.SECONDS).echo(streamRecorder);
+            TimeUnit.SECONDS.sleep(2);
+            echo.onNext(SomeType.getDefaultInstance());
+            assertNull(streamRecorder.getError());
+            assertNotNull(streamRecorder.firstValue().get().getVersion());
+            log.info("--- Test completed --- ");
+        }
     }
 
     @Slf4j
@@ -76,18 +92,6 @@ public class TimeoutSetupTests {
     })
     @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
     static class ZeroTimeoutSetupTest extends AbstractSimpleServerClientTest {
-
-        @Test
-        @SneakyThrows
-        @DirtiesContext
-        void testServiceStubManuallyConfiguredDeadlineTakesPrecedenceOfTheConfigOne() {
-            log.info("--- Starting test that manually configured deadline takes precedence of the config timeout ---");
-            final StreamRecorder<SomeType> streamRecorder1 = StreamRecorder.create();
-            this.testServiceStub.withDeadlineAfter(1L, TimeUnit.SECONDS).echo(streamRecorder1);
-            assertThrows(ExecutionException.class, () -> streamRecorder1.firstValue().get());
-            log.info("--- Test completed --- ");
-        }
-
     }
 
 }

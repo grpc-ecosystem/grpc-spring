@@ -16,6 +16,8 @@
 
 package net.devh.boot.grpc.client.interceptor;
 
+import static java.util.Objects.requireNonNull;
+
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +26,6 @@ import io.grpc.Channel;
 import io.grpc.ClientCall;
 import io.grpc.ClientInterceptor;
 import io.grpc.MethodDescriptor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -33,10 +34,13 @@ import lombok.extern.slf4j.Slf4j;
  * @author Sergei Batsura (batsura.sa@gmail.com)
  */
 @Slf4j
-@RequiredArgsConstructor
 public class TimeoutSetupClientInterceptor implements ClientInterceptor {
 
     private final Duration timeout;
+
+    public TimeoutSetupClientInterceptor(Duration timeout) {
+        this.timeout = requireNonNull(timeout, "timeout");
+    }
 
     @Override
     public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
@@ -44,7 +48,7 @@ public class TimeoutSetupClientInterceptor implements ClientInterceptor {
             final CallOptions callOptions,
             final Channel next) {
 
-        if (timeout != null && callOptions.getDeadline() == null) {
+        if (callOptions.getDeadline() == null) {
             return next.newCall(method,
                     callOptions.withDeadlineAfter(timeout.toMillis(), TimeUnit.MILLISECONDS));
         } else {

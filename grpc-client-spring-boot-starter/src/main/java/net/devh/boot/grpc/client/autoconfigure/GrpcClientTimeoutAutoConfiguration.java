@@ -49,8 +49,8 @@ import net.devh.boot.grpc.client.interceptor.TimeoutSetupClientInterceptor;
 public class GrpcClientTimeoutAutoConfiguration {
 
     /**
-     * Creates a {@link GrpcChannelConfigurer} bean applying the default request timeout from config to each new call using a
-     * {@link ClientInterceptor}.
+     * Creates a {@link GrpcChannelConfigurer} bean applying the default request timeout from config to each new call
+     * using a {@link ClientInterceptor}.
      *
      * @param props The properties for timeout configuration.
      * @return The GrpcChannelConfigurer bean with interceptor if timeout is configured.
