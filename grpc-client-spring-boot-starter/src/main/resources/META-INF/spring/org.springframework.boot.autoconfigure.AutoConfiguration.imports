@@ -4,4 +4,4 @@ net.devh.boot.grpc.client.autoconfigure.GrpcClientHealthAutoConfiguration
 net.devh.boot.grpc.client.autoconfigure.GrpcClientMicrometerTraceAutoConfiguration
 net.devh.boot.grpc.client.autoconfigure.GrpcClientSecurityAutoConfiguration
 net.devh.boot.grpc.client.autoconfigure.GrpcDiscoveryClientAutoConfiguration
-net.devh.boot.grpc.client.autoconfigure.GrpcClientDeadlineAutoConfiguration
+net.devh.boot.grpc.client.autoconfigure.GrpcClientTimeoutAutoConfiguration

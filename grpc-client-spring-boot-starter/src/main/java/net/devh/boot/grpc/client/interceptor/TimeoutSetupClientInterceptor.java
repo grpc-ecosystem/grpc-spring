@@ -28,15 +28,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Deadline setup client interceptor that create new deadline instance from defaultDeadline.
+ * Timeout setup client interceptor that create new deadline instance from the timeout.
  *
  * @author Sergei Batsura (batsura.sa@gmail.com)
  */
 @Slf4j
 @RequiredArgsConstructor
-public class DeadlineSetupClientInterceptor implements ClientInterceptor {
+public class TimeoutSetupClientInterceptor implements ClientInterceptor {
 
-    private final Duration defaultDeadline;
+    private final Duration timeout;
 
     @Override
     public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
@@ -44,9 +44,9 @@ public class DeadlineSetupClientInterceptor implements ClientInterceptor {
             final CallOptions callOptions,
             final Channel next) {
 
-        if (defaultDeadline != null && callOptions.getDeadline() == null) {
+        if (timeout != null && callOptions.getDeadline() == null) {
             return next.newCall(method,
-                    callOptions.withDeadlineAfter(defaultDeadline.toMillis(), TimeUnit.MILLISECONDS));
+                    callOptions.withDeadlineAfter(timeout.toMillis(), TimeUnit.MILLISECONDS));
         } else {
             return next.newCall(method, callOptions);
         }

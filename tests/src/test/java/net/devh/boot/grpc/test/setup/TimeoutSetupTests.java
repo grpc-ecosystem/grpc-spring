@@ -38,22 +38,22 @@ import net.devh.boot.grpc.test.config.ServiceConfiguration;
 import net.devh.boot.grpc.test.proto.SomeType;
 
 /**
- * These tests check the property {@link GrpcChannelProperties#getDeadline()}.
+ * These tests check the property {@link GrpcChannelProperties#getTimeout()} ()}.
  */
-public class DeadlineTests {
+public class TimeoutSetupTests {
 
     @Slf4j
     @SpringBootTest(properties = {
             "grpc.client.GLOBAL.address=localhost:9090",
-            "grpc.client.GLOBAL.deadline=1s",
+            "grpc.client.GLOBAL.timeout=1s",
             "grpc.client.GLOBAL.negotiationType=PLAINTEXT",
     })
     @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
-    static class DeadlineSetupTest extends AbstractSimpleServerClientTest {
+    static class TimeoutSetupTest extends AbstractSimpleServerClientTest {
         @Test
         @SneakyThrows
         @DirtiesContext
-        void testServiceStubDeadlineEnabledAndSuccessful() {
+        void testServiceStubTimeoutEnabledAndSuccessful() {
             log.info("--- Starting test with unsuccessful and than successful call ---");
             final StreamRecorder<SomeType> streamRecorder1 = StreamRecorder.create();
             this.testServiceStub.echo(streamRecorder1);
@@ -71,17 +71,17 @@ public class DeadlineTests {
     @Slf4j
     @SpringBootTest(properties = {
             "grpc.client.GLOBAL.address=localhost:9090",
-            "grpc.client.GLOBAL.deadline=0s",
+            "grpc.client.GLOBAL.timeout=0s",
             "grpc.client.GLOBAL.negotiationType=PLAINTEXT",
     })
     @SpringJUnitConfig(classes = {ServiceConfiguration.class, BaseAutoConfiguration.class})
-    static class ZeroDeadlineSetupTest extends AbstractSimpleServerClientTest {
+    static class ZeroTimeoutSetupTest extends AbstractSimpleServerClientTest {
 
         @Test
         @SneakyThrows
         @DirtiesContext
         void testServiceStubManuallyConfiguredDeadlineTakesPrecedenceOfTheConfigOne() {
-            log.info("--- Starting test that manually configured deadline takes precedence of the config one ---");
+            log.info("--- Starting test that manually configured deadline takes precedence of the config timeout ---");
             final StreamRecorder<SomeType> streamRecorder1 = StreamRecorder.create();
             this.testServiceStub.withDeadlineAfter(1L, TimeUnit.SECONDS).echo(streamRecorder1);
             assertThrows(ExecutionException.class, () -> streamRecorder1.firstValue().get());

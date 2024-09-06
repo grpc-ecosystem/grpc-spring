@@ -28,17 +28,17 @@ import io.grpc.ClientInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelConfigurer;
 import net.devh.boot.grpc.client.config.GrpcChannelsProperties;
-import net.devh.boot.grpc.client.interceptor.DeadlineSetupClientInterceptor;
+import net.devh.boot.grpc.client.interceptor.TimeoutSetupClientInterceptor;
 
 /**
- * The deadline autoconfiguration for the client.
+ * The timeout autoconfiguration for the client.
  *
  * <p>
  * You can disable this config by using:
  * </p>
  *
  * <pre>
- * <code>@ImportAutoConfiguration(exclude = GrpcClientDeadlineAutoConfiguration.class)</code>
+ * <code>@ImportAutoConfiguration(exclude = GrpcClientTimeoutAutoConfiguration.class)</code>
  * </pre>
  *
  * @author Sergei Batsura (batsura.sa@gmail.com)
@@ -46,24 +46,24 @@ import net.devh.boot.grpc.client.interceptor.DeadlineSetupClientInterceptor;
 @Slf4j
 @Configuration(proxyBeanMethods = false)
 @AutoConfigureBefore(GrpcClientAutoConfiguration.class)
-public class GrpcClientDeadlineAutoConfiguration {
+public class GrpcClientTimeoutAutoConfiguration {
 
     /**
-     * Creates a {@link GrpcChannelConfigurer} bean applying the default deadline from config to each new call using a
+     * Creates a {@link GrpcChannelConfigurer} bean applying the default timeout from config to each new call using a
      * {@link ClientInterceptor}.
      *
-     * @param props The properties for deadline configuration.
-     * @return The GrpcChannelConfigurer bean with interceptor if deadline is configured.
-     * @see DeadlineSetupClientInterceptor
+     * @param props The properties for timeout configuration.
+     * @return The GrpcChannelConfigurer bean with interceptor if timeout is configured.
+     * @see TimeoutSetupClientInterceptor
      */
     @Bean
-    GrpcChannelConfigurer deadlineGrpcChannelConfigurer(final GrpcChannelsProperties props) {
+    GrpcChannelConfigurer timeoutGrpcChannelConfigurer(final GrpcChannelsProperties props) {
         requireNonNull(props, "properties");
 
         return (channel, name) -> {
-            Duration deadline = props.getChannel(name).getDeadline();
-            if (deadline != null && deadline.toMillis() > 0L) {
-                channel.intercept(new DeadlineSetupClientInterceptor(deadline));
+            Duration timeout = props.getChannel(name).getTimeout();
+            if (timeout != null && timeout.toMillis() > 0L) {
+                channel.intercept(new TimeoutSetupClientInterceptor(timeout));
             }
         };
     }

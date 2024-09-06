@@ -120,32 +120,31 @@ public class GrpcChannelProperties {
     }
 
     // --------------------------------------------------
-    // Target Deadline
+    // Target Timeout
     // --------------------------------------------------
 
-    private Duration deadline = null;
+    private Duration timeout = null;
 
     /**
-     * Gets the default deadline for each new call.
+     * Gets the default timeout for each new call.
      *
-     * @return The connection deadline or null
-     * @see #setDeadline(Duration)
+     * @return The connection timeout or null
+     * @see #setTimeout(Duration)
      */
-    public Duration getDeadline() {
-        return this.deadline;
+    public Duration getTimeout() {
+        return this.timeout;
     }
 
     /**
-     * Set the default deadline duration for new calls (on a per call basis). By default and if zero value is
-     * configured, the deadline will not be used. The default deadline will be ignored, if a deadline has been applied
-     * manually.
+     * Set the default timeout duration for new calls (on a per call basis). By default and if zero value is configured,
+     * the timeout will not be used. The default timeout will be ignored, if a deadline has been applied manually.
      *
-     * @param deadline The connection deadline or null.
+     * @param timeout The connection timeout or null.
      *
      * @see CallOptions#withDeadlineAfter(long, TimeUnit)
      */
-    public void setDeadline(Duration deadline) {
-        this.deadline = deadline;
+    public void setTimeout(Duration timeout) {
+        this.timeout = timeout;
     }
 
     // --------------------------------------------------
@@ -510,8 +509,8 @@ public class GrpcChannelProperties {
         if (this.address == null) {
             this.address = config.address;
         }
-        if (this.deadline == null) {
-            this.deadline = config.deadline;
+        if (this.timeout == null) {
+            this.timeout = config.timeout;
         }
         if (this.defaultLoadBalancingPolicy == null) {
             this.defaultLoadBalancingPolicy = config.defaultLoadBalancingPolicy;
