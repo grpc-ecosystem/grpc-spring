@@ -120,7 +120,7 @@ public class GrpcChannelProperties {
     }
 
     // --------------------------------------------------
-    // Target DefaultRequestTimeout
+    // defaultRequestTimeout
     // --------------------------------------------------
 
     private Duration defaultRequestTimeout = null;
