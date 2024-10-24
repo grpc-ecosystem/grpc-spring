@@ -7,7 +7,7 @@ This page focuses on the integration with
 This is an optional feature. Supported features:
 
 - Client + server metrics
-- Server `InfoContributor`
+- Server `InfoContributor` and `GRPC Health API`
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -18,6 +18,7 @@ This is an optional feature. Supported features:
   - [Viewing the metrics](#viewing-the-metrics)
   - [Metric configuration](#metric-configuration)
 - [InfoContributor](#infocontributor)
+- [GRPC Health](#grpc-health)
 - [Opt-Out](#opt-out)
 
 ## Dependencies
@@ -177,6 +178,29 @@ You can view the grpc info along with your other info at `/actuator/info` (requi
 > ````
 
 You can turn of the service listing (for both actuator and grpc) using `grpc.server.reflectionServiceEnabled=false`.
+
+## GRPC Health
+
+By default, the health endpoint will use the standard gRPC implementation for health, which does not integrate with Spring Boot Actuator.
+
+The server provides an optional integration with Actuator health information using the [gRPC Health API](https://grpc.io/docs/guides/health-checking/).
+
+This integration enables the server to respond to gRPC health checks based on the `HealthEndpoint` from Actuator, which is the same used for the web version.
+
+To enable this integration, add the following properties to your application configuration:
+
+````properties
+grpc.server.health-service.type=ACTUATOR
+````
+
+The integration allows you to check the health status for the whole service or specific health indicators, where the `service` is the key of the [`HealthIndicator`](https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html#actuator.endpoints.health.auto-configured-health-indicators).
+`Watch` is not yet supported because actuator is pull-based and does not automatically tries to determine the status of the service to notify clients.
+
+To prevent any health service from being served by the GRPC server, you can set the type to `NONE`:
+
+````properties
+grpc.server.health-service.type=NONE
+````
 
 ## Opt-Out
 

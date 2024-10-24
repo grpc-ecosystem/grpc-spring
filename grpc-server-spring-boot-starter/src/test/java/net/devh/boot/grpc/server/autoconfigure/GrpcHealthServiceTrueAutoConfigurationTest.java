@@ -21,7 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
 @SpringBootTest(classes = GrpcHealthServiceDefaultAutoConfigurationTest.TestConfig.class,
-        properties = "grpc.server.health-service-enabled=true")
+        properties = "grpc.server.health-service.type=GRPC")
 @ImportAutoConfiguration({
         GrpcServerAutoConfiguration.class,
         GrpcServerFactoryAutoConfiguration.class,
