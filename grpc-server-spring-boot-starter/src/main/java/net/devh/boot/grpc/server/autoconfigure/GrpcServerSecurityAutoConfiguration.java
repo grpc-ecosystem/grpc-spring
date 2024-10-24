@@ -25,14 +25,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.core.AuthenticationException;
 
 import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
 import net.devh.boot.grpc.server.security.check.GrpcSecurityMetadataSource;
-import net.devh.boot.grpc.server.security.interceptors.AuthenticatingServerInterceptor;
-import net.devh.boot.grpc.server.security.interceptors.AuthorizationCheckingServerInterceptor;
-import net.devh.boot.grpc.server.security.interceptors.DefaultAuthenticatingServerInterceptor;
-import net.devh.boot.grpc.server.security.interceptors.ExceptionTranslatingServerInterceptor;
+import net.devh.boot.grpc.server.security.interceptors.*;
 
 /**
  * Auto configuration class with the required beans for the spring-security configuration of the grpc server.
@@ -59,7 +57,7 @@ import net.devh.boot.grpc.server.security.interceptors.ExceptionTranslatingServe
  * @author Daniel Theuke (daniel.theuke@heuboe.de)
  */
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnBean(AuthenticationManager.class)
+@ConditionalOnBean(GrpcAuthenticationReader.class)
 @AutoConfigureAfter(SecurityAutoConfiguration.class)
 public class GrpcServerSecurityAutoConfiguration {
 
@@ -83,11 +81,29 @@ public class GrpcServerSecurityAutoConfiguration {
      * @return The authenticatingServerInterceptor bean.
      */
     @Bean
+    @ConditionalOnBean(AuthenticationManager.class)
     @ConditionalOnMissingBean(AuthenticatingServerInterceptor.class)
     public DefaultAuthenticatingServerInterceptor authenticatingServerInterceptor(
             final AuthenticationManager authenticationManager,
             final GrpcAuthenticationReader authenticationReader) {
         return new DefaultAuthenticatingServerInterceptor(authenticationManager, authenticationReader);
+    }
+
+    /**
+     * The security interceptor that handles the authentication of requests.
+     *
+     * @param grpcAuthenticationManagerResolver The authentication manager resolver used to verify the credentials.
+     * @param authenticationReader The authentication reader used to extract the credentials from the call.
+     * @return The authenticatingServerInterceptor bean.
+     */
+    @Bean
+    @ConditionalOnBean(parameterizedContainer = AuthenticationManagerResolver.class, value = GrpcServerRequest.class)
+    @ConditionalOnMissingBean(AuthenticatingServerInterceptor.class)
+    public ManagerResolverAuthenticatingServerInterceptor managerResolverAuthenticatingServerInterceptor(
+            final AuthenticationManagerResolver<GrpcServerRequest> grpcAuthenticationManagerResolver,
+            final GrpcAuthenticationReader authenticationReader) {
+        return new ManagerResolverAuthenticatingServerInterceptor(grpcAuthenticationManagerResolver,
+                authenticationReader);
     }
 
     /**

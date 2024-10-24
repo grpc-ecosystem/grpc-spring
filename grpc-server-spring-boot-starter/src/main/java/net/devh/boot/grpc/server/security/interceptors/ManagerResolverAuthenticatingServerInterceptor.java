@@ -19,7 +19,7 @@ package net.devh.boot.grpc.server.security.interceptors;
 import static java.util.Objects.requireNonNull;
 
 import org.springframework.core.annotation.Order;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -43,31 +43,35 @@ import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReade
  * {@link Contexts#interceptCall(Context, ServerCall, Metadata, ServerCallHandler)}.
  * </p>
  *
- * @author Daniel Theuke (daniel.theuke@heuboe.de)
+ * @author Sajad Mehrabi (mehrabisajad@gmail.com)
  */
 @Slf4j
 @GrpcGlobalServerInterceptor
 @Order(InterceptorOrder.ORDER_SECURITY_AUTHENTICATION)
-public class DefaultAuthenticatingServerInterceptor extends AbstractAuthenticatingServerInterceptor {
+public class ManagerResolverAuthenticatingServerInterceptor extends AbstractAuthenticatingServerInterceptor {
 
-    private final AuthenticationManager authenticationManager;
+    private final AuthenticationManagerResolver<GrpcServerRequest> authenticationManagerResolver;
 
     /**
-     * Creates a new DefaultAuthenticatingServerInterceptor with the given authentication manager and reader.
+     * Creates a new ManagerResolverAuthenticatingServerInterceptor with the given authentication manager resolver and
+     * reader.
      *
-     * @param authenticationManager The authentication manager used to verify the credentials.
+     * @param authenticationManagerResolver The authentication manager resolver used to verify the credentials.
      * @param authenticationReader The authentication reader used to extract the credentials from the call.
      */
-    public DefaultAuthenticatingServerInterceptor(final AuthenticationManager authenticationManager,
+    public ManagerResolverAuthenticatingServerInterceptor(
+            final AuthenticationManagerResolver<GrpcServerRequest> authenticationManagerResolver,
             final GrpcAuthenticationReader authenticationReader) {
         super(authenticationReader);
-        this.authenticationManager = requireNonNull(authenticationManager, "authenticationManager");
+        this.authenticationManagerResolver =
+                requireNonNull(authenticationManagerResolver, "authenticationManagerResolver");
     }
 
     @Override
-    public AuthenticationManager getAuthenticationManager(
+    protected AuthenticationManager getAuthenticationManager(
             final ServerCall<?, ?> call,
             final Metadata headers) {
-        return authenticationManager;
+        GrpcServerRequest grpcServerRequest = new GrpcServerRequest(call, headers);
+        return this.authenticationManagerResolver.resolve(grpcServerRequest);
     }
 }
