@@ -1,19 +1,3 @@
-/*
- * Copyright (c) 2016-2023 The gRPC-Spring Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package net.devh.boot.grpc.examples.observability.frontend;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -41,6 +25,10 @@ public class FrontendApplication implements CommandLineRunner {
 
     private static final Logger LOGGER = Logger.getLogger(FrontendApplication.class.getName());
 
+    // Define constants for byte array sizes
+    private static final int MIN_BYTE_ARRAY_SIZE = 10240;
+    private static final int MAX_BYTE_ARRAY_SIZE = 20480;
+
     public static void main(String[] args) {
         SpringApplication.run(FrontendApplication.class, args);
     }
@@ -49,7 +37,7 @@ public class FrontendApplication implements CommandLineRunner {
     private ExampleServiceStub stub;
 
     private void CallUnaryRpc() {
-        byte[] bytes = new byte[ThreadLocalRandom.current().nextInt(10240, 20480)];
+        byte[] bytes = new byte[ThreadLocalRandom.current().nextInt(MIN_BYTE_ARRAY_SIZE, MAX_BYTE_ARRAY_SIZE)];
         ThreadLocalRandom.current().nextBytes(bytes);
         UnaryRequest request = UnaryRequest.newBuilder().setMessage(new String(bytes)).build();
         stub.unaryRpc(request, new StreamObserver<>() {
@@ -70,7 +58,7 @@ public class FrontendApplication implements CommandLineRunner {
     }
 
     private void CallClientStreamingRpc() {
-        byte[] bytes = new byte[ThreadLocalRandom.current().nextInt(10240, 20480)];
+        byte[] bytes = new byte[ThreadLocalRandom.current().nextInt(MIN_BYTE_ARRAY_SIZE, MAX_BYTE_ARRAY_SIZE)];
         ThreadLocalRandom.current().nextBytes(bytes);
         ClientStreamingRequest request = ClientStreamingRequest.newBuilder()
                 .setMessage(new String(bytes)).build();
@@ -94,7 +82,7 @@ public class FrontendApplication implements CommandLineRunner {
     }
 
     private void CallServerStreamingRpc() {
-        byte[] bytes = new byte[ThreadLocalRandom.current().nextInt(10240, 20480)];
+        byte[] bytes = new byte[ThreadLocalRandom.current().nextInt(MIN_BYTE_ARRAY_SIZE, MAX_BYTE_ARRAY_SIZE)];
         ThreadLocalRandom.current().nextBytes(bytes);
         ServerStreamingRequest request = ServerStreamingRequest.newBuilder()
                 .setMessage(new String(bytes)).build();
@@ -115,7 +103,7 @@ public class FrontendApplication implements CommandLineRunner {
     }
 
     private void CallBidStreamingRpc() {
-        byte[] bytes = new byte[ThreadLocalRandom.current().nextInt(10240, 20480)];
+        byte[] bytes = new byte[ThreadLocalRandom.current().nextInt(MIN_BYTE_ARRAY_SIZE, MAX_BYTE_ARRAY_SIZE)];
         ThreadLocalRandom.current().nextBytes(bytes);
         BidiStreamingRequest request = BidiStreamingRequest.newBuilder()
                 .setMessage(new String(bytes)).build();
