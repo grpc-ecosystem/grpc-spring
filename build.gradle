@@ -8,13 +8,13 @@ buildscript {
         }
     }
     ext {
-        projectVersion = '3.1.0.RELEASE'
+        projectVersion = '3.2.0-SNAPSHOT'
 
         // https://github.com/grpc/grpc-java/releases
         grpcVersion = '1.63.0'
 
         // https://github.com/google/guava/releases
-        guavaVersion = '33.1.0-jre'
+        guavaVersion = '33.2.1-jre'
         // https://github.com/protocolbuffers/protobuf/releases
         protobufVersion = '3.25.3'
         protobufGradlePluginVersion = '0.9.4'
@@ -22,9 +22,9 @@ buildscript {
         // https://github.com/spring-projects/spring-boot/releases
         springBootVersion = '3.2.5'
         // https://github.com/spring-cloud/spring-cloud-release/releases
-        springCloudVersion = '2023.0.0'
+        springCloudVersion = '2023.0.1'
         // https://github.com/alibaba/spring-cloud-alibaba/releases
-        springCloudAlibabaNacosVersion = '2022.0.0.0'
+        springCloudAlibabaNacosVersion = '2023.0.1.0'
 
         lombokPluginVersion = '8.6'
         versioningPluginVersion = '3.1.0'
@@ -39,7 +39,7 @@ plugins {
     id 'java'
     id 'java-library'
     id 'org.springframework.boot' version "${springBootVersion}" apply false
-    id 'io.spring.dependency-management' version '1.1.4'
+    id 'io.spring.dependency-management' version '1.1.6'
     id 'net.nemerosa.versioning' version "${versioningPluginVersion}"
     id 'com.google.protobuf' version "${protobufGradlePluginVersion}"
     id 'io.freefair.lombok' version "${lombokPluginVersion}" apply false

@@ -32,6 +32,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.unit.DataSize;
 import org.springframework.util.unit.DataUnit;
 
+import io.grpc.CallOptions;
 import io.grpc.LoadBalancerRegistry;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.NameResolverProvider;
@@ -116,6 +117,35 @@ public class GrpcChannelProperties {
      */
     public void setAddress(final String address) {
         this.address = address == null ? null : URI.create(address);
+    }
+
+    // --------------------------------------------------
+    // defaultRequestTimeout
+    // --------------------------------------------------
+
+    private Duration defaultRequestTimeout = null;
+
+    /**
+     * Gets the default request timeout for each new call.
+     *
+     * @return The default request timeout or null
+     * @see #setDefaultRequestTimeout(Duration)
+     */
+    public Duration getDefaultRequestTimeout() {
+        return this.defaultRequestTimeout;
+    }
+
+    /**
+     * Set the default request timeout duration for new calls (on a per call basis). By default and if zero value is
+     * configured, the timeout will not be used. The default request timeout will be ignored, if a deadline has been
+     * applied manually.
+     *
+     * @param defaultRequestTimeout the default request timeout or null.
+     *
+     * @see CallOptions#withDeadlineAfter(long, TimeUnit)
+     */
+    public void setDefaultRequestTimeout(Duration defaultRequestTimeout) {
+        this.defaultRequestTimeout = defaultRequestTimeout;
     }
 
     // --------------------------------------------------
@@ -479,6 +509,9 @@ public class GrpcChannelProperties {
         }
         if (this.address == null) {
             this.address = config.address;
+        }
+        if (this.defaultRequestTimeout == null) {
+            this.defaultRequestTimeout = config.defaultRequestTimeout;
         }
         if (this.defaultLoadBalancingPolicy == null) {
             this.defaultLoadBalancingPolicy = config.defaultLoadBalancingPolicy;

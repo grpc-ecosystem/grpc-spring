@@ -223,10 +223,20 @@ public class GrpcServerProperties {
     /**
      * Whether gRPC health service is enabled or not. Defaults to {@code true}.
      *
+     * @deprecated Use {@link HealthOptions#type health type} @{@link HealthType#NONE NONE} instead.
      * @param healthServiceEnabled Whether gRPC health service is enabled.
      * @return True, if the health service is enabled. False otherwise.
      */
+    @Deprecated
     private boolean healthServiceEnabled = true;
+
+    /**
+     * Implementation of gRPC health service. Defaults the type to {@link HealthType#GRPC GRPC}.
+     *
+     * @param healthService The options for the health service.
+     * @return The type of health service to use.
+     */
+    private HealthOptions healthService = new HealthOptions();
 
     /**
      * Whether proto reflection service is enabled or not. Defaults to {@code true}.
