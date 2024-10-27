@@ -51,7 +51,6 @@ public class ActuatorGrpcHealth extends HealthGrpc.HealthImplBase {
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         } else {
-
             Status status = healthEndpoint.health().getStatus();
             HealthCheckResponse.ServingStatus result = resolveStatus(status);
             HealthCheckResponse response = HealthCheckResponse.newBuilder().setStatus(result).build();
