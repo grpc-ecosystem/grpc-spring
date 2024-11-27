@@ -31,7 +31,7 @@ buildscript {
         versionsPluginVersion = '0.51.0'
 
         // https://github.com/JetBrains/kotlin/releases
-        kotlinVersion = "1.9.23"
+        kotlinVersion = "2.1.0"
     }
 }
 
