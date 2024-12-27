@@ -397,6 +397,8 @@ public class GrpcServerProperties {
          */
         private String trustStorePassword = null;
 
+        private String bundle = null;
+
         /**
          * Specifies the cipher suite. If {@code null} or empty it will use the system's default cipher suite.
          *

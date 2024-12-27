@@ -42,7 +42,7 @@ class AbstractGrpcServerFactoryTest {
         final GrpcServerProperties properties = new GrpcServerProperties();
         properties.setReflectionServiceEnabled(false);
 
-        final NettyGrpcServerFactory serverFactory = new NettyGrpcServerFactory(properties, emptyList());
+        final NettyGrpcServerFactory serverFactory = new NettyGrpcServerFactory(properties, emptyList(), null);
 
         serverFactory.addService(new GrpcServiceDefinition("test1", ProtoReflectionService.class,
                 ProtoReflectionService.newInstance().bindService()));

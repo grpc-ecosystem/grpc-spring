@@ -32,6 +32,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.GuardedBy;
 
+import org.springframework.boot.ssl.SslBundles;
+import org.springframework.lang.Nullable;
 import org.springframework.util.unit.DataSize;
 
 import com.google.common.collect.Lists;
@@ -66,6 +68,8 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
     private final GrpcChannelsProperties properties;
     protected final GlobalClientInterceptorRegistry globalClientInterceptorRegistry;
     protected final List<GrpcChannelConfigurer> channelConfigurers;
+    @Nullable
+    protected final SslBundles sslBundles;
     /**
      * According to <a href="https://groups.google.com/forum/#!topic/grpc-io/-jA_JCiugM8">Thread safety in Grpc java
      * clients</a>: {@link ManagedChannel}s should be reused to allow connection reuse.
@@ -81,14 +85,17 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
      * @param properties The properties for the channels to create.
      * @param globalClientInterceptorRegistry The interceptor registry to use.
      * @param channelConfigurers The channel configurers to use. Can be empty.
+     * @param sslBundles Spring ssl configuration. Can be null if no bean configured.
      */
     protected AbstractChannelFactory(final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
-            final List<GrpcChannelConfigurer> channelConfigurers) {
+            final List<GrpcChannelConfigurer> channelConfigurers,
+            @Nullable final SslBundles sslBundles) {
         this.properties = requireNonNull(properties, "properties");
         this.globalClientInterceptorRegistry =
                 requireNonNull(globalClientInterceptorRegistry, "globalClientInterceptorRegistry");
         this.channelConfigurers = requireNonNull(channelConfigurers, "channelConfigurers");
+        this.sslBundles = sslBundles;
     }
 
     @Override
@@ -216,7 +223,8 @@ public abstract class AbstractChannelFactory<T extends ManagedChannelBuilder<T>>
                 || isNonNullAndNonBlank(security.getAuthorityOverride())
                 || security.getCertificateChain() != null
                 || security.getPrivateKey() != null
-                || security.getTrustCertCollection() != null) {
+                || security.getTrustCertCollection() != null
+                || isNonNullAndNonBlank(security.getBundle())) {
             throw new IllegalStateException(
                     "Security is configured but this implementation does not support security!");
         }

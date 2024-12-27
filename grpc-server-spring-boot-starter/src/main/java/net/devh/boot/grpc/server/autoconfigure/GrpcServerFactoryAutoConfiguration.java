@@ -18,11 +18,13 @@ package net.devh.boot.grpc.server.autoconfigure;
 
 import java.util.List;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.ssl.SslBundles;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -59,6 +61,7 @@ public class GrpcServerFactoryAutoConfiguration {
      * @param properties The properties used to configure the server.
      * @param serviceDiscoverer The discoverer used to identify the services that should be served.
      * @param serverConfigurers The server configurers that contain additional configuration for the server.
+     * @param sslBundles Spring ssl configuration. Can be null if no bean configured.
      * @return The shadedNettyGrpcServerFactory bean.
      */
     @ConditionalOnClass(name = {"io.grpc.netty.shaded.io.netty.channel.Channel",
@@ -68,10 +71,12 @@ public class GrpcServerFactoryAutoConfiguration {
     public ShadedNettyGrpcServerFactory shadedNettyGrpcServerFactory(
             final GrpcServerProperties properties,
             final GrpcServiceDiscoverer serviceDiscoverer,
-            final List<GrpcServerConfigurer> serverConfigurers) {
+            final List<GrpcServerConfigurer> serverConfigurers,
+            final ObjectProvider<SslBundles> sslBundles) {
 
         log.info("Detected grpc-netty-shaded: Creating ShadedNettyGrpcServerFactory");
-        final ShadedNettyGrpcServerFactory factory = new ShadedNettyGrpcServerFactory(properties, serverConfigurers);
+        final ShadedNettyGrpcServerFactory factory =
+                new ShadedNettyGrpcServerFactory(properties, serverConfigurers, sslBundles.getIfAvailable());
         for (final GrpcServiceDefinition service : serviceDiscoverer.findGrpcServices()) {
             factory.addService(service);
         }
@@ -103,6 +108,7 @@ public class GrpcServerFactoryAutoConfiguration {
      * @param properties The properties used to configure the server.
      * @param serviceDiscoverer The discoverer used to identify the services that should be served.
      * @param serverConfigurers The server configurers that contain additional configuration for the server.
+     * @param sslBundles Spring ssl configuration. Can be null if no bean configured.
      * @return The shadedNettyGrpcServerFactory bean.
      */
     @ConditionalOnMissingBean(ShadedNettyGrpcServerFactory.class)
@@ -112,10 +118,12 @@ public class GrpcServerFactoryAutoConfiguration {
     public NettyGrpcServerFactory nettyGrpcServerFactory(
             final GrpcServerProperties properties,
             final GrpcServiceDiscoverer serviceDiscoverer,
-            final List<GrpcServerConfigurer> serverConfigurers) {
+            final List<GrpcServerConfigurer> serverConfigurers,
+            final ObjectProvider<SslBundles> sslBundles) {
 
         log.info("Detected grpc-netty: Creating NettyGrpcServerFactory");
-        final NettyGrpcServerFactory factory = new NettyGrpcServerFactory(properties, serverConfigurers);
+        final NettyGrpcServerFactory factory = new NettyGrpcServerFactory(properties, serverConfigurers,
+                sslBundles.getIfAvailable());
         for (final GrpcServiceDefinition service : serviceDiscoverer.findGrpcServices()) {
             factory.addService(service);
         }
@@ -155,7 +163,7 @@ public class GrpcServerFactoryAutoConfiguration {
             final List<GrpcServerConfigurer> serverConfigurers) {
 
         log.info("'grpc.server.in-process-name' is set: Creating InProcessGrpcServerFactory");
-        final InProcessGrpcServerFactory factory = new InProcessGrpcServerFactory(properties, serverConfigurers);
+        final InProcessGrpcServerFactory factory = new InProcessGrpcServerFactory(properties);
         for (final GrpcServiceDefinition service : serviceDiscoverer.findGrpcServices()) {
             factory.addService(service);
         }

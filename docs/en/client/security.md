@@ -87,6 +87,16 @@ If you use a service identifier, there may be problems with the certificate beca
 grpc.client.__name__.security.authorityOverride=localhost
 ````
 
+If you are using [Spring's SSL Bundles](https://docs.spring.io/spring-boot/reference/features/ssl.html), you can set
+the `bundle` property instead like the following:
+
+````properties
+spring.ssl.bundle.jks.__bundle_name__.truststore.location=file:certificates/trusted-servers.jks
+#spring.ssl.bundle.jks.__bundle_name__.truststore.password=TruststorePassword
+spring.ssl.bundle.jks.__bundle_name__.truststore.type=jks
+grpc.client.__name__.security.bundle=__bundle_name__
+````
+
 ## Mutual Certificate Authentication
 
 In secure environments, you might have to authenticate yourself using a client certificate. This certificate is

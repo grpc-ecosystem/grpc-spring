@@ -57,7 +57,7 @@ public class InProcessChannelFactory extends AbstractChannelFactory<InProcessCha
     public InProcessChannelFactory(final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
             final List<GrpcChannelConfigurer> channelConfigurers) {
-        super(properties, globalClientInterceptorRegistry, channelConfigurers);
+        super(properties, globalClientInterceptorRegistry, channelConfigurers, null);
     }
 
     @Override

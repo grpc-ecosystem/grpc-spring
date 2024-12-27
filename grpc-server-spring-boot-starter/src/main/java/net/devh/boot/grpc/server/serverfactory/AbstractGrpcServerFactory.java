@@ -22,6 +22,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.boot.ssl.SslBundles;
+import org.springframework.lang.Nullable;
 import org.springframework.util.unit.DataSize;
 
 import com.google.common.collect.Lists;
@@ -46,6 +48,8 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
     private final List<GrpcServiceDefinition> serviceList = Lists.newLinkedList();
 
     protected final GrpcServerProperties properties;
+    @Nullable
+    protected final SslBundles sslBundles;
     protected final List<GrpcServerConfigurer> serverConfigurers;
 
     /**
@@ -53,10 +57,13 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
      *
      * @param properties The properties used to configure the server.
      * @param serverConfigurers The server configurers to use. Can be empty.
+     * @param sslBundles Spring ssl configuration. Can be null if no bean configured.
      */
     protected AbstractGrpcServerFactory(final GrpcServerProperties properties,
-            final List<GrpcServerConfigurer> serverConfigurers) {
+            final List<GrpcServerConfigurer> serverConfigurers,
+            @Nullable final SslBundles sslBundles) {
         this.properties = requireNonNull(properties, "properties");
+        this.sslBundles = sslBundles;
         this.serverConfigurers = requireNonNull(serverConfigurers, "serverConfigurers");
     }
 

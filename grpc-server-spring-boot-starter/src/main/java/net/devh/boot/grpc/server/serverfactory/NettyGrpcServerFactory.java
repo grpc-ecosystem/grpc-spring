@@ -22,6 +22,7 @@ import static net.devh.boot.grpc.server.config.GrpcServerProperties.ANY_IP_ADDRE
 
 import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +30,10 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.springframework.boot.ssl.SslBundle;
+import org.springframework.boot.ssl.SslBundles;
 import org.springframework.core.io.Resource;
+import org.springframework.lang.Nullable;
 
 import com.google.common.net.InetAddresses;
 
@@ -57,10 +61,12 @@ public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServe
      *
      * @param properties The properties used to configure the server.
      * @param serverConfigurers The server configurers to use. Can be empty.
+     * @param sslBundles Spring ssl configuration. Can be null if no bean configured.
      */
     public NettyGrpcServerFactory(final GrpcServerProperties properties,
-            final List<GrpcServerConfigurer> serverConfigurers) {
-        super(properties, serverConfigurers);
+            final List<GrpcServerConfigurer> serverConfigurers,
+            @Nullable final SslBundles sslBundles) {
+        super(properties, serverConfigurers, sslBundles);
     }
 
     @Override
@@ -112,18 +118,32 @@ public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServe
         final Security security = this.properties.getSecurity();
         if (security.isEnabled()) {
             // Provided server certificates
-            final SslContextBuilder sslContextBuilder = newServerSslContextBuilder(security);
+            final SslContextBuilder sslContextBuilder = newServerSslContextBuilder(security, sslBundles);
 
             // Accepted client certificates
-            configureAcceptedClientCertificates(security, sslContextBuilder);
+            configureAcceptedClientCertificates(security, sslContextBuilder, sslBundles);
 
             // Other configuration
             if (security.getCiphers() != null && !security.getCiphers().isEmpty()) {
                 sslContextBuilder.ciphers(security.getCiphers());
+
+            } else if (sslBundles != null && security.getBundle() != null && !security.getBundle().isEmpty()) {
+                final SslBundle sslBundle = sslBundles.getBundle(security.getBundle());
+                final String[] ciphers = sslBundle.getOptions().getCiphers();
+                if (ciphers != null && ciphers.length != 0) {
+                    sslContextBuilder.ciphers(Arrays.asList(ciphers));
+                }
             }
 
             if (security.getProtocols() != null && security.getProtocols().length > 0) {
                 sslContextBuilder.protocols(security.getProtocols());
+
+            } else if (sslBundles != null && security.getBundle() != null && !security.getBundle().isEmpty()) {
+                final SslBundle sslBundle = sslBundles.getBundle(security.getBundle());
+                final String[] protocols = sslBundle.getOptions().getEnabledProtocols();
+                if (protocols != null && protocols.length != 0) {
+                    sslContextBuilder.protocols(protocols);
+                }
             }
 
             try {
@@ -141,10 +161,12 @@ public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServe
      * @return The newly created SslContextBuilder.
      */
     // Keep this in sync with ShadedNettyGrpcServerFactory#newServerSslContextBuilder
-    protected static SslContextBuilder newServerSslContextBuilder(final Security security) {
+    protected static SslContextBuilder newServerSslContextBuilder(final Security security,
+            @Nullable final SslBundles sslBundles) {
         try {
             final Resource privateKey = security.getPrivateKey();
             final Resource keyStore = security.getKeyStore();
+            final String bundleName = security.getBundle();
 
             if (privateKey != null) {
                 final Resource certificateChain =
@@ -158,6 +180,11 @@ public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServe
             } else if (keyStore != null) {
                 final KeyManagerFactory keyManagerFactory = KeyStoreUtils.loadKeyManagerFactory(
                         security.getKeyStoreFormat(), keyStore, security.getKeyStorePassword());
+                return GrpcSslContexts.configure(SslContextBuilder.forServer(keyManagerFactory));
+
+            } else if (sslBundles != null && bundleName != null && !bundleName.isEmpty()) {
+                final SslBundle sslBundle = sslBundles.getBundle(bundleName);
+                final KeyManagerFactory keyManagerFactory = sslBundle.getManagers().getKeyManagerFactory();
                 return GrpcSslContexts.configure(SslContextBuilder.forServer(keyManagerFactory));
 
             } else {
@@ -177,7 +204,8 @@ public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServe
     // Keep this in sync with ShadedNettyGrpcServerFactory#configureAcceptedClientCertificates
     protected static void configureAcceptedClientCertificates(
             final Security security,
-            final SslContextBuilder sslContextBuilder) {
+            final SslContextBuilder sslContextBuilder,
+            @Nullable final SslBundles sslBundles) {
 
         if (security.getClientAuth() != ClientAuth.NONE) {
             sslContextBuilder.clientAuth(of(security.getClientAuth()));
@@ -185,6 +213,7 @@ public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServe
             try {
                 final Resource trustCertCollection = security.getTrustCertCollection();
                 final Resource trustStore = security.getTrustStore();
+                final String bundleName = security.getBundle();
 
                 if (trustCertCollection != null) {
                     try (InputStream trustCertCollectionStream = trustCertCollection.getInputStream()) {
@@ -195,6 +224,10 @@ public class NettyGrpcServerFactory extends AbstractGrpcServerFactory<NettyServe
                     final TrustManagerFactory trustManagerFactory = KeyStoreUtils.loadTrustManagerFactory(
                             security.getTrustStoreFormat(), trustStore, security.getTrustStorePassword());
                     sslContextBuilder.trustManager(trustManagerFactory);
+
+                } else if (sslBundles != null && bundleName != null && !bundleName.isEmpty()) {
+                    final SslBundle sslBundle = sslBundles.getBundle(bundleName);
+                    sslContextBuilder.trustManager(sslBundle.getManagers().getTrustManagerFactory());
 
                 } else {
                     // Use system default

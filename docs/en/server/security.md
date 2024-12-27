@@ -70,6 +70,18 @@ grpc.server.security.privateKey=file:certificates/server.key
 If you want to know what options are supported here, read
 [Spring's Resource docs](https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#resources-resourceloader).
 
+If you are using [Spring's SSL Bundles](https://docs.spring.io/spring-boot/reference/features/ssl.html), you can set
+the `bundle` property instead like the following:
+
+````properties
+spring.ssl.bundle.jks.server.key.alias=server
+spring.ssl.bundle.jks.server.keystore.location=file:certificates/server.jks
+#spring.ssl.bundle.jks.server.keystore.password=KeystorePassword
+spring.ssl.bundle.jks.server.keystore.type=jks
+grpc.server.security.enabled=true
+grpc.server.security.bundle=server
+````
+
 For the corresponding client configuration read the [Client Security](../client/security.md) page.
 
 ## Mutual Certificate Authentication

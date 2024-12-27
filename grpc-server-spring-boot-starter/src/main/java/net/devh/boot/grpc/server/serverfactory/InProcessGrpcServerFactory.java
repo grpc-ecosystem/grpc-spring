@@ -72,7 +72,7 @@ public class InProcessGrpcServerFactory extends AbstractGrpcServerFactory<InProc
      */
     public InProcessGrpcServerFactory(final String name, final GrpcServerProperties properties,
             final List<GrpcServerConfigurer> serverConfigurers) {
-        super(properties, serverConfigurers);
+        super(properties, serverConfigurers, null);
         this.name = requireNonNull(name, "name");
     }
 

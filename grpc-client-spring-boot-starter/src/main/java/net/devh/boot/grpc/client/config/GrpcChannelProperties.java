@@ -866,6 +866,18 @@ public class GrpcChannelProperties {
 
         // --------------------------------------------------
 
+        private String bundle;
+
+        public String getBundle() {
+            return this.bundle;
+        }
+
+        public void setBundle(String bundle) {
+            this.bundle = bundle;
+        }
+
+        // --------------------------------------------------
+
         private String authorityOverride = null;
 
         /**
@@ -993,6 +1005,9 @@ public class GrpcChannelProperties {
             }
             if (this.trustStorePassword == null) {
                 this.trustStorePassword = config.trustStorePassword;
+            }
+            if (this.bundle == null) {
+                this.bundle = config.bundle;
             }
             if (this.authorityOverride == null) {
                 this.authorityOverride = config.authorityOverride;

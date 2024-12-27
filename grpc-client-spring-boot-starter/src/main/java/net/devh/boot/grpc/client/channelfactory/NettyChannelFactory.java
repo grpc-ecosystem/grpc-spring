@@ -21,13 +21,17 @@ import static net.devh.boot.grpc.common.util.GrpcUtils.DOMAIN_SOCKET_ADDRESS_SCH
 
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.springframework.boot.ssl.SslBundle;
+import org.springframework.boot.ssl.SslBundles;
 import org.springframework.core.io.Resource;
+import org.springframework.lang.Nullable;
 
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyChannelBuilder;
@@ -62,11 +66,13 @@ public class NettyChannelFactory extends AbstractChannelFactory<NettyChannelBuil
      * @param properties The properties for the channels to create.
      * @param globalClientInterceptorRegistry The interceptor registry to use.
      * @param channelConfigurers The channel configurers to use. Can be empty.
+     * @param sslBundles Spring ssl configuration. Can be null if no bean configured.
      */
     public NettyChannelFactory(final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
-            final List<GrpcChannelConfigurer> channelConfigurers) {
-        super(properties, globalClientInterceptorRegistry, channelConfigurers);
+            final List<GrpcChannelConfigurer> channelConfigurers,
+            @Nullable final SslBundles sslBundles) {
+        super(properties, globalClientInterceptorRegistry, channelConfigurers, sslBundles);
     }
 
     @Override
@@ -109,15 +115,29 @@ public class NettyChannelFactory extends AbstractChannelFactory<NettyChannelBuil
             }
 
             final SslContextBuilder sslContextBuilder = GrpcSslContexts.forClient();
-            configureProvidedClientCertificate(security, sslContextBuilder);
-            configureAcceptedServerCertificates(security, sslContextBuilder);
+            configureProvidedClientCertificate(security, sslContextBuilder, sslBundles);
+            configureAcceptedServerCertificates(security, sslContextBuilder, sslBundles);
 
             if (security.getCiphers() != null && !security.getCiphers().isEmpty()) {
                 sslContextBuilder.ciphers(security.getCiphers());
+
+            } else if (sslBundles != null && security.getBundle() != null && !security.getBundle().isEmpty()) {
+                final SslBundle sslBundle = sslBundles.getBundle(security.getBundle());
+                final String[] ciphers = sslBundle.getOptions().getCiphers();
+                if (ciphers != null && ciphers.length != 0) {
+                    sslContextBuilder.ciphers(Arrays.asList(ciphers));
+                }
             }
 
             if (security.getProtocols() != null && security.getProtocols().length > 0) {
                 sslContextBuilder.protocols(security.getProtocols());
+
+            } else if (sslBundles != null && security.getBundle() != null && !security.getBundle().isEmpty()) {
+                final SslBundle sslBundle = sslBundles.getBundle(security.getBundle());
+                final String[] protocols = sslBundle.getOptions().getEnabledProtocols();
+                if (protocols != null && protocols.length != 0) {
+                    sslContextBuilder.protocols(protocols);
+                }
             }
 
             try {
@@ -133,14 +153,17 @@ public class NettyChannelFactory extends AbstractChannelFactory<NettyChannelBuil
      *
      * @param security The security configuration to use.
      * @param sslContextBuilder The ssl context builder to configure.
+     * @param sslBundles Spring ssl configuration. Can be null if no bean configured.
      */
     // Keep this in sync with ShadedNettyChannelFactory#configureProvidedClientCertificate
     protected static void configureProvidedClientCertificate(final Security security,
-            final SslContextBuilder sslContextBuilder) {
+            final SslContextBuilder sslContextBuilder,
+            @Nullable final SslBundles sslBundles) {
         if (security.isClientAuthEnabled()) {
             try {
                 final Resource privateKey = security.getPrivateKey();
                 final Resource keyStore = security.getKeyStore();
+                final String bundleName = security.getBundle();
 
                 if (privateKey != null) {
                     final Resource certificateChain =
@@ -154,6 +177,11 @@ public class NettyChannelFactory extends AbstractChannelFactory<NettyChannelBuil
                 } else if (keyStore != null) {
                     final KeyManagerFactory keyManagerFactory = KeyStoreUtils.loadKeyManagerFactory(
                             security.getKeyStoreFormat(), keyStore, security.getKeyStorePassword());
+                    sslContextBuilder.keyManager(keyManagerFactory);
+
+                } else if (sslBundles != null && bundleName != null && !bundleName.isEmpty()) {
+                    SslBundle sslBundle = sslBundles.getBundle(bundleName);
+                    final KeyManagerFactory keyManagerFactory = sslBundle.getManagers().getKeyManagerFactory();
                     sslContextBuilder.keyManager(keyManagerFactory);
 
                 } else {
@@ -170,13 +198,16 @@ public class NettyChannelFactory extends AbstractChannelFactory<NettyChannelBuil
      *
      * @param security The security configuration to use.
      * @param sslContextBuilder The ssl context builder to configure.
+     * @param sslBundles Spring ssl configuration. Can be null if no bean configured.
      */
     // Keep this in sync with ShadedNettyChannelFactory#configureAcceptedServerCertificates
     protected static void configureAcceptedServerCertificates(final Security security,
-            final SslContextBuilder sslContextBuilder) {
+            final SslContextBuilder sslContextBuilder,
+            @Nullable final SslBundles sslBundles) {
         try {
             final Resource trustCertCollection = security.getTrustCertCollection();
             final Resource trustStore = security.getTrustStore();
+            final String bundleName = security.getBundle();
 
             if (trustCertCollection != null) {
                 try (InputStream trustCertCollectionStream = trustCertCollection.getInputStream()) {
@@ -186,6 +217,11 @@ public class NettyChannelFactory extends AbstractChannelFactory<NettyChannelBuil
             } else if (trustStore != null) {
                 final TrustManagerFactory trustManagerFactory = KeyStoreUtils.loadTrustManagerFactory(
                         security.getTrustStoreFormat(), trustStore, security.getTrustStorePassword());
+                sslContextBuilder.trustManager(trustManagerFactory);
+
+            } else if (sslBundles != null && bundleName != null && !bundleName.isEmpty()) {
+                final SslBundle sslBundle = sslBundles.getBundle(bundleName);
+                final TrustManagerFactory trustManagerFactory = sslBundle.getManagers().getTrustManagerFactory();
                 sslContextBuilder.trustManager(trustManagerFactory);
 
             } else {

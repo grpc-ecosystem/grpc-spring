@@ -19,12 +19,14 @@ package net.devh.boot.grpc.client.autoconfigure;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.ssl.SslBundles;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -60,7 +62,8 @@ import net.devh.boot.grpc.common.autoconfigure.GrpcCommonCodecAutoConfiguration;
 @Slf4j
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
-@AutoConfigureAfter(name = "org.springframework.cloud.client.CommonsClientAutoConfiguration",
+@AutoConfigureAfter(name = {"org.springframework.cloud.client.CommonsClientAutoConfiguration",
+        "org.springframework.boot.autoconfigure.ssl.SslAutoConfiguration"},
         value = GrpcCommonCodecAutoConfiguration.class)
 public class GrpcClientAutoConfiguration {
 
@@ -152,11 +155,12 @@ public class GrpcClientAutoConfiguration {
     GrpcChannelFactory inProcessOrShadedNettyGrpcChannelFactory(
             final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
-            final List<GrpcChannelConfigurer> channelConfigurers) {
+            final List<GrpcChannelConfigurer> channelConfigurers,
+            final ObjectProvider<SslBundles> sslBundles) {
 
         log.info("Detected grpc-netty-shaded: Creating ShadedNettyChannelFactory + InProcessChannelFactory");
-        final ShadedNettyChannelFactory channelFactory =
-                new ShadedNettyChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
+        final ShadedNettyChannelFactory channelFactory = new ShadedNettyChannelFactory(properties,
+                globalClientInterceptorRegistry, channelConfigurers, sslBundles.getIfAvailable());
         final InProcessChannelFactory inProcessChannelFactory =
                 new InProcessChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
         return new InProcessOrAlternativeChannelFactory(properties, inProcessChannelFactory, channelFactory);
@@ -171,11 +175,13 @@ public class GrpcClientAutoConfiguration {
     GrpcChannelFactory inProcessOrNettyGrpcChannelFactory(
             final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
-            final List<GrpcChannelConfigurer> channelConfigurers) {
+            final List<GrpcChannelConfigurer> channelConfigurers,
+            final ObjectProvider<SslBundles> sslBundles) {
 
         log.info("Detected grpc-netty: Creating NettyChannelFactory + InProcessChannelFactory");
         final NettyChannelFactory channelFactory =
-                new NettyChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
+                new NettyChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers,
+                        sslBundles.getIfAvailable());
         final InProcessChannelFactory inProcessChannelFactory =
                 new InProcessChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
         return new InProcessOrAlternativeChannelFactory(properties, inProcessChannelFactory, channelFactory);
@@ -190,10 +196,12 @@ public class GrpcClientAutoConfiguration {
     GrpcChannelFactory shadedNettyGrpcChannelFactory(
             final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
-            final List<GrpcChannelConfigurer> channelConfigurers) {
+            final List<GrpcChannelConfigurer> channelConfigurers,
+            final ObjectProvider<SslBundles> sslBundles) {
 
         log.info("Detected grpc-netty-shaded: Creating ShadedNettyChannelFactory");
-        return new ShadedNettyChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
+        return new ShadedNettyChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers,
+                sslBundles.getIfAvailable());
     }
 
     // Then try the normal netty channel factory
@@ -204,10 +212,12 @@ public class GrpcClientAutoConfiguration {
     GrpcChannelFactory nettyGrpcChannelFactory(
             final GrpcChannelsProperties properties,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
-            final List<GrpcChannelConfigurer> channelConfigurers) {
+            final List<GrpcChannelConfigurer> channelConfigurers,
+            final ObjectProvider<SslBundles> sslBundles) {
 
         log.info("Detected grpc-netty: Creating NettyChannelFactory");
-        return new NettyChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers);
+        return new NettyChannelFactory(properties, globalClientInterceptorRegistry, channelConfigurers,
+                sslBundles.getIfAvailable());
     }
 
     // Finally try the in process channel factory
