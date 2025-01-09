@@ -30,6 +30,7 @@ import com.google.protobuf.Empty;
 
 import io.grpc.Context;
 import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.security.interceptors.AuthenticatingServerInterceptor;
@@ -46,6 +47,26 @@ public class TestServiceImpl extends TestServiceImplBase {
 
     public TestServiceImpl() {
         log.info("Created TestServiceImpl");
+    }
+
+    @Override
+    public void statusRuntimeException(Empty request, StreamObserver<SomeType> responseObserver) {
+        throw new StatusRuntimeException(Status.PERMISSION_DENIED);
+    }
+
+    @Override
+    public StreamObserver<SomeType> statusRuntimeExceptionBidi(StreamObserver<SomeType> responseObserver) {
+        throw new StatusRuntimeException(Status.PERMISSION_DENIED);
+    }
+
+    @Override
+    public StreamObserver<SomeType> statusRuntimeExceptionDrain(StreamObserver<Empty> responseObserver) {
+        throw new StatusRuntimeException(Status.PERMISSION_DENIED);
+    }
+
+    @Override
+    public void statusRuntimeExceptionSupply(Empty request, StreamObserver<SomeType> responseObserver) {
+        throw new StatusRuntimeException(Status.PERMISSION_DENIED);
     }
 
     @Override
