@@ -74,7 +74,11 @@ abstract class AbstractSecurityTest {
                 .add("unprotected-default",
                         () -> assertNormalCallSuccess(this.serviceStub, this.blockingStub, this.futureStub))
                 .add("unprotected-noPerm",
-                        () -> assertNormalCallSuccess(this.noPermStub, this.noPermBlockingStub, this.noPermFutureStub));
+                        () -> assertNormalCallSuccess(this.noPermStub, this.noPermBlockingStub, this.noPermFutureStub))
+                .add("unprotected-runtimeException-default",
+                        () -> assertStatusRuntimeExceptionCallFailure(this.serviceStub, this.blockingStub,
+                                this.futureStub,
+                                PERMISSION_DENIED));
     }
 
     protected void assertNormalCallSuccess(final TestServiceStub serviceStub,
@@ -96,6 +100,16 @@ abstract class AbstractSecurityTest {
                 TestServiceFutureStub::normal, expectedCode);
     }
 
+    protected void assertStatusRuntimeExceptionCallFailure(final TestServiceStub serviceStub,
+            final TestServiceBlockingStub blockingStub,
+            final TestServiceFutureStub futureStub,
+            final Code expectedCode) {
+        assertUnaryFailingMethod(serviceStub,
+                TestServiceStub::statusRuntimeException, blockingStub,
+                TestServiceBlockingStub::statusRuntimeException, futureStub,
+                TestServiceFutureStub::statusRuntimeException, expectedCode);
+    }
+
     /**
      * Tests with unary call.
      *
@@ -109,6 +123,9 @@ abstract class AbstractSecurityTest {
                         () -> assertUnaryCallSuccess(this.serviceStub, this.blockingStub, this.futureStub))
                 .add("unary-noPerm",
                         () -> assertUnaryCallFailure(this.noPermStub, this.noPermBlockingStub, this.noPermFutureStub,
+                                PERMISSION_DENIED))
+                .add("unary-runtimeException-default",
+                        () -> assertUnaryStatusRuntimeExceptionCallFailure(this.serviceStub, this.blockingStub, this.futureStub,
                                 PERMISSION_DENIED));
     }
 
@@ -131,6 +148,17 @@ abstract class AbstractSecurityTest {
                 TestServiceFutureStub::secure, expectedCode);
     }
 
+    protected void assertUnaryStatusRuntimeExceptionCallFailure(final TestServiceStub serviceStub,
+            final TestServiceBlockingStub blockingStub,
+            final TestServiceFutureStub futureStub,
+            final Code expectedCode) {
+        assertUnaryFailingMethod(serviceStub,
+                TestServiceStub::statusRuntimeException, blockingStub,
+                TestServiceBlockingStub::statusRuntimeException, futureStub,
+                TestServiceFutureStub::statusRuntimeException, expectedCode);
+    }
+
+
     /**
      * Tests with client streaming call.
      *
@@ -142,7 +170,12 @@ abstract class AbstractSecurityTest {
         return DynamicTestCollection.create()
                 .add("clientStreaming-default", () -> assertClientStreamingCallSuccess(this.serviceStub))
                 .add("clientStreaming-noPerm",
-                        () -> assertClientStreamingCallFailure(this.noPermStub, PERMISSION_DENIED));
+                        () -> assertClientStreamingCallFailure(this.noPermStub, PERMISSION_DENIED))
+                .add("clientStreaming-runtimeException-default",
+                        () -> assertClientStreamingStatusRuntimeExceptionCallFailure(this.serviceStub,
+                                PERMISSION_DENIED))
+
+        ;
     }
 
     protected void assertClientStreamingCallSuccess(final TestServiceStub serviceStub) {
@@ -160,6 +193,15 @@ abstract class AbstractSecurityTest {
         assertFutureThrowsStatus(expectedCode, responseRecorder, 15, SECONDS);
     }
 
+    protected void assertClientStreamingStatusRuntimeExceptionCallFailure(final TestServiceStub serviceStub,
+            final Code expectedCode) {
+        final StreamRecorder<Empty> responseRecorder = StreamRecorder.create();
+        final StreamObserver<SomeType> requestObserver = serviceStub.statusRuntimeExceptionDrain(responseRecorder);
+        // Let the server throw an exception if he receives that (assert security):
+        sendAndComplete(requestObserver, "explode");
+        assertFutureThrowsStatus(expectedCode, responseRecorder, 15, SECONDS);
+    }
+
     /**
      * Tests with server streaming call.
      *
@@ -172,7 +214,11 @@ abstract class AbstractSecurityTest {
                 .add("serverStreaming-default",
                         () -> assertServerStreamingCallSuccess(this.serviceStub))
                 .add("serverStreaming-noPerm",
-                        () -> assertServerStreamingCallFailure(this.noPermStub, PERMISSION_DENIED));
+                        () -> assertServerStreamingCallFailure(this.noPermStub, PERMISSION_DENIED))
+                .add("serverStreaming-runtimeException-default",
+                        () -> assertServerStreamingStatusRuntimeExceptionCallFailure(this.serviceStub,
+                                PERMISSION_DENIED));
+
     }
 
     protected void assertServerStreamingCallSuccess(final TestServiceStub testStub) {
@@ -187,6 +233,13 @@ abstract class AbstractSecurityTest {
         assertFutureThrowsStatus(expectedCode, streamRecorder, 15, SECONDS);
     }
 
+    protected void assertServerStreamingStatusRuntimeExceptionCallFailure(final TestServiceStub serviceStub,
+            final Code expectedCode) {
+        final StreamRecorder<SomeType> streamRecorder = StreamRecorder.create();
+        serviceStub.statusRuntimeExceptionSupply(EMPTY, streamRecorder);
+        assertFutureThrowsStatus(expectedCode, streamRecorder, 15, SECONDS);
+    }
+
     /**
      * Tests with bidirectional streaming call.
      *
@@ -197,7 +250,9 @@ abstract class AbstractSecurityTest {
     DynamicTestCollection bidiStreamingCallTests() {
         return DynamicTestCollection.create()
                 .add("bidiStreaming-default", () -> assertBidiCallSuccess(this.serviceStub))
-                .add("bidiStreaming-noPerm", () -> assertBidiCallFailure(this.noPermStub, PERMISSION_DENIED));
+                .add("bidiStreaming-noPerm", () -> assertBidiCallFailure(this.noPermStub, PERMISSION_DENIED))
+                .add("bidiStreaming-runtimeException-default",
+                        () -> assertBidiStatusRuntimeExceptionCallFailure(this.serviceStub, PERMISSION_DENIED));
     }
 
     protected void assertBidiCallSuccess(final TestServiceStub testStub) {
@@ -213,6 +268,15 @@ abstract class AbstractSecurityTest {
         sendAndComplete(requestObserver, "explode");
         assertFutureThrowsStatus(expectedCode, responseRecorder, 15, SECONDS);
     }
+
+    protected void assertBidiStatusRuntimeExceptionCallFailure(final TestServiceStub serviceStub,
+            final Code expectedCode) {
+        final StreamRecorder<SomeType> responseRecorder = StreamRecorder.create();
+        final StreamObserver<SomeType> requestObserver = serviceStub.statusRuntimeExceptionBidi(responseRecorder);
+        sendAndComplete(requestObserver, "explode");
+        assertFutureThrowsStatus(expectedCode, responseRecorder, 15, SECONDS);
+    }
+
 
     // -------------------------------------
 

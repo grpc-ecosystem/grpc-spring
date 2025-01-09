@@ -10,7 +10,7 @@ service TestService {
 
     // Returns version information
     rpc normal(google.protobuf.Empty) returns (SomeType) {}
-    
+
     // Fails with an error
     rpc error(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
@@ -31,6 +31,18 @@ service TestService {
 
     // Secured method with both multiple requests and answers
     rpc secureBidi(stream SomeType) returns (stream SomeType) {}
+
+    // method
+    rpc statusRuntimeException(google.protobuf.Empty) returns (SomeType) {}
+
+    //  method with only multiple requests
+    rpc statusRuntimeExceptionDrain(stream SomeType) returns (google.protobuf.Empty) {}
+
+    // method with only multiple answers
+    rpc statusRuntimeExceptionSupply(google.protobuf.Empty) returns (stream SomeType) {}
+
+    // method with both multiple requests and answers
+    rpc statusRuntimeExceptionBidi(stream SomeType) returns (stream SomeType) {}
 
 }
 
