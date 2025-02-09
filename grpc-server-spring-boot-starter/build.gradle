@@ -31,6 +31,8 @@ dependencies {
     api 'io.grpc:grpc-services'
     api 'io.grpc:grpc-api'
 
+    implementation 'build.buf.protoc-gen-validate:pgv-java-stub:0.9.1'
+
     testImplementation 'io.grpc:grpc-testing'
     testImplementation('org.springframework.boot:spring-boot-starter-test')
 }
