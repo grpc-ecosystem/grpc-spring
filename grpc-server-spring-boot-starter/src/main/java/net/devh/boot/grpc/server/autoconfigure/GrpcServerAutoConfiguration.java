@@ -61,6 +61,7 @@ public class GrpcServerAutoConfiguration {
      *
      * @return The grpc request scope bean.
      */
+    @ConditionalOnMissingBean
     @Bean
     public static GrpcRequestScope grpcRequestScope() {
         return new GrpcRequestScope();
