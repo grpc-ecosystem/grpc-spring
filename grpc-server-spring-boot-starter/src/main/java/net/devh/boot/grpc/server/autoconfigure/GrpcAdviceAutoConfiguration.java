@@ -17,6 +17,7 @@
 package net.devh.boot.grpc.server.autoconfigure;
 
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -67,6 +68,7 @@ public class GrpcAdviceAutoConfiguration {
         return new GrpcAdviceExceptionHandler(grpcExceptionHandlerMethodResolver);
     }
 
+    @ConditionalOnMissingBean
     @GrpcGlobalServerInterceptor
     @Order(InterceptorOrder.ORDER_GLOBAL_EXCEPTION_HANDLING)
     public GrpcExceptionInterceptor grpcAdviceExceptionInterceptor(
