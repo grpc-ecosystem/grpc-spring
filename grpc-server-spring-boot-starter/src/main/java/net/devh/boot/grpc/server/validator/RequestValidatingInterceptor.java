@@ -25,7 +25,9 @@ import com.netflix.discovery.shared.Pair;
 
 import io.grpc.*;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.common.util.InterceptorOrder;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
+import org.springframework.core.annotation.Order;
 
 /**
  * {@code RequestValidatingInterceptor} is a gRPC server interceptor that validates incoming requests using the
@@ -41,6 +43,7 @@ import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
  * @since 02/10/25
  */
 @GrpcGlobalServerInterceptor
+@Order(InterceptorOrder.REQUEST_VALIDATION)
 @Slf4j
 public class RequestValidatingInterceptor implements ServerInterceptor, BaseValidator {
 
