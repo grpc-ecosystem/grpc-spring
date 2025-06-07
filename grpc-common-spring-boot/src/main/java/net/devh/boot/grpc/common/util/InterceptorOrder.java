@@ -63,6 +63,10 @@ public final class InterceptorOrder {
      */
     public static final int ORDER_SECURITY_AUTHORISATION = 5200;
     /**
+     * The order value for request validation interceptor.
+     */
+    public static final int REQUEST_VALIDATION = 6000;
+    /**
      * The order value for interceptors that should be executed last. This is equivalent to
      * {@link Ordered#LOWEST_PRECEDENCE}. This is the default for interceptors without specified priority.
      */
