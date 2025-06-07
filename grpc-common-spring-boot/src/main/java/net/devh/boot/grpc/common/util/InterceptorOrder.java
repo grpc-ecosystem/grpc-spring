@@ -63,7 +63,7 @@ public final class InterceptorOrder {
      */
     public static final int ORDER_SECURITY_AUTHORISATION = 5200;
     /**
-     * The order value for request validation interceptors.
+     * The order value for request validation interceptor.
      */
     public static final int REQUEST_VALIDATION = 6000;
     /**
