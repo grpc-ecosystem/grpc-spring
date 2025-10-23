@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.ConfigAttribute;
@@ -31,6 +32,7 @@ import org.springframework.security.core.Authentication;
 import io.grpc.MethodDescriptor;
 import io.grpc.ServerCall;
 import io.grpc.ServiceDescriptor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A {@link GrpcSecurityMetadataSource} for manual configuration. For each {@link MethodDescriptor gRPC method} a
@@ -43,13 +45,34 @@ import io.grpc.ServiceDescriptor;
  *
  * @author Daniel Theuke (daniel.theuke@aequitas-software.de)
  */
+@Slf4j
 public final class ManualGrpcSecurityMetadataSource extends AbstractGrpcSecurityMetadataSource {
 
+    // Use String (fullMethodName) as key to avoid MethodDescriptor identity issues with gRPC 1.75.0+
+    private final Map<String, Collection<ConfigAttribute>> accessMapByName = new HashMap<>();
+    // Keep legacy map for backward compatibility
     private final Map<MethodDescriptor<?, ?>, Collection<ConfigAttribute>> accessMap = new HashMap<>();
     private Collection<ConfigAttribute> defaultAttributes = wrap(AccessPredicate.denyAll());
 
     private Collection<ConfigAttribute> getAttributes(final MethodDescriptor<?, ?> method) {
-        return this.accessMap.getOrDefault(method, this.defaultAttributes);
+        // Try name-based lookup first (more reliable with gRPC 1.75.0+)
+        final String fullMethodName = method.getFullMethodName();
+        Collection<ConfigAttribute> attrs = this.accessMapByName.get(fullMethodName);
+
+        if (attrs != null) {
+            log.debug("Found security config for method by name: {}", fullMethodName);
+            return attrs;
+        }
+
+        // Fallback to object-based lookup for backward compatibility
+        attrs = this.accessMap.get(method);
+        if (attrs != null) {
+            log.debug("Found security config for method by descriptor: {}", fullMethodName);
+            return attrs;
+        }
+
+        log.debug("No security config found for method {}, using default", fullMethodName);
+        return this.defaultAttributes;
     }
 
     @Override
@@ -59,7 +82,10 @@ public final class ManualGrpcSecurityMetadataSource extends AbstractGrpcSecurity
 
     @Override
     public Collection<ConfigAttribute> getAllConfigAttributes() {
-        return this.accessMap.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
+        // Combine both maps to ensure we get all config attributes
+        return Stream.concat(
+                this.accessMap.values().stream(),
+                this.accessMapByName.values().stream()).flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
     /**
@@ -76,6 +102,7 @@ public final class ManualGrpcSecurityMetadataSource extends AbstractGrpcSecurity
         final Collection<ConfigAttribute> wrappedPredicate = wrap(predicate);
         for (final MethodDescriptor<?, ?> method : service.getMethods()) {
             this.accessMap.put(method, wrappedPredicate);
+            this.accessMapByName.put(method.getFullMethodName(), wrappedPredicate);
         }
         return this;
     }
@@ -92,6 +119,7 @@ public final class ManualGrpcSecurityMetadataSource extends AbstractGrpcSecurity
         requireNonNull(service, "service");
         for (final MethodDescriptor<?, ?> method : service.getMethods()) {
             this.accessMap.remove(method);
+            this.accessMapByName.remove(method.getFullMethodName());
         }
         return this;
     }
@@ -106,7 +134,9 @@ public final class ManualGrpcSecurityMetadataSource extends AbstractGrpcSecurity
      */
     public ManualGrpcSecurityMetadataSource set(final MethodDescriptor<?, ?> method, final AccessPredicate predicate) {
         requireNonNull(method, "method");
-        this.accessMap.put(method, wrap(predicate));
+        final Collection<ConfigAttribute> wrappedPredicate = wrap(predicate);
+        this.accessMap.put(method, wrappedPredicate);
+        this.accessMapByName.put(method.getFullMethodName(), wrappedPredicate);
         return this;
     }
 
@@ -120,6 +150,7 @@ public final class ManualGrpcSecurityMetadataSource extends AbstractGrpcSecurity
     public ManualGrpcSecurityMetadataSource remove(final MethodDescriptor<?, ?> method) {
         requireNonNull(method, "method");
         this.accessMap.remove(method);
+        this.accessMapByName.remove(method.getFullMethodName());
         return this;
     }
 
