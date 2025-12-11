@@ -30,6 +30,8 @@ import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
 import org.springframework.context.event.EventListener;
 
+import com.google.common.net.InetAddresses;
+
 import io.grpc.Attributes.Key;
 import io.grpc.NameResolver;
 import io.grpc.NameResolverProvider;
@@ -75,6 +77,29 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
     @Override
     public NameResolver newNameResolver(final URI targetUri, final NameResolver.Args args) {
         if (DISCOVERY_SCHEME.equals(targetUri.getScheme())) {
+            String path = targetUri.getPath();
+            if (path == null || path.length() <= 1 || !path.startsWith("/")) {
+                throw new IllegalArgumentException("Incorrectly formatted target uri; "
+                        + "expected: '" + DISCOVERY_SCHEME + ":[//]/<service-name>'; "
+                        + "but was '" + targetUri.toString() + "'");
+            }
+            String cleanName = path.substring(1);
+            String hostPart = cleanName;
+            int lastColonIndex = cleanName.lastIndexOf(':');
+            if (lastColonIndex >= 0) {
+                hostPart = cleanName.substring(0, lastColonIndex);
+            }
+            if (hostPart.isEmpty()) {
+                hostPart = cleanName;
+            }
+            if (InetAddresses.isInetAddress(hostPart)) {
+                throw new IllegalArgumentException(String.format(
+                        "Service name '%s' looks like an IP address. " +
+                                "DiscoveryClient does not support direct IP resolution. " +
+                                "If you are manually creating a gRPC Channel, please use '.forTarget(\"dns:///%s\")' " +
+                                "instead of '.forAddress()' to bypass service discovery and connect directly.",
+                        cleanName, cleanName));
+            }
             final String serviceName = targetUri.getPath();
             if (serviceName == null || serviceName.length() <= 1 || !serviceName.startsWith("/")) {
                 throw new IllegalArgumentException("Incorrectly formatted target uri; "
