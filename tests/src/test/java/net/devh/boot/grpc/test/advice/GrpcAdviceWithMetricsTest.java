@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2026 The gRPC-Spring Authors
+ * Copyright (c) 2016-2023 The gRPC-Spring Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import net.devh.boot.grpc.server.advice.GrpcAdvice;
 import net.devh.boot.grpc.server.advice.GrpcExceptionHandler;
@@ -96,11 +97,45 @@ class GrpcAdviceWithMetricsTest {
         });
         assertEquals(INVALID_ARGUMENT, exception.getStatus());
 
-        var meter = Optional.ofNullable(meterRegistry.find(metricName)
-                .tags(statusCodeTagName, Status.Code.INVALID_ARGUMENT.name()).timer())
-                .orElseGet(() -> fail("expected meter with statusCode to be registered"));
-
+        var meter = waitForMeter(metricName, statusCodeTagName);
         assertEquals(1L, meter.count());
+    }
+
+    @ParameterizedTest
+    @MethodSource("metricsFlavourProvider")
+    void shouldRegisterMetricsStatusCodeForServerStreamingWithResponseObserverOnError(String metricName,
+            String statusCodeTagName) {
+        var exception = assertThrows(StatusRuntimeException.class, () -> {
+            var iterator = blockingStub.secureSupply(Empty.getDefaultInstance());
+            while (iterator.hasNext()) {
+                iterator.next();
+            }
+        });
+        assertEquals(INVALID_ARGUMENT, exception.getStatus());
+
+        var meter = waitForMeter(metricName, statusCodeTagName);
+        assertEquals(1L, meter.count());
+    }
+
+    private Timer waitForMeter(String metricName, String statusCodeTagName) {
+        // Poll for up to 200ms for metrics to be recorded
+        // ObservationGrpcServerInterceptor may record metrics asynchronously
+        for (int i = 0; i < 20; i++) {
+            var meter = meterRegistry.find(metricName)
+                    .tags(statusCodeTagName, Status.Code.INVALID_ARGUMENT.name()).timer();
+            if (meter != null && meter.count() > 0) {
+                return meter;
+            }
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new AssertionError("Interrupted while waiting for meter", e);
+            }
+        }
+        return Optional.ofNullable(meterRegistry.find(metricName)
+                .tags(statusCodeTagName, Status.Code.INVALID_ARGUMENT.name()).timer())
+                .orElseGet(() -> fail("Expected meter with statusCode to be registered within 200ms"));
     }
 
 
@@ -120,6 +155,13 @@ class GrpcAdviceWithMetricsTest {
             @Override
             public void error(Empty request, StreamObserver<Empty> responseObserver) {
                 throw new RuntimeException("a simulated error");
+            }
+
+            @Override
+            public void secureSupply(Empty request,
+                    StreamObserver<net.devh.boot.grpc.test.proto.SomeType> responseObserver) {
+                // Server streaming - use responseObserver.onError()
+                responseObserver.onError(new RuntimeException("server streaming error via responseObserver.onError"));
             }
         }
     }
