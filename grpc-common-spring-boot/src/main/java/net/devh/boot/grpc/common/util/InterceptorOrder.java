@@ -45,7 +45,7 @@ public final class InterceptorOrder {
     /**
      * The order value for global exception handling interceptors.
      */
-    public static final int ORDER_GLOBAL_EXCEPTION_HANDLING = 0;
+    public static final int ORDER_GLOBAL_EXCEPTION_HANDLING = 3000;
     /**
      * The order value for tracing and metrics collecting interceptors.
      */
